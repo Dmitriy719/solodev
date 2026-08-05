@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1116">
+<title>SoloDev — кабинет фрилансера</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#0e1116;--card:#171b22;--card2:#1f2530;--txt:#e8ecf3;--mut:#8b94a7;--acc:#6c8cff;--acc2:#9d6cff;--ok:#3ecf8e;--warn:#ffb454;--bad:#ff6b6b;--line:#242b36}
+*{box-sizing:border-box;margin:0;padding:0}
+button{font:inherit;cursor:pointer}
+body{background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;padding-bottom:40px}
+header{position:sticky;top:0;z-index:5;background:rgba(14,17,22,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+header b{font-size:17px}
+header span{color:var(--mut);font-size:12px}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:8px 13px;border-radius:20px;background:var(--card);color:var(--mut);border:1px solid var(--line);font-size:13px;white-space:nowrap}
+.tab.on{background:var(--acc);color:#fff;border-color:transparent}
+main{padding:14px;max-width:760px;margin:0 auto}
+h2{font-size:18px;margin:4px 0 10px}
+h3{margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stat span{display:block;font-size:12px;color:var(--mut)}
+.stat b{font-size:19px}
+.mut{color:var(--mut);font-size:13px}
+.plus{color:var(--ok)}.minus{color:var(--bad)}
+.note{background:var(--card2);border-radius:8px;padding:8px;margin:6px 0;font-size:13px;color:var(--mut)}
+.warn{background:#241d0e;border-color:#5a4a1e}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row.spread{justify-content:space-between}
+.row select,.row input,.row button{margin:0}
+.row select{flex:1;max-width:180px;width:auto}
+.row input{flex:1}
+.row2{display:flex;gap:10px}.row2>*{flex:1}
+label{font-size:12px;color:var(--mut);display:block;margin-top:4px}
+input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 12px;font-size:15px;margin:4px 0 10px;font-family:inherit}
+input[type=checkbox],input[type=date],input[type=time],input[type=number]{width:auto}
+textarea{resize:vertical}
+.btn{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 15px;font-size:14px;font-weight:600}
+.btn.sec{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad);padding:10px 12px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px}
+.chip{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--mut);border-radius:16px;padding:6px 12px;font-size:12px}
+.chip.on{background:var(--acc);color:#fff;border-color:transparent}
+.bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.skill{margin:10px 0}
+#tview{font-size:44px;font-weight:700;letter-spacing:2px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0}
+.cal-h{text-align:center;color:var(--mut);font-size:11px;padding:2px 0}
+.cal-c{background:var(--card);border:1px solid var(--line);border-radius:8px;min-height:48px;padding:4px 2px;font-size:12px;text-align:center}
+.cal-c.today{border-color:var(--acc);background:#1c2333}
+.cal-c.over{border-color:var(--bad)}
+details summary{font-weight:700;cursor:pointer}
+.docprint{background:#fff;color:#000;border-radius:10px;padding:18px;white-space:pre-wrap;font-size:14px;line-height:1.55;min-height:200px;outline:none}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:20}
+#modal.on{display:flex}
+.m-card{background:var(--card);width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px;border-top:1px solid var(--line)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#fff;color:#000;padding:8px 16px;border-radius:20px;font-size:13px;z-index:50}
+.hello{color:var(--mut);margin:2px 0 12px}
+@media print{
+ body *{visibility:hidden}
+ #printarea,#printarea *{visibility:visible}
+ #printarea{position:fixed;left:0;top:0;width:100%;border-radius:0!important}
+}
+</style>
+</head>
+<body>
+<header><b>⚡ SoloDev</b><div class="row" style="gap:10px"><span id="hdr"></span><button id="lockbtn" class="btn sec" style="display:none;padding:6px 10px" onclick="lockNow()">🔒</button></div></header>
+<nav id="tabs"></nav>
+<main id="view"></main>
+<div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
+
+<script>
+/* ================= ДАННЫЕ ================= */
+const KEY='solodev_v1';
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const today=()=>new Date().toISOString().slice(0,10);
+const loc=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate=d=>d?d.split('-').reverse().join('.'):'';
+const CURS={RUB:'₽',BYN:'Br',CNY:'¥',USD:'$'};
+const FLAG={ru:'🇷🇺',by:'🇧🇾',cn:'🇨🇳'};
+const CNAME={ru:'Россия',by:'Беларусь',cn:'Китай'};
+const MOOD_E={1:'😞',2:'😕',3:'😐',4:'🙂',5:'😄'};
+const SOURCES=['Холодный поиск','Telegram','Рекомендация','Хабр/VC','LinkedIn','WeChat','Радар (боли)','Другое'];
+const CLIENT_ST=['Новый','Контакт','Переговоры','Оффер','Договор','В работе','Завершён','Отказ'];
+const PROP_ST=['Черновик','Отправлен','Принят','Отклонён','Договор'];
+const PROJ_ST=['Предоплата','Разработка','Тестирование','Сдача','Оплачен','Пауза'];
+const PAIN_ST=['Гипотеза','Подтверждена','В работе','Пустая'];
+const CH_ST=['Планируется','В работе','Работает','Пауза'];
+const DOC_STATUS=['Черновик','Отправлен','Подписан'];
+const LEVELS=['изучаю','новичок','уверенно','опытный','эксперт','ментор'];
+const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+const DAYS_W=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const DEF_TPL='08:30 | Утро: зарядка, завтрак, без работы\n09:30 | Глубокая работа: главный проект (спринт 1)\n11:30 | Перерыв: чай, разминка\n12:00 | Глубокая работа: главный проект (спринт 2)\n14:00 | Обед и отдых без телефона\n15:00 | Коммуникации: сообщения, почта, созвоны\n16:00 | Привлечение: 1 письмо/контакт (Радар)\n16:30 | Финальный спринт: задачи проекта\n18:00 | 🔒 Конец рабочего дня: итоги, лог времени\n18:30 | Спорт или прогулка\n19:30 | Семейный ужин, без телефона\n21:00 | Дом, семья, отдых\n22:30 | Подготовка ко сну';
+const DEF_FAM=['Время с семьёй (без телефона)','Дом: дела и уют','Спорт или прогулка','Отдых / хобби'];
+
+function seed(){return{
+ profile:{name:'',spec:'Frontend / веб-разработка',country:'ru',currency:'RUB',rate:1500,rates:{BYN:30,CNY:11.5,USD:90},bank:{}},
+ clients:[],proposals:[],projects:[],fin:[],tasks:[],sessions:[],plan:[],blocks:[],invoices:[],docLog:[],partners:[],wellbeing:[],
+ mails:0,pinHash:null,dayTpl:DEF_TPL,
+ balance:{limitMin:360,items:[...DEF_FAM],checks:{}},
+ tax:{regime:'ru_npdu',limit:2400000,calc:{ind:'',ent:''}},
+ pains:[{id:uid(),seg:'Малый бизнес: доставка еды',pain:'Сайт медленный, заказы теряются на мобильных',demand:4,src:'Чат предпринимателей в Telegram',sol:'Лёгкий лендинг + форма заказа, ускорение загрузки',status:'Гипотеза',note:''}],
+ channels:[{name:'Telegram-чаты ниши',action:'5 полезных контактов в день',status:'В работе',leads:0},{name:'Холодные письма',action:'10 писем в неделю с кейсом',status:'Планируется',leads:0}],
+ avatar:{who:'',pain:'',fear:'',obj:'',trigger:'',where:''},
+ skills:[{n:'HTML/CSS',l:4},{n:'JavaScript',l:3},{n:'TypeScript',l:2},{n:'React',l:3},{n:'Vue',l:2},{n:'Node.js',l:2},{n:'Figma → вёрстка',l:3}],
+ goals:[]};}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+let db=(()=>{const s=seed(),l=load();let d=l?{...s,...l,profile:{...s.profile,...(l.profile||{}),bank:{...((l.profile&&l.profile.bank)||{})}},tax:{...s.tax,...(l.tax||{}),calc:{...((l.tax&&l.tax.calc)||{})}}}:s;
+ ['pains','channels','tasks','sessions','plan','blocks','invoices','docLog','partners','wellbeing'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});
+ d.avatar={who:'',pain:'',fear:'',obj:'',trigger:'',where:'',...(d.avatar||{})};
+ d.balance={limitMin:360,items:[...DEF_FAM],checks:{},...(d.balance||{})};
+ if(!Array.isArray(d.balance.items)||!d.balance.items.length)d.balance.items=[...DEF_FAM];
+ d.balance.checks=d.balance.checks||{};
+ if(typeof d.mails!=='number')d.mails=0;
+ d.pinHash=d.pinHash||null;
+ if(!d.dayTpl)d.dayTpl=DEF_TPL;
+ return d})();
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+
+/* ================= PIN-ЗАМОК ================= */
+let locked=!!db.pinHash;
+async function hashPin(pin){
+ const s='solodev:'+pin;
+ if(window.crypto&&crypto.subtle){
+  try{const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}catch(e){}
+ }
+ let h=5381;for(let i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))>>>0}
+ return 'f'+h.toString(16);
+}
+function rLock(){return `<div style="max-width:340px;margin:60px auto;text-align:center">
+ <div style="font-size:44px">🔒</div><h3>SoloDev</h3>
+ <p class="mut">Введите PIN-код</p>
+ <input type="password" id="pinin" inputmode="numeric" autocomplete="off" maxlength="8"
+  style="text-align:center;font-size:26px;letter-spacing:10px"
+  onkeydown="if(event.key==='Enter')tryUnlock()">
+ <button class="btn" style="width:100%" onclick="tryUnlock()">Войти</button>
+ <p class="mut" style="margin-top:12px">Забыли PIN? Доступ вернёт только сброс данных браузера (данные будут утеряны).</p></div>`}
+async function tryUnlock(){const el=document.getElementById('pinin');const v=el.value;
+ if(!v)return;
+ const h=await hashPin(v);
+ if(h===db.pinHash){locked=false;render();toast('С возвращением!')}
+ else{toast('Неверный PIN');el.value='';el.focus()}}
+function lockNow(){locked=true;render()}
+async function setPin(){const a=document.getElementById('pin1').value,b=document.getElementById('pin2').value;
+ if(!/^\d{4,8}$/.test(a))return toast('PIN: от 4 до 8 цифр');
+ if(a!==b)return toast('PIN-коды не совпадают');
+ db.pinHash=await hashPin(a);save();render();toast('PIN установлен')}
+async function removePinFlow(){const v=prompt('Введите текущий PIN');if(v===null)return;
+ if(await hashPin(v)===db.pinHash){db.pinHash=null;save();render();toast('PIN удалён')}
+ else toast('Неверный PIN')}
+async function changePinFlow(){const cur=prompt('Текущий PIN');if(cur===null)return;
+ if(await hashPin(cur)!==db.pinHash)return toast('Неверный PIN');
+ const a=prompt('Новый PIN (4–8 цифр)');if(!a)return;
+ if(!/^\d{4,8}$/.test(a))return toast('PIN: от 4 до 8 цифр');
+ const b=prompt('Повторите новый PIN');if(a!==b)return toast('PIN-коды не совпадают');
+ db.pinHash=await hashPin(a);save();toast('PIN изменён')}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&db.pinHash&&!locked){locked=true;render()}});
+
+/* ================= УТИЛИТЫ ================= */
+function toRub(a,c){return c==='RUB'?a:a*(db.profile.rates[c]||1)}
+function fromRub(r,c){return c==='RUB'?r:r/(db.profile.rates[c]||1)}
+function fmt(n,c){return (Math.round((n||0)*100)/100).toLocaleString('ru-RU')+' '+(CURS[c]||c)}
+function money(rub){return fmt(fromRub(rub,db.profile.currency),db.profile.currency)}
+function finMonth(){const m=today().slice(0,7);let i=0,e=0;db.fin.forEach(f=>{if(f.date.startsWith(m)){const r=toRub(f.amt,f.cur);f.type==='in'?i+=r:e+=r}});return{inc:i,exp:e}}
+function monday(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return loc(x)}
+function shiftDate(d,n){const x=new Date(d+'T00:00:00');x.setDate(x.getDate()+n);return loc(x)}
+function workedOn(d){return db.sessions.filter(s=>s.date===d).reduce((a,s)=>a+s.min,0)}
+const mmss=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+const hm=m=>m>=60?`${Math.floor(m/60)} ч ${m%60} м`:`${m} м`;
+const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1900)}
+async function copyText(t){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}toast('Скопировано')}
+function openModal(h){document.getElementById('mcard').innerHTML=h;document.getElementById('modal').classList.add('on')}
+function closeModal(){document.getElementById('modal').classList.remove('on')}
+const empty=t=>`<div class="card mut">${t}</div>`;
+
+/* ================= НАВИГАЦИЯ ================= */
+const TABS=[['dash','📊 Главная'],['radar','🎯 Радар'],['clients','👥 Клиенты'],['props','✉️ Офферы'],['proj','📁 Проекты'],['plan','📋 План'],['time','⏱ Время'],['fin','💰 Финансы'],['tax','🧾 Налоги'],['law','⚖️ Юрист'],['dev','🚀 Рост'],['set','⚙️ Настройки']];
+let tab='dash',cFilter='Все';
+function rTabs(){document.getElementById('tabs').innerHTML=TABS.map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="go('${k}')">${l}</button>`).join('')}
+function go(k){tab=k;rTabs();render();window.scrollTo(0,0)}
+
+/* ================= ДАШБОРД ================= */
+function rDash(){
+ const{inc,exp}=finMonth();
+ const leads=db.clients.filter(c=>['Новый','Контакт','Переговоры','Оффер'].includes(c.status)).length;
+ const over=db.projects.filter(p=>p.deadline&&p.deadline<today()&&!['Оплачен','Пауза'].includes(p.stage)).length;
+ const invOver=db.invoices.filter(v=>v.status==='Выставлен'&&v.due&&v.due<today()).length;
+ const worked=workedOn(today()),lim=db.balance.limitMin,overW=worked>lim;
+ const fam=(db.balance.checks[today()]||[]).filter(Boolean).length;
+ const wT=db.wellbeing.find(w=>w.date===today());
+ const m=MONTHS[+today().slice(5,7)-1];
+ let h=`<div class="hello">Привет, <b>${esc(db.profile.name||'коллега')}</b>! ${esc(db.profile.spec)} ${wT?MOOD_E[wT.mood]||'':''}</div>
+ <div class="grid">
+  <div class="card stat"><span>Доход, ${m}</span><b class="plus">${money(inc)}</b></div>
+  <div class="card stat"><span>Расходы, ${m}</span><b class="minus">${money(exp)}</b></div>
+  <div class="card stat"><span>Прибыль, ${m}</span><b>${money(inc-exp)}</b></div>
+  <div class="card stat"><span>Лиды в воронке</span><b>${leads}</b></div>
+  <div class="card stat"><span>Работа сегодня</span><b class="${overW?'minus':''}">${hm(worked)} <span class="mut">/ ${hm(lim)}</span></b></div>
+  <div class="card stat"><span>Семья и дом</span><b>${fam}/${db.balance.items.length}</b></div>
+ </div>`;
+ if(overW)h+=`<div class="card warn">🛑 Переработка! Завершайте рабочие задачи — дальше время семьи и отдыха.</div>`;
+ if(invOver)h+=`<div class="card warn">💰 Просроченных счетов: ${invOver} — напомните заказчикам об оплате.</div>`;
+ if(db.tax.regime==='ru_npdu')h+=`<div class="card warn">🧾 НПД: чек клиенту — сразу после оплаты в «Мой налог», уплата налога — до 28-го числа следующего месяца.</div>`;
+ h+=`<div class="card"><b>Быстрые действия</b><div class="row" style="margin-top:8px">
+ <button class="btn" onclick="go('plan')">📋 План дня</button>
+ <button class="btn sec" onclick="openDocWizard()">📄 Документ</button>
+ <button class="btn sec" onclick="go('radar')">📈 Воронка</button>
+ <button class="btn sec" onclick="openInvModal()">🧾 Счёт</button></div></div>`;
+ return h;
+}
+
+/* ================= РАДАР + ВОРОНКА ================= */
+function funnelCard(){
+ const tot=db.clients.length;
+ const cont=db.clients.filter(c=>c.status!=='Новый').length;
+ const sent=db.proposals.filter(p=>p.status!=='Черновик').length;
+ const acc=db.proposals.filter(p=>['Принят','Договор'].includes(p.status)).length;
+ const deal=db.clients.filter(c=>['Договор','В работе','Завершён'].includes(c.status)).length;
+ const paid=db.projects.filter(p=>p.stage==='Оплачен').length;
+ const src={};db.clients.forEach(c=>{const k=c.source||'Другое';src[k]=src[k]||{l:0,d:0};src[k].l++;if(['Договор','В работе','Завершён'].includes(c.status))src[k].d++});
+ return `<div class="card"><b>📈 Воронка привлечения</b>
+ <div class="row" style="margin-top:6px"><span class="mut">Писем/контактов отправлено: <b>${db.mails}</b></span><button class="btn sec" style="padding:6px 10px" onclick="db.mails++;save();render()">+1</button></div>
+ <div class="mut" style="margin-top:8px">📨 Отправлено: ${db.mails} → лидов: ${tot} (${pct(tot,db.mails)})</div>
+ <div class="mut">👥 Лидов: ${tot} → в диалоге и дальше: ${cont} (${pct(cont,tot)})</div>
+ <div class="mut">✉️ Офферов отправлено: ${sent} → принято: ${acc} (${pct(acc,sent)})</div>
+ <div class="mut">🤝 Сделок: ${deal} → проектов оплачено: ${paid}</div>
+ ${Object.keys(src).length?`<label style="margin-top:8px">По источникам (лиды → сделки):</label>`+Object.keys(src).map(k=>`<div class="mut">• ${esc(k)}: лидов ${src[k].l}, сделок ${src[k].d} (${pct(src[k].d,src[k].l)})</div>`).join(''):''}
+ <p class="mut" style="margin-top:6px">Ориентиры: холодные письма дают ответ 5–15%, оффер → сделка 20–40%. Масштабируйте канал с лучшей конверсией, слабые — чините или закрывайте.</p></div>`}
+function rPains(){
+ let h=`<div class="row spread"><h2>Радар: боли и потребности</h2><button class="btn" onclick="openPainModal()">+ Боль</button></div>`;
+ h+=funnelCard();
+ h+=`<div class="card mut">Фиксируйте, что болит у будущих заказчиков, и превращайте в офферы и письма. Кнопка ✍️ на боли — готовые холодные письма под сегмент.</div>`;
+ const list=[...db.pains].sort((a,b)=>b.demand-a.demand);
+ if(!list.length)h+=empty('Добавьте первую гипотезу: сегмент + боль.');
+ list.forEach(p=>{h+=`<div class="card">
+  <div class="row spread"><b>${esc(p.seg)}</b><span class="chip on" style="padding:4px 10px">${'★'.repeat(p.demand)}${'☆'.repeat(5-p.demand)}</span></div>
+  <div>${esc(p.pain)}</div>
+  ${p.sol?`<div class="note">💡 Решение: ${esc(p.sol)}</div>`:''}
+  <div class="mut">${p.status}${p.src?` · источник: ${esc(p.src)}`:''}${p.note?` · ${esc(p.note)}`:''}</div>
+  <div class="row" style="margin-top:6px">
+   <select onchange="setPain('${p.id}',this.value)">${PAIN_ST.map(s=>`<option ${s===p.status?'selected':''}>${s}</option>`).join('')}</select>
+   <button class="btn sec" onclick="openCold('${p.id}')">✍️</button>
+   <button class="btn sec" onclick="painToProp('${p.id}')">→ Оффер</button>
+   <button class="btn sec" onclick="openPainModal('${p.id}')">✏️</button>
+   <button class="btn danger" onclick="delPain('${p.id}')">✕</button>
+  </div></div>`});
+ const a=db.avatar;
+ h+=`<div class="card"><b>👤 Портрет идеального заказчика</b>
+ <label>Кто (сегмент)</label><input value="${esc(a.who)}" oninput="db.avatar.who=this.value;save()">
+ <label>Главная боль</label><input value="${esc(a.pain)}" oninput="db.avatar.pain=this.value;save()">
+ <label>Чего боится</label><input value="${esc(a.fear)}" oninput="db.avatar.fear=this.value;save()">
+ <label>Главные возражения</label><input value="${esc(a.obj)}" oninput="db.avatar.obj=this.value;save()">
+ <label>Крючки/триггеры для оффера</label><input value="${esc(a.trigger)}" oninput="db.avatar.trigger=this.value;save()">
+ <label>Где обитает (каналы)</label><input value="${esc(a.where)}" oninput="db.avatar.where=this.value;save()"></div>`;
+ h+=`<div class="card"><b>📣 Каналы привлечения</b>
+ <div class="mut">Идеи: профильные Telegram-чаты и вакансии, холодные письма студиям/бизнесу, статьи на Хабр/VC, кейсы в портфолио, рекомендации, LinkedIn, WeChat для Китая.</div>`;
+ db.channels.forEach((c,i)=>{h+=`<div class="row" style="margin-top:8px;gap:6px">
+  <div style="flex:1;min-width:120px"><b>${esc(c.name)}</b><div class="mut">${esc(c.action||'')} · лидов: ${c.leads}</div></div>
+  <button class="btn sec" onclick="chLead(${i})">+1</button>
+  <select style="max-width:130px;width:auto" onchange="setCh(${i},this.value)">${CH_ST.map(s=>`<option ${s===c.status?'selected':''}>${s}</option>`).join('')}</select>
+  <button class="btn danger" onclick="delCh(${i})">✕</button></div>`});
+ h+=`<div class="row" style="margin-top:10px"><input id="ch_name" placeholder="Канал"><input id="ch_act" placeholder="Действие"><button class="btn" onclick="addCh()">+</button></div></div>`;
+ return h;
+}
+function openPainModal(id){const p=id?db.pains.find(x=>x.id===id):{seg:'',pain:'',demand:3,src:'',sol:'',note:''};
+ openModal(`<h3>${id?'Боль / потребность':'Новая боль / потребность'}</h3>
+<label>Сегмент (кто заказчик)</label><input id="pn_seg" value="${esc(p.seg)}" placeholder="Владельцы кафе, стартапы, продавцы маркетплейсов…">
+<label>Боль / потребность</label><textarea id="pn_pain" rows="2">${esc(p.pain)}</textarea>
+<label>Спрос (1–5)</label><select id="pn_dem">${[1,2,3,4,5].map(n=>`<option ${p.demand===n?'selected':''} value="${n}">${'★'.repeat(n)}</option>`).join('')}</select>
+<label>Где заметили (источник)</label><input id="pn_src" value="${esc(p.src)}">
+<label>Наше решение</label><textarea id="pn_sol" rows="2">${esc(p.sol)}</textarea>
+<label>Заметка</label><input id="pn_note" value="${esc(p.note)}">
+<div class="row"><button class="btn" onclick="savePain('${id||''}')">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
+function savePain(id){const seg=document.getElementById('pn_seg').value.trim();if(!seg)return toast('Укажите сегмент');
+ const o={seg,pain:document.getElementById('pn_pain').value.trim(),demand:+document.getElementById('pn_dem').value,src:document.getElementById('pn_src').value.trim(),sol:document.getElementById('pn_sol').value.trim(),note:document.getElementById('pn_note').value.trim()};
+ if(id){Object.assign(db.pains.find(x=>x.id===id)||{},o)}else{db.pains.unshift({id:uid(),status:'Гипотеза',...o})}
+ save();closeModal();render();toast('Сохранено')}
+function setPain(id,s){const p=db.pains.find(x=>x.id===id);if(p){p.status=s;save()}}
+function delPain(id){if(confirm('Удалить?')){db.pains=db.pains.filter(p=>p.id!==id);save();render()}}
+function painToProp(id){const p=db.pains.find(x=>x.id===id);if(p)openPropModal('',p.pain,p.sol)}
+function addCh(){const n=document.getElementById('ch_name').value.trim();if(!n)return;db.channels.push({name:n,action:document.getElementById('ch_act').value.trim(),status:'Планируется',leads:0});save();render()}
+function setCh(i,s){db.channels[i].status=s;save()}
+function chLead(i){db.channels[i].leads++;save();render();toast('Лид записан — добавьте его в «Клиенты»')}
+function delCh(i){db.channels.splice(i,1);save();render()}
+function openCold(pid){const p=db.pains.find(x=>x.id===pid);if(!p)return;
+ const pr=db.profile,name=pr.name||'',spec=pr.spec||'разработчик';
+ const sol=p.sol||'быстрое и аккуратное решение под вашу задачу';
+ const short=`Здравствуйте!
+Вижу, что для «${p.seg}» часто актуальна проблема: ${p.pain}
+Я ${spec}, решаю это так: ${sol}
+Могу за 1 день подготовить предложение под вашу ситуацию — интересно обсудить?
+${name}`;
+ const long=`Тема: ${p.seg} — как решить «${p.pain}»
+
+Здравствуйте!
+
+Меня зовут ${name}, я ${spec}. Часто работаю с нишей «${p.seg}».
+
+Типичная ситуация: ${p.pain} Обычно это приводит к потере клиентов, времени или денег.
+
+Что предлагаю:
+${sol}
+
+Как работаем:
+1. Короткий созвон или переписка — уточняю задачу (15 минут).
+2. За 1–2 дня — план и точная стоимость.
+3. Предоплата 50%, договор, чек после оплаты.
+
+Если актуально — пришлю примеры работ. Если нет — извините за беспокойство.
+
+С уважением,
+${name}`;
+ const follow=`Здравствуйте! Писал(а) вам по поводу «${p.pain}». Понимаю, что сейчас может быть не время. Если станет актуально: я ${spec}, решаю это так — ${sol}. Хорошего дня!
+${name}`;
+ openModal(`<h3>✍️ Холодные письма: ${esc(p.seg)}</h3>
+ <label>Короткое (Telegram / WeChat)</label><textarea id="cold1" rows="6">${esc(short)}</textarea>
+ <div class="row"><button class="btn sec" onclick="copyText(document.getElementById('cold1').value)">📋 Копировать</button></div>
+ <label>Полное (email)</label><textarea id="cold2" rows="12">${esc(long)}</textarea>
+ <div class="row"><button class="btn sec" onclick="copyText(document.getElementById('cold2').value)">📋 Копировать</button></div>
+ <label>Фоллоу-ап (через 3–4 дня молчания)</label><textarea id="cold3" rows="4">${esc(follow)}</textarea>
+ <div class="row"><button class="btn sec" onclick="copyText(document.getElementById('cold3').value)">📋 Копировать</button><button class="btn" onclick="closeModal()">Готово</button></div>
+ <p class="mut">Отправили письмо — нажмите «+1» в воронке выше. Отклики фиксируйте в «Клиентах» и каналах.</p>`)}
+
+/* ================= КЛИЕНТЫ ================= */
+function rClients(){
+ let h=`<div class="row spread"><h2>Клиенты и лиды</h2><button class="btn" onclick="openClientModal()">+ Лид</button></div>
+ <div class="chips">${['Все',...CLIENT_ST].map(c=>`<button class="chip ${cFilter===c?'on':''}" onclick="cFilter='${c}';render()">${c}</button>`).join('')}</div>`;
+ const list=db.clients.filter(c=>cFilter==='Все'||c.status===cFilter);
+ if(!list.length)h+=empty('Пусто. Добавьте первый лид — например, с Радара или из канала привлечения.');
+ list.forEach(c=>{h+=`<div class="card">
+  <div class="row spread"><b>${FLAG[c.country]||''} ${esc(c.name)}</b><span class="mut">${c.budget?fmt(c.budget,c.cur):''}</span></div>
+  <div class="mut">${esc(c.company||'—')}${c.source?` · ${esc(c.source)}`:''}${c.contact?` · ${esc(c.contact)}`:''}</div>
+  ${c.note?`<div class="note">${esc(c.note)}</div>`:''}
+  <div class="row" style="margin-top:6px">
+   <select onchange="setClient('${c.id}',this.value)">${CLIENT_ST.map(s=>`<option ${s===c.status?'selected':''}>${s}</option>`).join('')}</select>
+   <button class="btn sec" onclick="openPropModal('${esc(c.name)}')">✉️</button>
+   <button class="btn danger" onclick="delClient('${c.id}')">✕</button>
+  </div></div>`});
+ return h;
+}
+function openClientModal(){openModal(`<h3>Новый клиент / лид</h3>
+<label>Имя / контактное лицо *</label><input id="c_name">
+<label>Компания</label><input id="c_company">
+<div class="row2"><div><label>Страна</label><select id="c_country"><option value="ru">🇷🇺 Россия</option><option value="by">🇧🇾 Беларусь</option><option value="cn">🇨🇳 Китай</option></select></div>
+<div><label>Источник</label><select id="c_src">${SOURCES.map(s=>`<option>${s}</option>`).join('')}</select></div></div>
+<label>Контакт (tg / wx / email / телефон)</label><input id="c_contact">
+<div class="row2"><div><label>Бюджет (оценка)</label><input type="number" id="c_budget"></div>
+<div><label>Валюта</label><select id="c_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div></div>
+<label>Заметка (боль клиента — из Радара)</label><textarea id="c_note" rows="2"></textarea>
+<div class="row"><button class="btn" onclick="addClient()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
+function addClient(){const n=document.getElementById('c_name').value.trim();if(!n)return toast('Укажите имя');
+ db.clients.unshift({id:uid(),name:n,company:document.getElementById('c_company').value.trim(),country:document.getElementById('c_country').value,source:document.getElementById('c_src').value,contact:document.getElementById('c_contact').value.trim(),budget:+document.getElementById('c_budget').value||0,cur:document.getElementById('c_cur').value,status:'Новый',note:document.getElementById('c_note').value.trim()});
+ save();closeModal();render();toast('Лид добавлен')}
+function setClient(id,s){const c=db.clients.find(x=>x.id===id);if(c){c.status=s;save()}}
+function delClient(id){if(confirm('Удалить клиента?')){db.clients=db.clients.filter(c=>c.id!==id);save();render()}}
+
+/* ================= ОФФЕРЫ ================= */
+function rProps(){
+ let h=`<div class="row spread"><h2>Офферы / КП</h2><button class="btn" onclick="openPropModal()">+ Оффер</button></div>`;
+ if(!db.proposals.length)h+=empty('Создайте КП вручную или из боли на Радаре (кнопка «→ Оффер»).');
+ db.proposals.forEach(p=>{h+=`<div class="card">
+ <b>${esc(p.client)}</b> <span class="mut">· ${esc(p.task||'без описания')}</span>
+ <div class="mut">${p.date} · ${fmt(p.price,p.cur)} · ${p.days} дн. · ${p.status}</div>
+ <div class="row" style="margin-top:6px">
+  <select onchange="setProp('${p.id}',this.value)">${PROP_ST.map(s=>`<option ${s===p.status?'selected':''}>${s}</option>`).join('')}</select>
+  <button class="btn sec" onclick="copyProp('${p.id}')">📋 Текст</button>
+  <button class="btn danger" onclick="delProp('${p.id}')">✕</button>
+ </div></div>`});
+ return h;
+}
+function openPropModal(client='',task='',scope=''){openModal(`<h3>Коммерческое предложение</h3>
+<label>Клиент</label><input id="p_client" value="${esc(client)}">
+<label>Задача клиента (его боль)</label><input id="p_task" value="${esc(task)}" placeholder="Например: лендинг для доставки еды">
+<label>Что предлагаем (по пунктам)</label><textarea id="p_scope" rows="4">${esc(scope)}</textarea>
+<div class="row2"><div><label>Стоимость</label><input type="number" id="p_price"></div>
+<div><label>Валюта</label><select id="p_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div>
+<div><label>Срок, дн.</label><input type="number" id="p_days" value="14"></div></div>
+<div class="row"><button class="btn" onclick="addProp()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
+function addProp(){const c=document.getElementById('p_client').value.trim();if(!c)return toast('Укажите клиента');
+ db.proposals.unshift({id:uid(),date:today(),client:c,task:document.getElementById('p_task').value.trim(),scope:document.getElementById('p_scope').value.trim(),price:+document.getElementById('p_price').value||0,cur:document.getElementById('p_cur').value,days:+document.getElementById('p_days').value||0,status:'Черновик'});
+ save();closeModal();go('props');toast('Оффер создан — скопируйте текст и отправьте клиенту')}
+function genPropText(p){const pr=db.profile;
+ return `Здравствуйте!
+
+Меня зовут ${pr.name||''}, я ${pr.spec||'разработчик'}. Отвечаю на ваш запрос: «${p.task||''}».
+
+ЧТО ПРЕДЛАГАЮ
+${p.scope||'—'}
+
+УСЛОВИЯ
+• Стоимость: ${fmt(p.price,p.cur)}
+• Срок: ${p.days} рабочих дней
+• Предоплата 50%, остаток — после сдачи и подписания акта
+• Работа по договору; если я самозанятый(ая) — чек после каждой оплаты
+
+Готов(а) обсудить детали в переписке или голосом. Портфолио пришлю по запросу.
+
+С уважением, ${pr.name||''}`.trim()}
+function copyProp(id){const p=db.proposals.find(x=>x.id===id);if(p)copyText(genPropText(p))}
+function setProp(id,s){const p=db.proposals.find(x=>x.id===id);if(p){p.status=s;save()}}
+function delProp(id){if(confirm('Удалить оффер?')){db.proposals=db.proposals.filter(p=>p.id!==id);save();render()}}
+
+/* ================= ПРОЕКТЫ + ЗАДАЧИ ================= */
+let curProj=null;
+function rProj(){
+ let h=`<div class="row spread"><h2>Проекты</h2><button class="btn" onclick="openProjModal()">+ Проект</button></div>`;
+ if(!db.projects.length)h+=empty('Пока нет проектов.');
+ db.projects.forEach(p=>{
+  const i=Math.max(0,PROJ_ST.indexOf(p.stage));
+  const ts=db.tasks.filter(t=>t.proj===p.id),td=ts.filter(t=>t.done).length;
+  const over=p.deadline&&p.deadline<today()&&!['Оплачен','Пауза'].includes(p.stage);
+  h+=`<div class="card"><div class="row spread"><b>${esc(p.name)}</b><span class="mut">${fmt(p.budget,p.cur)}</span></div>
+  <div class="mut">${esc(p.client||'—')} · дедлайн: ${over?`<b class="minus">🔥 ${p.deadline}</b>`:(p.deadline||'—')} · ${p.stage}</div>
+  <div class="bar"><i style="width:${i/(PROJ_ST.length-1)*100}%"></i></div>
+  <div class="row">
+   <select onchange="setProj('${p.id}',this.value)">${PROJ_ST.map(s=>`<option ${s===p.stage?'selected':''}>${s}</option>`).join('')}</select>
+   <button class="btn sec" onclick="projTasks('${p.id}')">🗒 ${td}/${ts.length}</button>
+   ${i<PROJ_ST.length-1?`<button class="btn sec" onclick="nextProj('${p.id}')">→</button>`:''}
+   <button class="btn danger" onclick="delProj('${p.id}')">✕</button>
+  </div></div>`});
+ return h;
+}
+function openProjModal(){openModal(`<h3>Новый проект</h3>
+<label>Название</label><input id="j_name">
+<label>Клиент</label><input id="j_client">
+<div class="row2"><div><label>Бюджет</label><input type="number" id="j_budget"></div>
+<div><label>Валюта</label><select id="j_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div></div>
+<label>Дедлайн</label><input type="date" id="j_dead">
+<label>Этап</label><select id="j_stage">${PROJ_ST.map(s=>`<option>${s}</option>`).join('')}</select>
+<div class="row"><button class="btn" onclick="addProj()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
+function addProj(){const n=document.getElementById('j_name').value.trim();if(!n)return toast('Укажите название');
+ db.projects.unshift({id:uid(),name:n,client:document.getElementById('j_client').value.trim(),budget:+document.getElementById('j_budget').value||0,cur:document.getElementById('j_cur').value,deadline:document.getElementById('j_dead').value,stage:document.getElementById('j_stage').value});
+ save();closeModal();render();toast('Проект добавлен')}
+function setProj(id,s){const p=db.projects.find(x=>x.id===id);if(p){p.stage=s;save()}}
+function nextProj(id){const p=db.projects.find(x=>x.id===id);if(p){const i=PROJ_ST.indexOf(p.stage);if(i>-1&&i<PROJ_ST.length-1){p.stage=PROJ_ST[i+1];save();render()}}}
+function delProj(id){if(confirm('Удалить проект и его задачи?')){db.projects=db.projects.filter(p=>p.id!==id);db.tasks=db.tasks.filter(t=>t.proj!==id);save();render()}}
+function projTasks(pid){curProj=pid;const p=db.projects.find(x=>x.id===pid);if(!p)return;
+ const list=db.tasks.filter(t=>t.proj===pid),done=list.filter(t=>t.done).length;
+ openModal(`<h3>🗒 Задачи: ${esc(p.name)}</h3>
+ <div class="bar"><i style="width:${list.length?done/list.length*100:0}%"></i></div>
+ <div class="mut">${done}/${list.length} выполнено</div>
+ ${list.map(t=>`<div class="row" style="margin:8px 0">
+  <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')">
+  <span style="flex:1;${t.done?'text-decoration:line-through;color:var(--mut)':''}">${esc(t.text)}${t.est?` <span class="mut">≈${t.est}м</span>`:''}</span>
+  <button class="btn sec" onclick="logTask('${t.id}')">⏱</button>
+  <button class="btn danger" onclick="delTask('${t.id}')">✕</button></div>`).join('')||'<div class="mut" style="margin:10px 0">Задач нет — добавьте первую.</div>'}
+ <div class="row" style="margin-top:8px"><input id="nt_task" placeholder="Новая задача"><input id="nt_est" type="number" placeholder="Мин" style="width:80px;flex:0 0 80px"><button class="btn" onclick="addTask('${pid}')">+</button></div>
+ <div class="row" style="margin-top:10px"><button class="btn sec" onclick="closeModal()">Закрыть</button></div>`)}
+function addTask(pid){const t=document.getElementById('nt_task').value.trim();if(!t)return;
+ db.tasks.push({id:uid(),proj:pid,text:t,est:+document.getElementById('nt_est').value||0,done:false,date:today()});
+ save();projTasks(pid);render()}
+function toggleTask(id){const t=db.tasks.find(x=>x.id===id);if(t)t.done=!t.done;save();if(curProj)projTasks(curProj);render()}
+function delTask(id){db.tasks=db.tasks.filter(t=>t.id!==id);save();if(curProj)projTasks(curProj);render()}
+function logTask(id){const t=db.tasks.find(x=>x.id===id);if(t)logSession(t.est||25,t.text)}
+
+/* ================= ПЛАН: ДЕНЬ / НЕДЕЛЯ / МЕСЯЦ + БАЛАНС + САМОЧУВСТВИЕ ================= */
+let planView='day',planDate=today(),selMonth=today().slice(0,7);
+function rPlan(){
+ let h=`<h2>План и расписание</h2>
+ <div class="chips">${[['day','День'],['week','Неделя'],['month','Месяц']].map(([v,l])=>`<button class="chip ${planView===v?'on':''}" onclick="planView='${v}';render()">${l}</button>`).join('')}</div>
+ <div class="card mut">Принципы: работать не больше нормы · перерыв каждые 90–120 минут · 🔒 конец рабочего дня по расписанию · вечер — семье и дому · 1 день в неделю без работы · сон 7–8 часов.</div>`;
+ return h+(planView==='day'?rDay():planView==='week'?rWeek():rMonth());
+}
+function setWb(k,v){let w=db.wellbeing.find(x=>x.date===planDate);
+ if(!w){w={id:uid(),date:planDate,sleep:0,energy:3,mood:3,note:''};db.wellbeing.push(w)}
+ w[k]=v;save()}
+function taskRow(t){return `<div class="row" style="margin:8px 0"><input type="checkbox" ${t.done?'checked':''} onchange="togglePlan('${t.id}')"><span style="flex:1;${t.done?'text-decoration:line-through;color:var(--mut)':''}">${t.main?'⭐ ':''}${esc(t.text)}</span><button class="btn danger" onclick="delPlan('${t.id}')">✕</button></div>`}
+function rDay(){
+ const items=db.plan.filter(t=>t.date===planDate);
+ const mains=items.filter(t=>t.main),others=items.filter(t=>!t.main);
+ const blocks=[...db.blocks.filter(b=>b.date===planDate)].sort((a,b)=>a.time.localeCompare(b.time));
+ const worked=workedOn(planDate),lim=db.balance.limitMin,overW=worked>lim;
+ const checks=db.balance.checks[planDate]||[];
+ const famDone=checks.filter(Boolean).length;
+ const wb=db.wellbeing.find(w=>w.date===planDate)||{sleep:0,energy:3,mood:3,note:''};
+ let h=`<div class="card"><div class="row spread">
+ <button class="btn sec" onclick="planDate=shiftDate(planDate,-1);render()">←</button>
+ <input type="date" value="${planDate}" onchange="planDate=this.value||today();render()" style="flex:1;text-align:center">
+ <button class="btn sec" onclick="planDate=shiftDate(planDate,1);render()">→</button></div>
+ ${planDate!==today()?`<div class="row" style="justify-content:center;margin-top:6px"><button class="btn sec" onclick="planDate=today();render()">К сегодня</button></div>`:''}</div>
+ <div class="card ${overW?'warn':''}"><b>⚖️ Баланс труда и отдыха</b>
+ <label>Работа (журнал времени): ${hm(worked)} / норма ${hm(lim)}</label>
+ <div class="bar"><i style="width:${Math.min(100,worked/lim*100)}%;${overW?'background:var(--bad)':''}"></i></div>
+ ${overW?`<div class="mut minus">🛑 Переработка! Остановитесь: семья, отдых, сон важнее ещё одного часа работы.</div>`:`<div class="mut">Можно работать ещё: ${hm(Math.max(0,lim-worked))}</div>`}
+ <b style="display:block;margin-top:8px">🏠 Семья и дом</b>
+ ${db.balance.items.map((it,i)=>`<div class="row" style="margin:6px 0"><input type="checkbox" ${checks[i]?'checked':''} onchange="toggleFam(${i})"><span>${esc(it)}</span></div>`).join('')}
+ <div class="mut">Выполнено: ${famDone}/${db.balance.items.length}</div></div>
+ <div class="card"><b>🙂 Самочувствие</b>
+ <div class="row2"><div><label>Сон, часов</label><input type="number" step="0.5" min="0" max="14" value="${wb.sleep||0}" onchange="setWb('sleep',+this.value)"></div>
+ <div><label>Энергия</label><select onchange="setWb('energy',+this.value)">${[1,2,3,4,5].map(n=>`<option ${wb.energy===n?'selected':''} value="${n}">${n} из 5</option>`).join('')}</select></div></div>
+ <div class="row2"><div><label>Настроение</label><select onchange="setWb('mood',+this.value)">${[1,2,3,4,5].map(n=>`<option ${wb.mood===n?'selected':''} value="${n}">${MOOD_E[n]} ${n}</option>`).join('')}</select></div>
+ <div><label>Заметка</label><input value="${esc(wb.note||'')}" placeholder="Как день?" onchange="setWb('note',this.value)"></div></div>
+ <div class="mut">Заполняйте вечером — через месяц увидите связь сна и продуктивности.</div></div>
+ <div class="card"><b>🎯 3 главные задачи</b>
+ ${mains.map(taskRow).join('')||'<div class="mut">Выберите до 3 задач, которые реально двигают доход или проект.</div>'}
+ <b style="display:block;margin-top:10px">Остальные</b>
+ ${others.map(taskRow).join('')||'<div class="mut">—</div>'}
+ <div class="row" style="margin-top:8px"><input id="pt_text" placeholder="Новая задача"><label style="display:flex;align-items:center;gap:4px;margin:0"><input type="checkbox" id="pt_main" style="margin:0">главная</label><button class="btn" onclick="addPlanTask()">+</button></div>
+ ${items.some(t=>!t.done)?`<div class="row" style="margin-top:8px"><button class="btn sec" onclick="carryOver()">⏭ Перенести невыполненное на завтра</button></div>`:''}</div>
+ <div class="card"><b>🕘 Расписание дня (блоки времени)</b>
+ ${blocks.map(b=>`<div class="row spread" style="margin:6px 0"><span><b>${b.time}</b> · ${esc(b.text)}</span><button class="btn danger" onclick="delBlock('${b.id}')">✕</button></div>`).join('')||'<div class="mut">Пусто — добавьте блоки или примените шаблон труда и отдыха.</div>'}
+ <div class="row" style="margin-top:8px"><input type="time" id="b_time" value="10:00" style="flex:0 0 110px"><input id="b_text" placeholder="Блок (например, прогулка с семьёй)"><button class="btn" onclick="addBlock()">+</button></div>
+ <div class="row" style="margin-top:6px"><button class="btn sec" onclick="applyTpl()">📋 Применить шаблон дня</button></div></div>
+ <details class="card"><summary>Шаблон дня (редактировать)</summary>
+ <textarea id="tpl" rows="10" style="margin-top:8px" oninput="db.dayTpl=this.value;save()">${esc(db.dayTpl)}</textarea>
+ <div class="row"><button class="btn sec" onclick="db.dayTpl=DEF_TPL;save();render();toast('Загружен шаблон труда и отдыха')">Загрузить шаблон «труд и отдых»</button></div>
+ <p class="mut">Формат строки: ЧЧ:ММ | занятие. Кнопка «Применить» заменяет блоки выбранного дня.</p></details>
+ <details class="card"><summary>⚙️ Нормы и пункты «Семья и дом»</summary>
+ <label>Норма работы в день, минут</label><input type="number" value="${db.balance.limitMin}" onchange="db.balance.limitMin=Math.max(60,+this.value||360);save();render()">
+ <label>Пункты чек-листа (по одному в строке)</label><textarea id="famitems" rows="5">${esc(db.balance.items.join('\n'))}</textarea>
+ <button class="btn sec" onclick="applyFamItems()">Сохранить пункты</button></details>`;
+ return h;
+}
+function addPlanTask(){const t=document.getElementById('pt_text').value.trim();if(!t)return;
+ const main=document.getElementById('pt_main').checked;
+ if(main&&db.plan.filter(x=>x.date===planDate&&x.main).length>=3)return toast('Главных задач — максимум 3');
+ db.plan.push({id:uid(),date:planDate,text:t,main,done:false});save();render()}
+function togglePlan(id){const t=db.plan.find(x=>x.id===id);if(t)t.done=!t.done;save();render()}
+function delPlan(id){db.plan=db.plan.filter(t=>t.id!==id);save();render()}
+function carryOver(){const next=shiftDate(planDate,1);let moved=0;
+ db.plan.forEach(t=>{if(t.date===planDate&&!t.done){if(!db.plan.some(x=>x.date===next&&x.text===t.text)){t.date=next;moved++}}});
+ save();toast(moved?`Перенесено на завтра: ${moved}`:'Нет невыполненных');render()}
+function addBlock(){const t=document.getElementById('b_text').value.trim();if(!t)return;
+ db.blocks.push({id:uid(),date:planDate,time:document.getElementById('b_time').value||'09:00',text:t});save();render()}
+function delBlock(id){db.blocks=db.blocks.filter(b=>b.id!==id);save();render()}
+function applyTpl(){const bs=db.blocks.filter(b=>b.date===planDate);
+ if(bs.length&&!confirm('Заменить текущие блоки дня шаблоном?'))return;
+ db.blocks=db.blocks.filter(b=>b.date!==planDate);
+ db.dayTpl.split('\n').forEach(l=>{const i=l.indexOf('|');if(i<0)return;
+  const time=l.slice(0,i).trim(),text=l.slice(i+1).trim();
+  if(time&&text)db.blocks.push({id:uid(),date:planDate,time,text})});
+ save();render();toast('Шаблон применён')}
+function toggleFam(i){const arr=db.balance.checks[planDate]||(db.balance.checks[planDate]=db.balance.items.map(()=>false));
+ arr[i]=!arr[i];save();render()}
+function applyFamItems(){db.balance.items=document.getElementById('famitems').value.split('\n').map(s=>s.trim()).filter(Boolean);
+ if(!db.balance.items.length)db.balance.items=[...DEF_FAM];
+ db.balance.checks={};save();render();toast('Пункты сохранены')}
+function rWeek(){const mon=monday(planDate+'T00:00:00');let h='',totW=0,overD=0,famD=0,sleepSum=0,enSum=0,wbN=0;
+ for(let i=0;i<7;i++){const d=shiftDate(mon,i);
+  const items=db.plan.filter(t=>t.date===d),mains=items.filter(t=>t.main);
+  const dl=db.projects.filter(p=>p.deadline===d&&!['Оплачен','Пауза'].includes(p.stage));
+  const inv=db.invoices.filter(v=>v.due===d&&v.status==='Выставлен');
+  const w=db.wellbeing.find(x=>x.date===d);
+  const wd=workedOn(d),lim=db.balance.limitMin,isOver=wd>lim;
+  const fc=(db.balance.checks[d]||[]).filter(Boolean).length;
+  totW+=wd;if(isOver)overD++;if(fc>=db.balance.items.length&&db.balance.items.length)famD++;
+  if(w){wbN++;sleepSum+=+w.sleep||0;enSum+=+w.energy||3}
+  h+=`<div class="card" style="padding:10px 12px"><div class="row spread">
+  <b class="${d===today()?'plus':''}">${w?MOOD_E[w.mood]||'':''} ${DAYS_W[i]}, ${d.slice(8)}.${d.slice(5,7)}</b>
+  <button class="btn sec" style="padding:6px 10px" onclick="planDate='${d}';planView='day';render()">Открыть</button></div>
+  <div class="mut">⏱ Работа: ${hm(wd)} / ${hm(lim)} ${isOver?'<span class="minus">· 🛑 переработка</span>':''} · 🏠 ${fc}/${db.balance.items.length}${w?` · 😴 ${w.sleep}ч`:''}</div>
+  ${mains.map(t=>`<div class="mut">${t.done?'✅':'⬜'} ${esc(t.text)}</div>`).join('')||'<div class="mut">Главные задачи не заданы</div>'}
+  ${dl.map(p=>`<div class="mut">📁 Дедлайн: ${esc(p.name)}</div>`).join('')}
+  ${inv.map(v=>`<div class="mut">💰 Оплата счёта №${esc(v.num)} (${fmt(v.amt,v.cur)})</div>`).join('')}
+  </div>`}
+ h+=`<div class="card"><b>Итог недели</b>
+ <div class="mut">Работа: ${hm(totW)} · дней с переработкой: ${overD} · дней с полным «семья/дом»: ${famD}/7</div>
+ ${wbN?`<div class="mut">Средний сон: ${(sleepSum/wbN).toFixed(1)} ч · средняя энергия: ${(enSum/wbN).toFixed(1)}/5</div>`:'<div class="mut">Заполняйте «🙂 Самочувствие» — здесь появится статистика сна и энергии.</div>'}
+ <div class="mut" style="margin-top:4px">Правило: минимум один день в неделе — без работы. Запланируйте его заранее.</div></div>`;
+ const hi=db.wellbeing.filter(w=>+w.energy>=4),lo=db.wellbeing.filter(w=>+w.energy<=2);
+ if(hi.length>=2&&lo.length>=2){
+  const avg=a=>Math.round(a.reduce((s,w)=>s+workedOn(w.date),0)/a.length);
+  h+=`<div class="card"><b>💡 Инсайт: энергия и работа</b><div class="mut">В дни с энергией 4–5 вы работаете в среднем ${hm(avg(hi))}, а в дни с энергией 1–2 — ${hm(avg(lo))}. ${avg(hi)>avg(lo)?'Отдых и сон напрямую повышают вашу продуктивность.':'Следите за сном и нагрузкой.'}</div></div>`}
+ return h;
+}
+function monthGrid(ym){const [y,m]=ym.split('-').map(Number);
+ const start=(new Date(y,m-1,1).getDay()+6)%7;const days=new Date(y,m,0).getDate();
+ const cells=[];for(let i=0;i<start;i++)cells.push('');
+ for(let d=1;d<=days;d++)cells.push(`${ym}-${String(d).padStart(2,'0')}`);
+ while(cells.length%7)cells.push('');return cells}
+function rMonth(){const [y,m]=selMonth.split('-').map(Number);
+ let h=`<div class="row spread"><button class="btn sec" onclick="shiftMonth(-1)">←</button><b>${MONTHS[m-1]} ${y}</b><button class="btn sec" onclick="shiftMonth(1)">→</button></div>
+ <div class="cal">${DAYS_W.map(d=>`<div class="cal-h">${d}</div>`).join('')}`;
+ monthGrid(selMonth).forEach(c=>{if(!c){h+='<div></div>';return}
+  const n=db.plan.filter(t=>t.date===c).length;
+  const dl=db.projects.some(p=>p.deadline===c&&!['Оплачен','Пауза'].includes(p.stage));
+  const inv=db.invoices.some(v=>v.due===c&&v.status==='Выставлен');
+  const w=db.wellbeing.find(x=>x.date===c);
+  const isOver=workedOn(c)>db.balance.limitMin;
+  h+=`<div class="cal-c ${c===today()?'today':''} ${isOver?'over':''}" onclick="planDate='${c}';planView='day';render();window.scrollTo(0,0)"><b>${+c.slice(8)}</b><div>${'•'.repeat(Math.min(n,3))}${dl?'📁':''}${inv?'💰':''}${w?(MOOD_E[w.mood]||''):''}</div></div>`});
+ h+='</div><div class="card mut">• задачи · 📁 дедлайн · 💰 счёт · эмодзи — настроение · <span class="minus">красная рамка</span> — переработка. Нажмите на день, чтобы открыть.</div>';
+ return h}
+function shiftMonth(n){let [y,m]=selMonth.split('-').map(Number);m+=n;
+ if(m<1){m=12;y--}if(m>12){m=1;y++}
+ selMonth=`${y}-${String(m).padStart(2,'0')}`;render()}
+
+/* ================= ТАЙМ-МЕНЕДЖМЕНТ ================= */
+let timer={run:false,sec:25*60,mode:'focus',iv:null};
+function rTime(){
+ const wk=monday(new Date());let weekMin=0,todayMin=0;
+ db.sessions.forEach(s=>{if(s.date===today())todayMin+=s.min;if(monday(s.date)===wk)weekMin+=s.min});
+ const lim=db.balance.limitMin,over=todayMin>lim;
+ let h=`<h2>Тайм-менеджмент</h2>
+ <div class="card" style="text-align:center"><b id="tview">${mmss(timer.sec)}</b>
+ <div class="mut" id="tmode">${timer.mode==='focus'?'🎯 Фокус':'☕ Перерыв'}</div>
+ <div class="row" style="justify-content:center;margin-top:8px">
+ <button class="btn" id="tbtn" onclick="tToggle()">${timer.run?'⏸ Пауза':'▶ Старт'}</button>
+ <button class="btn sec" onclick="tReset()">Сброс</button>
+ <button class="btn sec" onclick="tSwitch()">${timer.mode==='focus'?'☕ Перерыв':'🎯 Фокус'}</button></div>
+ <div class="mut" style="margin-top:6px">Pomodoro: 25 мин фокус / 5 мин перерыв. Каждые 2 часа — большой перерыв 15–20 минут.</div>
+ <div class="row" style="justify-content:center;margin-top:8px">
+ <button class="btn sec" onclick="logSession(25)">+25 мин</button>
+ <button class="btn sec" onclick="logSession(50)">+50 мин</button>
+ <button class="btn sec" onclick="openLogModal()">✏️ Свои минуты</button></div></div>
+ <div class="grid">
+  <div class="card stat"><span>Сегодня / норма</span><b class="${over?'minus':''}">${hm(todayMin)} / ${hm(lim)}</b></div>
+  <div class="card stat"><span>Неделя</span><b>${hm(weekMin)}</b></div>
+ </div>
+ ${over?'<div class="card warn">🛑 Норма превышена. Лучшее решение сейчас — закрыть ноутбук и провести время с близкими.</div>':''}
+ <div class="card mut">Правила: фокус без мессенджеров · работу останавливаем по норме · факт сравниваем с оценками задач, чтобы расти в ставке без переработок.</div>
+ <div class="card"><b>Журнал времени</b>
+ ${db.sessions.slice(0,20).map(s=>`<div class="row spread" style="margin:6px 0"><span>${s.date} · <b>${hm(s.min)}</b>${s.task?` · ${esc(s.task)}`:''}</span><button class="btn danger" onclick="delSession('${s.id}')">✕</button></div>`).join('')||'<div class="mut">Пока пусто.</div>'}</div>`;
+ return h;
+}
+function tRender(){const el=document.getElementById('tview');if(!el)return;
+ el.textContent=mmss(timer.sec);
+ const m=document.getElementById('tmode');if(m)m.textContent=timer.mode==='focus'?'🎯 Фокус':'☕ Перерыв';
+ const b=document.getElementById('tbtn');if(b)b.textContent=timer.run?'⏸ Пауза':'▶ Старт'}
+function tToggle(){
+ if(timer.run){clearInterval(timer.iv);timer.run=false}
+ else{timer.run=true;timer.iv=setInterval(()=>{timer.sec--;
+  if(timer.sec<=0){clearInterval(timer.iv);timer.run=false;
+   try{navigator.vibrate&&navigator.vibrate(300)}catch(e){}
+   toast(timer.mode==='focus'?'Фокус завершён — запишите сессию и сделайте перерыв!':'Перерыв окончен — за работу!');
+   timer.mode=timer.mode==='focus'?'break':'focus';timer.sec=timer.mode==='focus'?25*60:5*60}
+  tRender()},1000)}
+ tRender()}
+function tReset(){clearInterval(timer.iv);timer.run=false;timer.sec=timer.mode==='focus'?25*60:5*60;tRender()}
+function tSwitch(){timer.mode=timer.mode==='focus'?'break':'focus';timer.sec=timer.mode==='focus'?25*60:5*60;tRender()}
+function logSession(min,task=''){if(!min)return;db.sessions.unshift({id:uid(),date:today(),min,task});save();toast('Записано: '+hm(min));if(tab==='time'||tab==='plan')render()}
+function openLogModal(){openModal(`<h3>Записать время</h3>
+<label>Минуты</label><input type="number" id="lg_min" value="60">
+<label>Задача / проект</label><input id="lg_task">
+<label>Дата</label><input type="date" id="lg_date" value="${today()}">
+<div class="row"><button class="btn" onclick="addLog()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
+function addLog(){const m=+document.getElementById('lg_min').value;if(!m)return toast('Введите минуты');
+ db.sessions.unshift({id:uid(),date:document.getElementById('lg_date').value||today(),min:m,task:document.getElementById('lg_task').value.trim()});
+ save();closeModal();render();toast('Записано')}
+function delSession(id){db.sessions=db.sessions.filter(s=>s.id!==id);save();render()}
+
+/* ================= ФИНАНСЫ + СЧЕТА (PDF) ================= */
+function rFin(){
+ const{inc,exp}=finMonth();let all=0;
+ db.fin.forEach(f=>all+=f.type==='in'?toRub(f.amt,f.cur):-toRub(f.amt,f.cur));
+ let h=`<div class="row spread"><h2>Финансы</h2><div class="row"><button class="btn sec" onclick="csvFin()">CSV</button><button class="btn" onclick="openFinModal()">+ Операция</button></div></div>
+ <div class="grid">
+  <div class="card stat"><span>Доход за месяц</span><b class="plus">${money(inc)}</b></div>
+  <div class="card stat"><span>Расход за месяц</span><b class="minus">${money(exp)}</b></div>
+ </div><div class="card stat" style="margin-top:10px"><span>Баланс (всё время)</span><b>${money(all)}</b></div>
+ <div class="card"><div class="row spread"><b>🧾 Счета заказчикам</b><button class="btn" onclick="openInvModal()">+ Счёт</button></div>
+ <p class="mut" style="margin:4px 0">PDF: откройте счёт → «Печать» → «Сохранить как PDF».</p>
+ ${db.invoices.map(invRow).join('')||'<div class="mut">Счетов пока нет.</div>'}</div>
+ <div class="card mut">Валюта отображения: ${db.profile.currency}. Курсы — в настройках.</div>`;
+ db.fin.slice(0,50).forEach(f=>{h+=`<div class="card row spread"><div><b class="${f.type==='in'?'plus':'minus'}">${f.type==='in'?'+':'−'} ${fmt(f.amt,f.cur)}</b><div class="mut">${f.date} · ${esc(f.cat)}${f.note?` · ${esc(f.note)}`:''}</div></div><button class="btn danger" onclick="delFin('${f.id}')">✕</button></div>`});
+ return h;
+}
+function openFinModal(type='in'){openModal(`<h3>${type==='in'?'Доход':'Расход'}</h3>
+<label>Дата</label><input type="date" id="f_date" value="${today()}">
+<div class="row2"><div style="flex:1"><label>Сумма</label><input type="number" id="f_amt"></div>
+<div><label>Валюта</label><select id="f_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div></div>
+<label>Категория</label><select id="f_cat">${(type==='in'?['Проект','Поддержка','Консультация','Другое']:['Софт/сервисы','Реклама','Налоги','Оборудование','Обучение','Другое']).map(c=>`<option>${c}</option>`).join('')}</select>
+<label>Комментарий</label><input id="f_note">
+<div class="row"><button class="btn" onclick="addFin('${type}')">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
+function addFin(type){const amt=+document.getElementById('f_amt').value;if(!amt)return toast('Введите сумму');
+ db.fin.unshift({id:uid(),date:document.getElementById('f_date').value||today(),type,amt,cur:document.getElementById('f_cur').value,cat:document.getElementById('f_cat').value,note:document.getElementById('f_note').value.trim()});
+ save();closeModal();render();toast('Записано')}
+function delFin(id){db.fin=db.fin.filter(f=>f.id!==id);save();render()}
+function csvFin(){let s='date;type;amount;currency;category;comment\n';db.fin.forEach(f=>s+=[f.date,f.type,f.amt,f.cur,f.cat,(f.note||'').replace(/;/g,',')].join(';')+'\n');
+ const b=new Blob(['\ufeff'+s],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='fin-'+today()+'.csv';a.click()}
+function nextInvNum(){return new Date().getFullYear()+'-'+String(db.invoices.length+1).padStart(2,'0')}
+function invRow(v){const over=v.status==='Выставлен'&&v.due&&v.due<today();
+ return `<div class="row spread" style="margin:8px 0">
+ <div><b>№${esc(v.num)}</b> · ${esc(v.client)} · ${fmt(v.amt,v.cur)}
+ <div class="mut">${fmtDate(v.date)} · оплатить до ${fmtDate(v.due)||'—'} · ${over?'<span class="minus">просрочен</span>':v.status}</div></div>
+ <button class="btn sec" onclick="showInv('${v.id}')">🖨</button>
+ ${v.status==='Выставлен'?`<button class="btn sec" onclick="payInv('${v.id}')">💰</button>`:''}
+ <button class="btn danger" onclick="delInv('${v.id}')">✕</button></div>`}
+function openInvModal(){const b=db.profile.bank||{};
+ openModal(`<h3>Новый счёт заказчику</h3>
+ <div class="row2"><div><label>№</label><input id="iv_num" value="${nextInvNum()}"></div>
+ <div><label>Дата</label><input type="date" id="iv_date" value="${today()}"></div></div>
+ <label>Оплатить до</label><input type="date" id="iv_due" value="${shiftDate(today(),5)}">
+ <label>Плательщик (компания или ФИО)</label><input id="iv_client">
+ <label>ИНН плательщика (необязательно)</label><input id="iv_inn">
+ <label>Назначение платежа</label><textarea id="iv_item" rows="2" placeholder="Например: Разработка лендинга по договору №1"></textarea>
+ <div class="row2"><div><label>Сумма</label><input type="number" id="iv_amt"></div>
+ <div><label>Валюта</label><select id="iv_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div></div>
+ <div class="card" style="margin:10px 0"><b>Ваши реквизиты (запомнятся)</b>
+ <label>ФИО получателя</label><input id="iv_fio" value="${esc(b.fio||db.profile.name)}">
+ <label>Ваш ИНН</label><input id="iv_myinn" value="${esc(b.inn||'')}">
+ <label>Банк</label><input id="iv_bank" value="${esc(b.bank||'')}">
+ <label>БИК / SWIFT</label><input id="iv_bik" value="${esc(b.bik||'')}">
+ <label>Счёт / IBAN</label><input id="iv_acc" value="${esc(b.acc||'')}"></div>
+ <div class="row"><button class="btn" onclick="saveInv()">Создать счёт</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
+function saveInv(){const client=document.getElementById('iv_client').value.trim();const amt=+document.getElementById('iv_amt').value;
+ if(!client||!amt)return toast('Заполните плательщика и сумму');
+ const bank={fio:document.getElementById('iv_fio').value.trim(),inn:document.getElementById('iv_myinn').value.trim(),bank:document.getElementById('iv_bank').value.trim(),bik:document.getElementById('iv_bik').value.trim(),acc:document.getElementById('iv_acc').value.trim()};
+ db.profile.bank=bank;
+ db.invoices.unshift({id:uid(),num:document.getElementById('iv_num').value.trim()||nextInvNum(),date:document.getElementById('iv_date').value||today(),due:document.getElementById('iv_due').value,client,inn:document.getElementById('iv_inn').value.trim(),item:document.getElementById('iv_item').value.trim(),amt,cur:document.getElementById('iv_cur').value,bank,status:'Выставлен'});
+ save();closeModal();render();toast('Счёт создан — откройте его для PDF')}
+function showInv(id){const v=db.invoices.find(x=>x.id===id);if(!v)return;const b=v.bank||{};
+ openModal(`<div id="printarea" style="background:#fff;color:#000;border-radius:10px;padding:18px;font-size:14px;line-height:1.55">
+ <h3 style="color:#000;margin-bottom:12px">СЧЁТ НА ОПЛАТУ № ${esc(v.num)} от ${fmtDate(v.date)}</h3>
+ <div style="border:1px solid #000;padding:10px;margin-bottom:10px">
+  <b>Поставщик:</b> ${esc(b.fio||db.profile.name)}${b.inn?`, ИНН ${esc(b.inn)}`:''} (плательщик налога на профессиональный доход)<br>
+  <b>Банк:</b> ${esc(b.bank||'—')} · БИК/SWIFT: ${esc(b.bik||'—')} · Счёт: ${esc(b.acc||'—')}
+ </div>
+ <div style="border:1px solid #000;padding:10px;margin-bottom:10px">
+  <b>Плательщик:</b> ${esc(v.client)}${v.inn?`, ИНН ${esc(v.inn)}`:''}
+ </div>
+ <p><b>Назначение:</b> ${esc(v.item||'Услуги разработки')}</p>
+ <p style="font-size:18px;margin:12px 0"><b>К оплате: ${fmt(v.amt,v.cur)}</b></p>
+ <p>Без НДС. Исполнитель применяет режим «Налог на профессиональный доход» и предоставляет чек после оплаты.</p>
+ <p><b>Срок оплаты: до ${fmtDate(v.due)||'—'}.</b></p>
+ <p style="margin-top:28px">Подпись: ______________________ / ${esc(b.fio||db.profile.name)} /</p>
+ </div>
+ <div class="row" style="margin-top:12px"><button class="btn" onclick="window.print()">🖨 Печать / PDF</button><button class="btn sec" onclick="closeModal()">Закрыть</button></div>`)}
+function payInv(id){const v=db.invoices.find(x=>x.id===id);if(!v)return;
+ v.status='Оплачен';
+ db.fin.unshift({id:uid(),date:today(),type:'in',amt:v.amt,cur:v.cur,cat:'Проект',note:`Счёт №${v.num} — ${v.client}`});
+ save();render();toast('Отмечен оплаченным и записан в доход')}
+function delInv(id){if(confirm('Удалить счёт?')){db.invoices=db.invoices.filter(v=>v.id!==id);save();render()}}
+
+/* ================= НАЛОГИ ================= */
+function rTax(){
+ const t=db.tax;
+ const opts=[['ru_npdu','🇷🇺 Самозанятость (НПД, РФ)'],['by_npd','🇧🇾 НПД, Беларусь'],['cn','🇨🇳 Работа с Китаем']];
+ let h=`<h2>Налоги</h2><div class="card"><label>Режим</label><select onchange="db.tax.regime=this.value;save();render()">${opts.map(o=>`<option value="${o[0]}" ${t.regime===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
+ <p class="mut">Ставки и лимиты ориентировочные — сверяйте с актуальным законодательством.</p></div>`;
+ if(t.regime==='ru_npdu'){
+  const year=today().slice(0,4);let yi=0;db.fin.forEach(f=>{if(f.type==='in'&&f.date.startsWith(year))yi+=toRub(f.amt,f.cur)});
+  h+=`<div class="card"><b>Калькулятор НПД</b>
+  <label>Доход за месяц от физлиц, ₽ — 4%</label><input type="number" id="ti" value="${t.calc.ind}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()">
+  <label>Доход за месяц от организаций и ИП, ₽ — 6% (в т.ч. от компаний РБ и Китая)</label><input type="number" id="te" value="${t.calc.ent}" oninput="db.tax.calc.ent=this.value;save();taxCalcNow()">
+  <div id="taxout"></div>
+  <div class="row" style="margin-top:6px"><button class="btn" onclick="payTaxToFin()">Записать налог в расходы</button></div>
+  <p class="mut">Чек — в «Мой налог» сразу после оплаты. Уплата налога — до 28-го числа следующего месяца. Лимит — ${t.limit.toLocaleString('ru-RU')} ₽/год.</p>
+  <label>Доход за ${year}: ${fmt(yi,'RUB')} из ${fmt(t.limit,'RUB')}</label>
+  <div class="bar"><i style="width:${Math.min(100,yi/t.limit*100)}%"></i></div></div>`;
+ }else if(t.regime==='by_npd'){
+  h+=`<div class="card"><b>Калькулятор НПД (РБ)</b>
+  <label>Доход за месяц, BYN</label><input type="number" id="ti" value="${t.calc.ind}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()">
+  <div id="taxout"></div>
+  <div class="row" style="margin-top:6px"><button class="btn" onclick="payTaxToFin()">Записать в расходы</button></div>
+  <p class="mut">Учёт — через приложение «Профдоход». Базовая ставка 10% (4% для пенсионеров) — уточняйте в МНС РБ.</p></div>`;
+ }else{
+  h+=`<div class="card"><b>Вы резидент РФ и работаете с заказчиком из Китая удалённо</b>
+  <p>Доход от китайской компании для самозанятого РФ облагается НПД по ставке <b>6%</b> (как доход от организации). Налог платится в России.</p></div>
+  <div class="card"><b>Приём оплаты из Китая</b>
+  <p class="mut">• Инвойс/счёт на английском или китайском, валюта CNY или RUB.<br>• Каналы: банковский перевод, счёт в юанях, UnionPay — уточняйте у своего банка.<br>• Фиксируйте курс и комиссии в «Финансах».</p></div>
+  <div class="card"><b>Если вы живёте и работаете в Китае</b>
+  <p class="mut">Действуют местные правила: IIT 3–45%, трудовой договор или 个体工商户. Нужен местный бухгалтер.</p></div>`;
+ }
+ return h;
+}
+function taxCalcNow(){
+ const ti=document.getElementById('ti'),te=document.getElementById('te');if(!ti)return;
+ const r=db.tax.regime;let out='';
+ if(r==='ru_npdu'){const i=+ti.value||0,e=+(te&&te.value)||0;
+  out=`<p style="margin:8px 0">Налог за месяц: <b>${fmt(i*0.04+e*0.06,'RUB')}</b> <span class="mut">(физлица 4%: ${fmt(i*0.04,'RUB')}; организации 6%: ${fmt(e*0.06,'RUB')})</span></p>`}
+ else if(r==='by_npd'){const i=+ti.value||0;out=`<p style="margin:8px 0">Налог 10%: <b>${fmt(i*0.1,'BYN')}</b> <span class="mut">(ориентировочно)</span></p>`}
+ document.getElementById('taxout').innerHTML=out;
+}
+function payTaxToFin(){
+ const ti=document.getElementById('ti'),te=document.getElementById('te');let t=0,cur='RUB';
+ if(db.tax.regime==='ru_npdu'){t=Math.round((+ti.value||0)*0.04+(+((te&&te.value)||0))*0.06)}
+ else if(db.tax.regime==='by_npd'){t=Math.round((+ti.value||0)*0.1);cur='BYN'}
+ else return toast('Для Китая — см. консультацию бухгалтера');
+ if(t<=0)return toast('Заполните суммы в калькуляторе');
+ db.fin.unshift({id:uid(),date:today(),type:'out',amt:t,cur,cat:'Налоги',note:'Налог по калькулятору'});
+ save();toast('Налог записан в расходы');render()}
+
+/* ================= ЮРИСТ + СОСТАВИТЕЛЬ ДОКУМЕНТОВ ================= */
+const DOC_TYPES=[['dogovor','Договор ГПХ (услуги)'],['act','Акт сдачи-приёмки'],['nda','NDA (конфиденциальность)'],['tz','Техническое задание'],['claim','Досудебная претензия']];
+const DOC_NAME={dogovor:'Договор ГПХ',act:'Акт',nda:'NDA',tz:'ТЗ',claim:'Претензия'};
+function rLaw(){
+ let h=`<h2>Личный юрист и документы</h2>
+ <div class="card"><b>🛠 Составитель документов</b>
+ <p class="mut" style="margin:4px 0">Выберите тип, заполните данные один раз — получите готовый документ с реквизитами сторон. Контрагенты сохраняются и подставляются в один клик.</p>
+ <div class="row"><button class="btn" onclick="openDocWizard()">Составить документ</button></div></div>
+ <div class="card"><b>📁 Мои документы</b>
+ ${db.docLog.map(d=>`<div class="row spread" style="margin:8px 0">
+  <div style="flex:1"><b>${DOC_NAME[d.type]||d.type}</b> №${esc(d.num)} · ${esc(d.client)}
+  <div class="mut">${fmtDate(d.date)}${d.amt?` · ${fmt(d.amt,d.cur)}`:''}</div></div>
+  <button class="btn sec" onclick="openDoc('${d.id}')">📄</button>
+  <select style="max-width:130px;width:auto" onchange="setDocStatus('${d.id}',this.value)">${DOC_STATUS.map(s=>`<option ${s===d.status?'selected':''}>${s}</option>`).join('')}</select>
+  <button class="btn danger" onclick="delDoc('${d.id}')">✕</button></div>`).join('')||'<div class="mut">Документов пока нет.</div>'}</div>
+ <p class="mut" style="margin-bottom:10px">Генератор даёт крепкую базовую версию. Для крупных сделок покажите итог юристу.</p>
+ <div class="card"><b>✅ Чек-лист: что проверить в договоре</b><ul style="margin:8px 0 0 18px" class="mut">${CHECK.map(x=>`<li style="margin:4px 0">${x}</li>`).join('')}</ul></div>
+ <div class="card"><b>🇨🇳 Чек-лист: контракт с китайским заказчиком</b><ul style="margin:8px 0 0 18px" class="mut">${CHECK_CN.map(x=>`<li style="margin:4px 0">${x}</li>`).join('')}</ul></div>`;
+ return h;
+}
+function nextDocNum(){return new Date().getFullYear()+'-Д'+String(db.docLog.length+1).padStart(2,'0')}
+function openDocWizard(){const b=db.profile.bank||{};
+ const pOpts=db.partners.map((p,i)=>`<option value="${i}">${esc(p.name)}</option>`).join('');
+ openModal(`<h3>Составление документа</h3>
+ <label>Тип документа</label><select id="dw_type">${DOC_TYPES.map(t=>`<option value="${t[0]}">${t[1]}</option>`).join('')}</select>
+ <div class="row2"><div><label>№</label><input id="dw_num" value="${nextDocNum()}"></div>
+ <div><label>Дата</label><input type="date" id="dw_date" value="${today()}"></div></div>
+ ${pOpts?`<label>Сохранённый контрагент</label><select id="dw_partner" onchange="fillPartner(this.value)"><option value="">— новый контрагент —</option>${pOpts}</select>`:''}
+ <label>Заказчик (ФИО или ООО «…»)</label><input id="dw_client">
+ <label>ИНН заказчика</label><input id="dw_inn">
+ <label>№ договора (для акта/претензии, необязательно)</label><input id="dw_contract">
+ <label>Предмет / состав работ</label><textarea id="dw_item" rows="2" placeholder="Например: Разработка лендинга под ключ по макету Figma"></textarea>
+ <div class="row2"><div><label>Сумма</label><input type="number" id="dw_amt"></div>
+ <div><label>Валюта</label><select id="dw_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div></div>
+ <div class="row2"><div><label>Предоплата, %</label><input type="number" id="dw_prepay" value="50"></div>
+ <div><label>Срок (дедлайн)</label><input type="date" id="dw_dead"></div></div>
+ <details style="margin:8px 0"><summary>Ваши реквизиты (запомнятся)</summary>
+ <label>ФИО</label><input id="dw_fio" value="${esc(b.fio||db.profile.name)}">
+ <label>Ваш ИНН</label><input id="dw_myinn" value="${esc(b.inn||'')}">
+ <label>Адрес / контакты</label><input id="dw_addr" value="${esc(b.addr||'')}">
+ <label>Банк</label><input id="dw_bank" value="${esc(b.bank||'')}">
+ <label>БИК / SWIFT</label><input id="dw_bik" value="${esc(b.bik||'')}">
+ <label>Счёт / IBAN</label><input id="dw_acc" value="${esc(b.acc||'')}"></details>
+ <label style="display:flex;align-items:center;gap:6px;margin-top:6px"><input type="checkbox" id="dw_savep" style="margin:0"> Сохранить контрагента на будущее</label>
+ <div class="row" style="margin-top:10px"><button class="btn" onclick="makeDoc()">Составить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
+function fillPartner(i){if(i===''){document.getElementById('dw_client').value='';document.getElementById('dw_inn').value='';return}
+ const p=db.partners[+i];if(!p)return;
+ document.getElementById('dw_client').value=p.name;document.getElementById('dw_inn').value=p.inn||''}
+function genDoc(type,o){
+ const moneyStr=o.amt?fmt(o.amt,o.cur):'[сумма]';
+ const req=`Банк: ${o.mybank||'[банк]'} · БИК/SWIFT: ${o.mybik||'—'} · Счёт: ${o.myacc||'—'}`;
+ if(type==='dogovor')return `ДОГОВОР № ${o.num}
+возмездного оказания услуг
+
+«${fmtDate(o.date)}»
+
+Заказчик: ${o.client||'[заказчик]'}${o.inn?`, ИНН ${o.inn}`:''}
+Исполнитель: ${o.fio||'[исполнитель]'}, плательщик налога на профессиональный доход${o.myinn?`, ИНН ${o.myinn}`:''}${o.myaddr?` · ${o.myaddr}`:''}
+
+1. ПРЕДМЕТ ДОГОВОРА
+1.1. Исполнитель обязуется оказать услуги: ${o.item||'[предмет]'}, а Заказчик — принять и оплатить результат.
+1.2. Срок выполнения: ${o.dead?'до '+fmtDate(o.dead):'[срок]'}.
+
+2. СТОИМОСТЬ И ПОРЯДОК РАСЧЁТОВ
+2.1. Стоимость работ: ${moneyStr}.
+2.2. Оплата: предоплата ${o.prepay}% в течение 3 рабочих дней с подписания, остаток — в течение 3 рабочих дней после подписания Акта.
+2.3. Исполнитель применяет НПД и предоставляет чек после каждой оплаты. В случае утраты права на НПД уведомляет Заказчика в течение 3 дней.
+2.4. Вознаграждение не облагается НДС; страховые взносы Заказчик не начисляет.
+
+3. ПОРЯДОК РАБОТЫ И ПРИЁМКА
+3.1. Работы выполняются лично Исполнителем; третьи лица — только с письменного согласия Заказчика.
+3.2. Заказчик предоставляет материалы и обратную связь в течение 3 рабочих дней.
+3.3. По завершении Исполнитель направляет Акт. У Заказчика 5 рабочих дней на подпись либо мотивированный отказ; при отсутствии ответа работы считаются принятыми.
+3.4. Исключительные права на результат переходят к Заказчику с момента полной оплаты.
+3.5. Исполнитель вправе использовать обезличенный кейс в портфолио, если письменно не оговорено иное.
+
+4. ОТВЕТСТВЕННОСТЬ И КОНФИДЕНЦИАЛЬНОСТЬ
+4.1. Пени за просрочку оплаты и за просрочку выполнения — 0,1% в день, не более 10% от стоимости.
+4.2. Стороны не разглашают конфиденциальную информацию третьим лицам.
+
+5. СПОРЫ И ПРОЧИЕ УСЛОВИЯ
+5.1. Обязательная досудебная претензия; срок ответа — 15 календарных дней.
+5.2. Стороны признают юридическую силу документов и переписки по электронной почте и в мессенджерах, указанным в реквизитах.
+
+РЕКВИЗИТЫ И ПОДПИСИ
+Заказчик: ${o.client||''}                    Исполнитель: ${o.fio||''}
+${o.mybank?req:''}`;
+ if(type==='act')return `АКТ № ${o.num}
+сдачи-приёмки оказанных услуг
+${o.contract?`к Договору № ${o.contract} `:''}от ${fmtDate(o.date)}
+
+Заказчик: ${o.client||'[заказчик]'}
+Исполнитель: ${o.fio||'[исполнитель]'} (плательщик НПД)
+
+1. Исполнитель выполнил: ${o.item||'[перечень работ, ссылки на результат]'}
+2. Работы выполнены в полном объёме и в срок, претензий по качеству нет.
+3. Стоимость работ: ${moneyStr}. Расчёт произведён полностью / остаток согласно Договору.
+4. Стороны взаимных претензий не имеют.
+
+ПОДПИСИ
+Заказчик: ______________          Исполнитель: ______________ / ${o.fio||''} /`;
+ if(type==='nda')return `СОГЛАШЕНИЕ О КОНФИДЕНЦИАЛЬНОСТИ № ${o.num}
+
+«${fmtDate(o.date)}»
+
+Стороны: ${o.client||'[сторона 1]'} и ${o.fio||'[сторона 2]'}${o.item?` — в связи с проектом: ${o.item}`:''}
+
+1. Конфиденциальная информация — любые сведения, переданные сторонами в связи с обсуждением и выполнением сотрудничества: идеи, код, макеты, коммерческие и персональные данные.
+2. Получающая сторона не раскрывает информацию третьим лицам и использует её только в целях сотрудничества.
+3. Обязательства действуют 3 (три) года с момента передачи информации.
+4. За нарушение — возмещение документально подтверждённых убытков.
+
+ПОДПИСИ
+${o.client||''}: ______________          ${o.fio||''}: ______________`;
+ if(type==='tz')return `ТЕХНИЧЕСКОЕ ЗАДАНИЕ № ${o.num} от ${fmtDate(o.date)}
+
+Заказчик: ${o.client||'[заказчик]'}
+Исполнитель: ${o.fio||'[исполнитель]'}
+
+1. ЦЕЛЬ ПРОЕКТА
+[сформулируйте бизнес-результат: что должно измениться после запуска]
+
+2. СОСТАВ РАБОТ
+${o.item||'— [перечислите работы по пунктам]'}
+
+3. ТРЕБОВАНИЯ
+[стек технологий, дизайн-макеты, адаптивность, браузеры/устройства, язык(и) интерфейса]
+
+4. КРИТЕРИИ ПРИЁМКИ
+[измеримые пункты, по которым принимается работа]
+
+5. СРОКИ И ЭТАПЫ
+${o.dead?'Общий срок: до '+fmtDate(o.dead):'[сроки]'}
+Этапы: [предоплата → дизайн/вёрстка → разработка → тестирование → сдача]
+
+6. СТОИМОСТЬ И ОПЛАТА
+${moneyStr}, предоплата ${o.prepay}%, остаток после подписания акта.
+
+ПОДПИСИ
+Заказчик: ______________          Исполнитель: ______________`;
+ return `ДОСУДЕБНАЯ ПРЕТЕНЗИЯ
+
+Кому: ${o.client||'[заказчик]'}
+От: ${o.fio||'[исполнитель]'}${o.myinn?`, ИНН ${o.myinn}`:''}
+
+${o.contract?`Между сторонами заключён Договор № ${o.contract}. `:''}Работы «${o.item||'[работы]'}» выполнены, Акт направлен Заказчику.
+Задолженность Заказчика составляет ${moneyStr}.
+
+На основании изложенного требую в течение 10 календарных дней погасить задолженность по реквизитам:
+${o.mybank?req:'[реквизиты]'}
+
+В противном случае обращаюсь в суд с взысканием задолженности, неустойки и судебных расходов.
+
+«${fmtDate(o.date)}»          Подпись: ______________ / ${o.fio||''} /`}
+function makeDoc(){const g=id=>document.getElementById(id).value;
+ const client=g('dw_client').trim(),type=g('dw_type'),amt=+g('dw_amt').value||0;
+ if(!client)return toast('Укажите заказчика');
+ if(type!=='nda'&&type!=='tz'&&!amt)return toast('Укажите сумму');
+ const bank={fio:g('dw_fio').trim(),inn:g('dw_myinn').trim(),addr:g('dw_addr').trim(),bank:g('dw_bank').trim(),bik:g('dw_bik').trim(),acc:g('dw_acc').trim()};
+ db.profile.bank=bank;
+ if(document.getElementById('dw_savep').checked&&!db.partners.some(p=>p.name===client))
+  db.partners.push({name:client,inn:g('dw_inn').trim()});
+ const o={num:g('dw_num').trim()||nextDocNum(),date:g('dw_date').value||today(),client,inn:g('dw_inn').trim(),contract:g('dw_contract').trim(),item:g('dw_item').value.trim(),amt,cur:g('dw_cur').value,prepay:g('dw_prepay').value||50,dead:g('dw_dead').value,fio:bank.fio||db.profile.name,myinn:bank.inn,myaddr:bank.addr,mybank:bank.bank,mybik:bank.bik,myacc:bank.acc};
+ const doc={id:uid(),type,...o,status:'Черновик',text:genDoc(type,o)};
+ db.docLog.unshift(doc);save();openDoc(doc.id);toast('Документ готов')}
+function openDoc(id){const d=db.docLog.find(x=>x.id===id);if(!d)return;
+ openModal(`<h3>${DOC_NAME[d.type]} №${esc(d.num)} — ${esc(d.client)}</h3>
+ <div id="printarea" class="docprint" contenteditable="true">${esc(d.text)}</div>
+ <p class="mut">Текст можно править прямо здесь перед копированием и печатью.</p>
+ <div class="row"><button class="btn" onclick="window.print()">🖨 Печать / PDF</button>
+ <button class="btn sec" onclick="copyText(document.getElementById('printarea').innerText)">📋 Копировать</button>
+ <button class="btn sec" onclick="closeModal()">Закрыть</button></div>
+ <div class="row" style="margin-top:8px">
+ <select onchange="setDocStatus('${d.id}',this.value)">${DOC_STATUS.map(s=>`<option ${s===d.status?'selected':''}>${s}</option>`).join('')}</select>
+ <button class="btn danger" onclick="delDoc('${d.id}')">Удалить</button></div>`)}
+function setDocStatus(id,s){const d=db.docLog.find(x=>x.id===id);if(d){d.status=s;save();if(tab==='law')render()}}
+function delDoc(id){if(confirm('Удалить документ?')){db.docLog=db.docLog.filter(d=>d.id!==id);save();render()}}
+const CHECK=['Предмет договора конкретен (ссылка на ТЗ, измеримый результат)','Цена, валюта и порядок оплаты (предоплата!)','Сроки и порядок приёмки: акт, срок мотивированного отказа','IP-права переходят только после полной оплаты','Оговорка о самозанятости / налоговом статусе','Неустойка за просрочку оплаты','Переписка и сканы имеют юридическую силу','Нет признаков трудовых отношений (риск переквалификации)'];
+const CHECK_CN=['Двуязычный договор (EN/中文), указать, какая версия приоритетна','Проверка контрагента: business license (营业执照)','Валюта платежа и кто несёт банковские комиссии','Поэтапная оплата, аванс','Подсудность/арбитраж (CIETAC либо суд по соглашению)','Критерии приёмки результата описаны измеримо'];
+
+/* ================= РАЗВИТИЕ ================= */
+function rDev(){
+ let h=`<h2>Развитие</h2><div class="card"><b>Матрица навыков</b>`;
+ db.skills.forEach((s,i)=>{h+=`<div class="skill"><div class="row spread"><span>${esc(s.n)}</span><span class="mut" id="sk${i}">${LEVELS[s.l]||''}</span></div>
+ <input type="range" min="0" max="5" value="${s.l}" style="width:100%" oninput="setSkill(${i},this.value)"></div>`});
+ h+=`<div class="row" style="margin-top:8px"><input id="nskill" placeholder="Новый навык (например, WebGL)"><button class="btn" onclick="addSkill()">+</button></div></div>
+ <div class="card"><b>Цели развития</b>`;
+ db.goals.forEach((g,i)=>{h+=`<div class="row" style="margin:8px 0"><input type="checkbox" ${g.done?'checked':''} onchange="toggleGoal(${i})">
+ <span style="flex:1;${g.done?'text-decoration:line-through;color:var(--mut)':''}">${esc(g.t)}${g.d?` <span class="mut">до ${g.d}</span>`:''}</span>
+ <button class="btn danger" onclick="delGoal(${i})">✕</button></div>`});
+ h+=`<div class="row" style="margin-top:8px"><input id="gt" placeholder="Цель: выучить Vue 3, поднять ставку…"><input type="date" id="gd"><button class="btn" onclick="addGoal()">+</button></div></div>`;
+ return h;
+}
+function setSkill(i,v){db.skills[i].l=+v;document.getElementById('sk'+i).textContent=LEVELS[v];save()}
+function addSkill(){const n=document.getElementById('nskill').value.trim();if(!n)return;db.skills.push({n,l:0});save();render()}
+function addGoal(){const t=document.getElementById('gt').value.trim();if(!t)return;db.goals.push({t,d:document.getElementById('gd').value,done:false});save();render()}
+function toggleGoal(i){db.goals[i].done=!db.goals[i].done;save();render()}
+function delGoal(i){db.goals.splice(i,1);save();render()}
+
+/* ================= НАСТРОЙКИ ================= */
+function rSet(){const p=db.profile;return `<h2>Настройки</h2>
+<div class="card"><b>Профиль</b>
+<label>Имя (как в письмах клиентам)</label><input value="${esc(p.name)}" oninput="db.profile.name=this.value;save()">
+<label>Специализация</label><input value="${esc(p.spec)}" oninput="db.profile.spec=this.value;save()">
+<label>Страна налогового резидентства</label><select onchange="db.profile.country=this.value;save()">${['ru','by','cn'].map(c=>`<option value="${c}" ${p.country===c?'selected':''}>${CNAME[c]}</option>`).join('')}</select>
+<label>Часовая ставка (для оценок)</label><div class="row2"><div><input type="number" value="${p.rate}" oninput="db.profile.rate=+this.value||0;save()"></div>
+<div><select onchange="db.profile.currency=this.value;save();render()">${['RUB','BYN','CNY','USD'].map(c=>`<option ${p.currency===c?'selected':''}>${c}</option>`).join('')}</select></div></div></div>
+<div class="card"><b>🔒 PIN-код</b>
+${db.pinHash?`<div class="mut">PIN установлен. Приложение блокируется при открытии и при сворачивании.</div>
+<div class="row" style="margin-top:8px"><button class="btn sec" onclick="changePinFlow()">Сменить PIN</button><button class="btn danger" onclick="removePinFlow()">Удалить PIN</button></div>`
+:`<div class="mut">Защитите клиентов, финансы и документы от посторонних глаз.</div>
+<div class="row2" style="margin-top:8px"><div><label>Новый PIN (4–8 цифр)</label><input type="password" id="pin1" inputmode="numeric"></div>
+<div><label>Повторите PIN</label><input type="password" id="pin2" inputmode="numeric"></div></div>
+<div class="row"><button class="btn" onclick="setPin()">Установить PIN</button></div>`}
+<p class="mut" style="margin-top:8px">⚠️ Забыли PIN — доступ вернёт только сброс данных браузера (все данные пропадут). Делайте бэкапы!</p></div>
+<div class="card"><b>Курсы валют (обновляйте вручную)</b>
+<label>1 BYN = … RUB</label><input type="number" step="0.01" value="${p.rates.BYN}" oninput="db.profile.rates.BYN=+this.value||1;save()">
+<label>1 CNY = … RUB</label><input type="number" step="0.01" value="${p.rates.CNY}" oninput="db.profile.rates.CNY=+this.value||1;save()">
+<label>1 USD = … RUB</label><input type="number" step="0.01" value="${p.rates.USD}" oninput="db.profile.rates.USD=+this.value||1;save()"></div>
+<div class="card"><b>Данные</b><p class="mut">Всё хранится локально в браузере. Регулярно делайте резервную копию!</p>
+<div class="row" style="margin-top:8px"><button class="btn" onclick="exportData()">⬇ Экспорт JSON</button>
+<button class="btn sec" onclick="document.getElementById('impf').click()">⬆ Импорт</button>
+<input type="file" id="impf" accept=".json,application/json" style="display:none" onchange="importData(this)">
+<button class="btn danger" onclick="if(confirm('Удалить ВСЕ данные?')){localStorage.removeItem(KEY);location.reload()}">Сброс</button></div></div>`}
+function exportData(){const b=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='solodev-backup-'+today()+'.json';a.click()}
+function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();
+ r.onload=e=>{try{db=JSON.parse(e.target.result);save();locked=!!db.pinHash;render();toast('Импортировано')}catch(err){toast('Ошибка файла')}};r.readAsText(f)}
+
+/* ================= РЕНДЕР + PWA ================= */
+const VIEW={dash:rDash,radar:rPains,clients:rClients,props:rProps,proj:rProj,plan:rPlan,time:rTime,fin:rFin,tax:rTax,law:rLaw,dev:rDev,set:rSet};
+function render(){
+ document.getElementById('tabs').style.display=locked?'none':'flex';
+ document.getElementById('lockbtn').style.display=(db.pinHash&&!locked)?'':'none';
+ if(locked){document.getElementById('modal').classList.remove('on');document.getElementById('view').innerHTML=rLock();return}
+ document.getElementById('view').innerHTML=VIEW[tab]();if(tab==='tax')taxCalcNow();
+ document.getElementById('hdr').textContent=new Date().toLocaleDateString('ru-RU')}
+rTabs();render();
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
+ navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+  </html>
