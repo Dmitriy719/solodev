@@ -749,7 +749,7 @@ function delDoc(id){if(confirm('Удалить?')){db.docLog=db.docLog.filter(d=
 let devView='skills',kbFilter='Все',kbQ='';
 function rDev(){
  let h=`<h2>Развитие</h2>
- <div class="chips">${[['skills','🧩 Навыки'],['goals','🎯 Цели'],['kb',' База знаний']].map(([v,l])=>`<button class="chip ${devView===v?'on':''}" onclick="devView='${v}';render()">${l}</button>`).join('')}</div>`;
+ <div class="chips">${[['skills','🧩 Навыки'],['goals','🎯 Цели'],['kb','📚 База знаний']].map(([v,l])=>`<button class="chip ${devView===v?'on':''}" onclick="devView='${v}';render()">${l}</button>`).join('')}</div>`;
  return h+(devView==='skills'?rSkills():devView==='goals'?rGoals():rKb());
 }
 function rSkills(){
@@ -802,7 +802,7 @@ function openKbModal(id){const k=id?db.kb.find(x=>x.id===id):{dir:'',topic:'',th
 <label>Тема</label><input id="kb_topic" value="${esc(k.topic)}">
 <label>⏱ Время</label><input id="kb_time" value="${esc(k.time||'')}" placeholder="2 недели по 1 часу в день">
 <label>📖 Теория</label><textarea id="kb_theory" rows="4">${esc(k.theory)}</textarea>
-<label> Практика</label><textarea id="kb_practice" rows="3">${esc(k.practice)}</textarea>
+<label>🛠 Практика</label><textarea id="kb_practice" rows="3">${esc(k.practice)}</textarea>
 <label>🔗 Ресурсы</label><textarea id="kb_res" rows="2">${esc(k.res||'')}</textarea>
 <label>Статус</label><select id="kb_status">${KB_ST.map(s=>`<option ${k.status===s?'selected':''}>${s}</option>`).join('')}</select>
 <div class="row"><button class="btn" onclick="saveKb('${id||''}')">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
@@ -879,4 +879,4 @@ if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostnam
 }
 </script>
 </body>
- </html>
+</html>
