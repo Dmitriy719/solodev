@@ -1,4 +1,4 @@
-const VERSION = 'v0.8-' + Date.now();
+const VERSION = 'v0.8.1';
 const CACHE_NAME = 'solodev-' + VERSION;
 const ASSETS = [
   './',
@@ -7,13 +7,21 @@ const ASSETS = [
   './icon.svg'
 ];
 
+// Установка: кэшируем ресурсы, но не падаем, если что-то недоступно
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => 
+      Promise.all(
+        ASSETS.map(url => cache.add(url).catch(err => {
+          console.warn('Не удалось кэшировать:', url, err);
+        }))
+      )
+    )
   );
   self.skipWaiting();
 });
 
+// Активация: удаляем старые кэши
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -23,8 +31,13 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// Перехват запросов
 self.addEventListener('fetch', e => {
-  if (e.request.url.endsWith('.html') || e.request.url.endsWith('/')) {
+  // Обрабатываем только GET-запросы
+  if (e.request.method !== 'GET') return;
+
+  // Для HTML и навигации всегда берём свежую версию
+  if (e.request.mode === 'navigate' || e.request.url.endsWith('.html')) {
     e.respondWith(
       fetch(e.request, { cache: 'no-store' })
         .then(r => {
@@ -36,7 +49,19 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
+
+  // Для остальных ресурсов: кэш → сеть
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    caches.match(e.request).then(r => {
+      if (r) return r;
+      return fetch(e.request).then(response => {
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(e.request, copy));
+        return response;
+      });
+    }).catch(() => new Response('Офлайн', { status: 503, statusText: 'Offline' }))
   );
 });
