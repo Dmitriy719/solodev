@@ -32,6 +32,7 @@ h3{margin-bottom:10px}
 .plus{color:var(--ok)}.minus{color:var(--bad)}
 .note{background:var(--card2);border-radius:8px;padding:8px;margin:6px 0;font-size:13px;color:var(--mut)}
 .warn{background:#241d0e;border-color:#5a4a1e}
+.ai{background:#1a2035;border-color:#3a4a7a}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .row.spread{justify-content:space-between}
 .row select,.row input,.row button{margin:0}
@@ -45,6 +46,7 @@ textarea{resize:vertical}
 .btn{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 15px;font-size:14px;font-weight:600}
 .btn.sec{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
 .btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad);padding:10px 12px}
+.btn.ai-btn{background:linear-gradient(90deg,var(--acc),var(--acc2))}
 .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px}
 .chip{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--mut);border-radius:16px;padding:6px 12px;font-size:12px}
 .chip.on{background:var(--acc);color:#fff;border-color:transparent}
@@ -64,11 +66,7 @@ details summary{font-weight:700;cursor:pointer}
 .m-card{background:var(--card);width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px;border-top:1px solid var(--line)}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#fff;color:#000;padding:8px 16px;border-radius:20px;font-size:13px;z-index:50}
 .hello{color:var(--mut);margin:2px 0 12px}
-@media print{
- body *{visibility:hidden}
- #printarea,#printarea *{visibility:visible}
- #printarea{position:fixed;left:0;top:0;width:100%;border-radius:0!important}
-}
+@media print{body *{visibility:hidden}#printarea,#printarea *{visibility:visible}#printarea{position:fixed;left:0;top:0;width:100%;border-radius:0!important}}
 </style>
 </head>
 <body>
@@ -89,7 +87,7 @@ const CURS={RUB:'₽',BYN:'Br',CNY:'¥',USD:'$'};
 const FLAG={ru:'🇷🇺',by:'🇧🇾',cn:'🇨🇳'};
 const CNAME={ru:'Россия',by:'Беларусь',cn:'Китай'};
 const MOOD_E={1:'😞',2:'😕',3:'😐',4:'🙂',5:'😄'};
-const SOURCES=['Холодный поиск','Telegram','Рекомендация','Хабр/VC','LinkedIn','WeChat','Радар (боли)','Другое'];
+const SOURCES=['Автопоиск (ИИ)','Холодный поиск','Telegram','Рекомендация','Хабр/VC','LinkedIn','WeChat','Радар (боли)','Другое'];
 const CLIENT_ST=['Новый','Контакт','Переговоры','Оффер','Договор','В работе','Завершён','Отказ'];
 const PROP_ST=['Черновик','Отправлен','Принят','Отклонён','Договор'];
 const PROJ_ST=['Предоплата','Разработка','Тестирование','Сдача','Оплачен','Пауза'];
@@ -101,20 +99,37 @@ const MONTHS=['январь','февраль','март','апрель','май'
 const DAYS_W=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const KB_ST=['Не начато','Изучаю','Практика','Освоено'];
 const UNITS=['проект','час','месяц','шт'];
+
+/* НОВОЕ: все специализации + база болей */
+const ALL_SPECS=['Фронтенд','Бэкенд','Мобильная разработка','Боты и интеграции','DevOps и хостинг','Дизайн и UI','Данные и ML','Бизнес-навыки'];
+
+const PAIN_DB={
+ 'Фронтенд':[{seg:'Владельцы интернет-магазинов',pain:'Сайт медленно загружается, покупатели уходят до оформления заказа',sol:'Оптимизация скорости: сжатие изображений, ленивая загрузка, кэширование',demand:5},{seg:'Стартапы без сайта',pain:'Нет современного сайта, теряют доверие инвесторов и клиентов',sol:'Лендинг или корпоративный сайт под ключ за 1-2 недели',demand:4},{seg:'Владельцы услуг (салоны, ремонт)',pain:'Клиенты звонят вместо онлайн-записи, теряются заявки',sol:'Форма онлайн-записи с интеграцией в календарь и уведомлениями',demand:4},{seg:'Маркетологи и рекламные агентства',pain:'Рекламные кампании не конвертируют, посадочные страницы слабые',sol:'A/B тесты, редизайн посадочных страниц, улучшение конверсии',demand:5},{seg:'Владельцы ресторанов и кафе',pain:'Нет онлайн-меню и заказов, зависят от агрегаторов с высокими комиссиями',sol:'Сайт с меню, формой заказа и оплатой',demand:4},{seg:'Онлайн-школы и курсы',pain:'Нет удобной платформы для учеников',sol:'Личный кабинет, расписание, интеграция оплаты',demand:4},{seg:'Сайты со старым дизайном',pain:'Сайт выглядит устаревшим, стыдно давать ссылку клиентам',sol:'Редизайн с сохранением контента и SEO',demand:4}],
+ 'Бэкенд':[{seg:'Стартапы с MVP',pain:'Нужен быстрый бэкенд для приложения, нет своего разработчика',sol:'REST API на Node.js/Python за 1-2 недели',demand:5},{seg:'Владельцы сайтов с ручной обработкой',pain:'Заявки приходят в почту/Telegram, обрабатываются вручную',sol:'Автоматизация: CRM, уведомления, статусы заказов',demand:5},{seg:'Интернет-магазины без интеграций',pain:'Остатки и заказы не синхронизируются между сайтом и складом',sol:'Интеграция с 1С/МойСклад/Excel',demand:4}],
+ 'Мобильная разработка':[{seg:'Владельцы доставки',pain:'Нет мобильного приложения, клиенты заказывают только через сайт',sol:'Приложение на React Native/Flutter с push-уведомлениями',demand:5},{seg:'Стартапы с идеей приложения',pain:'Есть идея, но нет команды для разработки MVP',sol:'MVP приложения за 3-4 недели',demand:5}],
+ 'Боты и интеграции':[{seg:'Владельцы Telegram-каналов и чатов',pain:'Много однотипных вопросов, нет времени отвечать всем',sol:'Бот с FAQ и приёмом заявок',demand:5},{seg:'Интернет-магазины',pain:'Заказы в Telegram обрабатываются вручную',sol:'Бот-магазин с каталогом и оплатой',demand:5},{seg:'Службы поддержки',pain:'Операторы отвечают на одни и те же вопросы',sol:'Бот первой линии поддержки с эскалацией',demand:5}],
+ 'DevOps и хостинг':[{seg:'Стартапы без DevOps',pain:'Сайт падает при нагрузке, нет автоматизации деплоя',sol:'Настройка CI/CD, мониторинга, автомасштабирования',demand:4},{seg:'Команды без автоматизации',pain:'Деплой вручную, частые ошибки при обновлении',sol:'Настройка CI/CD пайплайна',demand:4}],
+ 'Дизайн и UI':[{seg:'Стартапы без дизайнера',pain:'Продукт выглядит непрофессионально, отталкивает пользователей',sol:'UI-кит и дизайн основных экранов',demand:5},{seg:'Сайты со старым дизайном',pain:'Дизайн 2010-х годов, стыдно показывать клиентам',sol:'Редизайн с сохранением контента',demand:5}],
+ 'Данные и ML':[{seg:'Компании без аналитики',pain:'Решения принимаются интуитивно, нет данных',sol:'Дашборды и автоматические отчёты',demand:4},{seg:'Компании, внедряющие ИИ',pain:'Хотят ChatGPT в продукте, но не знают как',sol:'Интеграция LLM API в приложение',demand:5}],
+ 'Бизнес-навыки':[{seg:'Начинающие фрилансеры',pain:'Не умеют оценивать проекты и вести переговоры',sol:'Консультации и менторство',demand:3}]};
+
+const TIPS_POOL=['Начните день с самой сложной задачи.','После 2 часов фокуса — перерыв 15 минут.','Проверьте почту в выделенное время.','Вечером планируйте завтра.','Один день в неделю — без работы.','Задачи >2ч разбивайте на подзадачи.','Перед созвоном запишите 3 вопроса.','Фиксируйте время работы.'];
+
 const SKILL_DIR={
- 'Фронтенд':['HTML/CSS','JavaScript','TypeScript','React','Vue','Svelte','Next.js','Nuxt','Адаптивная вёрстка','Анимации и CSS','Доступность (a11y)','Web Components','WebGL / Three.js'],
- 'Бэкенд':['Node.js','Python','PHP','Go','Java','REST API','GraphQL','PostgreSQL','MySQL','MongoDB','Redis','Авторизация и JWT','Очереди задач'],
- 'Мобильная разработка':['React Native','Flutter','Android (Kotlin)','iOS (Swift)','PWA','Expo','Публикация в сторах'],
- 'Боты и интеграции':['Telegram-боты','Боты WhatsApp / WeChat','Платёжные интеграции','Парсинг и API','Webhook','Автоматизация (n8n)'],
- 'DevOps и хостинг':['Git / GitHub','Linux и SSH','Docker','CI/CD','Nginx','VPS-администрирование','Cloudflare / Vercel / Netlify','Мониторинг и логи'],
- 'Дизайн и UI':['Figma','Основы UI/UX','Прототипирование','Дизайн-системы','Баннеры и графика'],
- 'Данные и ML':['SQL и аналитика','Парсинг данных','Основы ML','Интеграции LLM (API)','Визуализация данных'],
- 'Бизнес-навыки':['Оценка проектов','Переговоры','Продажи услуг','ТЗ и документация','Английский язык','Китайский язык']};
+ 'Фронтенд':['HTML/CSS','JavaScript','TypeScript','React','Vue','Svelte','Next.js','Nuxt','Адаптивная вёрстка','Анимации и CSS','Доступность (a11y)','Web Components','WebGL / Three.js','Astro','Tailwind CSS'],
+ 'Бэкенд':['Node.js','Python','PHP','Go','Java','C#','REST API','GraphQL','PostgreSQL','MySQL','MongoDB','Redis','Авторизация и JWT','Очереди задач','Микросервисы','Django','Laravel','Spring Boot'],
+ 'Мобильная разработка':['React Native','Flutter','Android (Kotlin)','iOS (Swift)','PWA','Expo','Публикация в сторах','Kotlin Multiplatform'],
+ 'Боты и интеграции':['Telegram-боты','Боты WhatsApp / WeChat','Платёжные интеграции','Парсинг и API','Webhook','Автоматизация (n8n)','ChatGPT API','Интеграция CRM'],
+ 'DevOps и хостинг':['Git / GitHub','Linux и SSH','Docker','Kubernetes','CI/CD','Nginx','VPS-администрирование','Cloudflare / Vercel / Netlify','Мониторинг и логи','Terraform'],
+ 'Дизайн и UI':['Figma','Основы UI/UX','Прототипирование','Дизайн-системы','Баннеры и графика','Веб-дизайн','Motion Design'],
+ 'Данные и ML':['SQL и аналитика','Парсинг данных','Основы ML','Интеграции LLM (API)','Визуализация данных','Python для данных','Power BI'],
+ 'Бизнес-навыки':['Оценка проектов','Переговоры','Продажи услуг','ТЗ и документация','Английский язык','Китайский язык','Финансовая грамотность','Маркетинг для фрилансера']};
+
 const DEF_TPL='08:30 | Утро: зарядка, завтрак, без работы\n09:30 | Глубокая работа: главный проект (спринт 1)\n11:30 | Перерыв: чай, разминка\n12:00 | Глубокая работа: главный проект (спринт 2)\n14:00 | Обед и отдых без телефона\n15:00 | Коммуникации: сообщения, почта, созвоны\n16:00 | Привлечение: 1 письмо/контакт (Радар)\n16:30 | Финальный спринт: задачи проекта\n18:00 | 🔒 Конец рабочего дня: итоги, лог времени\n18:30 | Спорт или прогулка\n19:30 | Семейный ужин, без телефона\n21:00 | Дом, семья, отдых\n22:30 | Подготовка ко сну';
 const DEF_FAM=['Время с семьёй (без телефона)','Дом: дела и уют','Спорт или прогулка','Отдых / хобби'];
 
 function seed(){return{
- profile:{name:'',spec:'Frontend / веб-разработка',country:'ru',currency:'RUB',rate:1500,rates:{BYN:30,CNY:11.5,USD:90},bank:{}},
+ profile:{name:'',spec:'Frontend / веб-разработка',country:'ru',currency:'RUB',rate:1500,rates:{BYN:30,CNY:11.5,USD:90},ratesUpdated:'',bank:{},specs:['Фронтенд'],accessPassword:''},
  clients:[],proposals:[],projects:[],fin:[],tasks:[],sessions:[],plan:[],blocks:[],invoices:[],docLog:[],partners:[],wellbeing:[],
  prices:[
   {id:uid(),name:'Лендинг под ключ',desc:'Адаптивная вёрстка по макету, форма заявки, публикация',price:30000,cur:'RUB',unit:'проект'},
@@ -125,26 +140,27 @@ function seed(){return{
   {id:uid(),name:'Поддержка сайта',desc:'Мелкие доработки, обновления, мониторинг',price:15000,cur:'RUB',unit:'месяц'},
   {id:uid(),name:'Консультация / аудит',desc:'Разбор задачи, оценка, рекомендации',price:5000,cur:'RUB',unit:'час'}],
  kb:[
-  {id:uid(),dir:'Фронтенд',topic:'Семантическая HTML-разметка',theory:'Теги header, nav, main, section, article, aside, footer описывают смысл блоков. Это улучшает SEO, доступность (скринридеры) и читаемость кода. Проверка: validator.w3.org.',practice:'Возьмите свою вёрстку на div и замените блоки на семантические теги. Прогоните через W3C-валидатор и исправьте все ошибки.',status:'Не начато'},
-  {id:uid(),dir:'Фронтенд',topic:'Flexbox и Grid',theory:'Flexbox — одномерные раскладки (ряд/колонка), Grid — двумерные сетки. Ключевое: justify-content, align-items, gap, grid-template-columns, repeat/auto-fit.',practice:'Сверстайте галерею карточек: 3 колонки на десктопе (Grid, auto-fit), 1 на мобильном. Шапка: логотип слева, меню справа (Flexbox).',status:'Не начато'},
-  {id:uid(),dir:'Фронтенд',topic:'JavaScript: DOM и события',theory:'document.querySelector, addEventListener, создание/удаление элементов. События всплывают: делегирование — один обработчик на контейнер вместо десятков.',practice:'Список задач без фреймворка: добавление, отметка выполнения, удаление, сохранение в localStorage.',status:'Не начато'},
-  {id:uid(),dir:'Фронтенд',topic:'Асинхронность: fetch и async/await',theory:'Promise, then/catch, async/await, try/catch. fetch возвращает промис ответа, данные — await res.json(). Всегда обрабатывайте ошибки сети.',practice:'Мини-приложение: по кнопке загружать пользователя с https://randomuser.me/api, показывать фото и имя. Добавьте спиннер и обработку ошибки.',status:'Не начато'},
-  {id:uid(),dir:'Фронтенд',topic:'TypeScript: основы',theory:'Типы переменных и функций, интерфейсы, union-типы, дженерики. TS ловит ошибки до запуска и служит живой документацией кода.',practice:'Переведите свой список задач с JS на TS: опишите интерфейс Task, типизируйте функции добавления/удаления.',status:'Не начато'},
-  {id:uid(),dir:'Фронтенд',topic:'React: компоненты и состояние',theory:'Компонент = функция, возвращающая JSX. useState — локальное состояние, props — входные данные, ключи в списках, useEffect — побочные эффекты.',practice:'Счётчик + список заметок на useState. Затем вынесите заметки в отдельный компонент и передайте данные через props.',status:'Не начато'},
-  {id:uid(),dir:'Фронтенд',topic:'Vue 3: реактивность',theory:'ref/reactive, v-bind, v-model, v-for, computed, Composition API. Реактивность: изменили ref — интерфейс обновился сам.',practice:'Форма обратной связи с валидацией на v-model + computed-флаг «можно отправлять».',status:'Не начато'},
-  {id:uid(),dir:'Бэкенд',topic:'REST API на Node.js + Express',theory:'Маршруты GET/POST/PUT/DELETE, коды ответов 200/201/400/404, JSON-тело, middleware. Схема: клиент → запрос → обработчик → ответ.',practice:'CRUD API для задач (список/создание/изменение/удаление) с хранением в JSON-файле. Проверьте запросы через браузер или curl.',status:'Не начато'},
-  {id:uid(),dir:'DevOps и хостинг',topic:'Git: рабочий процесс',theory:'commit, branch, merge, конфликты и их решение. Правила: одна задача — одна ветка, понятные сообщения коммитов, частые пуши.',practice:'Создайте репозиторий, сделайте ветку, 5 осмысленных коммитов, смёрджте в main, специально создайте конфликт и решите его.',status:'Не начато'},
-  {id:uid(),dir:'Бизнес-навыки',topic:'Оценка проектов и ставка',theory:'Формула: (часы × ставка) + риски 20–30%. Типичные ошибки: назвать цену до вопросов, не учесть правки и коммуникацию (это ещё +20% времени).',practice:'Оцените 3 реальных запроса по формуле. После выполнения сравните оценку с фактом из журнала времени и скорректируйте ставку.',status:'Не начато'}],
+  {id:uid(),dir:'Фронтенд',topic:'Семантическая HTML-разметка',theory:'Теги header, nav, main, section, article, aside, footer описывают смысл блоков. Это улучшает SEO, доступность (скринридеры) и читаемость кода. Проверка: validator.w3.org.',practice:'Возьмите свою вёрстку на div и замените блоки на семантические теги. Прогоните через W3C-валидатор и исправьте все ошибки.',time:'2–3 дня',res:'developer.mozilla.org/ru/docs/Web/HTML',status:'Не начато'},
+  {id:uid(),dir:'Фронтенд',topic:'Flexbox и Grid',theory:'Flexbox — одномерные раскладки (ряд/колонка), Grid — двумерные сетки. Ключевое: justify-content, align-items, gap, grid-template-columns, repeat/auto-fit.',practice:'Сверстайте галерею карточек: 3 колонки на десктопе (Grid, auto-fit), 1 на мобильном. Шапка: логотип слева, меню справа (Flexbox).',time:'3–5 дней',res:'css-tricks.com/snippets/css/a-guide-to-flexbox',status:'Не начато'},
+  {id:uid(),dir:'Фронтенд',topic:'JavaScript: DOM и события',theory:'document.querySelector, addEventListener, создание/удаление элементов. События всплывают: делегирование — один обработчик на контейнер вместо десятков.',practice:'Список задач без фреймворка: добавление, отметка выполнения, удаление, сохранение в localStorage.',time:'1 неделя',res:'learn.javascript.ru',status:'Не начато'},
+  {id:uid(),dir:'Фронтенд',topic:'Асинхронность: fetch и async/await',theory:'Promise, then/catch, async/await, try/catch. fetch возвращает промис ответа, данные — await res.json(). Всегда обрабатывайте ошибки сети.',practice:'Мини-приложение: по кнопке загружать пользователя с https://randomuser.me/api, показывать фото и имя. Добавьте спиннер и обработку ошибки.',time:'3–4 дня',res:'developer.mozilla.org/ru/docs/Web/API/Fetch_API',status:'Не начато'},
+  {id:uid(),dir:'Фронтенд',topic:'TypeScript: основы',theory:'Типы переменных и функций, интерфейсы, union-типы, дженерики. TS ловит ошибки до запуска и служит живой документацией кода.',practice:'Переведите свой список задач с JS на TS: опишите интерфейс Task, типизируйте функции добавления/удаления.',time:'1–2 недели',res:'typescriptlang.org/docs',status:'Не начато'},
+  {id:uid(),dir:'Фронтенд',topic:'React: компоненты и состояние',theory:'Компонент = функция, возвращающая JSX. useState — локальное состояние, props — входные данные, ключи в списках, useEffect — побочные эффекты.',practice:'Счётчик + список заметок на useState. Затем вынесите заметки в отдельный компонент и передайте данные через props.',time:'2–3 недели',res:'react.dev/learn',status:'Не начато'},
+  {id:uid(),dir:'Фронтенд',topic:'Vue 3: реактивность',theory:'ref/reactive, v-bind, v-model, v-for, computed, Composition API. Реактивность: изменили ref — интерфейс обновился сам.',practice:'Форма обратной связи с валидацией на v-model + computed-флаг «можно отправлять».',time:'2–3 недели',res:'vuejs.org/guide',status:'Не начато'},
+  {id:uid(),dir:'Бэкенд',topic:'REST API на Node.js + Express',theory:'Маршруты GET/POST/PUT/DELETE, коды ответов 200/201/400/404, JSON-тело, middleware. Схема: клиент → запрос → обработчик → ответ.',practice:'CRUD API для задач (список/создание/изменение/удаление) с хранением в JSON-файле. Проверьте запросы через браузер или curl.',time:'1–2 недели',res:'expressjs.com/ru/guide/routing.html',status:'Не начато'},
+  {id:uid(),dir:'DevOps и хостинг',topic:'Git: рабочий процесс',theory:'commit, branch, merge, конфликты и их решение. Правила: одна задача — одна ветка, понятные сообщения коммитов, частые пуши.',practice:'Создайте репозиторий, сделайте ветку, 5 осмысленных коммитов, смёрджте в main, специально создайте конфликт и решите его.',time:'3–5 дней',res:'git-scm.com/book/ru',status:'Не начато'},
+  {id:uid(),dir:'Бизнес-навыки',topic:'Оценка проектов и ставка',theory:'Формула: (часы × ставка) + риски 20–30%. Типичные ошибки: назвать цену до вопросов, не учесть правки и коммуникацию (это ещё +20% времени).',practice:'Оцените 3 реальных запроса по формуле. После выполнения сравните оценку с фактом из журнала времени и скорректируйте ставку.',time:'3–5 дней',res:'',status:'Не начато'}],
  mails:0,pinHash:null,dayTpl:DEF_TPL,
  balance:{limitMin:360,items:[...DEF_FAM],checks:{}},
- tax:{regime:'ru_npdu',limit:2400000,calc:{ind:'',ent:''}},
+ tax:{regime:'ru_npdu',limit:2400000,calc:{ind:'',ent:''},useDeduct:false,byPensioner:false},
  pains:[{id:uid(),seg:'Малый бизнес: доставка еды',pain:'Сайт медленный, заказы теряются на мобильных',demand:4,src:'Чат предпринимателей в Telegram',sol:'Лёгкий лендинг + форма заказа, ускорение загрузки',status:'Гипотеза',note:''}],
  channels:[{name:'Telegram-чаты ниши',action:'5 полезных контактов в день',status:'В работе',leads:0},{name:'Холодные письма',action:'10 писем в неделю с кейсом',status:'Планируется',leads:0}],
  avatar:{who:'',pain:'',fear:'',obj:'',trigger:'',where:''},
  skills:[{n:'HTML/CSS',l:4},{n:'JavaScript',l:3},{n:'TypeScript',l:2},{n:'React',l:3},{n:'Vue',l:2},{n:'Node.js',l:2},{n:'Figma → вёрстка',l:3}],
  goals:[]};}
+
 function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
-let db=(()=>{const s=seed(),l=load();let d=l?{...s,...l,profile:{...s.profile,...(l.profile||{}),bank:{...((l.profile&&l.profile.bank)||{})}},tax:{...s.tax,...(l.tax||{}),calc:{...((l.tax&&l.tax.calc)||{})}}}:s;
+let db=(()=>{const s=seed(),l=load();let d=l?{...s,...l,profile:{...s.profile,...(l.profile||{}),bank:{...((l.profile&&l.profile.bank)||{})},rates:{...s.profile.rates,...((l.profile&&l.profile.rates)||{})}},tax:{...s.tax,...(l.tax||{}),calc:{...((l.tax&&l.tax.calc)||{})}}}:s;
  ['pains','channels','tasks','sessions','plan','blocks','invoices','docLog','partners','wellbeing','prices','kb'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});
  d.avatar={who:'',pain:'',fear:'',obj:'',trigger:'',where:'',...(d.avatar||{})};
  d.balance={limitMin:360,items:[...DEF_FAM],checks:{},...(d.balance||{})};
@@ -153,47 +169,34 @@ let db=(()=>{const s=seed(),l=load();let d=l?{...s,...l,profile:{...s.profile,..
  if(typeof d.mails!=='number')d.mails=0;
  d.pinHash=d.pinHash||null;
  if(!d.dayTpl)d.dayTpl=DEF_TPL;
+ /* НОВОЕ: миграция полей */
+ if(!Array.isArray(d.profile.specs))d.profile.specs=['Фронтенд'];
+ if(!d.profile.ratesUpdated)d.profile.ratesUpdated='';
+ if(typeof d.profile.accessPassword!=='string')d.profile.accessPassword='';
+ if(typeof d.tax.useDeduct!=='boolean')d.tax.useDeduct=false;
+ if(typeof d.tax.byPensioner!=='boolean')d.tax.byPensioner=false;
+ d.kb.forEach(k=>{if(!k.time)k.time='';if(!k.res)k.res=''});
  return d})();
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 
-/* ================= PIN-ЗАМОК ================= */
-let locked=!!db.pinHash;
-async function hashPin(pin){
- const s='solodev:'+pin;
- if(window.crypto&&crypto.subtle){
-  try{const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
-   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}catch(e){}
- }
- let h=5381;for(let i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))>>>0}
- return 'f'+h.toString(16);
-}
-function rLock(){return `<div style="max-width:340px;margin:60px auto;text-align:center">
- <div style="font-size:44px">🔒</div><h3>SoloDev</h3>
- <p class="mut">Введите PIN-код</p>
- <input type="password" id="pinin" inputmode="numeric" autocomplete="off" maxlength="8"
-  style="text-align:center;font-size:26px;letter-spacing:10px"
-  onkeydown="if(event.key==='Enter')tryUnlock()">
- <button class="btn" style="width:100%" onclick="tryUnlock()">Войти</button>
- <p class="mut" style="margin-top:12px">Забыли PIN? Доступ вернёт только сброс данных браузера (данные будут утеряны).</p></div>`}
-async function tryUnlock(){const el=document.getElementById('pinin');const v=el.value;
- if(!v)return;
- const h=await hashPin(v);
- if(h===db.pinHash){locked=false;render();toast('С возвращением!')}
- else{toast('Неверный PIN');el.value='';el.focus()}}
+/* ================= НОВОЕ: АВТОКУРСЫ ВАЛЮТ ================= */
+async function fetchRates(){try{const r=await fetch('https://open.er-api.com/v6/latest/RUB');if(!r.ok)return false;const j=await r.json();if(j.rates){const byn=j.rates.BYN,cny=j.rates.CNY,usd=j.rates.USD;if(byn)db.profile.rates.BYN=Math.round(1/byn*100)/100;if(cny)db.profile.rates.CNY=Math.round(1/cny*100)/100;if(usd)db.profile.rates.USD=Math.round(1/usd*100)/100;db.profile.ratesUpdated=new Date().toLocaleString('ru-RU');save();return true}}catch(e){}return false}
+async function updateRates(){toast('Обновляю курсы…');const ok=await fetchRates();toast(ok?'Курсы обновлены':'Нет интернета — используются сохранённые курсы');if(tab==='set'||tab==='fin')render()}
+
+/* ================= PIN-ЗАМОК + ГОСТЕВОЙ ДОСТУП ================= */
+let locked=!!db.pinHash,accessGranted=false;
+async function hashPin(pin){const s='solodev:'+pin;if(window.crypto&&crypto.subtle){try{const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}catch(e){}}let h=5381;for(let i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))>>>0}return 'f'+h.toString(16);}
+function checkAccess(){if(!db.profile.accessPassword||accessGranted)return true;openModal(`<div style="text-align:center;padding:20px 0"><div style="font-size:44px">🔐</div><h3>Доступ к SoloDev</h3><p class="mut">Введите пароль</p><input type="password" id="guestpass" style="text-align:center;font-size:20px;letter-spacing:4px" onkeydown="if(event.key==='Enter')submitGuestPass()"><button class="btn" style="width:100%;margin-top:10px" onclick="submitGuestPass()">Войти</button></div>`);return false}
+function submitGuestPass(){const p=document.getElementById('guestpass').value;if(p===db.profile.accessPassword){accessGranted=true;closeModal();render();toast('Добро пожаловать!')}else toast('Неверный пароль')}
+function rLock(){return `<div style="max-width:340px;margin:60px auto;text-align:center"><div style="font-size:44px">🔒</div><h3>SoloDev</h3><p class="mut">Введите PIN-код</p><input type="password" id="pinin" inputmode="numeric" autocomplete="off" maxlength="8" style="text-align:center;font-size:26px;letter-spacing:10px" onkeydown="if(event.key==='Enter')tryUnlock()"><button class="btn" style="width:100%" onclick="tryUnlock()">Войти</button><p class="mut" style="margin-top:12px">Забыли PIN? Доступ вернёт только сброс данных браузера (данные будут утеряны).</p></div>`}
+async function tryUnlock(){const el=document.getElementById('pinin');const v=el.value;if(!v)return;const h=await hashPin(v);if(h===db.pinHash){locked=false;render();toast('С возвращением!')}else{toast('Неверный PIN');el.value='';el.focus()}}
 function lockNow(){locked=true;render()}
-async function setPin(){const a=document.getElementById('pin1').value,b=document.getElementById('pin2').value;
- if(!/^\d{4,8}$/.test(a))return toast('PIN: от 4 до 8 цифр');
- if(a!==b)return toast('PIN-коды не совпадают');
- db.pinHash=await hashPin(a);save();render();toast('PIN установлен')}
-async function removePinFlow(){const v=prompt('Введите текущий PIN');if(v===null)return;
- if(await hashPin(v)===db.pinHash){db.pinHash=null;save();render();toast('PIN удалён')}
- else toast('Неверный PIN')}
-async function changePinFlow(){const cur=prompt('Текущий PIN');if(cur===null)return;
- if(await hashPin(cur)!==db.pinHash)return toast('Неверный PIN');
- const a=prompt('Новый PIN (4–8 цифр)');if(!a)return;
- if(!/^\d{4,8}$/.test(a))return toast('PIN: от 4 до 8 цифр');
- const b=prompt('Повторите новый PIN');if(a!==b)return toast('PIN-коды не совпадают');
- db.pinHash=await hashPin(a);save();toast('ПIN изменён')}
+async function setPin(){const a=document.getElementById('pin1').value,b=document.getElementById('pin2').value;if(!/^\d{4,8}$/.test(a))return toast('PIN: от 4 до 8 цифр');if(a!==b)return toast('PIN-коды не совпадают');db.pinHash=await hashPin(a);save();render();toast('PIN установлен')}
+/* ИЗМЕНЕНО: модалки вместо prompt (работают в превью) */
+function removePinFlow(){openModal(`<div style="text-align:center;padding:20px 0"><h3>Удаление PIN</h3><p class="mut">Введите текущий PIN</p><input type="password" id="pindel" inputmode="numeric" style="text-align:center;font-size:20px"><button class="btn danger" style="width:100%;margin-top:10px" onclick="confirmRemovePin()">Удалить</button></div>`)}
+async function confirmRemovePin(){if(await hashPin(document.getElementById('pindel').value)===db.pinHash){db.pinHash=null;save();closeModal();render();toast('PIN удалён')}else toast('Неверный PIN')}
+function changePinFlow(){openModal(`<div style="padding:10px 0"><h3>Смена PIN</h3><label>Текущий</label><input type="password" id="pinold" inputmode="numeric"><label>Новый (4–8 цифр)</label><input type="password" id="pinnew1" inputmode="numeric"><label>Повторите</label><input type="password" id="pinnew2" inputmode="numeric"><button class="btn" style="width:100%;margin-top:10px" onclick="confirmChangePin()">Сменить</button></div>`)}
+async function confirmChangePin(){const c=document.getElementById('pinold').value,a=document.getElementById('pinnew1').value,b=document.getElementById('pinnew2').value;if(await hashPin(c)!==db.pinHash)return toast('Неверный PIN');if(!/^\d{4,8}$/.test(a))return toast('PIN: от 4 до 8 цифр');if(a!==b)return toast('PIN-коды не совпадают');db.pinHash=await hashPin(a);save();closeModal();toast('PIN изменён')}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&db.pinHash&&!locked){locked=true;render()}});
 
 /* ================= УТИЛИТЫ ================= */
@@ -220,7 +223,15 @@ let tab='dash',cFilter='Все';
 function rTabs(){document.getElementById('tabs').innerHTML=TABS.map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="go('${k}')">${l}</button>`).join('')}
 function go(k){tab=k;rTabs();render();window.scrollTo(0,0)}
 
-/* ================= ДАШБОРД ================= */
+/* ================= НОВОЕ: УМНЫЙ АНАЛИЗ ================= */
+function generatePainsSilent(){let added=0;(db.profile.specs||[]).forEach(sp=>{(PAIN_DB[sp]||[]).forEach(p=>{if(!db.pains.some(x=>x.seg===p.seg&&x.pain===p.pain)){db.pains.unshift({id:uid(),seg:p.seg,pain:p.pain,demand:p.demand,src:'Автопоиск (ИИ)',sol:p.sol,status:'Гипотеза',note:'Сгенерировано: '+sp});added++}})});return added}
+function generatePains(){const specs=db.profile.specs||[];if(!specs.length){toast('Выберите специализации в настройках');go('set');return}const added=generatePainsSilent();save();render();toast(added?`Добавлено ${added} гипотез`:'Все уже в базе')}
+function autoGenerateIfNeeded(){if(db.pains.length<=1&&(db.profile.specs||[]).length){generatePainsSilent();save()}}
+function smartInsights(){const tips=[];const lim=db.balance.limitMin,worked=workedOn(today());if(worked>lim)tips.push('🛑 Переработка! Завершите работу.');else if(lim-worked<60)tips.push('⚠️ До нормы < 1 часа.');const ds=db.projects.filter(p=>p.deadline&&p.deadline<=shiftDate(today(),2)&&!['Оплачен','Пауза'].includes(p.stage));if(ds.length)tips.push(`🔥 Дедлайн скоро: ${ds.map(p=>p.name).join(', ')}`);const io=db.invoices.filter(v=>v.status==='Выставлен'&&v.due&&v.due<today());if(io.length)tips.push(`💰 Просроченных счетов: ${io.length}`);const fam=(db.balance.checks[today()]||[]).filter(Boolean).length;if(fam===0)tips.push('🏠 Не отмечены дела семьи и дома.');const hp=db.pains.filter(p=>p.status==='Гипотеза'&&p.demand>=4).slice(0,2);hp.forEach(p=>{if(!db.proposals.some(o=>o.task===p.pain))tips.push(`🎯 Возможность: «${p.seg}» — создайте оффер`)});if(!tips.length)tips.push(TIPS_POOL[Math.floor(Math.random()*TIPS_POOL.length)]);return tips}
+function generateDayPlan(){const date=planDate||today();const has=db.blocks.some(b=>b.date===date);if(has){openModal(`<div style="text-align:center;padding:20px"><h3>Заменить блоки дня?</h3><p class="mut">Текущие блоки будут удалены.</p><div class="row" style="justify-content:center;margin-top:12px"><button class="btn" onclick="doGenDay()">Заменить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div></div>`);return}doGenDay()}
+function doGenDay(){const date=planDate||today();db.blocks=db.blocks.filter(b=>b.date!==date);db.dayTpl.split('\n').forEach(l=>{const i=l.indexOf('|');if(i<0)return;const time=l.slice(0,i).trim(),text=l.slice(i+1).trim();if(time&&text)db.blocks.push({id:uid(),date,time,text})});const ins=smartInsights();if(ins.length)db.blocks.unshift({id:uid(),date,time:'09:00',text:'🤖 '+ins[0]});save();closeModal();render();toast('План сгенерирован')}
+
+/* ================= ДАШБОРД (расширен) ================= */
 function rDash(){
  const{inc,exp}=finMonth();
  const leads=db.clients.filter(c=>['Новый','Контакт','Переговоры','Оффер'].includes(c.status)).length;
@@ -230,6 +241,7 @@ function rDash(){
  const fam=(db.balance.checks[today()]||[]).filter(Boolean).length;
  const wT=db.wellbeing.find(w=>w.date===today());
  const m=MONTHS[+today().slice(5,7)-1];
+ const ins=smartInsights();
  let h=`<div class="hello">Привет, <b>${esc(db.profile.name||'коллега')}</b>! ${esc(db.profile.spec)} ${wT?MOOD_E[wT.mood]||'':''}</div>
  <div class="grid">
   <div class="card stat"><span>Доход, ${m}</span><b class="plus">${money(inc)}</b></div>
@@ -239,11 +251,14 @@ function rDash(){
   <div class="card stat"><span>Работа сегодня</span><b class="${overW?'minus':''}">${hm(worked)} <span class="mut">/ ${hm(lim)}</span></b></div>
   <div class="card stat"><span>Семья и дом</span><b>${fam}/${db.balance.items.length}</b></div>
  </div>`;
+ /* НОВОЕ: блок умных подсказок */
+ h+=`<div class="card ai"><b>🤖 Умные подсказки</b>${ins.map(t=>`<div class="mut" style="margin:6px 0">${t}</div>`).join('')}</div>`;
  if(overW)h+=`<div class="card warn">🛑 Переработка! Завершайте рабочие задачи — дальше время семьи и отдыха.</div>`;
  if(invOver)h+=`<div class="card warn">💰 Просроченных счетов: ${invOver} — напомните заказчикам об оплате.</div>`;
  if(db.tax.regime==='ru_npdu')h+=`<div class="card warn">🧾 НПД: чек клиенту — сразу после оплаты в «Мой налог», уплата налога — до 28-го числа следующего месяца.</div>`;
  h+=`<div class="card"><b>Быстрые действия</b><div class="row" style="margin-top:8px">
  <button class="btn" onclick="go('plan')">📋 План дня</button>
+ <button class="btn ai-btn" onclick="generatePains()">🎯 Найти клиентов</button>
  <button class="btn sec" onclick="go('price')">💵 Прайс</button>
  <button class="btn sec" onclick="openDocWizard()">📄 Документ</button>
  <button class="btn sec" onclick="openInvModal()">🧾 Счёт</button></div></div>`;
@@ -267,12 +282,19 @@ function funnelCard(){
  <div class="mut">🤝 Сделок: ${deal} → проектов оплачено: ${paid}</div>
  ${Object.keys(src).length?`<label style="margin-top:8px">По источникам (лиды → сделки):</label>`+Object.keys(src).map(k=>`<div class="mut">• ${esc(k)}: лидов ${src[k].l}, сделок ${src[k].d} (${pct(src[k].d,src[k].l)})</div>`).join(''):''}
  <p class="mut" style="margin-top:6px">Ориентиры: холодные письма дают ответ 5–15%, оффер → сделка 20–40%. Масштабируйте канал с лучшей конверсией, слабые — чините или закрывайте.</p></div>`}
+
+/* НОВОЕ: блок приоритетных возможностей */
+function radarOpportunities(){const pains=db.pains.filter(p=>p.status==='Гипотеза'&&p.demand>=4);if(!pains.length)return'';let h=`<div class="card ai"><b>🎯 Приоритетные возможности</b><p class="mut" style="margin:6px 0">Гипотезы со спросом 4–5★. По каждой — где искать клиентов.</p>`;pains.slice(0,5).forEach(p=>{const has=db.proposals.some(o=>o.task===p.pain);h+=`<div class="note"><div class="row spread"><b>${esc(p.seg)}</b><span class="chip on" style="padding:3px 8px">${'★'.repeat(p.demand)}</span></div><div>${esc(p.pain)}</div><div class="mut" style="margin-top:4px">📍 Где искать: Telegram-чаты «${esc(p.seg)}», форумы, 2GIS/Карты, биржи заявок.</div>${has?'<div class="mut" style="color:var(--ok);margin-top:4px">✓ Оффер создан</div>':`<button class="btn sec" style="margin-top:4px;padding:6px 10px" onclick="painToProp('${p.id}')">Создать оффер</button>`}</div>`});h+=`</div>`;return h}
+
 function rPains(){
  let h=`<div class="row spread"><h2>Радар: боли и потребности</h2><button class="btn" onclick="openPainModal()">+ Боль</button></div>`;
+ /* НОВОЕ: блок автопоиска */
+ h+=`<div class="card ai"><b>🤖 Умный поиск клиентов</b><p class="mut" style="margin:6px 0">Приложение сгенерирует сегменты и боли по вашим специализациям (${(db.profile.specs||[]).join(', ')||'не выбраны'}). Это готовые гипотезы для работы.</p><div class="row"><button class="btn ai-btn" onclick="generatePains()">🎯 Сгенерировать боли и сегменты</button></div></div>`;
  h+=funnelCard();
+ h+=radarOpportunities();
  h+=`<div class="card mut">Фиксируйте, что болит у будущих заказчиков, и превращайте в офферы и письма. Кнопка ✍️ на боли — готовые холодные письма под сегмент.</div>`;
  const list=[...db.pains].sort((a,b)=>b.demand-a.demand);
- if(!list.length)h+=empty('Добавьте первую гипотезу: сегмент + боль.');
+ if(!list.length)h+=empty('Добавьте первую гипотезу или нажмите «Сгенерировать боли и сегменты».');
  list.forEach(p=>{h+=`<div class="card">
   <div class="row spread"><b>${esc(p.seg)}</b><span class="chip on" style="padding:4px 10px">${'★'.repeat(p.demand)}${'☆'.repeat(5-p.demand)}</span></div>
   <div>${esc(p.pain)}</div>
@@ -326,33 +348,9 @@ function delCh(i){db.channels.splice(i,1);save();render()}
 function openCold(pid){const p=db.pains.find(x=>x.id===pid);if(!p)return;
  const pr=db.profile,name=pr.name||'',spec=pr.spec||'разработчик';
  const sol=p.sol||'быстрое и аккуратное решение под вашу задачу';
- const short=`Здравствуйте!
-Вижу, что для «${p.seg}» часто актуальна проблема: ${p.pain}
-Я ${spec}, решаю это так: ${sol}
-Могу за 1 день подготовить предложение под вашу ситуацию — интересно обсудить?
-${name}`;
- const long=`Тема: ${p.seg} — как решить «${p.pain}»
-
-Здравствуйте!
-
-Меня зовут ${name}, я ${spec}. Часто работаю с нишей «${p.seg}».
-
-Типичная ситуация: ${p.pain} Обычно это приводит к потере клиентов, времени или денег.
-
-Что предлагаю:
-${sol}
-
-Как работаем:
-1. Короткий созвон или переписка — уточняю задачу (15 минут).
-2. За 1–2 дня — план и точная стоимость.
-3. Предоплата 50%, договор, чек после оплаты.
-
-Если актуально — пришлю примеры работ. Если нет — извините за беспокойство.
-
-С уважением,
-${name}`;
- const follow=`Здравствуйте! Писал(а) вам по поводу «${p.pain}». Понимаю, что сейчас может быть не время. Если станет актуально: я ${spec}, решаю это так — ${sol}. Хорошего дня!
-${name}`;
+ const short=`Здравствуйте!\nВижу, что для «${p.seg}» часто актуальна проблема: ${p.pain}\nЯ ${spec}, решаю это так: ${sol}\nМогу за 1 день подготовить предложение под вашу ситуацию — интересно обсудить?\n${name}`;
+ const long=`Тема: ${p.seg} — как решить «${p.pain}»\n\nЗдравствуйте!\n\nМеня зовут ${name}, я ${spec}. Часто работаю с нишей «${p.seg}».\n\nТипичная ситуация: ${p.pain} Обычно это приводит к потере клиентов, времени или денег.\n\nЧто предлагаю:\n${sol}\n\nКак работаем:\n1. Короткий созвон или переписка — уточняю задачу (15 минут).\n2. За 1–2 дня — план и точная стоимость.\n3. Предоплата 50%, договор, чек после оплаты.\n\nЕсли актуально — пришлю примеры работ. Если нет — извините за беспокойство.\n\nС уважением,\n${name}`;
+ const follow=`Здравствуйте! Писал(а) вам по поводу «${p.pain}». Понимаю, что сейчас может быть не время. Если станет актуально: я ${spec}, решаю это так — ${sol}. Хорошего дня!\n${name}`;
  openModal(`<h3>✍️ Холодные письма: ${esc(p.seg)}</h3>
  <label>Короткое (Telegram / WeChat)</label><textarea id="cold1" rows="6">${esc(short)}</textarea>
  <div class="row"><button class="btn sec" onclick="copyText(document.getElementById('cold1').value)">📋 Копировать</button></div>
@@ -422,22 +420,7 @@ function addProp(){const c=document.getElementById('p_client').value.trim();if(!
  db.proposals.unshift({id:uid(),date:today(),client:c,task:document.getElementById('p_task').value.trim(),scope:document.getElementById('p_scope').value.trim(),price:+document.getElementById('p_price').value||0,cur:document.getElementById('p_cur').value,days:+document.getElementById('p_days').value||0,status:'Черновик'});
  save();closeModal();go('props');toast('Оффер создан — скопируйте текст и отправьте клиенту')}
 function genPropText(p){const pr=db.profile;
- return `Здравствуйте!
-
-Меня зовут ${pr.name||''}, я ${pr.spec||'разработчик'}. Отвечаю на ваш запрос: «${p.task||''}».
-
-ЧТО ПРЕДЛАГАЮ
-${p.scope||'—'}
-
-УСЛОВИЯ
-• Стоимость: ${fmt(p.price,p.cur)}
-• Срок: ${p.days} рабочих дней
-• Предоплата 50%, остаток — после сдачи и подписания акта
-• Работа по договору; если я самозанятый(ая) — чек после каждой оплаты
-
-Готов(а) обсудить детали в переписке или голосом. Портфолио пришлю по запросу.
-
-С уважением, ${pr.name||''}`.trim()}
+ return `Здравствуйте!\n\nМеня зовут ${pr.name||''}, я ${pr.spec||'разработчик'}. Отвечаю на ваш запрос: «${p.task||''}».\n\nЧТО ПРЕДЛАГАЮ\n${p.scope||'—'}\n\nУСЛОВИЯ\n• Стоимость: ${fmt(p.price,p.cur)}\n• Срок: ${p.days} рабочих дней\n• Предоплата 50%, остаток — после сдачи и подписания акта\n• Работа по договору; если я самозанятый(ая) — чек после каждой оплаты\n\nГотов(а) обсудить детали в переписке или голосом. Портфолио пришлю по запросу.\n\nС уважением, ${pr.name||''}`.trim()}
 function copyProp(id){const p=db.proposals.find(x=>x.id===id);if(p)copyText(genPropText(p))}
 function setProp(id,s){const p=db.proposals.find(x=>x.id===id);if(p){p.status=s;save()}}
 function delProp(id){if(confirm('Удалить оффер?')){db.proposals=db.proposals.filter(p=>p.id!==id);save();render()}}
@@ -527,12 +510,14 @@ function toggleTask(id){const t=db.tasks.find(x=>x.id===id);if(t)t.done=!t.done;
 function delTask(id){db.tasks=db.tasks.filter(t=>t.id!==id);save();if(curProj)projTasks(curProj);render()}
 function logTask(id){const t=db.tasks.find(x=>x.id===id);if(t)logSession(t.est||25,t.text)}
 
-/* ================= ПЛАН ================= */
+/* ================= ПЛАН (расширен: умные подсказки + генерация) ================= */
 let planView='day',planDate=today(),selMonth=today().slice(0,7);
 function rPlan(){
  let h=`<h2>План и расписание</h2>
- <div class="chips">${[['day','День'],['week','Неделя'],['month','Месяц']].map(([v,l])=>`<button class="chip ${planView===v?'on':''}" onclick="planView='${v}';render()">${l}</button>`).join('')}</div>
- <div class="card mut">Принципы: работать не больше нормы · перерыв каждые 90–120 минут · 🔒 конец рабочего дня по расписанию · вечер — семье и дому · 1 день в неделю без работы · сон 7–8 часов.</div>`;
+ <div class="chips">${[['day','День'],['week','Неделя'],['month','Месяц']].map(([v,l])=>`<button class="chip ${planView===v?'on':''}" onclick="planView='${v}';render()">${l}</button>`).join('')}</div>`;
+ /* НОВОЕ: умные подсказки + кнопка генерации */
+ h+=`<div class="card ai"><b>🤖 Умные подсказки</b>${smartInsights().map(t=>`<div class="mut" style="margin:6px 0">${t}</div>`).join('')}<div class="row" style="margin-top:8px"><button class="btn ai-btn" onclick="generateDayPlan()">✨ Сгенерировать план дня</button></div></div>`;
+ h+=`<div class="card mut">Принципы: работать не больше нормы · перерыв каждые 90–120 минут · 🔒 конец рабочего дня по расписанию · вечер — семье и дому · 1 день в неделю без работы · сон 7–8 часов.</div>`;
  return h+(planView==='day'?rDay():planView==='week'?rWeek():rMonth());
 }
 function setWb(k,v){let w=db.wellbeing.find(x=>x.date===planDate);
@@ -712,7 +697,11 @@ function addLog(){const m=+document.getElementById('lg_min').value;if(!m)return 
  save();closeModal();render();toast('Записано')}
 function delSession(id){db.sessions=db.sessions.filter(s=>s.id!==id);save();render()}
 
-/* ================= ФИНАНСЫ + СЧЕТА (PDF) ================= */
+/* ================= НОВОЕ: КОНВЕРТЕР ВАЛЮТ ================= */
+function currencyConverter(){return `<div class="card"><b>💱 Конвертер валют</b><div class="row2"><div><label>Сумма</label><input type="number" id="cc_amt" value="1000" oninput="convertCurrency()"></div><div><label>Из</label><select id="cc_from" onchange="convertCurrency()">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c==='RUB'?'selected':''}>${c}</option>`).join('')}</select></div><div><label>В</label><select id="cc_to" onchange="convertCurrency()">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c==='USD'?'selected':''}>${c}</option>`).join('')}</select></div></div><div id="cc_result"></div><div class="mut" style="margin-top:4px">Курсы: ${db.profile.ratesUpdated||'не обновлены'} · <button class="btn sec" style="padding:4px 8px" onclick="updateRates()">🔄 Обновить</button></div></div>`}
+function convertCurrency(){const amt=+document.getElementById('cc_amt').value||0,from=document.getElementById('cc_from').value,to=document.getElementById('cc_to').value;const result=fromRub(toRub(amt,from),to);const el=document.getElementById('cc_result');if(el)el.innerHTML=`<div style="margin-top:8px;padding:10px;background:var(--card2);border-radius:8px"><b style="font-size:18px" class="plus">${fmt(result,to)}</b><div class="mut">1 ${from} = ${fromRub(toRub(1,from),to).toLocaleString('ru-RU',{maximumFractionDigits:4})} ${to}</div></div>`}
+
+/* ================= ФИНАНСЫ + СЧЕТА (PDF) — расширен конвертером ================= */
 function rFin(){
  const{inc,exp}=finMonth();let all=0;
  db.fin.forEach(f=>all+=f.type==='in'?toRub(f.amt,f.cur):-toRub(f.amt,f.cur));
@@ -720,8 +709,10 @@ function rFin(){
  <div class="grid">
   <div class="card stat"><span>Доход за месяц</span><b class="plus">${money(inc)}</b></div>
   <div class="card stat"><span>Расход за месяц</span><b class="minus">${money(exp)}</b></div>
- </div><div class="card stat" style="margin-top:10px"><span>Баланс (всё время)</span><b>${money(all)}</b></div>
- <div class="card"><div class="row spread"><b>🧾 Счета заказчикам</b><button class="btn" onclick="openInvModal()">+ Счёт</button></div>
+ </div><div class="card stat" style="margin-top:10px"><span>Баланс (всё время)</span><b>${money(all)}</b></div>`;
+ /* НОВОЕ: конвертер валют */
+ h+=currencyConverter();
+ h+=`<div class="card"><div class="row spread"><b>🧾 Счета заказчикам</b><button class="btn" onclick="openInvModal()">+ Счёт</button></div>
  <p class="mut" style="margin:4px 0">PDF: откройте счёт → «Печать» → «Сохранить как PDF».</p>
  ${db.invoices.map(invRow).join('')||'<div class="mut">Счетов пока нет.</div>'}</div>
  <div class="card mut">Валюта отображения: ${db.profile.currency}. Курсы — в настройках.</div>`;
@@ -795,10 +786,13 @@ function payInv(id){const v=db.invoices.find(x=>x.id===id);if(!v)return;
  save();render();toast('Отмечен оплаченным и записан в доход')}
 function delInv(id){if(confirm('Удалить счёт?')){db.invoices=db.invoices.filter(v=>v.id!==id);save();render()}}
 
-/* ================= НАЛОГИ ================= */
+/* ================= НАЛОГИ: РФ + РБ + КИТАЙ IIT + СРАВНЕНИЕ ================= */
+/* НОВОЕ: прогрессивная шкала Китая */
+function calcChinaTax(inc){const t=Math.max(0,inc-5000);if(t<=0)return 0;const b=[{l:3000,r:.03,d:0},{l:12000,r:.10,d:210},{l:25000,r:.20,d:1410},{l:35000,r:.25,d:2660},{l:55000,r:.30,d:4410},{l:80000,r:.35,d:7160},{l:1/0,r:.45,d:15160}];for(const x of b)if(t<=x.l)return Math.max(0,Math.round(t*x.r-x.d));return 0}
+/* ИЗМЕНЕНО: расширено (cn + compare) */
 function rTax(){
  const t=db.tax;
- const opts=[['ru_npdu','🇷🇺 Самозанятость (НПД, РФ)'],['by_npd','🇧🇾 НПД, Беларусь'],['cn','🇨🇳 Работа с Китаем']];
+ const opts=[['ru_npdu','🇷🇺 Самозанятость (НПД, РФ)'],['by_npd','🇧🇾 НПД, Беларусь'],['cn','🇨🇳 Работа с Китаем (IIT)'],['compare','🌍 Сравнение стран']];
  let h=`<h2>Налоги</h2><div class="card"><label>Режим</label><select onchange="db.tax.regime=this.value;save();render()">${opts.map(o=>`<option value="${o[0]}" ${t.regime===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
  <p class="mut">Ставки и лимиты ориентировочные — сверяйте с актуальным законодательством.</p></div>`;
  if(t.regime==='ru_npdu'){
@@ -806,6 +800,7 @@ function rTax(){
   h+=`<div class="card"><b>Калькулятор НПД</b>
   <label>Доход за месяц от физлиц, ₽ — 4%</label><input type="number" id="ti" value="${t.calc.ind}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()">
   <label>Доход за месяц от организаций и ИП, ₽ — 6% (в т.ч. от компаний РБ и Китая)</label><input type="number" id="te" value="${t.calc.ent}" oninput="db.tax.calc.ent=this.value;save();taxCalcNow()">
+  <label style="display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" ${t.useDeduct?'checked':''} onchange="db.tax.useDeduct=this.checked;save();taxCalcNow()" style="margin:0"><span>Применить вычет для новых самозанятых (ставки 3%/4% вместо 4%/6%)</span></label>
   <div id="taxout"></div>
   <div class="row" style="margin-top:6px"><button class="btn" onclick="payTaxToFin()">Записать налог в расходы</button></div>
   <p class="mut">Чек — в «Мой налог» сразу после оплаты. Уплата налога — до 28-го числа следующего месяца. Лимит — ${t.limit.toLocaleString('ru-RU')} ₽/год.</p>
@@ -814,33 +809,48 @@ function rTax(){
  }else if(t.regime==='by_npd'){
   h+=`<div class="card"><b>Калькулятор НПД (РБ)</b>
   <label>Доход за месяц, BYN</label><input type="number" id="ti" value="${t.calc.ind}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()">
+  <label style="display:flex;align-items:center;gap:8px;margin-top:8px"><input type="checkbox" ${t.byPensioner?'checked':''} onchange="db.tax.byPensioner=this.checked;save();taxCalcNow()" style="margin:0"><span>Я пенсионер (ставка 4% вместо 10%)</span></label>
   <div id="taxout"></div>
   <div class="row" style="margin-top:6px"><button class="btn" onclick="payTaxToFin()">Записать в расходы</button></div>
   <p class="mut">Учёт — через приложение «Профдоход». Базовая ставка 10% (4% для пенсионеров) — уточняйте в МНС РБ.</p></div>`;
+ }else if(t.regime==='cn'){
+  h+=`<div class="card"><b>Калькулятор налога Китая (IIT)</b>
+  <p class="mut">Прогрессивная шкала Individual Income Tax для резидентов КНР. Необлагаемый минимум — 5 000 ¥/мес.</p>
+  <label>Доход за месяц, ¥ (CNY)</label><input type="number" id="ti" value="${t.calc.ind}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()">
+  <div id="taxout"></div>
+  <div class="row" style="margin-top:6px"><button class="btn" onclick="payTaxToFin()">Записать в расходы</button></div>
+  <p class="mut">Для иностранцев есть доп. вычеты и особые правила. Если вы резидент РФ и работаете с Китаем удалённо — используйте режим «НПД РФ» (ставка 6%).</p>
+  <div class="note"><b>Шкала IIT (месячная):</b><br>до 3 000 ¥ — 3% · 3 000–12 000 — 10% · 12 000–25 000 — 20% · 25 000–35 000 — 25% · 35 000–55 000 — 30% · 55 000–80 000 — 35% · свыше 80 000 — 45%</div></div>`;
  }else{
-  h+=`<div class="card"><b>Вы резидент РФ и работаете с заказчиком из Китая удалённо</b>
-  <p>Доход от китайской компании для самозанятого РФ облагается НПД по ставке <b>6%</b> (как доход от организации). Налог платится в России.</p></div>
-  <div class="card"><b>Приём оплаты из Китая</b>
-  <p class="mut">• Инвойс/счёт на английском или китайском, валюта CNY или RUB.<br>• Каналы: банковский перевод, счёт в юанях, UnionPay — уточняйте у своего банка.<br>• Фиксируйте курс и комиссии в «Финансах».</p></div>
-  <div class="card"><b>Если вы живёте и работаете в Китае</b>
-  <p class="mut">Действуют местные правила: IIT 3–45%, трудовой договор или 个体工商户. Нужен местный бухгалтер.</p></div>`;
+  h+=`<div class="card"><b>Сравнение налогов по странам</b>
+  <label>Доход за месяц, ₽ (для расчёта)</label><input type="number" id="ti" value="${t.calc.ind||100000}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()">
+  <div id="taxout"></div>
+  <p class="mut">Сравнение ориентировочное, для дохода от организаций/юрлиц.</p></div>`;
  }
  return h;
 }
+/* ИЗМЕНЕНО: расширено (cn + compare + мультивалюта + вычет) */
 function taxCalcNow(){
  const ti=document.getElementById('ti'),te=document.getElementById('te');if(!ti)return;
  const r=db.tax.regime;let out='';
- if(r==='ru_npdu'){const i=+ti.value||0,e=+(te&&te.value)||0;
-  out=`<p style="margin:8px 0">Налог за месяц: <b>${fmt(i*0.04+e*0.06,'RUB')}</b> <span class="mut">(физлица 4%: ${fmt(i*0.04,'RUB')}; организации 6%: ${fmt(e*0.06,'RUB')})</span></p>`}
- else if(r==='by_npd'){const i=+ti.value||0;out=`<p style="margin:8px 0">Налог 10%: <b>${fmt(i*0.1,'BYN')}</b> <span class="mut">(ориентировочно)</span></p>`}
- document.getElementById('taxout').innerHTML=out;
-}
+ if(r==='ru_npdu'){const i=+ti.value||0,e=+(te&&te.value)||0,d=db.tax.useDeduct;
+  const rI=d?0.03:0.04,rE=d?0.04:0.06;const taxI=i*rI,taxE=e*rE,total=taxI+taxE;
+  out=`<div class="card" style="background:var(--card2)"><div class="row spread"><span class="mut">Налог за месяц:</span><b class="plus" style="font-size:22px">${fmt(total,'RUB')}</b></div><div class="mut">Физлица (${d?'3':'4'}%): ${fmt(taxI,'RUB')} · Организации (${d?'4':'6'}%): ${fmt(taxE,'RUB')}</div>${d?'<div class="mut" style="color:var(--ok)">✓ Вычет применён (пониженные ставки)</div>':''}<div class="mut" style="margin-top:6px">В других валютах: ${fmt(fromRub(total,'BYN'),'BYN')} · ${fmt(fromRub(total,'CNY'),'CNY')} · ${fmt(fromRub(total,'USD'),'USD')}</div></div>`}
+ else if(r==='by_npd'){const i=+ti.value||0;const rate=db.tax.byPensioner?0.04:0.10;const tax=i*rate;const inRub=toRub(tax,'BYN');
+  out=`<div class="card" style="background:var(--card2)"><div class="row spread"><span class="mut">Налог за месяц (${Math.round(rate*100)}%):</span><b class="plus" style="font-size:22px">${fmt(tax,'BYN')}</b></div><div class="mut" style="margin-top:6px">В других валютах: ${fmt(inRub,'RUB')} · ${fmt(fromRub(inRub,'CNY'),'CNY')} · ${fmt(fromRub(inRub,'USD'),'USD')}</div></div>`}
+ else if(r==='cn'){const i=+ti.value||0;const tax=calcChinaTax(i);const base=Math.max(0,i-5000);const inRub=toRub(tax,'CNY');
+  out=`<div class="card" style="background:var(--card2)"><div class="row spread"><span class="mut">Налог за месяц (IIT):</span><b class="plus" style="font-size:22px">${fmt(tax,'CNY')}</b></div><div class="mut">Налогооблагаемая база: ${fmt(base,'CNY')} (доход − минимум 5 000 ¥)</div><div class="mut">Эффективная ставка: ${i>0?(tax/i*100).toFixed(1):0}%</div><div class="mut" style="margin-top:6px">В других валютах: ${fmt(inRub,'RUB')} · ${fmt(fromRub(inRub,'USD'),'USD')}</div></div>`}
+ else{const amt=+ti.value||0;const cnTax=calcChinaTax(fromRub(amt,'CNY'));
+  out=`<div class="card" style="background:var(--card2)"><b>Сравнение для дохода ${fmt(amt,'RUB')}</b><div class="mut" style="margin-top:6px">🇷🇺 РФ НПД от юрлиц (6%): <b>${fmt(amt*0.06,'RUB')}</b></div><div class="mut">🇷🇺 РФ НПД от физлиц (4%): <b>${fmt(amt*0.04,'RUB')}</b></div><div class="mut">🇧🇾 РБ НПД (10%): <b>${fmt(amt*0.10,'RUB')}</b></div><div class="mut">🇨🇳 Китай IIT (прогрессивная, для дохода ${fmt(fromRub(amt,'CNY'),'CNY')}): <b>${fmt(cnTax,'CNY')}</b> ≈ ${fmt(toRub(cnTax,'CNY'),'RUB')}</div><div class="mut" style="margin-top:6px">Самый выгодный вариант для резидента РФ — НПД 6%.</div></div>`}
+ document.getElementById('taxout').innerHTML=out}
+/* ИЗМЕНЕНО: расширено (cn + вычет) */
 function payTaxToFin(){
  const ti=document.getElementById('ti'),te=document.getElementById('te');let t=0,cur='RUB';
- if(db.tax.regime==='ru_npdu'){t=Math.round((+ti.value||0)*0.04+(+((te&&te.value)||0))*0.06)}
- else if(db.tax.regime==='by_npd'){t=Math.round((+ti.value||0)*0.1);cur='BYN'}
- else return toast('Для Китая — см. консультацию бухгалтера');
- if(t<=0)return toast('Заполните суммы в калькуляторе');
+ if(db.tax.regime==='ru_npdu'){const d=db.tax.useDeduct;t=Math.round((+ti.value||0)*(d?0.03:0.04)+(+((te&&te.value)||0))*(d?0.04:0.06))}
+ else if(db.tax.regime==='by_npd'){const rate=db.tax.byPensioner?0.04:0.10;t=Math.round((+ti.value||0)*rate);cur='BYN'}
+ else if(db.tax.regime==='cn'){t=calcChinaTax(+ti.value||0);cur='CNY'}
+ else return toast('Введите сумму в калькуляторе');
+ if(t<=0)return toast('Введите сумму в калькуляторе');
  db.fin.unshift({id:uid(),date:today(),type:'out',amt:t,cur,cat:'Налоги',note:'Налог по калькулятору'});
  save();toast('Налог записан в расходы');render()}
 
@@ -998,10 +1008,11 @@ ${o.mybank?req:'[реквизиты]'}
 В противном случае обращаюсь в суд с взысканием задолженности, неустойки и судебных расходов.
 
 «${fmtDate(o.date)}»          Подпись: ______________ / ${o.fio||''} /`}
+/* ИСПРАВЛЕНО: баг с суммой в договоре */
 function makeDoc(){const g=id=>document.getElementById(id).value;
- const client=g('dw_client').trim(),type=g('dw_type'),amt=+g('dw_amt').value||0;
+ const client=g('dw_client').trim(),type=g('dw_type'),amt=parseFloat(g('dw_amt'))||0;
  if(!client)return toast('Укажите заказчика');
- if(type!=='nda'&&type!=='tz'&&!amt)return toast('Укажите сумму');
+ if(type!=='nda'&&type!=='tz'&&amt<=0)return toast('Укажите сумму (число больше 0)');
  const bank={fio:g('dw_fio').trim(),inn:g('dw_myinn').trim(),addr:g('dw_addr').trim(),bank:g('dw_bank').trim(),bik:g('dw_bik').trim(),acc:g('dw_acc').trim()};
  db.profile.bank=bank;
  if(document.getElementById('dw_savep').checked&&!db.partners.some(p=>p.name===client))
@@ -1024,7 +1035,7 @@ function delDoc(id){if(confirm('Удалить документ?')){db.docLog=db
 const CHECK=['Предмет договора конкретен (ссылка на ТЗ, измеримый результат)','Цена, валюта и порядок оплаты (предоплата!)','Сроки и порядок приёмки: акт, срок мотивированного отказа','IP-права переходят только после полной оплаты','Оговорка о самозанятости / налоговом статусе','Неустойка за просрочку оплаты','Переписка и сканы имеют юридическую силу','Нет признаков трудовых отношений (риск переквалификации)'];
 const CHECK_CN=['Двуязычный договор (EN/中文), указать, какая версия приоритетна','Проверка контрагента: business license (营业执照)','Валюта платежа и кто несёт банковские комиссии','Поэтапная оплата, аванс','Подсудность/арбитраж (CIETAC либо суд по соглашению)','Критерии приёмки результата описаны измеримо'];
 
-/* ================= РОСТ: НАВЫКИ, ЦЕЛИ, БАЗА ЗНАНИЙ ================= */
+/* ================= РОСТ: НАВЫКИ, ЦЕЛИ, БАЗА ЗНАНИЙ (расширена) ================= */
 let devView='skills',kbFilter='Все',kbQ='';
 function rDev(){
  let h=`<h2>Развитие</h2>
@@ -1062,20 +1073,27 @@ function rGoals(){
 function addGoal(){const t=document.getElementById('gt').value.trim();if(!t)return;db.goals.push({t,d:document.getElementById('gd').value,done:false});save();render()}
 function toggleGoal(i){db.goals[i].done=!db.goals[i].done;save();render()}
 function delGoal(i){db.goals.splice(i,1);save();render()}
+/* НОВОЕ: функция рекомендаций */
+function kbRecommendations(){const specs=db.profile.specs||[];if(!specs.length)return'';const recs=[];specs.forEach(sp=>{const dirSkills=(SKILL_DIR[sp]||[]).filter(s=>!db.skills.some(x=>x.n===s));const notStarted=db.kb.filter(k=>k.dir===sp&&k.status==='Не начато');if(notStarted.length)recs.push({sp,type:'Темы для изучения',items:notStarted.slice(0,2).map(k=>k.topic)});else if(dirSkills.length)recs.push({sp,type:'Навыки для добавления в матрицу',items:dirSkills.slice(0,3)})});if(!recs.length)return'';let h=`<div class="card ai"><b>🤖 Рекомендации по вашим специализациям</b>`;recs.slice(0,3).forEach(r=>{h+=`<div class="mut" style="margin-top:6px"><b>${esc(r.sp)}</b> — ${esc(r.type)}: ${r.items.map(i=>`<span class="chip" style="margin:2px">${esc(i)}</span>`).join(' ')}</div>`});h+=`</div>`;return h}
+/* ИЗМЕНЕНО: расширено (time + res + рекомендации) */
 function rKb(){
  const dirs=['Все',...new Set(db.kb.map(k=>k.dir))];
  const total=db.kb.length,done=db.kb.filter(k=>k.status==='Освоено').length;
+ const inProgress=db.kb.filter(k=>k.status==='Изучаю'||k.status==='Практика').length;
  let h=`<div class="card"><b>📚 База знаний: теория + практика</b>
  <div class="bar"><i style="width:${total?done/total*100:0}%"></i></div>
- <div class="mut">Освоено: ${done} из ${total}. Схема: изучить теорию → сделать практику → отметить «Освоено» → поднять уровень навыка в матрице → поднять цену в Прайсе.</div></div>
- <div class="chips">${dirs.map(d=>`<button class="chip ${kbFilter===d?'on':''}" onclick="kbFilter='${d}';render()">${esc(d)}</button>`).join('')}</div>
+ <div class="mut">Освоено: ${done} из ${total} · В процессе: ${inProgress}. Схема: изучить теорию → сделать практику → отметить «Освоено» → поднять уровень навыка в матрице → поднять цену в Прайсе.</div></div>`;
+ h+=kbRecommendations();
+ h+=`<div class="chips">${dirs.map(d=>`<button class="chip ${kbFilter===d?'on':''}" onclick="kbFilter='${d}';render()">${esc(d)}</button>`).join('')}</div>
  <div class="row" style="margin-bottom:10px"><input placeholder="Поиск по темам…" value="${esc(kbQ)}" oninput="kbQ=this.value;render()" style="margin:0"><button class="btn" onclick="openKbModal()">+ Тема</button></div>`;
  const list=db.kb.filter(k=>(kbFilter==='Все'||k.dir===kbFilter)&&(!kbQ||(k.topic+' '+k.dir).toLowerCase().includes(kbQ.toLowerCase())));
  if(!list.length)h+=empty('Пусто. Добавьте свою тему.');
  list.forEach(k=>{h+=`<div class="card">
   <div class="row spread"><b>${esc(k.topic)}</b><span class="chip">${esc(k.dir)}</span></div>
+  ${k.time?`<div class="mut">⏱ Примерное время: ${esc(k.time)}</div>`:''}
   <div class="mut" style="margin-top:6px">📖 Теория</div><div class="note">${esc(k.theory)}</div>
   <div class="mut">🛠 Практика</div><div class="note">${esc(k.practice)}</div>
+  ${k.res?`<div class="mut">🔗 Ресурсы</div><div class="note">${esc(k.res)}</div>`:''}
   <div class="row" style="margin-top:6px">
    <select onchange="setKbStatus('${k.id}',this.value)">${KB_ST.map(s=>`<option ${s===k.status?'selected':''}>${s}</option>`).join('')}</select>
    <button class="btn sec" onclick="kbToGoal('${k.id}')">→ Цель</button>
@@ -1084,16 +1102,20 @@ function rKb(){
   </div></div>`});
  return h;
 }
-function openKbModal(id){const k=id?db.kb.find(x=>x.id===id):{dir:'',topic:'',theory:'',practice:'',status:'Не начато'};
+/* ИЗМЕНЕНО: добавлены time и res */
+function openKbModal(id){const k=id?db.kb.find(x=>x.id===id):{dir:'',topic:'',theory:'',practice:'',res:'',time:'',status:'Не начато'};
  openModal(`<h3>${id?'Тема базы знаний':'Новая тема'}</h3>
 <label>Направление</label><input id="kb_dir" value="${esc(k.dir)}" placeholder="Фронтенд, Бэкенд, Боты…">
 <label>Тема</label><input id="kb_topic" value="${esc(k.topic)}">
+<label>⏱ Примерное время изучения</label><input id="kb_time" value="${esc(k.time||'')}" placeholder="Например: 2 недели по 1 часу в день">
 <label>📖 Теория (суть, ключевые понятия, ссылки)</label><textarea id="kb_theory" rows="4">${esc(k.theory)}</textarea>
 <label>🛠 Практика (конкретное задание руками)</label><textarea id="kb_practice" rows="3">${esc(k.practice)}</textarea>
+<label>🔗 Ресурсы (документация, курсы, видео)</label><textarea id="kb_res" rows="2">${esc(k.res||'')}</textarea>
 <label>Статус</label><select id="kb_status">${KB_ST.map(s=>`<option ${k.status===s?'selected':''}>${s}</option>`).join('')}</select>
 <div class="row"><button class="btn" onclick="saveKb('${id||''}')">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
+/* ИЗМЕНЕНО: сохранение time и res */
 function saveKb(id){const t=document.getElementById('kb_topic').value.trim();if(!t)return toast('Укажите тему');
- const o={dir:document.getElementById('kb_dir').value.trim()||'Разное',topic:t,theory:document.getElementById('kb_theory').value.trim(),practice:document.getElementById('kb_practice').value.trim(),status:document.getElementById('kb_status').value};
+ const o={dir:document.getElementById('kb_dir').value.trim()||'Разное',topic:t,theory:document.getElementById('kb_theory').value.trim(),practice:document.getElementById('kb_practice').value.trim(),res:document.getElementById('kb_res').value.trim(),time:document.getElementById('kb_time').value.trim(),status:document.getElementById('kb_status').value};
  if(id){Object.assign(db.kb.find(x=>x.id===id)||{},o)}else db.kb.unshift({id:uid(),...o});
  save();closeModal();render();toast('Сохранено')}
 function setKbStatus(id,s){const k=db.kb.find(x=>x.id===id);if(k){k.status=s;save();render()}}
@@ -1101,14 +1123,21 @@ function delKb(id){if(confirm('Удалить тему?')){db.kb=db.kb.filter(k=
 function kbToGoal(id){const k=db.kb.find(x=>x.id===id);if(!k)return;
  db.goals.push({t:'Освоить: '+k.topic,d:'',done:false});save();toast('Добавлено в цели')}
 
-/* ================= НАСТРОЙКИ ================= */
+/* ================= НАСТРОЙКИ (расширены) ================= */
+/* НОВОЕ: переключение специализаций */
+function toggleSpec(sp){const i=db.profile.specs.indexOf(sp);if(i>=0)db.profile.specs.splice(i,1);else db.profile.specs.push(sp);save();const added=generatePainsSilent();save();render();if(added>0)toast(`Специализация обновлена. Добавлено ${added} новых гипотез.`)}
+/* ИЗМЕНЕНО: добавлены специализации, пароль для гостей, кнопка обновления курсов */
 function rSet(){const p=db.profile;return `<h2>Настройки</h2>
 <div class="card"><b>Профиль</b>
 <label>Имя (как в письмах клиентам)</label><input value="${esc(p.name)}" oninput="db.profile.name=this.value;save()">
-<label>Специализация</label><input value="${esc(p.spec)}" oninput="db.profile.spec=this.value;save()">
+<label>Специализация (краткое описание)</label><input value="${esc(p.spec)}" oninput="db.profile.spec=this.value;save()">
 <label>Страна налогового резидентства</label><select onchange="db.profile.country=this.value;save()">${['ru','by','cn'].map(c=>`<option value="${c}" ${p.country===c?'selected':''}>${CNAME[c]}</option>`).join('')}</select>
 <label>Часовая ставка (для оценок)</label><div class="row2"><div><input type="number" value="${p.rate}" oninput="db.profile.rate=+this.value||0;save()"></div>
 <div><select onchange="db.profile.currency=this.value;save();render()">${['RUB','BYN','CNY','USD'].map(c=>`<option ${p.currency===c?'selected':''}>${c}</option>`).join('')}</select></div></div></div>
+<div class="card"><b>🎯 Мои специализации</b>
+<p class="mut" style="margin:6px 0">Отметьте направления, по которым вы работаете. Влияет на генерацию клиентов и болей в Радаре.</p>
+${ALL_SPECS.map(sp=>`<label style="display:flex;align-items:center;gap:8px;margin:8px 0"><input type="checkbox" ${p.specs.includes(sp)?'checked':''} onchange="toggleSpec('${sp}')" style="margin:0"><span>${sp}</span></label>`).join('')}
+<div class="mut" style="margin-top:8px">Выбрано: ${p.specs.length} из ${ALL_SPECS.length}</div></div>
 <div class="card"><b>🔒 PIN-код</b>
 ${db.pinHash?`<div class="mut">PIN установлен. Приложение блокируется при открытии и при сворачивании.</div>
 <div class="row" style="margin-top:8px"><button class="btn sec" onclick="changePinFlow()">Сменить PIN</button><button class="btn danger" onclick="removePinFlow()">Удалить PIN</button></div>`
@@ -1117,10 +1146,18 @@ ${db.pinHash?`<div class="mut">PIN установлен. Приложение б
 <div><label>Повторите PIN</label><input type="password" id="pin2" inputmode="numeric"></div></div>
 <div class="row"><button class="btn" onclick="setPin()">Установить PIN</button></div>`}
 <p class="mut" style="margin-top:8px">⚠️ Забыли PIN — доступ вернёт только сброс данных браузера (все данные пропадут). Делайте бэкапы!</p></div>
-<div class="card"><b>Курсы валют (обновляйте вручную)</b>
+<div class="card"><b>🔐 Пароль для гостей</b>
+<p class="mut" style="margin:6px 0">Если хотите, чтобы приложение открывалось только у ограниченного круга людей. При первом открытии спросят этот пароль. Оставьте пустым, если доступ без пароля.</p>
+<input type="password" value="${esc(p.accessPassword||'')}" onchange="db.profile.accessPassword=this.value;save();toast('Сохранено')" placeholder="Пусто = без пароля">
+<div class="mut">Скидывайте ссылку только тем, кому доверяете, и сообщайте пароль в личку.</div></div>
+<div class="card"><b>💱 Курсы валют</b>
+<div class="mut">1 BYN = ${p.rates.BYN} ₽ · 1 CNY = ${p.rates.CNY} ₽ · 1 USD = ${p.rates.USD} ₽</div>
+<div class="mut">Обновлены: ${p.ratesUpdated||'никогда'}</div>
+<div class="row" style="margin-top:8px"><button class="btn" onclick="updateRates()">🔄 Обновить курсы с сервера</button></div>
+<details style="margin-top:8px"><summary>Вручную</summary>
 <label>1 BYN = … RUB</label><input type="number" step="0.01" value="${p.rates.BYN}" oninput="db.profile.rates.BYN=+this.value||1;save()">
 <label>1 CNY = … RUB</label><input type="number" step="0.01" value="${p.rates.CNY}" oninput="db.profile.rates.CNY=+this.value||1;save()">
-<label>1 USD = … RUB</label><input type="number" step="0.01" value="${p.rates.USD}" oninput="db.profile.rates.USD=+this.value||1;save()"></div>
+<label>1 USD = … RUB</label><input type="number" step="0.01" value="${p.rates.USD}" oninput="db.profile.rates.USD=+this.value||1;save()"></details></div>
 <div class="card"><b>Данные</b><p class="mut">Всё хранится локально в браузере. Регулярно делайте резервную копию!</p>
 <div class="row" style="margin-top:8px"><button class="btn" onclick="exportData()">⬇ Экспорт JSON</button>
 <button class="btn sec" onclick="document.getElementById('impf').click()">⬆ Импорт</button>
@@ -1128,20 +1165,25 @@ ${db.pinHash?`<div class="mut">PIN установлен. Приложение б
 <button class="btn danger" onclick="if(confirm('Удалить ВСЕ данные?')){localStorage.removeItem(KEY);location.reload()}">Сброс</button></div></div>`}
 function exportData(){const b=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='solodev-backup-'+today()+'.json';a.click()}
 function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();
- r.onload=e=>{try{db=JSON.parse(e.target.result);save();locked=!!db.pinHash;render();toast('Импортировано')}catch(err){toast('Ошибка файла')}};r.readAsText(f)}
+ r.onload=e=>{try{db=JSON.parse(e.target.result);save();locked=!!db.pinHash;accessGranted=!db.profile.accessPassword;render();toast('Импортировано')}catch(err){toast('Ошибка файла')}};r.readAsText(f)}
 
 /* ================= РЕНДЕР + PWA ================= */
 const VIEW={dash:rDash,radar:rPains,clients:rClients,props:rProps,price:rPrices,proj:rProj,plan:rPlan,time:rTime,fin:rFin,tax:rTax,law:rLaw,dev:rDev,set:rSet};
 function render(){
  document.getElementById('tabs').style.display=locked?'none':'flex';
  document.getElementById('lockbtn').style.display=(db.pinHash&&!locked)?'':'none';
+ /* НОВОЕ: проверка гостевого доступа */
+ if(!accessGranted&&!checkAccess()){document.getElementById('view').innerHTML='<div style="text-align:center;padding:60px 20px"><div style="font-size:64px">🔐</div><h3>Доступ ограничен</h3><p class="mut">Обратитесь к владельцу приложения.</p><button class="btn" onclick="location.reload()">Попробовать снова</button></div>';return}
  if(locked){document.getElementById('modal').classList.remove('on');document.getElementById('view').innerHTML=rLock();return}
- document.getElementById('view').innerHTML=VIEW[tab]();if(tab==='tax')taxCalcNow();
+ document.getElementById('view').innerHTML=VIEW[tab]();if(tab==='tax')taxCalcNow();if(tab==='fin')setTimeout(convertCurrency,100);
  document.getElementById('hdr').textContent=new Date().toLocaleDateString('ru-RU')}
+/* НОВОЕ: автогенерация + автообновление курсов */
+autoGenerateIfNeeded();
+fetchRates();
 rTabs();render();
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
  navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 </script>
 </body>
- </html>
+</html>
