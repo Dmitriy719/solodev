@@ -2,623 +2,420 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0e1116">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>SoloDev v0.9</title>
+<title>SoloDev v1.0</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="icon.svg">
 <style>
-:root{--bg:#0e1116;--card:#171b22;--card2:#1f2530;--txt:#e8ecf3;--mut:#8b94a7;--acc:#6c8cff;--acc2:#9d6cff;--ok:#3ecf8e;--warn:#ffb454;--bad:#ff6b6b;--line:#242b36}
+:root{--bg:#0e1116;--card:#171b22;--card2:#1f2530;--txt:#e8ecf3;--mut:#8b94a7;--acc:#6c8cff;--acc2:#9d6cff;--ok:#3ecf8e;--warn:#ffb454;--bad:#ff6b6b}
 *{box-sizing:border-box;margin:0;padding:0}
-button{font:inherit;cursor:pointer}
-body{background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;padding-bottom:40px}
-header{position:sticky;top:0;z-index:5;background:rgba(14,17,22,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
-header b{font-size:17px}
-header span{color:var(--mut);font-size:12px}
-nav{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;scrollbar-width:none}
+body{background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,sans-serif;padding-bottom:80px}
+header{position:sticky;top:0;background:rgba(14,17,22,.95);backdrop-filter:blur(8px);border-bottom:1px solid #242b36;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10}
+header b{font-size:18px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid #242b36;display:flex;gap:4px;padding:8px;overflow-x:auto;z-index:20}
 nav::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:8px 13px;border-radius:20px;background:var(--card);color:var(--mut);border:1px solid var(--line);font-size:13px;white-space:nowrap}
-.tab.on{background:var(--acc);color:#fff;border-color:transparent}
+.nav-btn{flex:1;min-width:60px;background:var(--card2);border:none;border-radius:10px;padding:8px 4px;color:var(--mut);font-size:11px;cursor:pointer}
+.nav-btn.active{background:var(--acc);color:#fff}
+.nav-btn small{display:block;margin-top:2px;font-size:10px}
 main{padding:14px;max-width:760px;margin:0 auto}
-h2{font-size:18px;margin:4px 0 10px}
-h3{margin-bottom:10px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+h2{font-size:18px;margin:4px 0 12px}
+.card{background:var(--card);border:1px solid #242b36;border-radius:14px;padding:14px;margin-bottom:12px}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .stat span{display:block;font-size:12px;color:var(--mut)}
-.stat b{font-size:19px}
+.stat b{font-size:20px}
 .mut{color:var(--mut);font-size:13px}
 .plus{color:var(--ok)}.minus{color:var(--bad)}
-.note{background:var(--card2);border-radius:8px;padding:8px;margin:6px 0;font-size:13px;color:var(--mut)}
-.warn{background:#241d0e;border-color:#5a4a1e}
-.ai{background:#1a2035;border-color:#3a4a7a}
+.note{background:var(--card2);border-radius:8px;padding:10px;margin:6px 0}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .row.spread{justify-content:space-between}
-.row select,.row input,.row button{margin:0}
-.row select{flex:1;max-width:180px;width:auto}
-.row input{flex:1}
-.row2{display:flex;gap:10px}.row2>*{flex:1}
-label{font-size:12px;color:var(--mut);display:block;margin-top:4px}
-input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 12px;font-size:15px;margin:4px 0 10px;font-family:inherit}
-input[type=checkbox],input[type=date],input[type=time],input[type=number]{width:auto}
-textarea{resize:vertical}
-.btn{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 15px;font-size:14px;font-weight:600}
-.btn.sec{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
-.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad);padding:10px 12px}
-.btn.ai-btn{background:linear-gradient(90deg,var(--acc),var(--acc2))}
-.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px}
-.chip{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--mut);border-radius:16px;padding:6px 12px;font-size:12px}
+.btn{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer}
+.btn.sec{background:var(--card2);color:var(--txt);border:1px solid #242b36}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.btn.ai{background:linear-gradient(90deg,var(--acc),var(--acc2))}
+input,select,textarea{width:100%;background:var(--card2);border:1px solid #242b36;color:var(--txt);border-radius:10px;padding:10px;margin:4px 0 10px}
+.chip{display:inline-block;background:var(--card2);border:1px solid #242b36;border-radius:16px;padding:6px 12px;font-size:12px;margin:2px}
 .chip.on{background:var(--acc);color:#fff;border-color:transparent}
-.bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden;margin:8px 0}
+.bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2))}
-.skill{margin:10px 0}
-#tview{font-size:44px;font-weight:700;letter-spacing:2px}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0}
-.cal-h{text-align:center;color:var(--mut);font-size:11px;padding:2px 0}
-.cal-c{background:var(--card);border:1px solid var(--line);border-radius:8px;min-height:48px;padding:4px 2px;font-size:12px;text-align:center}
-.cal-c.today{border-color:var(--acc);background:#1c2333}
-.cal-c.over{border-color:var(--bad)}
-details summary{font-weight:700;cursor:pointer}
-.docprint{background:#fff;color:#000;border-radius:10px;padding:18px;white-space:pre-wrap;font-size:14px;line-height:1.55;min-height:200px;outline:none}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:20}
-#modal.on{display:flex}
-.m-card{background:var(--card);width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px;border-top:1px solid var(--line)}
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#fff;color:#000;padding:8px 16px;border-radius:20px;font-size:13px;z-index:50}
-.hello{color:var(--mut);margin:2px 0 12px}
-@media print{body *{visibility:hidden}#printarea,#printarea *{visibility:visible}#printarea{position:fixed;left:0;top:0;width:100%;border-radius:0!important}}
-
-/* ===== SPLASH SCREEN ===== */
-#splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity 0.5s}
+#splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity .5s}
 #splash.hidden{opacity:0;pointer-events:none}
-#splash .logo{font-size:64px;margin-bottom:20px;animation:pulse 1.5s ease-in-out infinite}
+#splash .logo{font-size:72px;margin-bottom:20px;animation:pulse 1.5s ease infinite}
 #splash h1{font-size:28px;margin-bottom:10px;color:var(--acc)}
-#splash .loader{width:200px;height:4px;background:var(--card2);border-radius:2px;overflow:hidden;margin-top:20px}
-#splash .loader-bar{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));width:0%;animation:loading 2s ease-in-out forwards}
+.loader{width:200px;height:4px;background:var(--card2);border-radius:2px;overflow:hidden;margin-top:20px}
+.loader-bar{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));width:0;animation:load 2s ease forwards}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-@keyframes loading{0%{width:0%}100%{width:100%}}
+@keyframes load{to{width:100%}}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#fff;color:#000;padding:10px 18px;border-radius:24px;font-size:14px;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 </style>
 </head>
 <body>
+<div id="splash"><div class="logo">⚡</div><h1>SoloDev</h1><p class="mut">Загрузка...</p><div class="loader"><div class="loader-bar"></div></div></div>
 
-<!-- SPLASH SCREEN -->
-<div id="splash">
-  <div class="logo">⚡</div>
-  <h1>SoloDev</h1>
-  <p class="mut">Загрузка приложения...</p>
-  <div class="loader"><div class="loader-bar"></div></div>
-</div>
+<header><b>⚡ SoloDev v1.0</b><span id="date"></span></header>
 
-<header><b>⚡ SoloDev v0.9</b><div class="row" style="gap:10px"><span id="hdr"></span><button id="lockbtn" class="btn sec" style="display:none;padding:6px 10px" onclick="lockNow()">🔒</button></div></header>
-<nav id="tabs"></nav>
-<main id="view"></main>
-<div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
+<main id="app"></main>
+
+<nav id="nav"></nav>
 
 <script>
-/* ===== ДАННЫЕ ===== */
+// ===== ДАННЫЕ =====
 const KEY='solodev_v1';
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const today=()=>new Date().toISOString().slice(0,10);
-const loc=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtDate=d=>d?d.split('-').reverse().join('.'):'';
-const CURS={RUB:'₽',BYN:'Br',CNY:'¥',USD:'$'};
-const FLAG={ru:'🇷🇺',by:'🇧🇾',cn:'🇨🇳'};
-const CNAME={ru:'Россия',by:'Беларусь',cn:'Китай'};
-const MOOD_E={1:'😞',2:'😕',3:'😐',4:'🙂',5:'😄'};
-const SOURCES=['Автопоиск (ИИ)','Холодный поиск','Telegram','Рекомендация','Хабр/VC','LinkedIn','WeChat','Радар (боли)','Другое'];
-const CLIENT_ST=['Новый','Контакт','Переговоры','Оффер','Договор','В работе','Завершён','Отказ'];
-const PROP_ST=['Черновик','Отправлен','Принят','Отклонён','Договор'];
-const PROJ_ST=['Предоплата','Разработка','Тестирование','Сдача','Оплачен','Пауза'];
-const PAIN_ST=['Гипотеза','Подтверждена','В работе','Пустая'];
-const CH_ST=['Планируется','В работе','Работает','Пауза'];
-const DOC_STATUS=['Черновик','Отправлен','Подписан'];
-const LEVELS=['изучаю','новичок','уверенно','опытный','эксперт','ментор'];
 const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
-const DAYS_W=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-const KB_ST=['Не начато','Изучаю','Практика','Освоено'];
-const UNITS=['проект','час','месяц','шт'];
-const ALL_SPECS=['Фронтенд','Бэкенд','Мобильная разработка','Боты и интеграции','DevOps и хостинг','Дизайн и UI','Данные и ML','Бизнес-навыки'];
 
-const PAIN_DB={
- 'Фронтенд':[{seg:'Владельцы интернет-магазинов',pain:'Сайт медленно загружается',sol:'Оптимизация скорости',demand:5},{seg:'Стартапы без сайта',pain:'Нет современного сайта',sol:'Лендинг за 1-2 недели',demand:4}],
- 'Бэкенд':[{seg:'Стартапы',pain:'Нужен быстрый бэкенд',sol:'REST API за 1-2 недели',demand:5}],
- 'Мобильная разработка':[{seg:'Владельцы доставки',pain:'Нет мобильного приложения',sol:'Приложение с push',demand:5}],
- 'Боты и интеграции':[{seg:'Владельцы каналов',pain:'Много вопросов',sol:'Бот с FAQ',demand:5}],
- 'DevOps':[{seg:'Стартапы',pain:'Сайт падает',sol:'CI/CD и мониторинг',demand:4}],
- 'Дизайн':[{seg:'Стартапы',pain:'Непрофессиональный вид',sol:'UI-кит',demand:5}],
- 'Данные':[{seg:'Компании',pain:'Решения без данных',sol:'Дашборды',demand:4}],
- 'Бизнес':[{seg:'Фрилансеры',pain:'Не умеют оценивать',sol:'Консультации',demand:3}]};
-
-const TIPS_POOL=['Начните с самой сложной задачи.','Перерыв каждые 2 часа.','Проверяйте почту в выделенное время.','Планируйте завтра вечером.','Один день в неделю — без работы.'];
-const SKILL_DIR={'Фронтенд':['HTML/CSS','JavaScript','TypeScript','React','Vue','Next.js'],'Бэкенд':['Node.js','Python','PostgreSQL','Redis'],'Мобильная':['React Native','Flutter'],'Боты':['Telegram-боты','Платёжные интеграции'],'DevOps':['Git','Docker','CI/CD'],'Дизайн':['Figma','UI/UX'],'Данные':['SQL','Python для данных'],'Бизнес':['Оценка проектов','Переговоры']};
-const DEF_TPL='09:00 | Глубокая работа\n12:00 | Обед\n14:00 | Коммуникации\n18:00 | Конец дня';
-const DEF_FAM=['Время с семьёй','Спорт','Отдых'];
-
-function seed(){return{
- profile:{name:'',spec:'Разработчик',country:'ru',currency:'RUB',rate:1500,rates:{BYN:30,CNY:11.5,USD:90},ratesUpdated:'',bank:{},specs:['Фронтенд'],accessPassword:''},
- clients:[],proposals:[],projects:[],fin:[],tasks:[],sessions:[],plan:[],blocks:[],invoices:[],docLog:[],partners:[],wellbeing:[],
- prices:[{id:uid(),name:'Лендинг',price:30000,cur:'RUB',unit:'проект'}],
- kb:[{id:uid(),dir:'Фронтенд',topic:'HTML',theory:'Основы',practice:'Сверстать страницу',time:'1 неделя',res:'',status:'Не начато'}],
- mails:0,pinHash:null,dayTpl:DEF_TPL,
- balance:{limitMin:360,items:[...DEF_FAM],checks:{}},
- tax:{regime:'ru_npdu',limit:2400000,calc:{ind:'',ent:''},useDeduct:false,byPensioner:false},
- pains:[],channels:[{name:'Telegram',action:'5 контактов в день',status:'В работе',leads:0}],
- avatar:{who:'',pain:'',fear:'',obj:'',trigger:'',where:''},
- skills:[{n:'HTML/CSS',l:4},{n:'JavaScript',l:3}],
- goals:[]};}
+// ===== БАЗА ДАННЫХ С ПРЕДУСТАНОВКАМИ =====
+function seed(){
+  const d=today();
+  return{
+    profile:{name:'Дмитрий',spec:'Fullstack разработчик',country:'ru',currency:'RUB',rate:1500,rates:{BYN:30,CNY:11.5,USD:90},specs:['Фронтенд','Бэкенд','Боты']},
+    clients:[
+      {id:uid(),name:'Алексей Иванов',company:'TechStart',country:'ru',source:'Telegram',contact:'@alexey',budget:45000,cur:'RUB',status:'В работе',date:d},
+      {id:uid(),name:'Мария Петрова',company:'Digital Pro',country:'ru',source:'Рекомендация',contact:'@maria',budget:30000,cur:'RUB',status:'Переговоры',date:d},
+      {id:uid(),name:'Иван Сидоров',company:'Startup Hub',country:'by',source:'Холодный поиск',contact:'@ivan',budget:500,cur:'USD',status:'Новый',date:d}
+    ],
+    projects:[
+      {id:uid(),name:'Интернет-магазин',client:'Алексей Иванов',budget:45000,cur:'RUB',deadline:'2026-09-01',stage:'В работе',date:d},
+      {id:uid(),name:'Лендинг',client:'Мария Петрова',budget:30000,cur:'RUB',deadline:'2026-08-25',stage:'Разработка',date:d}
+    ],
+    tasks:[
+      {id:uid(),proj:'',text:'Настроить CI/CD',done:true,date:d},
+      {id:uid(),proj:'',text:'Сверстать главную',done:false,date:d},
+      {id:uid(),proj:'',text:'Интеграция API',done:false,date:d}
+    ],
+    finances:[
+      {id:uid(),date:'2026-08-01',type:'in',amt:30000,cur:'RUB',cat:'Проект'},
+      {id:uid(),date:'2026-08-05',type:'out',amt:5000,cur:'RUB',cat:'Софт'},
+      {id:uid(),date:'2026-08-10',type:'in',amt:15000,cur:'RUB',cat:'Проект'}
+    ],
+    pains:[
+      {id:uid(),seg:'Владельцы магазинов',pain:'Сайт медленно грузится',demand:5,sol:'Оптимизация скорости',status:'Подтверждена',src:'Автопоиск'},
+      {id:uid(),seg:'Стартапы',pain:'Нет мобильного приложения',demand:4,sol:'React Native приложение',status:'Гипотеза',src:'Автопоиск'}
+    ],
+    proposals:[
+      {id:uid(),client:'Мария Петрова',task:'Лендинг',scope:'Современный адаптивный лендинг',price:30000,cur:'RUB',days:14,status:'Отправлен',date:d}
+    ],
+    skills:[
+      {n:'HTML/CSS',l:5},{n:'JavaScript',l:4},{n:'TypeScript',l:3},{n:'React',l:4},{n:'Node.js',l:3},{n:'Python',l:2}
+    ],
+    goals:[
+      {t:'Изучить TypeScript',done:true},
+      {t:'Сделать 3 проекта в портфолио',done:false},
+      {t:'Увеличить доход до 100к/мес',done:false}
+    ],
+    knowledge:[
+      {id:uid(),dir:'Фронтенд',topic:'React Hooks',theory:'useEffect, useState, useContext',practice:'Создать кастомный хук',time:'2 недели',res:'',status:'Изучаю'},
+      {id:uid(),dir:'Бэкенд',topic:'REST API',theory:'Методы GET, POST, PUT, DELETE',practice:'Сделать API для блога',time:'1 неделя',res:'',status:'Освоено'},
+      {id:uid(),dir:'DevOps',topic:'Docker',theory:'Контейнеризация приложений',practice:'Задеплоить приложение в Docker',time:'3 недели',res:'',status:'Практика'}
+    ],
+    prices:[
+      {id:uid(),name:'Лендинг',price:25000,cur:'RUB',unit:'проект'},
+      {id:uid(),name:'Интернет-магазин',price:60000,cur:'RUB',unit:'проект'},
+      {id:uid(),name:'Telegram бот',price:15000,cur:'RUB',unit:'проект'},
+      {id:uid(),name:'Консультация',price:2000,cur:'RUB',unit:'час'}
+    ],
+    mails:15,
+    pinHash:null,
+    tax:{regime:'ru_npdu',limit:2400000,calc:{ind:'',ent:''},useDeduct:false},
+    channels:[{name:'Telegram',action:'5 контактов в день',status:'Работает',leads:8}],
+    sessions:[{id:uid(),date:d,min:240,task:'Разработка'}],
+    plan:[],
+    blocks:[],
+    balance:{limitMin:360,items:['Время с семьёй','Спорт','Отдых'],checks:{}},
+    contracts:[]
+  };
+}
 
 function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
-let db=(()=>{const s=seed(),l=load();let d=l?{...s,...l,profile:{...s.profile,...(l.profile||{}),bank:{...((l.profile&&l.profile.bank)||{})},rates:{...s.profile.rates,...((l.profile&&l.profile.rates)||{})}},tax:{...s.tax,...(l.tax||{}),calc:{...((l.tax&&l.tax.calc)||{})}}}:s;
- ['pains','channels','tasks','sessions','plan','blocks','invoices','docLog','partners','wellbeing','prices','kb'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});
- d.avatar={who:'',pain:'',fear:'',obj:'',trigger:'',where:'',...(d.avatar||{})};
- d.balance={limitMin:360,items:[...DEF_FAM],checks:{},...(d.balance||{})};
- if(!Array.isArray(d.balance.items)||!d.balance.items.length)d.balance.items=[...DEF_FAM];
- d.balance.checks=d.balance.checks||{};
- if(typeof d.mails!=='number')d.mails=0;
- d.pinHash=d.pinHash||null;
- if(!d.dayTpl)d.dayTpl=DEF_TPL;
- if(!Array.isArray(d.profile.specs)||!d.profile.specs.length)d.profile.specs=['Фронтенд'];
- if(typeof d.profile.accessPassword!=='string')d.profile.accessPassword='';
- if(typeof d.tax.useDeduct!=='boolean')d.tax.useDeduct=false;
- if(typeof d.tax.byPensioner!=='boolean')d.tax.byPensioner=false;
- d.kb.forEach(k=>{if(!k.time)k.time='';if(!k.res)k.res=''});
- return d})();
+let db=(()=>{const s=seed(),l=load();return l?{...s,...l}:s})();
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 
-/* ===== АВТОКУРСЫ ===== */
-async function fetchRates(){try{const r=await fetch('https://open.er-api.com/v6/latest/RUB');if(!r.ok)return false;const j=await r.json();if(j.rates){const byn=j.rates.BYN,cny=j.rates.CNY,usd=j.rates.USD;if(byn)db.profile.rates.BYN=Math.round(1/byn*100)/100;if(cny)db.profile.rates.CNY=Math.round(1/cny*100)/100;if(usd)db.profile.rates.USD=Math.round(1/usd*100)/100;db.profile.ratesUpdated=new Date().toLocaleString('ru-RU');save();return true}}catch(e){}return false}
-async function updateRates(){toast('Обновляю курсы…');const ok=await fetchRates();toast(ok?'Курсы обновлены':'Нет интернета');if(tab==='set'||tab==='fin')render()}
+// ===== НАВИГАЦИЯ =====
+const TABS=[
+  {id:'home',icon:'🏠',label:'Главная'},
+  {id:'clients',icon:'',label:'Клиенты'},
+  {id:'projects',icon:'📁',label:'Проекты'},
+  {id:'finances',icon:'💰',label:'Финансы'},
+  {id:'taxes',icon:'🧾',label:'Налоги'},
+  {id:'price',icon:'💵',label:'Прайс'},
+  {id:'time',icon:'⏱',label:'Время'},
+  {id:'plan',icon:'📅',label:'План'},
+  {id:'growth',icon:'🎯',label:'Рост'},
+  {id:'lawyer',icon:'⚖️',label:'Юрист'},
+  {id:'settings',icon:'️',label:'Настройки'}
+];
+let tab='home';
 
-/* ===== АВТОГЕНЕРАЦИЯ БОЛЕЙ ===== */
-function generatePainsSilent(){let added=0;(db.profile.specs||[]).forEach(sp=>{(PAIN_DB[sp]||[]).forEach(p=>{if(!db.pains.some(x=>x.seg===p.seg&&x.pain===p.pain)){db.pains.unshift({id:uid(),seg:p.seg,pain:p.pain,demand:p.demand,src:'Автопоиск',sol:p.sol,status:'Гипотеза'});added++}})});return added}
-function generatePains(){const specs=db.profile.specs||[];if(!specs.length){toast('Выберите специализации');go('set');return}const added=generatePainsSilent();save();render();toast(added?`Добавлено ${added} гипотез`:'Все уже в базе')}
-function autoGenerateIfNeeded(){if(db.pains.length<=2&&(db.profile.specs||[]).length){const n=generatePainsSilent();if(n>0)save()}}
-
-/* ===== УМНЫЕ ПОДСКАЗКИ ===== */
-function smartInsights(){const tips=[];const lim=db.balance.limitMin,worked=workedOn(today());if(worked>lim)tips.push('🛑 Переработка!');const ds=db.projects.filter(p=>p.deadline&&p.deadline<=shiftDate(today(),2)&&!['Оплачен','Пауза'].includes(p.stage));if(ds.length)tips.push(`🔥 Дедлайн: ${ds.map(p=>p.name).join(', ')}`);const hp=db.pains.filter(p=>p.status==='Гипотеза'&&p.demand>=4).slice(0,2);hp.forEach(p=>{if(!db.proposals.some(o=>o.task===p.pain))tips.push(` Возможность: ${p.seg}`)});if(!tips.length)tips.push(TIPS_POOL[Math.floor(Math.random()*TIPS_POOL.length)]);return tips}
-
-/* ===== PIN ===== */
-let locked=!!db.pinHash,accessGranted=false;
-async function hashPin(pin){const s='solodev:'+pin;if(window.crypto&&crypto.subtle){try{const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}catch(e){}}let h=5381;for(let i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))>>>0}return 'f'+h.toString(16);}
-function checkAccess(){if(!db.profile.accessPassword||accessGranted)return true;openModal(`<div style="text-align:center;padding:20px 0"><div style="font-size:44px">🔐</div><h3>Доступ к SoloDev</h3><p class="mut">Введите пароль</p><input type="password" id="guestpass" style="text-align:center;font-size:20px" onkeydown="if(event.key==='Enter')submitGuestPass()"><button class="btn" style="width:100%;margin-top:10px" onclick="submitGuestPass()">Войти</button></div>`);return false}
-function submitGuestPass(){const p=document.getElementById('guestpass').value;if(p===db.profile.accessPassword){accessGranted=true;closeModal();render();toast('Добро пожаловать!')}else toast('Неверный пароль')}
-function rLock(){return `<div style="max-width:340px;margin:60px auto;text-align:center"><div style="font-size:44px">🔒</div><h3>SoloDev</h3><p class="mut">Введите PIN</p><input type="password" id="pinin" inputmode="numeric" maxlength="8" style="text-align:center;font-size:26px" onkeydown="if(event.key==='Enter')tryUnlock()"><button class="btn" style="width:100%" onclick="tryUnlock()">Войти</button></div>`}
-async function tryUnlock(){const el=document.getElementById('pinin');const v=el.value;if(!v)return;const h=await hashPin(v);if(h===db.pinHash){locked=false;render();toast('С возвращением!')}else{toast('Неверный PIN');el.value=''}}
-function lockNow(){locked=true;render()}
-async function setPin(){const a=document.getElementById('pin1').value,b=document.getElementById('pin2').value;if(!/^\d{4,8}$/.test(a))return toast('PIN: 4–8 цифр');if(a!==b)return toast('Не совпадают');db.pinHash=await hashPin(a);save();render();toast('PIN установлен')}
-function removePinFlow(){openModal(`<div style="text-align:center;padding:20px 0"><h3>Удаление PIN</h3><input type="password" id="pindel" inputmode="numeric" style="text-align:center;font-size:20px"><button class="btn danger" style="width:100%;margin-top:10px" onclick="confirmRemovePin()">Удалить</button></div>`)}
-async function confirmRemovePin(){if(await hashPin(document.getElementById('pindel').value)===db.pinHash){db.pinHash=null;save();closeModal();render();toast('PIN удалён')}else toast('Неверный PIN')}
-function changePinFlow(){openModal(`<div style="padding:10px 0"><h3>Смена PIN</h3><label>Текущий</label><input type="password" id="pinold" inputmode="numeric"><label>Новый</label><input type="password" id="pinnew1" inputmode="numeric"><label>Повторите</label><input type="password" id="pinnew2" inputmode="numeric"><button class="btn" style="width:100%;margin-top:10px" onclick="confirmChangePin()">Сменить</button></div>`)}
-async function confirmChangePin(){const c=document.getElementById('pinold').value,a=document.getElementById('pinnew1').value,b=document.getElementById('pinnew2').value;if(await hashPin(c)!==db.pinHash)return toast('Неверный PIN');if(!/^\d{4,8}$/.test(a))return toast('4–8 цифр');if(a!==b)return toast('Не совпадают');db.pinHash=await hashPin(a);save();closeModal();toast('PIN изменён')}
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&db.pinHash&&!locked){locked=true;render()}});
-
-/* ===== УТИЛИТЫ ===== */
-function toRub(a,c){return c==='RUB'?a:a*(db.profile.rates[c]||1)}
-function fromRub(r,c){return c==='RUB'?r:r/(db.profile.rates[c]||1)}
-function fmt(n,c){return (Math.round((n||0)*100)/100).toLocaleString('ru-RU')+' '+(CURS[c]||c)}
-function money(rub){return fmt(fromRub(rub,db.profile.currency),db.profile.currency)}
-function finMonth(){const m=today().slice(0,7);let i=0,e=0;db.fin.forEach(f=>{if(f.date.startsWith(m)){const r=toRub(f.amt,f.cur);f.type==='in'?i+=r:e+=r}});return{inc:i,exp:e}}
-function monday(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return loc(x)}
-function shiftDate(d,n){const x=new Date(d+'T00:00:00');x.setDate(x.getDate()+n);return loc(x)}
-function workedOn(d){return db.sessions.filter(s=>s.date===d).reduce((a,s)=>a+s.min,0)}
-const mmss=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
-const hm=m=>m>=60?`${Math.floor(m/60)} ч ${m%60} м`:`${m} м`;
-const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
-function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1900)}
-async function copyText(t){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}toast('Скопировано')}
-function openModal(h){document.getElementById('mcard').innerHTML=h;document.getElementById('modal').classList.add('on')}
-function closeModal(){document.getElementById('modal').classList.remove('on')}
-const empty=t=>`<div class="card mut">${t}</div>`;
-
-/* ===== НАВИГАЦИЯ ===== */
-const TABS=[['dash','📊 Главная'],['radar','🎯 Радар'],['clients',' Клиенты'],['props','✉️ Офферы'],['price','💵 Прайс'],['proj',' Проекты'],['plan','📋 План'],['time','⏱ Время'],['fin','💰 Финансы'],['tax','🧾 Налоги'],['law','⚖️ Юрист'],['dev',' Рост'],['set','⚙️ Настройки']];
-let tab='dash',cFilter='Все';
-function rTabs(){document.getElementById('tabs').innerHTML=TABS.map(([k,l])=>`<button class="tab ${tab===k?'on':''}" onclick="go('${k}')">${l}</button>`).join('')}
-function go(k){tab=k;rTabs();render();window.scrollTo(0,0)}
-
-/* ===== ДАШБОРД ===== */
-function rDash(){
- const{inc,exp}=finMonth();
- const leads=db.clients.filter(c=>['Новый','Контакт','Переговоры','Оффер'].includes(c.status)).length;
- const worked=workedOn(today()),lim=db.balance.limitMin,overW=worked>lim;
- const fam=(db.balance.checks[today()]||[]).filter(Boolean).length;
- const wT=db.wellbeing.find(w=>w.date===today());
- const m=MONTHS[+today().slice(5,7)-1];
- const ins=smartInsights();
- let h=`<div class="hello">Привет, <b>${esc(db.profile.name||'коллега')}</b>! ${esc(db.profile.spec)} ${wT?MOOD_E[wT.mood]||'':''}</div>
- <div class="grid">
-  <div class="card stat"><span>Доход, ${m}</span><b class="plus">${money(inc)}</b></div>
-  <div class="card stat"><span>Расходы, ${m}</span><b class="minus">${money(exp)}</b></div>
-  <div class="card stat"><span>Прибыль, ${m}</span><b>${money(inc-exp)}</b></div>
-  <div class="card stat"><span>Лиды</span><b>${leads}</b></div>
-  <div class="card stat"><span>Работа сегодня</span><b class="${overW?'minus':''}">${hm(worked)} <span class="mut">/ ${hm(lim)}</span></b></div>
-  <div class="card stat"><span>Семья</span><b>${fam}/${db.balance.items.length}</b></div>
- </div>`;
- h+=`<div class="card ai"><b> Умные подсказки</b>${ins.map(t=>`<div class="mut" style="margin:6px 0">${t}</div>`).join('')}</div>`;
- if(overW)h+=`<div class="card warn">🛑 Переработка!</div>`;
- h+=`<div class="card"><b>Быстрые действия</b><div class="row" style="margin-top:8px">
- <button class="btn" onclick="go('plan')">📋 План</button>
- <button class="btn ai-btn" onclick="generatePains()">🎯 Найти клиентов</button>
- <button class="btn sec" onclick="go('price')">💵 Прайс</button>
- <button class="btn sec" onclick="openDocWizard()"> Документ</button>
- <button class="btn sec" onclick="openInvModal()"> Счёт</button></div></div>`;
- return h;
+function renderNav(){
+  document.getElementById('nav').innerHTML=TABS.map(t=>`<button class="nav-btn ${t.id===tab?'active':''}" onclick="go('${t.id}')">${t.icon}<br><small>${t.label}</small></button>`).join('');
 }
 
-/* ===== РАДАР ===== */
-function funnelCard(){
- const tot=db.clients.length,cont=db.clients.filter(c=>c.status!=='Новый').length,sent=db.proposals.filter(p=>p.status!=='Черновик').length,acc=db.proposals.filter(p=>['Принят','Договор'].includes(p.status)).length,deal=db.clients.filter(c=>['Договор','В работе','Завершён'].includes(c.status)).length,paid=db.projects.filter(p=>p.stage==='Оплачен').length;
- return `<div class="card"><b>📈 Воронка</b>
- <div class="row" style="margin-top:6px"><span class="mut">Отправлено: <b>${db.mails}</b></span><button class="btn sec" style="padding:6px 10px" onclick="db.mails++;save();render()">+1</button></div>
- <div class="mut" style="margin-top:8px">📨 ${db.mails} → лидов: ${tot}</div>
- <div class="mut">👥 Лидов: ${tot} → в диалоге: ${cont}</div>
- <div class="mut">✉️ Офферов: ${sent} → принято: ${acc}</div>
- <div class="mut"> Сделок: ${deal} → оплачено: ${paid}</div></div>`}
+function go(id){tab=id;renderNav();render();window.scrollTo(0,0)}
 
-function radarOpportunities(){const pains=db.pains.filter(p=>p.status==='Гипотеза'&&p.demand>=4);if(!pains.length)return'';let h=`<div class="card ai"><b> Приоритетные возможности</b>`;pains.slice(0,5).forEach(p=>{const has=db.proposals.some(o=>o.task===p.pain);h+=`<div class="note"><div class="row spread"><b>${esc(p.seg)}</b><span class="chip on">${'★'.repeat(p.demand)}</span></div><div>${esc(p.pain)}</div>${has?'<div class="mut" style="color:var(--ok)">✓ Оффер создан</div>':`<button class="btn sec" style="margin-top:4px" onclick="painToProp('${p.id}')">Создать оффер</button>`}</div>`});h+=`</div>`;return h}
-
-function rPains(){
- let h=`<div class="row spread"><h2>Радар</h2><button class="btn" onclick="openPainModal()">+ Боль</button></div>`;
- h+=`<div class="card ai"><b>🤖 Умный поиск</b><p class="mut">Специализации: ${(db.profile.specs||[]).join(', ')||'не выбраны'}</p><button class="btn ai-btn" onclick="generatePains()"> Сгенерировать</button></div>`;
- h+=funnelCard()+radarOpportunities();
- const list=[...db.pains].sort((a,b)=>b.demand-a.demand);
- if(!list.length)h+=empty('Нажмите «Сгенерировать»');
- list.forEach(p=>{h+=`<div class="card">
-  <div class="row spread"><b>${esc(p.seg)}</b><span class="chip on">${'★'.repeat(p.demand)}</span></div>
-  <div>${esc(p.pain)}</div>
-  ${p.sol?`<div class="note">💡 ${esc(p.sol)}</div>`:''}
-  <div class="row" style="margin-top:6px">
-   <select onchange="setPain('${p.id}',this.value)">${PAIN_ST.map(s=>`<option ${s===p.status?'selected':''}>${s}</option>`).join('')}</select>
-   <button class="btn sec" onclick="openCold('${p.id}')">✍️</button>
-   <button class="btn sec" onclick="painToProp('${p.id}')">→</button>
-   <button class="btn danger" onclick="delPain('${p.id}')"></button>
-  </div></div>`});
- return h;
-}
-function openPainModal(id){const p=id?db.pains.find(x=>x.id===id):{seg:'',pain:'',demand:3,src:'',sol:''};
- openModal(`<h3>${id?'Боль':'Новая боль'}</h3>
-<label>Сегмент</label><input id="pn_seg" value="${esc(p.seg)}">
-<label>Боль</label><textarea id="pn_pain" rows="2">${esc(p.pain)}</textarea>
-<label>Спрос (1–5)</label><select id="pn_dem">${[1,2,3,4,5].map(n=>`<option ${p.demand===n?'selected':''} value="${n}">${'★'.repeat(n)}</option>`).join('')}</select>
-<label>Решение</label><textarea id="pn_sol" rows="2">${esc(p.sol)}</textarea>
-<div class="row"><button class="btn" onclick="savePain('${id||''}')">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
-function savePain(id){const seg=document.getElementById('pn_seg').value.trim();if(!seg)return toast('Укажите сегмент');
- const o={seg,pain:document.getElementById('pn_pain').value.trim(),demand:+document.getElementById('pn_dem').value,sol:document.getElementById('pn_sol').value.trim()};
- if(id){Object.assign(db.pains.find(x=>x.id===id)||{},o)}else{db.pains.unshift({id:uid(),status:'Гипотеза',...o})}
- save();closeModal();render();toast('Сохранено')}
-function setPain(id,s){const p=db.pains.find(x=>x.id===id);if(p){p.status=s;save()}}
-function delPain(id){if(confirm('Удалить?')){db.pains=db.pains.filter(p=>p.id!==id);save();render()}}
-function painToProp(id){const p=db.pains.find(x=>x.id===id);if(p)openPropModal('',p.pain,p.sol)}
-function openCold(pid){const p=db.pains.find(x=>x.id===pid);if(!p)return;
- const name=db.profile.name||'',spec=db.profile.spec||'разработчик',sol=p.sol||'решение';
- const short=`Здравствуйте!\nДля «${p.seg}» актуальна проблема: ${p.pain}\nЯ ${spec}, решаю: ${sol}\nИнтересно?\n${name}`;
- openModal(`<h3>Письмо: ${esc(p.seg)}</h3>
- <textarea id="cold1" rows="6">${esc(short)}</textarea>
- <div class="row"><button class="btn sec" onclick="copyText(document.getElementById('cold1').value)">📋</button><button class="btn" onclick="closeModal()">Готово</button></div>`)}
-
-/* ===== КЛИЕНТЫ ===== */
-function rClients(){
- let h=`<div class="row spread"><h2>Клиенты</h2><button class="btn" onclick="openClientModal()">+ Лид</button></div>
- <div class="chips">${['Все',...CLIENT_ST].map(c=>`<button class="chip ${cFilter===c?'on':''}" onclick="cFilter='${c}';render()">${c}</button>`).join('')}</div>`;
- const list=db.clients.filter(c=>cFilter==='Все'||c.status===cFilter);
- if(!list.length)h+=empty('Пусто');
- list.forEach(c=>{h+=`<div class="card">
-  <div class="row spread"><b>${FLAG[c.country]||''} ${esc(c.name)}</b><span class="mut">${c.budget?fmt(c.budget,c.cur):''}</span></div>
-  <div class="mut">${esc(c.company||'—')} · ${esc(c.source||'')}</div>
-  <div class="row" style="margin-top:6px">
-   <select onchange="setClient('${c.id}',this.value)">${CLIENT_ST.map(s=>`<option ${s===c.status?'selected':''}>${s}</option>`).join('')}</select>
-   <button class="btn sec" onclick="openPropModal('${esc(c.name)}')">✉️</button>
-   <button class="btn danger" onclick="delClient('${c.id}')">✕</button>
-  </div></div>`});
- return h;
-}
-function openClientModal(){openModal(`<h3>Новый лид</h3>
-<label>Имя *</label><input id="c_name">
-<label>Компания</label><input id="c_company">
-<div class="row2"><div><label>Страна</label><select id="c_country"><option value="ru">🇷🇺</option><option value="by">🇧</option><option value="cn">🇨🇳</option></select></div>
-<div><label>Источник</label><select id="c_src">${SOURCES.map(s=>`<option>${s}</option>`).join('')}</select></div></div>
-<label>Контакт</label><input id="c_contact">
-<div class="row2"><div><label>Бюджет</label><input type="number" id="c_budget"></div>
-<div><label>Валюта</label><select id="c_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div></div>
-<div class="row"><button class="btn" onclick="addClient()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
-function addClient(){const n=document.getElementById('c_name').value.trim();if(!n)return toast('Укажите имя');
- db.clients.unshift({id:uid(),name:n,company:document.getElementById('c_company').value.trim(),country:document.getElementById('c_country').value,source:document.getElementById('c_src').value,contact:document.getElementById('c_contact').value.trim(),budget:+document.getElementById('c_budget').value||0,cur:document.getElementById('c_cur').value,status:'Новый'});
- save();closeModal();render();toast('Лид добавлен')}
-function setClient(id,s){const c=db.clients.find(x=>x.id===id);if(c){c.status=s;save()}}
-function delClient(id){if(confirm('Удалить?')){db.clients=db.clients.filter(c=>c.id!==id);save();render()}}
-
-/* ===== ОФФЕРЫ ===== */
-function rProps(){
- let h=`<div class="row spread"><h2>Офферы</h2><button class="btn" onclick="openPropModal()">+ Оффер</button></div>`;
- if(!db.proposals.length)h+=empty('Пусто');
- db.proposals.forEach(p=>{h+=`<div class="card">
- <b>${esc(p.client)}</b> · ${esc(p.task||'')}
- <div class="mut">${p.date} · ${fmt(p.price,p.cur)} · ${p.status}</div>
- <div class="row" style="margin-top:6px">
-  <select onchange="setProp('${p.id}',this.value)">${PROP_ST.map(s=>`<option ${s===p.status?'selected':''}>${s}</option>`).join('')}</select>
-  <button class="btn sec" onclick="copyProp('${p.id}')"></button>
-  <button class="btn danger" onclick="delProp('${p.id}')">✕</button>
- </div></div>`});
- return h;
-}
-function openPropModal(client='',task='',scope=''){openModal(`<h3>КП</h3>
-<label>Клиент</label><input id="p_client" value="${esc(client)}">
-<label>Задача</label><input id="p_task" value="${esc(task)}">
-<label>Что предлагаем</label><textarea id="p_scope" rows="4">${esc(scope)}</textarea>
-<div class="row2"><div><label>Стоимость</label><input type="number" id="p_price"></div>
-<div><label>Валюта</label><select id="p_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div>
-<div><label>Срок, дн.</label><input type="number" id="p_days" value="14"></div></div>
-<div class="row"><button class="btn" onclick="addProp()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
-function addProp(){const c=document.getElementById('p_client').value.trim();if(!c)return toast('Клиент?');
- db.proposals.unshift({id:uid(),date:today(),client:c,task:document.getElementById('p_task').value.trim(),scope:document.getElementById('p_scope').value.trim(),price:+document.getElementById('p_price').value||0,cur:document.getElementById('p_cur').value,days:+document.getElementById('p_days').value||0,status:'Черновик'});
- save();closeModal();go('props');toast('Оффер создан')}
-function genPropText(p){return `Здравствуйте!\n\nЯ ${db.profile.name||''}, ${db.profile.spec||'разработчик'}.\n\nЗадача: «${p.task||''}».\n\nПредлагаю:\n${p.scope||'—'}\n\nСтоимость: ${fmt(p.price,p.cur)}\nСрок: ${p.days} дн.\n\nС уважением, ${db.profile.name||''}`}
-function copyProp(id){const p=db.proposals.find(x=>x.id===id);if(p)copyText(genPropText(p))}
-function setProp(id,s){const p=db.proposals.find(x=>x.id===id);if(p){p.status=s;save()}}
-function delProp(id){if(confirm('Удалить?')){db.proposals=db.proposals.filter(p=>p.id!==id);save();render()}}
-
-/* ===== ПРАЙС ===== */
-function unitLbl(u){return u==='час'?'/ч':u==='месяц'?'/мес':u==='шт'?'/шт':''}
-function rPrices(){
- let h=`<div class="row spread"><h2>Прайс</h2><div class="row"><button class="btn sec" onclick="copyAllPrices()">📋</button><button class="btn" onclick="openPriceModal()">+</button></div></div>`;
- if(!db.prices.length)h+=empty('Пусто');
- db.prices.forEach(p=>{h+=`<div class="card">
-  <div class="row spread"><b>${esc(p.name)}</b><b class="plus">${fmt(p.price,p.cur)}${unitLbl(p.unit)}</b></div>
-  <div class="row" style="margin-top:6px">
-   <button class="btn sec" onclick="copyPrice('${p.id}')"></button>
-   <button class="btn danger" onclick="delPrice('${p.id}')"></button>
-  </div></div>`});
- return h;
-}
-function openPriceModal(id){const p=id?db.prices.find(x=>x.id===id):{name:'',price:'',cur:db.profile.currency,unit:'проект'};
- openModal(`<h3>${id?'Услуга':'Новая'}</h3>
-<label>Название</label><input id="pr_name" value="${esc(p.name)}">
-<div class="row2"><div><label>Цена</label><input type="number" id="pr_price" value="${p.price}"></div>
-<div><label>Валюта</label><select id="pr_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${p.cur===c?'selected':''}>${c}</option>`).join('')}</select></div>
-<div><label>Единица</label><select id="pr_unit">${UNITS.map(u=>`<option ${p.unit===u?'selected':''}>${u}</option>`).join('')}</select></div></div>
-<div class="row"><button class="btn" onclick="savePrice('${id||''}')">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
-function savePrice(id){const n=document.getElementById('pr_name').value.trim();if(!n)return toast('Название?');
- const o={name:n,price:+document.getElementById('pr_price').value||0,cur:document.getElementById('pr_cur').value,unit:document.getElementById('pr_unit').value};
- if(id){Object.assign(db.prices.find(x=>x.id===id)||{},o)}else db.prices.push({id:uid(),...o});
- save();closeModal();render();toast('Сохранено')}
-function delPrice(id){if(confirm('Удалить?')){db.prices=db.prices.filter(p=>p.id!==id);save();render()}}
-function copyPrice(id){const p=db.prices.find(x=>x.id===id);if(p)copyText(`${p.name} — ${fmt(p.price,p.cur)}${unitLbl(p.unit)}`)}
-function copyAllPrices(){copyText(db.prices.map(p=>`• ${p.name} — ${fmt(p.price,p.cur)}${unitLbl(p.unit)}`).join('\n'))}
-
-/* ===== ПРОЕКТЫ ===== */
-let curProj=null;
-function rProj(){
- let h=`<div class="row spread"><h2>Проекты</h2><button class="btn" onclick="openProjModal()">+ Проект</button></div>`;
- if(!db.projects.length)h+=empty('Пусто');
- db.projects.forEach(p=>{const i=Math.max(0,PROJ_ST.indexOf(p.stage)),ts=db.tasks.filter(t=>t.proj===p.id),td=ts.filter(t=>t.done).length;
-  h+=`<div class="card"><div class="row spread"><b>${esc(p.name)}</b><span class="mut">${fmt(p.budget,p.cur)}</span></div>
-  <div class="mut">${esc(p.client||'—')} · ${p.stage}</div>
-  <div class="bar"><i style="width:${i/(PROJ_ST.length-1)*100}%"></i></div>
-  <div class="row">
-   <select onchange="setProj('${p.id}',this.value)">${PROJ_ST.map(s=>`<option ${s===p.stage?'selected':''}>${s}</option>`).join('')}</select>
-   <button class="btn sec" onclick="projTasks('${p.id}')">🗒${td}/${ts.length}</button>
-   <button class="btn danger" onclick="delProj('${p.id}')">✕</button>
-  </div></div>`});
- return h;
-}
-function openProjModal(){openModal(`<h3>Проект</h3>
-<label>Название</label><input id="j_name">
-<label>Клиент</label><input id="j_client">
-<div class="row2"><div><label>Бюджет</label><input type="number" id="j_budget"></div>
-<div><label>Валюта</label><select id="j_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div></div>
-<label>Дедлайн</label><input type="date" id="j_dead">
-<label>Этап</label><select id="j_stage">${PROJ_ST.map(s=>`<option>${s}</option>`).join('')}</select>
-<div class="row"><button class="btn" onclick="addProj()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
-function addProj(){const n=document.getElementById('j_name').value.trim();if(!n)return toast('Название?');
- db.projects.unshift({id:uid(),name:n,client:document.getElementById('j_client').value.trim(),budget:+document.getElementById('j_budget').value||0,cur:document.getElementById('j_cur').value,deadline:document.getElementById('j_dead').value,stage:document.getElementById('j_stage').value});
- save();closeModal();render();toast('Добавлен')}
-function setProj(id,s){const p=db.projects.find(x=>x.id===id);if(p){p.stage=s;save()}}
-function delProj(id){if(confirm('Удалить?')){db.projects=db.projects.filter(p=>p.id!==id);db.tasks=db.tasks.filter(t=>t.proj!==id);save();render()}}
-function projTasks(pid){curProj=pid;const p=db.projects.find(x=>x.id===pid);if(!p)return;
- const list=db.tasks.filter(t=>t.proj===pid),done=list.filter(t=>t.done).length;
- openModal(`<h3>Задачи: ${esc(p.name)}</h3>
- <div class="bar"><i style="width:${list.length?done/list.length*100:0}%"></i></div>
- ${list.map(t=>`<div class="row" style="margin:8px 0"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')"><span style="flex:1">${esc(t.text)}</span><button class="btn danger" onclick="delTask('${t.id}')">✕</button></div>`).join('')||'<div class="mut">Пусто</div>'}
- <div class="row" style="margin-top:8px"><input id="nt_task" placeholder="Задача"><button class="btn" onclick="addTask('${pid}')">+</button></div>`)}
-function addTask(pid){const t=document.getElementById('nt_task').value.trim();if(!t)return;
- db.tasks.push({id:uid(),proj:pid,text:t,done:false,date:today()});save();projTasks(pid);render()}
-function toggleTask(id){const t=db.tasks.find(x=>x.id===id);if(t)t.done=!t.done;save();if(curProj)projTasks(curProj);render()}
-function delTask(id){db.tasks=db.tasks.filter(t=>t.id!==id);save();if(curProj)projTasks(curProj);render()}
-
-/* ===== ПЛАН ===== */
-let planView='day',planDate=today(),selMonth=today().slice(0,7);
-function rPlan(){
- let h=`<h2>План</h2><div class="chips">${[['day','День'],['week','Неделя'],['month','Месяц']].map(([v,l])=>`<button class="chip ${planView===v?'on':''}" onclick="planView='${v}';render()">${l}</button>`).join('')}</div>`;
- h+=`<div class="card ai"><b> Подсказки</b>${smartInsights().map(t=>`<div class="mut" style="margin:6px 0">${t}</div>`).join('')}</div>`;
- return h+(planView==='day'?rDay():planView==='week'?rWeek():rMonth());
-}
-function rDay(){
- const items=db.plan.filter(t=>t.date===planDate),mains=items.filter(t=>t.main),others=items.filter(t=>!t.main);
- const blocks=[...db.blocks.filter(b=>b.date===planDate)].sort((a,b)=>a.time.localeCompare(b.time));
- const worked=workedOn(planDate),lim=db.balance.limitMin,overW=worked>lim;
- const checks=db.balance.checks[planDate]||[];
- let h=`<div class="card"><div class="row spread">
- <button class="btn sec" onclick="planDate=shiftDate(planDate,-1);render()">←</button>
- <input type="date" value="${planDate}" onchange="planDate=this.value||today();render()" style="flex:1;text-align:center">
- <button class="btn sec" onclick="planDate=shiftDate(planDate,1);render()">→</button></div></div>
- <div class="card ${overW?'warn':''}"><b>Баланс</b>
- <div class="mut">${hm(worked)} / ${hm(lim)} ${overW?'🛑':''}</div>
- <div class="bar"><i style="width:${Math.min(100,worked/lim*100)}%;${overW?'background:var(--bad)':''}"></i></div>
- <b style="display:block;margin-top:8px">🏠 Семья</b>
- ${db.balance.items.map((it,i)=>`<div class="row" style="margin:6px 0"><input type="checkbox" ${checks[i]?'checked':''} onchange="toggleFam(${i})"><span>${esc(it)}</span></div>`).join('')}</div>
- <div class="card"><b>Задачи</b>
- ${mains.map(t=>`<div class="row"><input type="checkbox" ${t.done?'checked':''} onchange="togglePlan('${t.id}')"><span style="flex:1">⭐ ${esc(t.text)}</span><button class="btn danger" onclick="delPlan('${t.id}')">✕</button></div>`).join('')}
- ${others.map(t=>`<div class="row"><input type="checkbox" ${t.done?'checked':''} onchange="togglePlan('${t.id}')"><span style="flex:1">${esc(t.text)}</span><button class="btn danger" onclick="delPlan('${t.id}')">✕</button></div>`).join('')}
- <div class="row" style="margin-top:8px"><input id="pt_text" placeholder="Задача"><label style="display:flex;align-items:center;gap:4px"><input type="checkbox" id="pt_main" style="margin:0">⭐</label><button class="btn" onclick="addPlanTask()">+</button></div></div>
- <div class="card"><b>Расписание</b>
- ${blocks.map(b=>`<div class="row spread"><span><b>${b.time}</b> · ${esc(b.text)}</span><button class="btn danger" onclick="delBlock('${b.id}')">✕</button></div>`).join('')||'<div class="mut">Пусто</div>'}
- <div class="row" style="margin-top:8px"><input type="time" id="b_time" value="10:00" style="flex:0 0 110px"><input id="b_text" placeholder="Блок"><button class="btn" onclick="addBlock()">+</button></div></div>`;
- return h;
-}
-function addPlanTask(){const t=document.getElementById('pt_text').value.trim();if(!t)return;const main=document.getElementById('pt_main').checked;
- db.plan.push({id:uid(),date:planDate,text:t,main,done:false});save();render()}
-function togglePlan(id){const t=db.plan.find(x=>x.id===id);if(t)t.done=!t.done;save();render()}
-function delPlan(id){db.plan=db.plan.filter(t=>t.id!==id);save();render()}
-function addBlock(){const t=document.getElementById('b_text').value.trim();if(!t)return;db.blocks.push({id:uid(),date:planDate,time:document.getElementById('b_time').value||'09:00',text:t});save();render()}
-function delBlock(id){db.blocks=db.blocks.filter(b=>b.id!==id);save();render()}
-function toggleFam(i){const arr=db.balance.checks[planDate]||(db.balance.checks[planDate]=db.balance.items.map(()=>false));arr[i]=!arr[i];save();render()}
-function rWeek(){const mon=monday(planDate+'T00:00:00');let h='';
- for(let i=0;i<7;i++){const d=shiftDate(mon,i),wd=workedOn(d),lim=db.balance.limitMin;
-  h+=`<div class="card"><b>${DAYS_W[i]} ${d.slice(8)}</b><div class="mut">${hm(wd)} / ${hm(lim)}</div></div>`}
- return h;
-}
-function rMonth(){const [y,m]=selMonth.split('-').map(Number);
- let h=`<div class="row spread"><button class="btn sec" onclick="shiftMonth(-1)">←</button><b>${MONTHS[m-1]} ${y}</b><button class="btn sec" onclick="shiftMonth(1)">→</button></div>`;
- return h;
-}
-function shiftMonth(n){let [y,m]=selMonth.split('-').map(Number);m+=n;if(m<1){m=12;y--}if(m>12){m=1;y++}selMonth=`${y}-${String(m).padStart(2,'0')}`;render()}
-
-/* ===== ВРЕМЯ ===== */
-let timer={run:false,sec:25*60,mode:'focus',iv:null};
-function rTime(){
- const wk=monday(new Date());let weekMin=0,todayMin=0;
- db.sessions.forEach(s=>{if(s.date===today())todayMin+=s.min;if(monday(s.date)===wk)weekMin+=s.min});
- const lim=db.balance.limitMin,over=todayMin>lim;
- let h=`<h2>Время</h2>
- <div class="card" style="text-align:center"><b id="tview">${mmss(timer.sec)}</b>
- <div class="mut" id="tmode">${timer.mode==='focus'?' Фокус':'☕ Перерыв'}</div>
- <div class="row" style="justify-content:center;margin-top:8px">
- <button class="btn" id="tbtn" onclick="tToggle()">${timer.run?'⏸':'▶'}</button>
- <button class="btn sec" onclick="tReset()">Сброс</button></div></div>
- <div class="grid">
-  <div class="card stat"><span>Сегодня</span><b class="${over?'minus':''}">${hm(todayMin)} / ${hm(lim)}</b></div>
-  <div class="card stat"><span>Неделя</span><b>${hm(weekMin)}</b></div>
- </div>`;
- return h;
-}
-function tRender(){const el=document.getElementById('tview');if(!el)return;el.textContent=mmss(timer.sec);const m=document.getElementById('tmode');if(m)m.textContent=timer.mode==='focus'?'🎯 Фокус':'☕ Перерыв';const b=document.getElementById('tbtn');if(b)b.textContent=timer.run?'⏸':'▶'}
-function tToggle(){if(timer.run){clearInterval(timer.iv);timer.run=false}else{timer.run=true;timer.iv=setInterval(()=>{timer.sec--;if(timer.sec<=0){clearInterval(timer.iv);timer.run=false;toast(timer.mode==='focus'?'Фокус завершён':'Перерыв');timer.mode=timer.mode==='focus'?'break':'focus';timer.sec=timer.mode==='focus'?25*60:5*60}tRender()},1000)}tRender()}
-function tReset(){clearInterval(timer.iv);timer.run=false;timer.sec=timer.mode==='focus'?25*60:5*60;tRender()}
-function logSession(min,task=''){if(!min)return;db.sessions.unshift({id:uid(),date:today(),min,task});save();toast('Записано');if(tab==='time'||tab==='plan')render()}
-
-/* ===== КОНВЕРТЕР ===== */
-function currencyConverter(){return `<div class="card"><b> Конвертер</b><div class="row2"><div><label>Сумма</label><input type="number" id="cc_amt" value="1000" oninput="convertCurrency()"></div><div><label>Из</label><select id="cc_from" onchange="convertCurrency()">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c==='RUB'?'selected':''}>${c}</option>`).join('')}</select></div><div><label>В</label><select id="cc_to" onchange="convertCurrency()">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c==='USD'?'selected':''}>${c}</option>`).join('')}</select></div></div><div id="cc_result"></div></div>`}
-function convertCurrency(){const amt=+document.getElementById('cc_amt').value||0,from=document.getElementById('cc_from').value,to=document.getElementById('cc_to').value;const result=fromRub(toRub(amt,from),to);const el=document.getElementById('cc_result');if(el)el.innerHTML=`<div style="margin-top:8px;padding:10px;background:var(--card2);border-radius:8px"><b style="font-size:18px" class="plus">${fmt(result,to)}</b></div>`}
-
-/* ===== ФИНАНСЫ ===== */
-function rFin(){
- const{inc,exp}=finMonth();let all=0;
- db.fin.forEach(f=>all+=f.type==='in'?toRub(f.amt,f.cur):-toRub(f.amt,f.cur));
- let h=`<div class="row spread"><h2>Финансы</h2><button class="btn" onclick="openFinModal()">+ Операция</button></div>
- <div class="grid">
-  <div class="card stat"><span>Доход</span><b class="plus">${money(inc)}</b></div>
-  <div class="card stat"><span>Расход</span><b class="minus">${money(exp)}</b></div>
- </div><div class="card stat"><span>Баланс</span><b>${money(all)}</b></div>`;
- h+=currencyConverter();
- db.fin.slice(0,50).forEach(f=>{h+=`<div class="card row spread"><div><b class="${f.type==='in'?'plus':'minus'}">${f.type==='in'?'+':'−'} ${fmt(f.amt,f.cur)}</b><div class="mut">${f.date} · ${esc(f.cat)}</div></div><button class="btn danger" onclick="delFin('${f.id}')">✕</button></div>`});
- return h;
-}
-function openFinModal(type='in'){openModal(`<h3>${type==='in'?'Доход':'Расход'}</h3>
-<label>Дата</label><input type="date" id="f_date" value="${today()}">
-<div class="row2"><div><label>Сумма</label><input type="number" id="f_amt"></div>
-<div><label>Валюта</label><select id="f_cur">${['RUB','BYN','CNY','USD'].map(c=>`<option ${c===db.profile.currency?'selected':''}>${c}</option>`).join('')}</select></div></div>
-<label>Категория</label><select id="f_cat">${(type==='in'?['Проект','Другое']:['Софт','Налоги','Другое']).map(c=>`<option>${c}</option>`).join('')}</select>
-<div class="row"><button class="btn" onclick="addFin('${type}')">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
-function addFin(type){const amt=+document.getElementById('f_amt').value;if(!amt)return toast('Сумма?');
- db.fin.unshift({id:uid(),date:document.getElementById('f_date').value||today(),type,amt,cur:document.getElementById('f_cur').value,cat:document.getElementById('f_cat').value});
- save();closeModal();render();toast('Записано')}
-function delFin(id){db.fin=db.fin.filter(f=>f.id!==id);save();render()}
-
-/* ===== НАЛОГИ ===== */
-function calcChinaTax(inc){const t=Math.max(0,inc-5000);if(t<=0)return 0;const b=[{l:3000,r:.03,d:0},{l:12000,r:.10,d:210},{l:25000,r:.20,d:1410},{l:35000,r:.25,d:2660},{l:55000,r:.30,d:4410},{l:80000,r:.35,d:7160},{l:1/0,r:.45,d:15160}];for(const x of b)if(t<=x.l)return Math.max(0,Math.round(t*x.r-x.d));return 0}
-function rTax(){
- const t=db.tax;
- const opts=[['ru_npdu','🇺 РФ (НПД)'],['by_npd','🇧🇾 РБ (НПД)'],['cn','🇨🇳 Китай (IIT)'],['compare',' Сравнение']];
- let h=`<h2>Налоги</h2><div class="card"><label>Режим</label><select onchange="db.tax.regime=this.value;save();render()">${opts.map(o=>`<option value="${o[0]}" ${t.regime===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></div>`;
- if(t.regime==='ru_npdu'){h+=`<div class="card"><b>НПД РФ</b><label>От физлиц (4%)</label><input type="number" id="ti" value="${t.calc.ind}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()"><label>От юрлиц (6%)</label><input type="number" id="te" value="${t.calc.ent}" oninput="db.tax.calc.ent=this.value;save();taxCalcNow()"><div id="taxout"></div></div>`}
- else if(t.regime==='by_npd'){h+=`<div class="card"><b>НПД РБ</b><label>Доход (BYN)</label><input type="number" id="ti" value="${t.calc.ind}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()"><div id="taxout"></div></div>`}
- else if(t.regime==='cn'){h+=`<div class="card"><b>Китай IIT</b><p class="mut">Минимум 5000 ¥/мес не облагается</p><label>Доход (¥)</label><input type="number" id="ti" value="${t.calc.ind}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()"><div id="taxout"></div></div>`}
- else{h+=`<div class="card"><b>Сравнение</b><label>Доход (₽)</label><input type="number" id="ti" value="${t.calc.ind||100000}" oninput="db.tax.calc.ind=this.value;save();taxCalcNow()"><div id="taxout"></div></div>`}
- return h;
-}
-function taxCalcNow(){const ti=document.getElementById('ti'),te=document.getElementById('te');if(!ti)return;const r=db.tax.regime;let out='';
- if(r==='ru_npdu'){const i=+ti.value||0,e=+(te&&te.value)||0;out=`<div class="card" style="background:var(--card2)"><b>Налог: ${fmt(i*0.04+e*0.06,'RUB')}</b></div>`}
- else if(r==='by_npd'){const i=+ti.value||0;out=`<div class="card" style="background:var(--card2)"><b>Налог: ${fmt(i*0.1,'BYN')}</b></div>`}
- else if(r==='cn'){const i=+ti.value||0;const tax=calcChinaTax(i);out=`<div class="card" style="background:var(--card2)"><b>Налог: ${fmt(tax,'CNY')}</b></div>`}
- else{const amt=+ti.value||0;const cnTax=calcChinaTax(fromRub(amt,'CNY'));out=`<div class="card" style="background:var(--card2)"><b>🇷🇺 6%: ${fmt(amt*0.06,'RUB')}</b><br><b>🇾 10%: ${fmt(amt*0.10,'RUB')}</b><br><b>🇨🇳 IIT: ${fmt(cnTax,'CNY')}</b></div>`}
- document.getElementById('taxout').innerHTML=out}
-function payTaxToFin(){const ti=document.getElementById('ti'),te=document.getElementById('te');let t=0,cur='RUB';
- if(db.tax.regime==='ru_npdu'){t=Math.round((+ti.value||0)*0.04+(+((te&&te.value)||0))*0.06)}
- else if(db.tax.regime==='by_npd'){t=Math.round((+ti.value||0)*0.1);cur='BYN'}
- else if(db.tax.regime==='cn'){t=calcChinaTax(+ti.value||0);cur='CNY'}
- else return;
- if(t<=0)return toast('Введите сумму');
- db.fin.unshift({id:uid(),date:today(),type:'out',amt:t,cur,cat:'Налоги'});save();toast('Записан');render()}
-
-/* ===== ЮРИСТ ===== */
-const DOC_TYPES=[['dogovor','Договор'],['act','Акт'],['nda','NDA'],['tz','ТЗ']];
-const DOC_NAME={dogovor:'Договор',act:'Акт',nda:'NDA',tz:'ТЗ'};
-function rLaw(){let h=`<h2>Юрист</h2><div class="card"><button class="btn" onclick="openDocWizard()">Составить документ</button></div>`;return h}
-function openDocWizard(){openModal(`<h3>Документ</h3><label>Тип</label><select id="dw_type">${DOC_TYPES.map(t=>`<option value="${t[0]}">${t[1]}</option>`).join('')}</select><label>Заказчик</label><input id="dw_client"><label>Сумма</label><input type="number" id="dw_amt"><div class="row"><button class="btn" onclick="makeDoc()">Составить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>`)}
-function makeDoc(){const client=document.getElementById('dw_client').value.trim(),type=document.getElementById('dw_type').value,amt=parseFloat(document.getElementById('dw_amt').value)||0;
- if(!client)return toast('Заказчик?');if(amt<=0)return toast('Сумма?');
- const text=`ДОКУМЕНТ\n\nЗаказчик: ${client}\nСумма: ${fmt(amt,db.profile.currency)}`;
- db.docLog.unshift({id:uid(),type,date:today(),client,amt,cur:db.profile.currency,text});save();toast('Готово')}
-
-/* ===== РОСТ ===== */
-let devView='skills',kbFilter='Все',kbQ='';
-function rDev(){let h=`<h2>Рост</h2><div class="chips">${[['skills','Навыки'],['goals','Цели'],['kb','База']].map(([v,l])=>`<button class="chip ${devView===v?'on':''}" onclick="devView='${v}';render()">${l}</button>`).join('')}</div>`;return h+(devView==='skills'?rSkills():devView==='goals'?rGoals():rKb())}
-function rSkills(){let h=`<div class="card"><b>Навыки</b>`;db.skills.forEach((s,i)=>{h+=`<div class="skill"><div class="row spread"><span>${esc(s.n)}</span><span class="mut">${LEVELS[s.l]||''}</span></div><input type="range" min="0" max="5" value="${s.l}" oninput="setSkill(${i},this.value)"></div>`});h+=`</div>`;return h}
-function setSkill(i,v){db.skills[i].l=+v;save()}
-function rGoals(){let h=`<div class="card"><b>Цели</b>`;db.goals.forEach((g,i)=>{h+=`<div class="row"><input type="checkbox" ${g.done?'checked':''} onchange="toggleGoal(${i})"><span style="flex:1">${esc(g.t)}</span><button class="btn danger" onclick="delGoal(${i})"></button></div>`});h+=`</div>`;return h}
-function toggleGoal(i){db.goals[i].done=!db.goals[i].done;save();render()}
-function delGoal(i){db.goals.splice(i,1);save();render()}
-function rKb(){let h=`<div class="card"><b>База знаний</b></div>`;return h}
-
-/* ===== НАСТРОЙКИ ===== */
-function toggleSpec(sp){const i=db.profile.specs.indexOf(sp);if(i>=0)db.profile.specs.splice(i,1);else db.profile.specs.push(sp);save();const added=generatePainsSilent();save();render();if(added>0)toast(`+${added} гипотез`)}
-function rSet(){const p=db.profile;return `<h2>Настройки</h2>
-<div class="card"><b>Профиль</b>
-<label>Имя</label><input value="${esc(p.name)}" oninput="db.profile.name=this.value;save()">
-<label>Специализация</label><input value="${esc(p.spec)}" oninput="db.profile.spec=this.value;save()">
-<label>Страна</label><select onchange="db.profile.country=this.value;save()">${['ru','by','cn'].map(c=>`<option value="${c}" ${p.country===c?'selected':''}>${CNAME[c]}</option>`).join('')}</select></div>
-<div class="card"><b> Специализации</b>
-${ALL_SPECS.map(sp=>`<label style="display:flex;align-items:center;gap:8px;margin:8px 0"><input type="checkbox" ${p.specs.includes(sp)?'checked':''} onchange="toggleSpec('${sp}')" style="margin:0"><span>${sp}</span></label>`).join('')}
-<div class="mut">Выбрано: ${p.specs.length} из ${ALL_SPECS.length}</div></div>
-<div class="card"><b>🔒 PIN</b>
-${db.pinHash?`<div class="row"><button class="btn sec" onclick="changePinFlow()">Сменить</button><button class="btn danger" onclick="removePinFlow()">Удалить</button></div>`:`<div class="row2"><div><input type="password" id="pin1" inputmode="numeric" placeholder="PIN"></div><div><input type="password" id="pin2" inputmode="numeric" placeholder="Повтор"></div></div><button class="btn" onclick="setPin()">Установить</button>`}</div>
-<div class="card"><b>🔐 Пароль для гостей</b>
-<input type="password" value="${esc(p.accessPassword||'')}" onchange="db.profile.accessPassword=this.value;save();toast('Сохранено')" placeholder="Пусто = без пароля"></div>
-<div class="card"><b>💱 Курсы</b>
-<div class="mut">1 BYN = ${p.rates.BYN} ₽ · 1 CNY = ${p.rates.CNY} ₽ · 1 USD = ${p.rates.USD} ₽</div>
-<div class="mut">Обновлены: ${p.ratesUpdated||'никогда'}</div>
-<button class="btn" onclick="updateRates()">🔄 Обновить</button></div>`}
-
-/* ===== РЕНДЕР ===== */
-const VIEW={dash:rDash,radar:rPains,clients:rClients,props:rProps,price:rPrices,proj:rProj,plan:rPlan,time:rTime,fin:rFin,tax:rTax,law:rLaw,dev:rDev,set:rSet};
+// ===== РЕНДЕР ФУНКЦИИ =====
 function render(){
- document.getElementById('tabs').style.display=locked?'none':'flex';
- document.getElementById('lockbtn').style.display=(db.pinHash&&!locked)?'':'none';
- if(!accessGranted&&!checkAccess()){document.getElementById('view').innerHTML='<div style="text-align:center;padding:60px"><div style="font-size:64px">🔐</div><h3>Доступ ограничен</h3></div>';return}
- if(locked){document.getElementById('modal').classList.remove('on');document.getElementById('view').innerHTML=rLock();return}
- document.getElementById('view').innerHTML=VIEW[tab]();if(tab==='tax')taxCalcNow();if(tab==='fin')setTimeout(convertCurrency,100);
- document.getElementById('hdr').textContent=new Date().toLocaleDateString('ru-RU')}
-
-/* ===== ЗАПУСК ===== */
-setTimeout(()=>{
- autoGenerateIfNeeded();
- fetchRates();
- rTabs();render();
- document.getElementById('splash').classList.add('hidden');
- setTimeout(()=>document.getElementById('splash').style.display='none',500);
-},2000);
-
-/* ===== SW ===== */
-if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
- navigator.serviceWorker.register('sw.js?v=09').then(reg=>{
-  if(reg.waiting)reg.waiting.postMessage('SKIP_WAITING');
- }).catch(()=>{});
+  const app=document.getElementById('app');
+  const date=new Date();
+  document.getElementById('date').textContent=date.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  
+  const m=MONTHS[date.getMonth()];
+  const inc=db.finances.filter(f=>f.type==='in'&&f.date.startsWith(today().slice(0,7))).reduce((s,f)=>s+(f.cur==='RUB'?f.amt:f.amt*(db.profile.rates[f.cur]||1)),0);
+  const exp=db.finances.filter(f=>f.type==='out'&&f.date.startsWith(today().slice(0,7))).reduce((s,f)=>s+(f.cur==='RUB'?f.amt:f.amt*(db.profile.rates[f.cur]||1)),0);
+  
+  switch(tab){
+    case 'home':
+      app.innerHTML=`<div class="note" style="background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:none;padding:20px;margin-bottom:20px">
+        <div style="font-size:24px;margin-bottom:8px">Привет, ${esc(db.profile.name)}! 👋</div>
+        <div style="opacity:.9">${esc(db.profile.spec)}</div>
+      </div>
+      <div class="grid">
+        <div class="card stat"><span>Доход, ${m}</span><b class="plus">${inc.toLocaleString()} ₽</b></div>
+        <div class="card stat"><span>Расход, ${m}</span><b class="minus">${exp.toLocaleString()} ₽</b></div>
+        <div class="card stat"><span>Клиентов</span><b>${db.clients.length}</b></div>
+        <div class="card stat"><span>Проектов</span><b>${db.projects.length}</b></div>
+      </div>
+      <div class="card"><b> Быстрые действия</b>
+        <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px">
+          <button class="btn" onclick="go('clients')">+ Клиент</button>
+          <button class="btn ai" onclick="go('projects')">+ Проект</button>
+          <button class="btn sec" onclick="go('finances')">💵 Операция</button>
+        </div>
+      </div>
+      <div class="card"><b>🎯 Активные проекты</b>
+        ${db.projects.slice(0,3).map(p=>`<div class="note" style="margin-top:8px"><div class="row spread"><b>${esc(p.name)}</b><span class="chip on">${esc(p.stage)}</span></div><div class="mut">${esc(p.client)} · ${p.budget.toLocaleString()} ${p.cur}</div></div>`).join('')}
+      </div>`;
+      break;
+      
+    case 'clients':
+      app.innerHTML=`<div class="row spread"><h2>👥 Клиенты</h2><button class="btn" onclick="addClient()">+ Лид</button></div>
+      ${db.clients.map(c=>`<div class="card">
+        <div class="row spread"><b>${esc(c.name)}</b><span class="chip on">${c.status}</span></div>
+        <div class="mut">${esc(c.company)} · ${c.budget.toLocaleString()} ${c.cur}</div>
+        <div class="mut">Источник: ${c.source}</div>
+        <div class="row" style="margin-top:8px"><button class="btn sec" onclick="editClient('${c.id}')">✏️</button><button class="btn danger" onclick="delClient('${c.id}')">🗑</button></div>
+      </div>`).join('')}`;
+      break;
+      
+    case 'projects':
+      app.innerHTML=`<div class="row spread"><h2>📁 Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button></div>
+      ${db.projects.map(p=>`<div class="card">
+        <div class="row spread"><b>${esc(p.name)}</b><span class="chip on">${p.stage}</span></div>
+        <div class="mut">${esc(p.client)}</div>
+        <div class="bar" style="margin:10px 0"><i style="width:${p.stage==='В работе'?'60%':p.stage==='Разработка'?'40%':'80%'}"></i></div>
+        <div class="row spread"><span class="mut">Дедлайн: ${fmtDate(p.deadline)}</span><b>${p.budget.toLocaleString()} ${p.cur}</b></div>
+      </div>`).join('')}`;
+      break;
+      
+    case 'finances':
+      app.innerHTML=`<div class="row spread"><h2>💰 Финансы</h2><button class="btn" onclick="addFinance()">+ Операция</button></div>
+      <div class="grid">
+        <div class="card stat"><span>Доход</span><b class="plus">${inc.toLocaleString()} ₽</b></div>
+        <div class="card stat"><span>Расход</span><b class="minus">${exp.toLocaleString()} ₽</b></div>
+      </div>
+      ${db.finances.map(f=>`<div class="card row spread">
+        <div><b class="${f.type==='in'?'plus':'minus'}">${f.type==='in'?'+':'-'} ${f.amt.toLocaleString()} ${f.cur}</b><div class="mut">${fmtDate(f.date)} · ${f.cat}</div></div>
+      </div>`).join('')}`;
+      break;
+      
+    case 'taxes':
+      app.innerHTML=`<div class="row spread"><h2>🧾 Налоги</h2></div>
+      <div class="card"><b>НПД (Самозанятость)</b>
+        <div class="mut">4% с физлиц, 6% с юрлиц</div>
+        <div style="margin-top:10px"><label>Доход от физлиц (₽)</label><input type="number" id="taxInd" value="${db.tax.calc.ind||0}" onchange="calcTax()"></div>
+        <div style="margin-top:10px"><label>Доход от юрлиц (₽)</label><input type="number" id="taxEnt" value="${db.tax.calc.ent||0}" onchange="calcTax()"></div>
+        <div id="taxResult" style="margin-top:15px;padding:15px;background:var(--card2);border-radius:10px"><b>Налог: 0 ₽</b></div>
+      </div>`;
+      setTimeout(calcTax,100);
+      break;
+      
+    case 'price':
+      app.innerHTML=`<div class="row spread"><h2> Прайс</h2><button class="btn" onclick="addPrice()">+ Услуга</button></div>
+      ${db.prices.map(p=>`<div class="card row spread">
+        <div><b>${esc(p.name)}</b><div class="mut">${p.unit}</div></div>
+        <b class="plus">${p.price.toLocaleString()} ${p.cur}</b>
+      </div>`).join('')}
+      <div class="card" style="margin-top:20px"><b>🧮 Калькулятор</b>
+        <div style="margin-top:10px"><label>Часов</label><input type="number" id="calcH" value="10" onchange="calcPrice()"></div>
+        <div style="margin-top:10px"><label>Ставка (₽/час)</label><input type="number" id="calcR" value="${db.profile.rate}" onchange="calcPrice()"></div>
+        <div id="calcResult" style="margin-top:15px;font-size:1.3em;color:var(--acc)"><b>0 ₽</b></div>
+      </div>`;
+      break;
+      
+    case 'time':
+      app.innerHTML=`<div class="row spread"><h2>⏱ Время</h2></div>
+      <div class="card" style="text-align:center;padding:30px">
+        <div style="font-size:48px;font-weight:bold;color:var(--acc);margin-bottom:10px" id="timer">25:00</div>
+        <div class="mut">Таймер Pomodoro</div>
+        <div class="row" style="justify-content:center;margin-top:15px">
+          <button class="btn" onclick="startTimer()">▶ Старт</button>
+          <button class="btn sec" onclick="resetTimer()">Сброс</button>
+        </div>
+      </div>
+      <div class="card"><b>Сегодня</b>
+        <div class="mut">${db.sessions.filter(s=>s.date===today()).reduce((a,s)=>a+s.min,0)} минут работы</div>
+      </div>`;
+      break;
+      
+    case 'plan':
+      app.innerHTML=`<div class="row spread"><h2>📅 План</h2><button class="btn" onclick="addTask()">+ Задача</button></div>
+      ${db.tasks.map(t=>`<div class="card row spread">
+        <div class="row" style="gap:10px"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')"><span style="${t.done?'text-decoration:line-through;color:var(--mut)':''}">${esc(t.text)}</span></div>
+        <button class="btn danger" onclick="delTask('${t.id}')">✕</button>
+      </div>`).join('')}`;
+      break;
+      
+    case 'growth':
+      app.innerHTML=`<div class="row spread"><h2>🎯 Рост</h2></div>
+      <div class="card"><b> Навыки</b>
+        ${db.skills.map(s=>`<div style="margin:10px 0"><div class="row spread"><span>${esc(s.n)}</span><span class="mut">${['Не знаю','Новичок','Базово','Уверенно','Профи','Эксперт'][s.l]}</span></div><div class="bar"><i style="width:${s.l*20}%"></i></div></div>`).join('')}
+      </div>
+      <div class="card"><b>🎯 Цели</b>
+        ${db.goals.map((g,i)=>`<div class="row spread" style="margin:10px 0"><div class="row" style="gap:10px"><input type="checkbox" ${g.done?'checked':''} onchange="toggleGoal(${i})"><span style="${g.done?'text-decoration:line-through;color:var(--ok)':''}">${esc(g.t)}</span></div></div>`).join('')}
+      </div>
+      <div class="card"><b>📚 База знаний</b>
+        ${db.knowledge.map(k=>`<div class="note" style="margin-top:8px"><div class="row spread"><b>${esc(k.topic)}</b><span class="chip on">${esc(k.dir)}</span></div><div class="mut">${esc(k.theory)}</div><div class="mut" style="margin-top:5px">Практика: ${esc(k.practice)}</div><div class="mut">Время: ${k.time} · Статус: ${k.status}</div></div>`).join('')}
+      </div>`;
+      break;
+      
+    case 'lawyer':
+      app.innerHTML=`<div class="row spread"><h2>⚖️ Юрист</h2></div>
+      <div class="card"><b>Шаблоны документов</b>
+        <button class="btn sec" style="width:100%;margin:8px 0" onclick="useTemplate('dogovor')"> Договор</button>
+        <button class="btn sec" style="width:100%;margin:8px 0" onclick="useTemplate('act')">📋 Акт</button>
+        <button class="btn sec" style="width:100%;margin:8px 0" onclick="useTemplate('nda')">🔐 NDA</button>
+      </div>
+      <div class="card"><b>📁 Мои документы</b>
+        <div class="mut">Нет созданных документов</div>
+      </div>`;
+      break;
+      
+    case 'settings':
+      app.innerHTML=`<div class="row spread"><h2>⚙️ Настройки</h2></div>
+      <div class="card"><b>Профиль</b>
+        <label>Имя</label><input value="${esc(db.profile.name)}" onchange="db.profile.name=this.value;save()">
+        <label>Специализация</label><input value="${esc(db.profile.spec)}" onchange="db.profile.spec=this.value;save()">
+      </div>
+      <div class="card"><b>💱 Курсы валют</b>
+        <div class="mut">1 BYN = ${db.profile.rates.BYN} ₽</div>
+        <div class="mut">1 CNY = ${db.profile.rates.CNY} ₽</div>
+        <div class="mut">1 USD = ${db.profile.rates.USD} ₽</div>
+      </div>
+      <div class="card"><b>🔄 Сброс данных</b>
+        <button class="btn danger" onclick="hardReset()" style="width:100%"> Очистить всё и начать заново</button>
+      </div>`;
+      break;
+  }
 }
+
+// ===== ФУНКЦИИ =====
+function addClient(){
+  const name=prompt('Имя клиента:');
+  if(!name)return;
+  db.clients.push({id:uid(),name,company:prompt('Компания:')||'',country:'ru',source:prompt('Источник:')||'',contact:'',budget:+prompt('Бюджет:')||0,cur:'RUB',status:'Новый',date:today()});
+  save();render();
+}
+
+function delClient(id){if(confirm('Удалить?')){db.clients=db.clients.filter(c=>c.id!==id);save();render()}}
+function editClient(id){toast('Редактирование')}
+
+function addProject(){
+  const name=prompt('Название проекта:');
+  if(!name)return;
+  db.projects.push({id:uid(),name,client:prompt('Клиент:')||'',budget:+prompt('Бюджет:')||0,cur:'RUB',deadline:prompt('Дедлайн (ГГГГ-ММ-ДД):')||'',stage:'В работе',date:today()});
+  save();render();
+}
+
+function addFinance(){
+  const type=prompt('Тип (in/out):','in');
+  const amt=+prompt('Сумма:');
+  if(!amt)return;
+  db.finances.unshift({id:uid(),date:today(),type:type||'in',amt,cur:'RUB',cat:'Проект'});
+  save();render();
+}
+
+function calcTax(){
+  const ind=+document.getElementById('taxInd').value||0;
+  const ent=+document.getElementById('taxEnt').value||0;
+  const tax=ind*0.04+ent*0.06;
+  document.getElementById('taxResult').innerHTML=`<b>Налог: ${Math.round(tax).toLocaleString()} ₽</b>`;
+}
+
+function addPrice(){
+  const name=prompt('Название услуги:');
+  if(!name)return;
+  db.prices.push({id:uid(),name,price:+prompt('Цена:')||0,cur:'RUB',unit:'проект'});
+  save();render();
+}
+
+function calcPrice(){
+  const h=+document.getElementById('calcH').value||0;
+  const r=+document.getElementById('calcR').value||0;
+  document.getElementById('calcResult').innerHTML=`<b>${(h*r).toLocaleString()} ₽</b>`;
+}
+
+let timerInterval;
+let timerSeconds=25*60;
+function startTimer(){
+  if(timerInterval)return;
+  timerInterval=setInterval(()=>{
+    timerSeconds--;
+    const m=Math.floor(timerSeconds/60).toString().padStart(2,'0');
+    const s=(timerSeconds%60).toString().padStart(2,'0');
+    const el=document.getElementById('timer');
+    if(el)el.textContent=`${m}:${s}`;
+    if(timerSeconds<=0){clearInterval(timerInterval);timerInterval=null;toast('Время вышло!');timerSeconds=25*60}
+  },1000);
+}
+
+function resetTimer(){clearInterval(timerInterval);timerInterval=null;timerSeconds=25*60;const el=document.getElementById('timer');if(el)el.textContent='25:00'}
+
+function addTask(){
+  const text=prompt('Задача:');
+  if(!text)return;
+  db.tasks.push({id:uid(),proj:'',text,done:false,date:today()});
+  save();render();
+}
+
+function toggleTask(id){const t=db.tasks.find(x=>x.id===id);if(t)t.done=!t.done;save();render()}
+function delTask(id){db.tasks=db.tasks.filter(t=>t.id!==id);save();render()}
+function toggleGoal(i){db.goals[i].done=!db.goals[i].done;save();render()}
+
+function useTemplate(type){
+  const templates={
+    dogovor:'ДОГОВОР\n\nЗаказчик: _________\nИсполнитель: '+db.profile.name+'\n\nСумма: _________ ₽',
+    act:'АКТ\n\nВыполнено: _________\n\nПодпись: _________',
+    nda:'NDA\n\nКонфиденциальность\n\nПодпись: _________'
+  };
+  alert(templates[type]||'Шаблон не найден');
+}
+
+function hardReset(){
+  if(confirm('Очистить ВСЕ данные? Это необратимо!')){
+    localStorage.removeItem(KEY);
+    location.reload();
+  }
+}
+
+function toast(msg){
+  const t=document.createElement('div');
+  t.className='toast';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2000);
+}
+
+// ===== ЗАПУСК =====
+window.onload=()=>{
+  setTimeout(()=>{
+    document.getElementById('splash').classList.add('hidden');
+    setTimeout(()=>document.getElementById('splash').style.display='none',500);
+    renderNav();
+    render();
+  },2000);
+};
 </script>
-<script>
-<script>
+</body>
 </html>
