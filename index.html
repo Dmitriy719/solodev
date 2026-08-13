@@ -197,6 +197,9 @@ function render(){
     case 'radar':
       app.innerHTML = rPains();
       break;
+    case 'radar':
+      app.innerHTML = rPains();
+      break;
     case 'clients':
       app.innerHTML=`<div class="row spread"><h2>👥 Клиенты</h2><button class="btn" onclick="addClient()">+ Лид</button></div>
       ${db.clients.map(c=>`<div class="card">
