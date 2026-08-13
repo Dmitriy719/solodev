@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v1.4</title>
+<title>SoloDev v1.5</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -40,13 +40,20 @@ input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--
 </style>
 </head>
 <body>
-<div id="splash"><h1 style="font-size:48px;margin-bottom:20px">⚡</h1><h1>SoloDev</h1><p class="mut">Загрузка...</p></div>
-<header><b>⚡ SoloDev v1.4</b><span id="date"></span></header>
+<div id="splash">
+  <h1 style="font-size:48px;margin-bottom:20px">⚡</h1>
+  <h1>SoloDev</h1>
+  <p class="mut">Загрузка приложения...</p>
+  <div class="bar" style="width:200px;margin-top:20px"><i style="width:100%;animation:load 2s ease forwards"></i></div>
+</div>
+<header><b>⚡ SoloDev v1.5</b><span id="date"></span></header>
 <main id="app"></main>
 <nav id="nav"></nav>
 <div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
 <script>
-const KEY='solodev_v1', uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7), today=()=>new Date().toISOString().slice(0,10);
+const KEY='solodev_v1';
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const today=()=>new Date().toISOString().slice(0,10);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
 const PAIN_DB={'Фронтенд':[{seg:'Владельцы магазинов',pain:'Сайт медленно грузится',sol:'Оптимизация скорости',demand:5}],'Бэкенд':[{seg:'Стартапы',pain:'Нужен быстрый API',sol:'REST API на Node.js',demand:5}],'Боты':[{seg:'Владельцы каналов',pain:'Много вопросов',sol:'Бот с FAQ',demand:5}]};
@@ -81,7 +88,7 @@ function delPain(id){if(confirm('Удалить?')){db.pains=db.pains.filter(p=>
 function genOutreach(pain,sol,seg){
   const txt='Здравствуйте!\\n\\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\\n\\nВижу, что для "'+seg+'" актуально: "'+pain+'".\\nЯ решаю такие задачи: '+sol+'.\\n\\nНайдётся 5 минут обсудить?\\n\\nС уважением,\\n'+db.profile.name;
   copyText(txt);
-  openModal('<h3>✉️ Письмо скопировано!</h3><textarea rows="10" style="width:100%">'+esc(txt)+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.querySelector(\\'textarea\\').value);closeModal()">📋 Копировать снова</button>');
+  openModal('<h3>✉️ Письмо скопировано!</h3><textarea id="outText" rows="10" style="width:100%">'+esc(txt)+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.getElementById(\\'outText\\').value);closeModal()">📋 Копировать снова</button>');
 }
 
 function rHome(){
@@ -102,7 +109,7 @@ function addTask(){const t=prompt('Задача:');if(!t)return;db.tasks.push({i
 function togTask(id){const t=db.tasks.find(x=>x.id===id);if(t)t.done=!t.done;save();render();}
 function rGrowth(){return '<div class="row spread"><h2>🎯 Рост</h2></div><div class="card"><b>💪 Навыки</b>'+db.skills.map(s=>'<div style="margin:10px 0"><div class="row spread"><span>'+esc(s.n)+'</span><span class="mut">'+['Новичок','Базово','Уверенно','Профи','Эксперт'][s.l-1]+'</span></div><div class="bar"><i style="width:'+(s.l*20)+'%"></i></div></div>').join('')+'</div><div class="card"><b>📚 База знаний</b>'+db.knowledge.map(k=>'<div class="note"><b>'+esc(k.topic)+'</b><div class="mut">'+esc(k.theory)+'</div></div>').join('')+'</div>';}
 function rLawyer(){return '<div class="row spread"><h2>⚖️ Юрист</h2></div><div class="card"><button class="btn sec" style="width:100%;margin:8px 0" onclick="useTpl(\\'dogovor\\')">📄 Договор</button><button class="btn sec" style="width:100%;margin:8px 0" onclick="useTpl(\\'act\\')">📋 Акт</button></div>';}
-function useTpl(type){const t={dogovor:'ДОГОВОР\\n\\nЗаказчик: _________\\nИсполнитель: '+db.profile.name,act:'АКТ\\n\\nВыполнено: _________'};openModal('<h3>Шаблон</h3><textarea rows="10" style="width:100%">'+esc(t[type]||'')+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.querySelector(\\'textarea\\').value);closeModal()">📋 Копировать</button>');}
+function useTpl(type){const t={dogovor:'ДОГОВОР\\n\\nЗаказчик: _________\\nИсполнитель: '+db.profile.name,act:'АКТ\\n\\nВыполнено: _________'};openModal('<h3>Шаблон</h3><textarea id="tplText" rows="10" style="width:100%">'+esc(t[type]||'')+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.getElementById(\\'tplText\\').value);closeModal()">📋 Копировать</button>');}
 function rSettings(){return '<div class="row spread"><h2>⚙️ Настройки</h2></div><div class="card"><b>👤 Профиль</b><label>Имя</label><input value="'+esc(db.profile.name)+'" onchange="db.profile.name=this.value;save()"></div><div class="card"><b>🎨 Тема</b><button class="btn sec" onclick="document.body.classList.toggle(\\'light-theme\\');localStorage.setItem(\\'theme\\',document.body.classList.contains(\\'light-theme\\')?\\'light\\':\\'dark\\')" style="width:100%">🌓 Переключить тему</button></div><div class="card"><b>📊 Экспорт</b><button class="btn" onclick="exportCSV()" style="width:100%">📥 Скачать Excel (CSV)</button></div><div class="card"><b>🔄 Сброс</b><button class="btn danger" onclick="hardReset()" style="width:100%">🔄 Сбросить кэш и обновить</button></div>';}
 
 function exportCSV(){let csv='Тип,Имя,Сумма\\n';db.clients.forEach(c=>{csv+='Клиент,'+c.name+','+c.budget+'\\n';});const blob=new Blob(['\\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='SoloDev_'+today()+'.csv';link.click();toast('✅ Экспорт завершён!');}
