@@ -620,5 +620,14 @@ if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostnam
 }
 </script>
 <script src="patch.js"></script>
+<script>
+function hardReset() {
+  if(confirm("Удалить кэш и перезагрузить? Данные сохранятся.")) {
+    if("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));
+    if("caches" in window) caches.keys().then(n=>n.forEach(k=>caches.delete(k)));
+    window.location.href = window.location.pathname + "?v=" + Date.now();
+  }
+}
+</script>
 </body>
 </html>
