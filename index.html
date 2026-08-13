@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v1.7</title>
+<title>SoloDev v1.8</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -49,7 +49,7 @@ input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--
   <p class="mut">Загрузка приложения...</p>
   <div class="bar" style="width:200px;margin-top:20px"><i id="loadBar" style="width:0%;animation:load 2s ease forwards"></i></div>
 </div>
-<header><b>⚡ SoloDev v1.7</b><span id="date"></span></header>
+<header><b> SoloDev v1.8</b><span id="date"></span></header>
 <main id="app"></main>
 <nav id="nav"></nav>
 <div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
@@ -59,14 +59,45 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const today=()=>new Date().toISOString().slice(0,10);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
-const PAIN_DB={'Фронтенд':[{seg:'Владельцы магазинов',pain:'Сайт медленно грузится',sol:'Оптимизация скорости',demand:5}],'Бэкенд':[{seg:'Стартапы',pain:'Нужен быстрый API',sol:'REST API на Node.js',demand:5}],'Боты':[{seg:'Владельцы каналов',pain:'Много вопросов',sol:'Бот с FAQ',demand:5}]};
+
+// РАСШИРЕННАЯ БАЗА БОЛЕЙ КЛИЕНТОВ
+const PAIN_DB={
+  'Фронтенд':[
+    {seg:'Владельцы интернет-магазинов',pain:'Сайт медленно загружается',sol:'Оптимизация скорости и Core Web Vitals',demand:5},
+    {seg:'Стартапы без сайта',pain:'Нет современного сайта',sol:'Лендинг за 1-2 недели',demand:4},
+    {seg:'Малый бизнес',pain:'Сайт не работает на мобильных',sol:'Адаптивная вёрстка',demand:5},
+    {seg:'Блогеры',pain:'Сложно обновлять контент',sol:'CMS с простым редактором',demand:3}
+  ],
+  'Бэкенд':[
+    {seg:'Стартапы',pain:'Нужен быстрый API',sol:'REST API на Node.js/Python',demand:5},
+    {seg:'Интернет-магазины',pain:'Медленная обработка заказов',sol:'Оптимизация базы данных',demand:4},
+    {seg:'SaaS-проекты',pain:'Проблемы с масштабируемостью',sol:'Микросервисная архитектура',demand:5}
+  ],
+  'Боты':[
+    {seg:'Владельцы Telegram-каналов',pain:'Много однотипных вопросов',sol:'Бот с FAQ и автоответами',demand:5},
+    {seg:'Онлайн-школы',pain:'Ручная проверка домашних заданий',sol:'Бот с автоматической проверкой',demand:4},
+    {seg:'Рестораны',pain:'Много звонков для бронирования',sol:'Бот для бронирования столов',demand:4}
+  ],
+  'Мобильная разработка':[
+    {seg:'Владельцы доставки',pain:'Нет мобильного приложения',sol:'Приложение с push-уведомлениями',demand:5},
+    {seg:'Фитнес-клубы',pain:'Клиенты забывают о тренировках',sol:'Приложение с напоминаниями',demand:3}
+  ],
+  'DevOps':[
+    {seg:'Стартапы',pain:'Сайт часто падает',sol:'Настройка CI/CD и мониторинга',demand:4},
+    {seg:'Компании',pain:'Долгий деплой',sol:'Автоматизация развёртывания',demand:4}
+  ],
+  'Дизайн':[
+    {seg:'Малый бизнес',pain:'Непрофессиональный вид',sol:'Современный UI-кит и редизайн',demand:5},
+    {seg:'Стартапы',pain:'Нет фирменного стиля',sol:'Логотип и брендбук',demand:3}
+  ]
+};
 
 function seed(){return{profile:{name:'Дмитрий',spec:'Fullstack разработчик',currency:'RUB',rates:{BYN:30,CNY:11.5,USD:90},specs:['Фронтенд','Бэкенд','Боты']},clients:[{id:uid(),name:'Алексей',company:'TechStart',budget:45000,cur:'RUB',status:'В работе',date:today()}],projects:[{id:uid(),name:'Интернет-магазин',client:'Алексей',budget:45000,cur:'RUB',stage:'В работе',date:today()}],finances:[{id:uid(),date:today(),type:'in',amt:30000,cur:'RUB',cat:'Проект'}],pains:[],skills:[{n:'JavaScript',l:4}],goals:[{t:'Изучить TypeScript',done:false}],knowledge:[{dir:'Фронтенд',topic:'React',theory:'Основы',practice:'Создать хук'}],prices:[{id:uid(),name:'Лендинг',price:25000,cur:'RUB',unit:'проект'}],tasks:[{id:uid(),text:'Сверстать главную',done:false,date:today()}]}}
 function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
 let db=(()=>{const s=seed(),l=load();return l?{...s,...l}:s})();
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 
-const TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'radar',icon:'🎯',label:'Радар'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'projects',icon:'📁',label:'Проекты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'price',icon:'💵',label:'Прайс'},{id:'time',icon:'⏱',label:'Время'},{id:'plan',icon:'📅',label:'План'},{id:'growth',icon:'🎯',label:'Рост'},{id:'lawyer',icon:'⚖️',label:'Юрист'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+const TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'radar',icon:'🎯',label:'Радар'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'projects',icon:'',label:'Проекты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'price',icon:'💵',label:'Прайс'},{id:'time',icon:'⏱',label:'Время'},{id:'plan',icon:'📅',label:'План'},{id:'growth',icon:'',label:'Рост'},{id:'lawyer',icon:'⚖️',label:'Юрист'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 let tab='home';
 
 function renderNav(){document.getElementById('nav').innerHTML=TABS.map(t=>'<button class="nav-btn '+(t.id===tab?'active':'')+'" onclick="go(\''+t.id+'\')">'+t.icon+'<br><small>'+t.label+'</small></button>').join('');}
@@ -76,29 +107,75 @@ function openModal(h){document.getElementById('mcard').innerHTML=h;document.getE
 function closeModal(){document.getElementById('modal').classList.remove('on')}
 function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('Скопировано!')).catch(()=>toast('Ошибка копирования'))}
 
+// ===== РАДАР С АВТОМАТИЗАЦИЕЙ =====
 function rRadar(){
   let h='<div class="row spread"><h2>🎯 Радар</h2><button class="btn" onclick="generatePains()">+ Сгенерировать</button></div>';
-  h+='<div class="card" style="background:#1a2035;border-color:#3a4a7a"><b>🤖 Умный поиск</b><p class="mut">Специализации: '+(db.profile.specs.join(', ')||'не выбраны')+'</p><button class="btn ai" onclick="generatePains()" style="width:100%">🎯 Найти клиентов</button></div>';
-  if(!db.pains.length) h+='<div class="card mut">Нажмите "Сгенерировать"</div>';
-  else db.pains.forEach(p=>{h+='<div class="card"><div class="row spread"><b>'+esc(p.seg)+'</b><span class="chip on">'+'★'.repeat(p.demand)+'</span></div><div class="mut" style="margin-top:5px">'+esc(p.pain)+'</div><div class="note" style="margin-top:8px">💡 '+esc(p.sol)+'</div><div class="row" style="margin-top:10px;gap:8px"><button class="btn sec" onclick="genOutreach(\''+esc(p.pain)+'\',\''+esc(p.sol)+'\',\''+esc(p.seg)+'\')">✍️ Написать</button><button class="btn danger" onclick="delPain(\''+p.id+'\')">🗑</button></div></div>';});
+  h+='<div class="card" style="background:#1a2035;border-color:#3a4a7a"><b>🤖 Умный поиск клиентов</b>';
+  h+='<p class="mut">Специализации: '+(db.profile.specs.join(', ')||'не выбраны')+'</p>';
+  h+='<p class="mut">Найдено потенциальных клиентов: <b>'+db.pains.length+'</b></p>';
+  h+='<button class="btn ai" onclick="generatePains()" style="width:100%;margin-bottom:8px">🎯 Найти клиентов</button>';
+  h+='<button class="btn sec" onclick="generateAllPains()" style="width:100%"> АВТОПОИСК: Найти ВСЕХ клиентов</button></div>';
+  
+  if(!db.pains.length) h+='<div class="card mut">Нажмите "Найти клиентов" или "АВТОПОИСК"</div>';
+  else {
+    h+='<div class="row" style="margin:10px 0;gap:8px"><button class="btn sec" onclick="copyAllOutreach()">📋 Скопировать ВСЕ письма</button><button class="btn danger" onclick="clearAllPains()">🗑 Очистить всех</button></div>';
+    db.pains.forEach((p,idx)=>{
+      h+='<div class="card"><div class="row spread"><b>'+(idx+1)+'. '+esc(p.seg)+'</b><span class="chip on">'+'★'.repeat(p.demand)+'</span></div>';
+      h+='<div class="mut" style="margin-top:5px">'+esc(p.pain)+'</div>';
+      h+='<div class="note" style="margin-top:8px">💡 '+esc(p.sol)+'</div>';
+      h+='<div class="row" style="margin-top:10px;gap:8px">';
+      h+='<button class="btn sec" onclick="genOutreach(\''+esc(p.pain)+'\',\''+esc(p.sol)+'\',\''+esc(p.seg)+'\')">✍️ Написать</button>';
+      h+='<button class="btn danger" onclick="delPain(\''+p.id+'\')">🗑</button></div></div>';
+    });
+  }
   return h;
 }
+
 function generatePains(){
   let added=0;
   (db.profile.specs||[]).forEach(sp=>{(PAIN_DB[sp]||[]).forEach(p=>{if(!db.pains.some(x=>x.pain===p.pain)){db.pains.push({id:uid(),...p,status:'Гипотеза'});added++;}});});
   save();render();toast(added>0?'✅ Добавлено '+added+' клиентов!':'⚠️ Все уже в базе');
 }
+
+function generateAllPains(){
+  let added=0;
+  Object.keys(PAIN_DB).forEach(sp=>{
+    PAIN_DB[sp].forEach(p=>{
+      if(!db.pains.some(x=>x.pain===p.pain)){
+        db.pains.push({id:uid(),...p,status:'Гипотеза'});
+        added++;
+      }
+    });
+  });
+  save();render();
+  toast('🚀 АВТОПОИСК завершён! Найдено '+added+' новых клиентов!');
+}
+
 function delPain(id){if(confirm('Удалить?')){db.pains=db.pains.filter(p=>p.id!==id);save();render();}}
+function clearAllPains(){if(confirm('Удалить ВСЕХ найденных клиентов?')){db.pains=[];save();render();toast('Очищено');}}
+
 function genOutreach(pain,sol,seg){
   const txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nВижу, что для "'+seg+'" актуально: "'+pain+'".\nЯ решаю такие задачи: '+sol+'.\n\nНайдётся 5 минут обсудить?\n\nС уважением,\n'+db.profile.name;
   copyText(txt);
   openModal('<h3>✉️ Письмо скопировано!</h3><textarea id="outText" rows="10" style="width:100%">'+esc(txt)+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.getElementById(\'outText\').value);closeModal()">📋 Копировать снова</button>');
 }
 
+function copyAllOutreach(){
+  if(!db.pains.length){toast('Нет клиентов');return;}
+  let allText='';
+  db.pains.forEach((p,idx)=>{
+    allText+='=== ПИСЬМО '+(idx+1)+' ===\n';
+    allText+='Кому: '+p.seg+'\n';
+    allText+='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nВижу, что для "'+p.seg+'" актуально: "'+p.pain+'".\nЯ решаю такие задачи: '+p.sol+'.\n\nНайдётся 5 минут обсудить?\n\nС уважением,\n'+db.profile.name+'\n\n\n';
+  });
+  copyText(allText);
+  toast('📋 Скопировано '+db.pains.length+' писем!');
+}
+
 function rHome(){
   const m=MONTHS[new Date().getMonth()];
   const inc=db.finances.filter(f=>f.type==='in').reduce((s,f)=>s+f.amt,0);
-  return '<div class="note" style="background:linear-gradient(135deg,var(--acc),#9d6cff);color:#fff;padding:20px;margin-bottom:20px"><div style="font-size:24px">Привет, '+esc(db.profile.name)+'! 👋</div><div style="opacity:.9">'+esc(db.profile.spec)+'</div></div><div class="grid"><div class="card stat"><span>Доход, '+m+'</span><b class="plus">'+inc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Клиентов</span><b>'+db.clients.length+'</b></div></div><div class="card"><b>⚡ Быстрые действия</b><div class="row" style="margin-top:10px;gap:8px"><button class="btn" onclick="go(\'radar\')">🎯 Найти клиентов</button><button class="btn sec" onclick="go(\'projects\')">+ Проект</button></div></div>';
+  return '<div class="note" style="background:linear-gradient(135deg,var(--acc),#9d6cff);color:#fff;padding:20px;margin-bottom:20px"><div style="font-size:24px">Привет, '+esc(db.profile.name)+'! </div><div style="opacity:.9">'+esc(db.profile.spec)+'</div></div><div class="grid"><div class="card stat"><span>Доход, '+m+'</span><b class="plus">'+inc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Клиентов</span><b>'+db.clients.length+'</b></div><div class="card stat"><span>Найдено лидов</span><b>'+db.pains.length+'</b></div><div class="card stat"><span>Проектов</span><b>'+db.projects.length+'</b></div></div><div class="card"><b>⚡ Быстрые действия</b><div class="row" style="margin-top:10px;gap:8px"><button class="btn" onclick="go(\'radar\')"> Найти клиентов</button><button class="btn sec" onclick="go(\'projects\')">+ Проект</button></div></div>';
 }
 function rClients(){return '<div class="row spread"><h2>👥 Клиенты</h2><button class="btn" onclick="addClient()">+ Лид</button></div>'+db.clients.map(c=>'<div class="card"><div class="row spread"><b>'+esc(c.name)+'</b><span class="chip on">'+c.status+'</span></div><div class="mut">'+esc(c.company)+' · '+c.budget+' '+c.cur+'</div></div>').join('');}
 function addClient(){const n=prompt('Имя:');if(!n)return;db.clients.push({id:uid(),name:n,company:prompt('Компания:')||'',budget:+prompt('Бюджет:')||0,cur:'RUB',status:'Новый',date:today()});save();render();}
@@ -106,15 +183,41 @@ function rProjects(){return '<div class="row spread"><h2>📁 Проекты</h2
 function rFinances(){return '<div class="row spread"><h2>💰 Финансы</h2><button class="btn" onclick="addFin()">+ Операция</button></div>'+db.finances.map(f=>'<div class="card row spread"><div><b class="'+(f.type==='in'?'plus':'minus')+'">'+(f.type==='in'?'+':'-')+' '+f.amt+' '+f.cur+'</b><div class="mut">'+f.cat+'</div></div></div>').join('');}
 function addFin(){const a=+prompt('Сумма:');if(!a)return;db.finances.unshift({id:uid(),date:today(),type:prompt('Тип (in/out):','in'),amt:a,cur:'RUB',cat:'Проект'});save();render();}
 function rPrices(){return '<div class="row spread"><h2>💵 Прайс</h2></div>'+db.prices.map(p=>'<div class="card row spread"><div><b>'+esc(p.name)+'</b></div><b class="plus">'+p.price+' '+p.cur+'</b></div>').join('');}
-function rTime(){return '<div class="row spread"><h2>⏱ Время</h2></div><div class="card" style="text-align:center"><div style="font-size:48px;font-weight:bold;color:var(--acc)" id="timer">25:00</div><div class="row" style="justify-content:center;margin-top:15px"><button class="btn" onclick="startT()">▶ Старт</button><button class="btn sec" onclick="resetT()">Сброс</button></div></div>';}
-let tInt,tSec=25*60;function startT(){if(tInt)return;tInt=setInterval(()=>{tSec--;const m=Math.floor(tSec/60).toString().padStart(2,'0'),s=(tSec%60).toString().padStart(2,'0'),el=document.getElementById('timer');if(el)el.textContent=m+':'+s;if(tSec<=0){clearInterval(tInt);tInt=null;toast('Время вышло!');tSec=25*60}},1000);}function resetT(){clearInterval(tInt);tInt=null;tSec=25*60;const el=document.getElementById('timer');if(el)el.textContent='25:00'}
+
+// ТАЙМЕР С ПЕРЕРЫВАМИ
+function rTime(){
+  return '<div class="row spread"><h2>⏱ Время</h2></div><div class="card" style="text-align:center"><div style="font-size:48px;font-weight:bold;color:var(--acc)" id="timer">25:00</div><div class="mut" id="timerMode" style="margin:10px 0">🎯 Режим: Фокус</div><div class="row" style="justify-content:center;margin-top:15px;gap:8px"><button class="btn" onclick="startT()">▶ Старт</button><button class="btn sec" onclick="resetT()">Сброс</button></div><div class="note" style="margin-top:15px"><b>Как работает:</b><br>25 минут работы → 5 минут перерыв → повтор</div></div>';
+}
+let tInt,tSec=25*60,tMode='focus';
+function startT(){
+  if(tInt)return;
+  tInt=setInterval(()=>{
+    tSec--;
+    const m=Math.floor(tSec/60).toString().padStart(2,'0'),s=(tSec%60).toString().padStart(2,'0'),el=document.getElementById('timer'),modeEl=document.getElementById('timerMode');
+    if(el)el.textContent=m+':'+s;
+    if(modeEl)modeEl.textContent=tMode==='focus'?'🎯 Режим: Фокус':'☕ Режим: Перерыв';
+    if(tSec<=0){
+      clearInterval(tInt);tInt=null;
+      if(tMode==='focus'){
+        toast('☕ Время перерыва!');
+        tMode='break';tSec=5*60;
+      }else{
+        toast('🎯 Время работать!');
+        tMode='focus';tSec=25*60;
+      }
+      startT();
+    }
+  },1000);
+}
+function resetT(){clearInterval(tInt);tInt=null;tSec=25*60;tMode='focus';const el=document.getElementById('timer'),modeEl=document.getElementById('timerMode');if(el)el.textContent='25:00';if(modeEl)modeEl.textContent='🎯 Режим: Фокус'}
+
 function rPlan(){return '<div class="row spread"><h2>📅 План</h2><button class="btn" onclick="addTask()">+ Задача</button></div>'+db.tasks.map(t=>'<div class="card row spread"><div class="row" style="gap:10px"><input type="checkbox" '+(t.done?'checked':'')+' onchange="togTask(\''+t.id+'\')"><span style="'+(t.done?'text-decoration:line-through;color:var(--mut)':'')+'">'+esc(t.text)+'</span></div></div>').join('');}
 function addTask(){const t=prompt('Задача:');if(!t)return;db.tasks.push({id:uid(),text:t,done:false,date:today()});save();render();}
 function togTask(id){const t=db.tasks.find(x=>x.id===id);if(t)t.done=!t.done;save();render();}
 function rGrowth(){return '<div class="row spread"><h2>🎯 Рост</h2></div><div class="card"><b>💪 Навыки</b>'+db.skills.map(s=>'<div style="margin:10px 0"><div class="row spread"><span>'+esc(s.n)+'</span><span class="mut">'+['Новичок','Базово','Уверенно','Профи','Эксперт'][s.l-1]+'</span></div><div class="bar"><i style="width:'+(s.l*20)+'%"></i></div></div>').join('')+'</div><div class="card"><b>📚 База знаний</b>'+db.knowledge.map(k=>'<div class="note"><b>'+esc(k.topic)+'</b><div class="mut">'+esc(k.theory)+'</div></div>').join('')+'</div>';}
 function rLawyer(){return '<div class="row spread"><h2>⚖️ Юрист</h2></div><div class="card"><button class="btn sec" style="width:100%;margin:8px 0" onclick="useTpl(\'dogovor\')">📄 Договор</button><button class="btn sec" style="width:100%;margin:8px 0" onclick="useTpl(\'act\')">📋 Акт</button></div>';}
 function useTpl(type){const t={dogovor:'ДОГОВОР\n\nЗаказчик: _________\nИсполнитель: '+db.profile.name,act:'АКТ\n\nВыполнено: _________'};openModal('<h3>Шаблон</h3><textarea id="tplText" rows="10" style="width:100%">'+esc(t[type]||'')+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.getElementById(\'tplText\').value);closeModal()">📋 Копировать</button>');}
-function rSettings(){return '<div class="row spread"><h2>⚙️ Настройки</h2></div><div class="card"><b>👤 Профиль</b><label>Имя</label><input value="'+esc(db.profile.name)+'" onchange="db.profile.name=this.value;save()"></div><div class="card"><b>🎨 Тема</b><button class="btn sec" onclick="document.body.classList.toggle(\'light-theme\');localStorage.setItem(\'theme\',document.body.classList.contains(\'light-theme\')?\'light\':\'dark\')" style="width:100%">🌓 Переключить тему</button></div><div class="card"><b>📊 Экспорт</b><button class="btn" onclick="exportCSV()" style="width:100%">📥 Скачать Excel (CSV)</button></div><div class="card"><b>🔄 Сброс</b><button class="btn danger" onclick="hardReset()" style="width:100%">🔄 Сбросить кэш и обновить</button></div>';}
+function rSettings(){return '<div class="row spread"><h2>️ Настройки</h2></div><div class="card"><b>👤 Профиль</b><label>Имя</label><input value="'+esc(db.profile.name)+'" onchange="db.profile.name=this.value;save()"></div><div class="card"><b>🎨 Тема</b><button class="btn sec" onclick="document.body.classList.toggle(\'light-theme\');localStorage.setItem(\'theme\',document.body.classList.contains(\'light-theme\')?\'light\':\'dark\')" style="width:100%">🌓 Переключить тему</button></div><div class="card"><b>📊 Экспорт</b><button class="btn" onclick="exportCSV()" style="width:100%">📥 Скачать Excel (CSV)</button></div><div class="card"><b>🔄 Сброс</b><button class="btn danger" onclick="hardReset()" style="width:100%">🔄 Сбросить кэш и обновить</button></div>';}
 
 function exportCSV(){let csv='Тип,Имя,Сумма\n';db.clients.forEach(c=>{csv+='Клиент,'+c.name+','+c.budget+'\n';});const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='SoloDev_'+today()+'.csv';link.click();toast('✅ Экспорт завершён!');}
 function hardReset(){if(confirm("⚠️ Удалить кэш и перезагрузить? Данные сохранятся.")){if("serviceWorker"in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if("caches"in window)caches.keys().then(n=>n.forEach(k=>caches.delete(k)));window.location.href=window.location.pathname+"?v="+Date.now();}}
@@ -140,7 +243,7 @@ window.onload=()=>{
       render();
     },1500);
   }catch(e){
-    console.error('Ошибка инициализации:',e);
+    console.error('Ошибка:',e);
     document.getElementById('splash').classList.add('hidden');
   }
 };
