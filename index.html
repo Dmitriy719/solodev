@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0e1116">
-<title>SoloDev v1.1</title>
+<title>SoloDev v1.2</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -47,12 +47,17 @@ input,select,textarea{width:100%;background:var(--card2);border:1px solid #242b3
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 @keyframes load{to{width:100%}}
 .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#fff;color:#000;padding:10px 18px;border-radius:24px;font-size:14px;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+
+body.light-theme { --bg: #f4f6f8; --card: #ffffff; --card2: #e9ecef; --txt: #212529; --mut: #6c757d; --line: #dee2e6; }
+body.light-theme .btn { color: #fff; }
+body.light-theme .btn.sec { color: #212529; }
+
 </style>
 </head>
 <body>
 <div id="splash"><div class="logo">⚡</div><h1>SoloDev</h1><p class="mut">Загрузка...</p><div class="loader"><div class="loader-bar"></div></div></div>
 
-<header><b>⚡ SoloDev v1.1</b><span id="date"></span></header>
+<header><b>⚡ SoloDev v1.2</b><span id="date"></span></header>
 
 <main id="app"></main>
 
@@ -304,7 +309,18 @@ function render(){
         <div class="mut">1 USD = ${db.profile.rates.USD} ₽</div>
       </div>
       <div class="card"><b>🔄 Сброс данных</b>
-        <button class="btn danger" onclick="hardReset()" style="width:100%"> Очистить всё и начать заново</button>
+        
+<div class="card" style="margin-top:15px">
+  <b>🎨 Внешний вид</b>
+  <button class="btn sec" onclick="toggleTheme()" style="width:100%;margin-top:10px">🌓 Переключить Тёмную/Светлую тему</button>
+</div>
+<div class="card" style="margin-top:15px">
+  <b>📊 Экспорт данных</b>
+  <p class="mut">Скачать клиентов и финансы в формате Excel (CSV)</p>
+  <button class="btn" onclick="exportToCSV()" style="width:100%;margin-top:10px">📥 Скачать Excel (CSV)</button>
+</div>
+
+<button class="btn danger" onclick="hardReset()" style="width:100%"> Очистить всё и начать заново</button>
       </div>`;
       break;
   }
@@ -410,7 +426,8 @@ function toast(msg){
 // ===== ЗАПУСК =====
 window.onload=()=>{
   setTimeout(()=>{
-    document.getElementById('splash').classList.add('hidden');
+    loadTheme();
+  document.getElementById('splash').classList.add('hidden');
     setTimeout(()=>document.getElementById('splash').style.display='none',500);
     renderNav();
     render();
@@ -428,6 +445,37 @@ function hardReset(){
     window.location.href = window.location.pathname + "?v=" + Date.now();
   }
 }
+
+function toggleTheme(){
+  document.body.classList.toggle('light-theme');
+  localStorage.setItem('solodev_theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+}
+function loadTheme(){
+  if(localStorage.getItem('solodev_theme') === 'light') document.body.classList.add('light-theme');
+}
+function exportToCSV(){
+  let csv = 'Тип,Имя/Категория,Детали,Статус/Тип,Сумма,Валюта\n';
+  db.clients.forEach(c => { csv += `Клиент,"${c.name}","${c.company}",${c.status},${c.budget},${c.cur}\n`; });
+  db.finances.forEach(f => { csv += `Финансы,"${f.cat}","${f.date}",${f.type},${f.amt},${f.cur}\n`; });
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'SoloDev_Export_' + new Date().toISOString().slice(0,10) + '.csv';
+  link.click();
+  toast('✅ Экспорт в Excel (CSV) завершён!');
+}
+function generateColdOutreach(pain, solution, seg){
+  const name = db.profile.name || 'Дмитрий';
+  const spec = db.profile.spec || 'разработчик';
+  const text = `Здравствуйте!\n\nМеня зовут ${name}, я ${spec}.\n\nЯ вижу, что для сегмента "${seg}" актуальна проблема: "${pain}".\nЯ как раз специализируюсь на решении таких задач: ${solution}.\n\nБуду рад обсудить, как мы можем это реализовать для вашего проекта. Найдётся 5 минут на этой неделе?\n\nС уважением,\n${name}`;
+  
+  navigator.clipboard.writeText(text).then(() => {
+    toast('✉️ Текст письма скопирован! Вставьте в Telegram/Почту.');
+  }).catch(() => {
+    openModal(`<h3>Готовое письмо для клиента</h3><textarea id="outreachText" rows="10" style="width:100%;font-size:14px">${text.replace(/</g, '&lt;')}</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.getElementById('outreachText').value);closeModal()">📋 Копировать текст</button>`);
+  });
+}
+
 </script>
 </body>
 </html>
