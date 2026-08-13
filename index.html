@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v2.2</title>
+<title>SoloDev v2.3</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -32,7 +32,7 @@ h2{font-size:18px;margin:4px 0 12px}
 .btn.warn{background:var(--warn);color:#000}
 input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px;margin:4px 0 10px}
 .chip{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:6px 12px;font-size:12px}
-.chip.on{background:var(--acc);color:#fff}.chip.ok{background:var(--ok);color:#fff}.chip.warn{background:var(--warn);color:#000}
+.chip.on{background:var(--acc);color:#fff}.chip.ok{background:var(--ok);color:#fff}.chip.warn{background:var(--warn);color:#000}.chip.ru{background:#d6001c;color:#fff}.chip.en{background:#0039a6;color:#fff}
 .bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
 #splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity .5s}
 #splash.hidden{opacity:0;pointer-events:none}
@@ -42,21 +42,20 @@ input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--
 @keyframes load{0%{width:0%}100%{width:100%}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 .article-card{border-left:3px solid var(--acc);padding-left:12px;margin:10px 0}
-.article-card.devto{border-left-color:#0a0a0a}
-.article-card.github{border-left-color:#6e5494}
-.article-card.hn{border-left-color:#ff6600}
-.loading{text-align:center;padding:20px;color:var(--mut)}
+.article-card.habr{border-left-color:#77a2b6}.article-card.vc{border-left-color:#4a90e2}
+.article-card.devto{border-left-color:#0a0a0a}.article-card.github{border-left-color:#6e5494}.article-card.hn{border-left-color:#ff6600}
 .tag{display:inline-block;background:var(--card2);padding:4px 10px;border-radius:12px;font-size:11px;margin:2px}
+.translate-link{color:var(--acc);text-decoration:none;font-size:12px}
 </style>
 </head>
 <body>
 <div id="splash">
   <h1 style="font-size:48px;margin-bottom:20px;animation:pulse 1.5s ease infinite"></h1>
-  <h1>SoloDev v2.2</h1>
+  <h1>SoloDev v2.3</h1>
   <p class="mut">Загрузка приложения...</p>
   <div class="bar" style="width:200px;margin-top:20px"><i style="width:0%;animation:load 2s ease forwards"></i></div>
 </div>
-<header><b>⚡ SoloDev v2.2</b><span id="date"></span></header>
+<header><b>⚡ SoloDev v2.3</b><span id="date"></span></header>
 <main id="app"></main>
 <nav id="nav"></nav>
 <div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
@@ -76,7 +75,7 @@ function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return
 let db=(()=>{const s=seed(),l=load();return l?{...s,...l}:s})();
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 
-const TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'radar',icon:'🎯',label:'Радар'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'projects',icon:'📁',label:'Проекты'},{id:'calendar',icon:'',label:'Календарь'},{id:'diary',icon:'📝',label:'Дневник'},{id:'habits',icon:'✅',label:'Привычки'},{id:'finances',icon:'💰',label:'Финансы'},{id:'time',icon:'',label:'Время'},{id:'growth',icon:'🎯',label:'Рост'},{id:'knowledge',icon:'📚',label:'База'},{id:'settings',icon:'️',label:'Настройки'}];
+const TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'radar',icon:'🎯',label:'Радар'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'projects',icon:'',label:'Проекты'},{id:'calendar',icon:'📅',label:'Календарь'},{id:'diary',icon:'',label:'Дневник'},{id:'habits',icon:'✅',label:'Привычки'},{id:'finances',icon:'💰',label:'Финансы'},{id:'time',icon:'⏱',label:'Время'},{id:'growth',icon:'🎯',label:'Рост'},{id:'knowledge',icon:'',label:'База'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 let tab='home';
 
 function renderNav(){document.getElementById('nav').innerHTML=TABS.map(t=>'<button class="nav-btn '+(t.id===tab?'active':'')+'" onclick="go(\''+t.id+'\')">'+t.icon+'<br><small>'+t.label+'</small></button>').join('');}
@@ -92,43 +91,104 @@ function rHome(){
   const inc=db.finances.filter(f=>f.type==='in').reduce((s,f)=>s+f.amt,0);
   const activeProjects=db.projects.filter(p=>p.stage<3).length;
   const leadsCount=(db.leads?db.leads.length:0)+(db.pains?db.pains.length:0);
-  return '<div class="note" style="background:linear-gradient(135deg,var(--acc),#9d6cff);color:#fff;padding:20px;margin-bottom:20px"><div style="font-size:24px">Привет, '+esc(db.profile.name)+'! 👋</div><div style="opacity:.9">'+esc(db.profile.spec)+'</div></div><div class="grid"><div class="card stat"><span>Доход, '+m+'</span><b class="plus">'+inc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Проектов</span><b>'+activeProjects+'</b></div><div class="card stat"><span>Лидов</span><b>'+leadsCount+'</b></div><div class="card stat"><span>Статей</span><b>'+(db.savedArticles?db.savedArticles.length:0)+'</b></div></div><div class="card"><b> Быстрые действия</b><div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn" onclick="go(\'radar\')">🎯 Найти клиентов</button><button class="btn sec" onclick="go(\'knowledge\')">📚 База знаний</button><button class="btn sec" onclick="go(\'projects\')">📁 Проекты</button></div></div>';
+  return '<div class="note" style="background:linear-gradient(135deg,var(--acc),#9d6cff);color:#fff;padding:20px;margin-bottom:20px"><div style="font-size:24px">Привет, '+esc(db.profile.name)+'! 👋</div><div style="opacity:.9">'+esc(db.profile.spec)+'</div></div><div class="grid"><div class="card stat"><span>Доход, '+m+'</span><b class="plus">'+inc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Проектов</span><b>'+activeProjects+'</b></div><div class="card stat"><span>Лидов</span><b>'+leadsCount+'</b></div><div class="card stat"><span>Статей</span><b>'+(db.savedArticles?db.savedArticles.length:0)+'</b></div></div><div class="card"><b> Быстрые действия</b><div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn" onclick="go(\'radar\')">🎯 Найти клиентов</button><button class="btn sec" onclick="go(\'knowledge\')"> База знаний</button><button class="btn sec" onclick="go(\'projects\')"> Проекты</button></div></div>';
 }
 
-// ===== БАЗА ЗНАНИЙ ИЗ ИНТЕРНЕТА =====
+// ===== РАДАР С РОССИЙСКИМИ БИРЖАМИ =====
+function rRadar(){
+  let h='<div class="row spread"><h2>🎯 Радар</h2></div>';
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b> АВТОПОИСК клиентов</b>';
+  h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">';
+  h+='<button class="btn ai" onclick="searchHH()" style="flex:1">🇷🇺 HH.ru</button>';
+  h+='<button class="btn warn" onclick="searchHNLeads()" style="flex:1">🔶 HN</button>';
+  h+='<button class="btn sec" onclick="searchReddit()" style="flex:1">🔴 Reddit</button>';
+  h+='</div>';
+  h+='<button class="btn" onclick="searchAllLeads()" style="width:100%;margin-top:8px">🚀 Искать ВЕЗДЕ</button></div>';
+  
+  h+='<div class="card"><b>🇷🇺 Российские биржи фриланса</b><p class="mut">Поиск по вашим навыкам: '+(db.profile.specs||[]).join(', ')+'</p>';
+  const q=encodeURIComponent((db.profile.specs||['разработчик']).join(' '));
+  h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">';
+  h+='<a href="https://freelance.habr.com/tasks?q='+q+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">Habr Freelance</a>';
+  h+='<a href="https://www.fl.ru/projects/?keyword='+q+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">FL.ru</a>';
+  h+='<a href="https://freelance.ru/projects/?search='+q+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">Freelance.ru</a>';
+  h+='<a href="https://kwork.ru/projects?keyword='+q+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">Kwork</a>';
+  h+='</div></div>';
+  
+  if(db.leads&&db.leads.length){
+    h+='<div class="card"><b> Найдено лидов: '+db.leads.length+'</b><button class="btn danger" style="margin-top:8px" onclick="clearLeads()">🗑 Очистить</button>';
+    db.leads.slice(0,10).forEach((l,idx)=>{
+      const srcClass=l.source==='hh'?'hh':l.source==='hn'?'hn':'reddit';
+      const srcName=l.source==='hh'?'🇷🇺 HH.ru':l.source==='hn'?'🔶 HN':' Reddit';
+      h+='<div class="card article-card '+srcClass+'" style="margin-top:10px"><div class="row spread"><b>'+(idx+1)+'. '+esc(l.title)+'</b><span class="chip warn">'+srcName+'</span></div>';
+      if(l.company) h+='<div class="mut"> '+esc(l.company)+'</div>';
+      if(l.salary) h+='<div class="plus"> '+esc(l.salary)+'</div>';
+      h+='<div class="row" style="margin-top:10px;gap:8px"><button class="btn sec" onclick="leadToClient('+idx+')">👥 В клиенты</button><button class="btn sec" onclick="leadOutreach('+idx+')">✍️</button><button class="btn danger" onclick="delLead('+idx+')"></button></div></div>';
+    });
+    h+='</div>';
+  }
+  
+  h+='<div class="card" style="background:#1a2035;border-color:#3a4a7a"><b>🤖 Шаблоны болей</b><button class="btn ai" onclick="generatePains()" style="width:100%">🎯 Сгенерировать</button></div>';
+  if(db.pains&&db.pains.length){db.pains.slice(0,3).forEach((p,idx)=>{h+='<div class="card"><b>'+(idx+1)+'. '+esc(p.seg)+'</b><div class="mut">'+esc(p.pain)+'</div><div class="note">💡 '+esc(p.sol)+'</div></div>';});}
+  return h;
+}
+
+async function searchHH(){toast('🇷 HH.ru...');const q=db.profile.specs[0]||'разработчик';try{const r=await fetch('https://api.hh.ru/vacancies?text='+encodeURIComponent(q)+'&per_page=5&area=1');const data=await r.json();let added=0;(data.items||[]).forEach(v=>{if(!db.leads.some(l=>l.url===v.alternate_url)){db.leads.push({id:uid(),source:'hh',title:v.name,company:v.employer?v.employer.name:'',salary:v.salary?(v.salary.from?v.salary.from+'':v.salary.to?v.salary.to+'':'')+' '+(v.salary.currency||'RUB'):'',url:v.alternate_url,date:today(),lang:'ru'});added++;}});save();render();toast('🇷🇺 +'+added);}catch(e){toast('Ошибка HH');}}
+async function searchHNLeads(){toast('🔶 HN...');try{const r=await fetch('https://hn.algolia.com/api/v1/search?query=hiring+developer&tags=story&hitsPerPage=5');const data=await r.json();let added=0;(data.hits||[]).forEach(h=>{if(!db.leads.some(l=>l.title===h.title)){db.leads.push({id:uid(),source:'hn',title:h.title,author:h.author||'',url:h.url||'https://news.ycombinator.com/item?id='+h.object_id,date:today(),lang:'en'});added++;}});save();render();toast('🔶 +'+added);}catch(e){toast('Ошибка HN');}}
+async function searchReddit(){toast('🔴 Reddit...');let added=0;try{const r=await fetch('https://www.reddit.com/r/forhire/hot.json?limit=5');const data=await r.json();(data.data?data.data.children||[]:[]).forEach(p=>{const post=p.data;if(!db.leads.some(l=>l.url==='https://reddit.com'+post.permalink)){db.leads.push({id:uid(),source:'reddit',title:post.title,company:'r/forhire',url:'https://reddit.com'+post.permalink,date:today(),lang:'en'});added++;}});save();render();toast(' +'+added);}catch(e){toast('Ошибка Reddit');}}
+async function searchAllLeads(){toast('🚀 Ищу...');await searchHH();await new Promise(r=>setTimeout(r,500));await searchHNLeads();await new Promise(r=>setTimeout(r,500));await searchReddit();toast('✅ Найдено: '+db.leads.length);}
+function leadToClient(idx){const l=db.leads[idx];if(!l)return;db.clients.push({id:uid(),name:l.company||l.title,company:l.company||'',budget:0,cur:'RUB',status:'Новый',date:today()});save();render();toast('👥 Добавлен!');}
+function leadOutreach(idx){const l=db.leads[idx];if(!l)return;const txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nУвидел ваш запрос: "'+l.title+'".\n\nБуду рад обсудить.\n\nС уважением,\n'+db.profile.name;copyText(txt);openModal('<h3>✉️ Скопировано!</h3><textarea rows="8" style="width:100%">'+esc(txt)+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>');}
+function delLead(idx){db.leads.splice(idx,1);save();render();}
+function clearLeads(){if(confirm('Удалить все лиды?')){db.leads=[];save();render();}}
+function generatePains(){let added=0;(db.profile.specs||[]).forEach(sp=>{(PAIN_DB[sp]||[]).forEach(p=>{if(!db.pains.some(x=>x.pain===p.pain)){db.pains.push({id:uid(),...p,status:'Гипотеза'});added++;}});});save();render();toast(added>0?'✅ +'+added:'⚠️ Все в базе');}
+
+// ===== БАЗА ЗНАНИЙ С РУССКИМИ ИСТОЧНИКАМИ =====
 function rKnowledge(){
   let h='<div class="row spread"><h2>📚 База знаний</h2></div>';
   
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>🌐 Поиск статей в интернете</b>';
-  h+='<p class="mut">Dev.to, GitHub, Hacker News — по вашим специализациям</p>';
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>🇷 Русскоязычные источники</b>';
   h+='<input id="searchQuery" placeholder="Поиск: react, node.js, python..." value="'+esc(db.searchQuery||'')+'" style="margin-top:10px">';
   h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">';
-  h+='<button class="btn ai" onclick="searchDevTo()" style="flex:1">📝 Dev.to</button>';
-  h+='<button class="btn warn" onclick="searchGitHub()" style="flex:1"> GitHub</button>';
-  h+='<button class="btn sec" onclick="searchHN()" style="flex:1">🔶 HN</button>';
+  h+='<button class="btn ai" onclick="searchHabr()" style="flex:1"> Habr</button>';
+  h+='<button class="btn warn" onclick="searchVC()" style="flex:1">📰 VC.ru</button>';
+  h+='<button class="btn sec" onclick="searchDevToRu()" style="flex:1">📝 Dev.to RU</button>';
   h+='</div>';
-  h+='<button class="btn" onclick="searchAllKnowledge()" style="width:100%;margin-top:8px">🚀 Искать ВЕЗДЕ</button>';
+  h+='<button class="btn" onclick="searchAllRU()" style="width:100%;margin-top:8px">🚀 Искать на РУССКОМ</button>';
+  h+='</div>';
+  
+  h+='<div class="card"><b>🌐 Англоязычные источники</b>';
+  h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">';
+  h+='<button class="btn sec" onclick="searchGitHub()" style="flex:1">🐙 GitHub</button>';
+  h+='<button class="btn sec" onclick="searchHN()" style="flex:1"> Hacker News</button>';
+  h+='</div>';
+  h+='<p class="mut" style="margin-top:8px">💡 Для английских статей есть кнопка "Перевести"</p>';
+  h+='</div>';
+  
   h+='<div class="row" style="margin-top:10px;gap:6px;flex-wrap:wrap">';
   (db.profile.specs||[]).forEach(sp=>{h+='<button class="tag" onclick="quickSearch(\''+esc(sp)+'\')">'+esc(sp)+'</button>';});
-  h+='</div></div>';
+  h+='</div>';
   
   if(db.savedArticles&&db.savedArticles.length){
-    h+='<div class="card"><b> Сохранённые статьи ('+db.savedArticles.length+')</b>';
-    h+='<button class="btn danger" style="margin-top:8px" onclick="clearSavedArticles()"> Очистить</button>';
+    h+='<div class="card"><b>📚 Сохранённые материалы ('+db.savedArticles.length+')</b>';
+    h+='<button class="btn danger" style="margin-top:8px" onclick="clearSavedArticles()">🗑 Очистить</button>';
     db.savedArticles.slice(0,20).forEach((a,idx)=>{
-      const srcClass=a.source==='devto'?'devto':a.source==='github'?'github':'hn';
-      const srcName=a.source==='devto'?'📝 Dev.to':a.source==='github'?'🐙 GitHub':' HN';
+      const srcClass=a.source==='habr'?'habr':a.source==='vc'?'vc':a.source==='devto'?'devto':a.source==='github'?'github':'hn';
+      const srcName=a.source==='habr'?'📘 Habr':a.source==='vc'?'📰 VC.ru':a.source==='devto'?'📝 Dev.to':a.source==='github'?'🐙 GitHub':'🔶 HN';
+      const langChip=a.lang==='ru'?'<span class="chip ru">RU</span>':'<span class="chip en">EN</span>';
+      const translateBtn=a.lang==='en'?'<a href="https://translate.google.com/translate?sl=en&tl=ru&u='+encodeURIComponent(a.url)+'" target="_blank" class="translate-link">🌐 Перевести</a>':'';
       h+='<div class="card article-card '+srcClass+'" style="margin-top:10px">';
-      h+='<div class="row spread"><b>'+(idx+1)+'. '+esc(a.title)+'</b><span class="chip warn">'+srcName+'</span></div>';
-      if(a.author) h+='<div class="mut"> '+esc(a.author)+'</div>';
+      h+='<div class="row spread"><b>'+(idx+1)+'. '+esc(a.title)+'</b><div>'+langChip+' <span class="chip warn">'+srcName+'</span></div></div>';
+      if(a.author) h+='<div class="mut">👤 '+esc(a.author)+'</div>';
       if(a.stats) h+='<div class="mut">'+esc(a.stats)+'</div>';
       if(a.description) h+='<div class="note" style="margin-top:8px">'+esc(a.description).substring(0,150)+'...</div>';
       h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">';
-      h+='<a href="'+esc(a.url)+'" target="_blank" class="btn sec" style="text-decoration:none"> Открыть</a>';
+      h+='<a href="'+esc(a.url)+'" target="_blank" class="btn sec" style="text-decoration:none">🔗 Открыть</a>';
+      if(translateBtn) h+=translateBtn;
       h+='<button class="btn sec" onclick="saveArticleNote('+idx+')">📝 Заметка</button>';
-      h+='<button class="btn danger" onclick="delSavedArticle('+idx+')">🗑</button>';
+      h+='<button class="btn danger" onclick="delSavedArticle('+idx+')"></button>';
       h+='</div>';
-      if(a.note) h+='<div class="note" style="margin-top:8px;background:#1a2035"><b> Моя заметка:</b><br>'+esc(a.note)+'</div>';
+      if(a.note) h+='<div class="note" style="margin-top:8px;background:#1a2035"><b>📝 Моя заметка:</b><br>'+esc(a.note)+'</div>';
       h+='</div>';
     });
     h+='</div>';
@@ -140,7 +200,7 @@ function rKnowledge(){
   db.knowledge.forEach(k=>{
     h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(k.topic)+'</b><span class="chip '+(k.status===3?'ok':'on')+'">'+['Не начато','Изучаю','Практика','Освоено'][k.status]+'</span></div>';
     h+='<div class="mut">📁 '+esc(k.dir||'—')+'</div>';
-    if(k.theory) h+='<div class="mut">📖 '+esc(k.theory).substring(0,100)+'</div>';
+    if(k.theory) h+='<div class="mut"> '+esc(k.theory).substring(0,100)+'</div>';
     h+='<div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap">';
     for(let i=0;i<4;i++){h+='<button class="btn '+(k.status===i?'ai':'sec')+'" style="padding:6px 10px;font-size:12px" onclick="setKbStatus(\''+k.id+'\','+i+')">'+['Не начато','Изучаю','Практика','Освоено'][i]+'</button>';}
     h+='<button class="btn danger" style="padding:6px 10px" onclick="delKnowledge(\''+k.id+'\')">🗑</button>';
@@ -150,20 +210,54 @@ function rKnowledge(){
   return h;
 }
 
-async function searchDevTo(){
+async function searchHabr(){
   const q=db.searchQuery||db.profile.specs[0]||'javascript';
-  toast(' Ищу на Dev.to...');
+  toast('📘 Ищу на Habr...');
   try{
-    const r=await fetch('https://dev.to/api/articles?tag='+encodeURIComponent(q)+'&per_page=10&top=1');
+    const r=await fetch('https://habr.com/api/v1/articles/?q='+encodeURIComponent(q)+'&page=1&per_page=10');
+    const data=await r.json();
+    let added=0;
+    (data.items||[]).forEach(a=>{
+      if(!db.savedArticles.some(x=>x.url===a.link)){
+        db.savedArticles.push({id:uid(),source:'habr',title:a.title,author:a.author?a.author.login:'',url:'https://habr.com'+a.link,description:a.summary||'',stats:'👁 '+a.stats.views_count+'  '+a.stats.comments_count,date:today(),lang:'ru'});
+        added++;
+      }
+    });
+    save();render();toast('📘 Habr: +'+added+' статей');
+  }catch(e){toast('Ошибка Habr (возможно CORS)');}
+}
+
+async function searchVC(){
+  const q=db.searchQuery||db.profile.specs[0]||'разработка';
+  toast('📰 Ищу на VC.ru...');
+  try{
+    const r=await fetch('https://vc.ru/api/search?q='+encodeURIComponent(q)+'&type=post');
+    const data=await r.json();
+    let added=0;
+    (data.items||[]).forEach(a=>{
+      if(!db.savedArticles.some(x=>x.url===a.url)){
+        db.savedArticles.push({id:uid(),source:'vc',title:a.title,author:a.author_name||'',url:a.url,description:a.description||'',stats:'👁 '+a.views_count,date:today(),lang:'ru'});
+        added++;
+      }
+    });
+    save();render();toast('📰 VC.ru: +'+added+' статей');
+  }catch(e){toast('Ошибка VC.ru');}
+}
+
+async function searchDevToRu(){
+  const q=db.searchQuery||db.profile.specs[0]||'javascript';
+  toast('📝 Ищу Dev.to (RU теги)...');
+  try{
+    const r=await fetch('https://dev.to/api/articles?tag='+encodeURIComponent(q)+'&per_page=10');
     const data=await r.json();
     let added=0;
     (data||[]).forEach(a=>{
       if(!db.savedArticles.some(x=>x.url===a.url)){
-        db.savedArticles.push({id:uid(),source:'devto',title:a.title,author:a.user?a.user.name:'',url:a.url,description:a.description||'',stats:'❤️ '+a.positive_reactions_count+' 💬 '+a.comments_count,date:today()});
+        db.savedArticles.push({id:uid(),source:'devto',title:a.title,author:a.user?a.user.name:'',url:a.url,description:a.description||'',stats:'❤️ '+a.positive_reactions_count+' 💬 '+a.comments_count,date:today(),lang:'en'});
         added++;
       }
     });
-    save();render();toast('📝 Dev.to: +'+added+' статей');
+    save();render();toast(' Dev.to: +'+added+' статей');
   }catch(e){toast('Ошибка Dev.to');}
 }
 
@@ -176,7 +270,7 @@ async function searchGitHub(){
     let added=0;
     (data.items||[]).forEach(repo=>{
       if(!db.savedArticles.some(x=>x.url===repo.html_url)){
-        db.savedArticles.push({id:uid(),source:'github',title:repo.full_name,author:repo.owner?repo.owner.login:'',url:repo.html_url,description:repo.description||'',stats:'⭐ '+repo.stargazers_count+' 🍴 '+repo.forks_count,date:today()});
+        db.savedArticles.push({id:uid(),source:'github',title:repo.full_name,author:repo.owner?repo.owner.login:'',url:repo.html_url,description:repo.description||'',stats:'⭐ '+repo.stargazers_count+'  '+repo.forks_count,date:today(),lang:'en'});
         added++;
       }
     });
@@ -194,7 +288,7 @@ async function searchHN(){
     (data.hits||[]).forEach(h=>{
       const url=h.url||'https://news.ycombinator.com/item?id='+h.object_id;
       if(!db.savedArticles.some(x=>x.url===url)){
-        db.savedArticles.push({id:uid(),source:'hn',title:h.title,author:h.author||'',url:url,description:'',stats:'🔺 '+h.points+' 💬 '+h.num_comments,date:today()});
+        db.savedArticles.push({id:uid(),source:'hn',title:h.title,author:h.author||'',url:url,description:'',stats:' '+h.points+' 💬 '+h.num_comments,date:today(),lang:'en'});
         added++;
       }
     });
@@ -202,18 +296,18 @@ async function searchHN(){
   }catch(e){toast('Ошибка HN');}
 }
 
-async function searchAllKnowledge(){
+async function searchAllRU(){
   db.searchQuery=document.getElementById('searchQuery').value.trim()||db.profile.specs[0]||'javascript';
-  toast(' Ищу везде...');
-  await searchDevTo();
+  toast('🚀 Ищу на русском...');
+  await searchHabr();
   await new Promise(r=>setTimeout(r,500));
-  await searchGitHub();
+  await searchVC();
   await new Promise(r=>setTimeout(r,500));
-  await searchHN();
+  await searchDevToRu();
   toast('✅ Найдено: '+(db.savedArticles?db.savedArticles.length:0)+' материалов');
 }
 
-function quickSearch(q){db.searchQuery=q;document.getElementById('searchQuery').value=q;searchAllKnowledge();}
+function quickSearch(q){db.searchQuery=q;document.getElementById('searchQuery').value=q;searchAllRU();}
 function delSavedArticle(idx){db.savedArticles.splice(idx,1);save();render();}
 function clearSavedArticles(){if(confirm('Удалить все сохранённые статьи?')){db.savedArticles=[];save();render();}}
 function saveArticleNote(idx){const note=prompt('Ваша заметка к статье:');if(note!==null){db.savedArticles[idx].note=note;save();render();toast('Заметка сохранена');}}
@@ -223,30 +317,13 @@ function saveKnowledge(){const topic=document.getElementById('kb_topic').value.t
 function setKbStatus(id,status){const k=db.knowledge.find(x=>x.id===id);if(k){k.status=status;save();render();}}
 function delKnowledge(id){if(confirm('Удалить?')){db.knowledge=db.knowledge.filter(k=>k.id!==id);save();render();}}
 
-// ===== РАДАР =====
-function rRadar(){
-  let h='<div class="row spread"><h2>🎯 Радар</h2></div>';
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b> АВТОПОИСК</b><div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn ai" onclick="searchHH()" style="flex:1">🇷🇺 HH.ru</button><button class="btn warn" onclick="searchHNLeads()" style="flex:1">🔶 HN</button><button class="btn sec" onclick="searchReddit()" style="flex:1">🔴 Reddit</button></div><button class="btn" onclick="searchAllLeads()" style="width:100%;margin-top:8px">🚀 Искать ВЕЗДЕ</button></div>';
-  if(db.leads&&db.leads.length){h+='<div class="card"><b>🎯 Лиды: '+db.leads.length+'</b>';db.leads.slice(0,5).forEach((l,idx)=>{h+='<div class="card" style="margin-top:10px"><b>'+(idx+1)+'. '+esc(l.title)+'</b><div class="mut">'+esc(l.company||'')+'</div><div class="row" style="margin-top:10px;gap:8px"><button class="btn sec" onclick="leadToClient('+idx+')">👥</button><button class="btn danger" onclick="delLead('+idx+')">🗑</button></div></div>';});h+='</div>';}
-  h+='<div class="card" style="background:#1a2035;border-color:#3a4a7a"><b> Шаблоны болей</b><button class="btn ai" onclick="generatePains()" style="width:100%">🎯 Сгенерировать</button></div>';
-  if(db.pains&&db.pains.length){db.pains.slice(0,3).forEach((p,idx)=>{h+='<div class="card"><b>'+(idx+1)+'. '+esc(p.seg)+'</b><div class="mut">'+esc(p.pain)+'</div><div class="note">💡 '+esc(p.sol)+'</div></div>';});}
-  return h;
-}
-async function searchHH(){toast('🇷🇺 HH.ru...');const q=db.profile.specs[0]||'разработчик';try{const r=await fetch('https://api.hh.ru/vacancies?text='+encodeURIComponent(q)+'&per_page=5');const data=await r.json();let added=0;(data.items||[]).forEach(v=>{if(!db.leads.some(l=>l.url===v.alternate_url)){db.leads.push({id:uid(),source:'hh',title:v.name,company:v.employer?v.employer.name:'',url:v.alternate_url,date:today()});added++;}});save();render();toast('🇷🇺 +'+added);}catch(e){toast('Ошибка HH');}}
-async function searchHNLeads(){toast('🔶 HN...');try{const r=await fetch('https://hn.algolia.com/api/v1/search?query=hiring+developer&tags=story&hitsPerPage=5');const data=await r.json();let added=0;(data.hits||[]).forEach(h=>{if(!db.leads.some(l=>l.title===h.title)){db.leads.push({id:uid(),source:'hn',title:h.title,author:h.author||'',url:h.url||'https://news.ycombinator.com/item?id='+h.object_id,date:today()});added++;}});save();render();toast('🔶 +'+added);}catch(e){toast('Ошибка HN');}}
-async function searchReddit(){toast('🔴 Reddit...');let added=0;try{const r=await fetch('https://www.reddit.com/r/forhire/hot.json?limit=5');const data=await r.json();(data.data?data.data.children||[]:[]).forEach(p=>{const post=p.data;if(!db.leads.some(l=>l.url==='https://reddit.com'+post.permalink)){db.leads.push({id:uid(),source:'reddit',title:post.title,company:'r/forhire',url:'https://reddit.com'+post.permalink,date:today()});added++;}});save();render();toast('🔴 +'+added);}catch(e){toast('Ошибка Reddit');}}
-async function searchAllLeads(){toast('🚀 Ищу...');await searchHH();await new Promise(r=>setTimeout(r,500));await searchHNLeads();await new Promise(r=>setTimeout(r,500));await searchReddit();toast('✅ Найдено: '+db.leads.length);}
-function leadToClient(idx){const l=db.leads[idx];if(!l)return;db.clients.push({id:uid(),name:l.company||l.title,company:l.company||'',budget:0,cur:'RUB',status:'Новый',date:today()});save();render();toast('👥 Добавлен!');}
-function delLead(idx){db.leads.splice(idx,1);save();render();}
-function generatePains(){let added=0;(db.profile.specs||[]).forEach(sp=>{(PAIN_DB[sp]||[]).forEach(p=>{if(!db.pains.some(x=>x.pain===p.pain)){db.pains.push({id:uid(),...p,status:'Гипотеза'});added++;}});});save();render();toast(added>0?'✅ +'+added:'⚠️ Все в базе');}
-
-// ===== ОСТАЛЬНЫЕ ВКЛАДКИ (сокращённо) =====
-function rClients(){let h='<div class="row spread"><h2>👥 Клиенты</h2><button class="btn" onclick="addClient()">+ Лид</button></div>';db.clients.forEach(c=>{h+='<div class="card"><div class="row spread"><b>'+esc(c.name)+'</b><span class="chip on">'+c.status+'</span></div><div class="mut">'+esc(c.company)+' · '+c.budget+' '+c.cur+'</div></div>';});return h;}
+// ===== ОСТАЛЬНЫЕ ВКЛАДКИ =====
+function rClients(){let h='<div class="row spread"><h2> Клиенты</h2><button class="btn" onclick="addClient()">+ Лид</button></div>';db.clients.forEach(c=>{h+='<div class="card"><div class="row spread"><b>'+esc(c.name)+'</b><span class="chip on">'+c.status+'</span></div><div class="mut">'+esc(c.company)+' · '+c.budget+' '+c.cur+'</div></div>';});return h;}
 function addClient(){const n=prompt('Имя:');if(!n)return;db.clients.push({id:uid(),name:n,company:prompt('Компания:')||'',budget:+prompt('Бюджет:')||0,cur:'RUB',status:'Новый',date:today()});save();render();}
 function rProjects(){let h='<div class="row spread"><h2>📁 Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button></div>';db.projects.forEach(p=>{h+='<div class="card"><div class="row spread"><b>'+esc(p.name)+'</b><span class="chip on">'+STAGES[p.stage]+'</span></div><div class="mut">'+esc(p.client||'—')+' · '+p.budget+' '+p.cur+'</div></div>';});return h;}
 function addProject(){const n=prompt('Название:');if(!n)return;db.projects.push({id:uid(),name:n,client:prompt('Клиент:')||'',budget:+prompt('Бюджет:')||0,cur:'RUB',stage:0,date:today()});save();render();}
 function rCalendar(){return '<div class="row spread"><h2>📅 Календарь</h2></div><div class="card mut">Календарь дедлайнов</div>';}
-function rDiary(){let h='<div class="row spread"><h2> Дневник</h2><button class="btn" onclick="addDiary()">+ Запись</button></div>';db.diary.slice().reverse().slice(0,10).forEach(e=>{h+='<div class="note" style="margin-top:8px"><b>'+e.date+' '+e.time+'</b><div>'+esc(e.text)+'</div></div>';});return h;}
+function rDiary(){let h='<div class="row spread"><h2>📝 Дневник</h2><button class="btn" onclick="addDiary()">+ Запись</button></div>';db.diary.slice().reverse().slice(0,10).forEach(e=>{h+='<div class="note" style="margin-top:8px"><b>'+e.date+' '+e.time+'</b><div>'+esc(e.text)+'</div></div>';});return h;}
 function addDiary(){const text=prompt('Что сделали?');if(!text)return;db.diary.push({id:uid(),date:today(),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),text:text});save();render();}
 function rHabits(){let h='<div class="row spread"><h2>✅ Привычки</h2><button class="btn" onclick="addHabit()">+ Привычка</button></div>';const todayStr=today();db.habits.forEach(hab=>{const done=hab.history&&hab.history[todayStr];h+='<div class="card row spread"><div class="row" style="gap:10px"><span style="font-size:24px">'+hab.icon+'</span><span>'+esc(hab.name)+'</span></div><button class="btn '+(done?'ok':'sec')+'" onclick="toggleHabit(\''+hab.id+'\')">'+(done?'✓':'Отметить')+'</button></div>';});return h;}
 function addHabit(){const name=prompt('Название:');if(!name)return;db.habits.push({id:uid(),name:name,icon:'✅',streak:0,history:{}});save();render();}
@@ -261,7 +338,7 @@ function resetT(){clearInterval(tInt);tInt=null;const el=document.getElementById
 function setTimerMode(i){db.timerMode=i;save();render();}
 function rGrowth(){let h='<div class="row spread"><h2> Рост</h2></div><div class="card"><b>💪 Навыки</b>';db.skills.forEach(s=>{h+='<div style="margin:10px 0"><div class="row spread"><span>'+esc(s.n)+'</span><span class="mut">'+['Новичок','Базово','Уверенно','Профи','Эксперт'][s.l-1]+'</span></div><div class="bar"><i style="width:'+(s.l*20)+'%"></i></div></div>';});h+='</div>';return h;}
 function rSettings(){return '<div class="row spread"><h2>⚙️ Настройки</h2></div><div class="card"><b>👤 Профиль</b><label>Имя</label><input value="'+esc(db.profile.name)+'" onchange="db.profile.name=this.value;save()"><label>Специализация</label><input value="'+esc(db.profile.spec)+'" onchange="db.profile.spec=this.value;save()"></div><div class="card"><b>🎨 Тема</b><button class="btn sec" onclick="document.body.classList.toggle(\'light-theme\');localStorage.setItem(\'theme\',document.body.classList.contains(\'light-theme\')?\'light\':\'dark\')" style="width:100%">🌓 Переключить тему</button></div><div class="card"><b>🔄 Сброс</b><button class="btn danger" onclick="hardReset()" style="width:100%">🔄 Сбросить кэш</button></div>';}
-function hardReset(){if(confirm("⚠️ Удалить кэш?")){if("serviceWorker"in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if("caches"in window)caches.keys().then(n=>n.forEach(k=>caches.delete(k)));window.location.href=window.location.pathname+"?v="+Date.now();}}
+function hardReset(){if(confirm("️ Удалить кэш?")){if("serviceWorker"in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if("caches"in window)caches.keys().then(n=>n.forEach(k=>caches.delete(k)));window.location.href=window.location.pathname+"?v="+Date.now();}}
 
 function render(){
   document.getElementById('date').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
