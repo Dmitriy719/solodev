@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0e1116">
-<title>SoloDev v1.2</title>
+<title>SoloDev v1.3</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -57,7 +57,7 @@ body.light-theme .btn.sec { color: #212529; }
 <body>
 <div id="splash"><div class="logo">⚡</div><h1>SoloDev</h1><p class="mut">Загрузка...</p><div class="loader"><div class="loader-bar"></div></div></div>
 
-<header><b>⚡ SoloDev v1.2</b><span id="date"></span></header>
+<header><b>⚡ SoloDev v1.3</b><span id="date"></span></header>
 
 <main id="app"></main>
 
@@ -194,6 +194,9 @@ function render(){
       </div>`;
       break;
       
+    case 'radar':
+      app.innerHTML = rPains();
+      break;
     case 'clients':
       app.innerHTML=`<div class="row spread"><h2>👥 Клиенты</h2><button class="btn" onclick="addClient()">+ Лид</button></div>
       ${db.clients.map(c=>`<div class="card">
@@ -467,13 +470,20 @@ function exportToCSV(){
 function generateColdOutreach(pain, solution, seg){
   const name = db.profile.name || 'Дмитрий';
   const spec = db.profile.spec || 'разработчик';
-  const text = `Здравствуйте!\n\nМеня зовут ${name}, я ${spec}.\n\nЯ вижу, что для сегмента "${seg}" актуальна проблема: "${pain}".\nЯ как раз специализируюсь на решении таких задач: ${solution}.\n\nБуду рад обсудить, как мы можем это реализовать для вашего проекта. Найдётся 5 минут на этой неделе?\n\nС уважением,\n${name}`;
+  const text = 'Здравствуйте!\\n\\nМеня зовут ' + name + ', я ' + spec + '.\\n\\nЯ вижу, что для сегмента "' + seg + '" актуальна проблема: "' + pain + '".\\nЯ как раз специализируюсь на решении таких задач: ' + solution + '.\\n\\nБуду рад обсудить, как мы можем это реализовать для вашего проекта. Найдётся 5 минут на этой неделе?\\n\\nС уважением,\\n' + name;
   
-  navigator.clipboard.writeText(text).then(() => {
-    toast('✉️ Текст письма скопирован! Вставьте в Telegram/Почту.');
-  }).catch(() => {
-    openModal(`<h3>Готовое письмо для клиента</h3><textarea id="outreachText" rows="10" style="width:100%;font-size:14px">${text.replace(/</g, '&lt;')}</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.getElementById('outreachText').value);closeModal()">📋 Копировать текст</button>`);
-  });
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(() => {
+      toast('✉️ Текст письма скопирован! Откройте Telegram и вставьте.');
+    }).catch(() => {
+      showOutreachModal(text);
+    });
+  } else {
+    showOutreachModal(text);
+  }
+}
+function showOutreachModal(text){
+  openModal('<h3>✉️ Готовое письмо для клиента</h3><textarea id="outreachText" rows="12" style="width:100%;font-size:14px;font-family:monospace">' + text.replace(/</g, '&lt;') + '</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.getElementById(\'outreachText\').value);closeModal()">📋 Копировать текст</button>');
 }
 
 </script>
