@@ -110,13 +110,24 @@ function renderRadar(){
   h+='<div class="grid"><div style="text-align:center"><div class="mut">Шаблонов проектов</div><div class="big-number">'+db.templates.length+'</div></div><div style="text-align:center"><div class="mut">Источников поиска</div><div class="big-number">'+db.sources.length+'</div></div></div></div>';
   h+='<div class="card"><h3 style="margin-top:0"> Автопополнение из HH.ru</h3>';
   h+='<p class="mut">Автоматически ищет свежие вакансии по вашим навыкам</p>';
-  h+='<button class="btn ai" onclick="autoSearchHH()">🇷🇺 Найти вакансии на HH.ru</button>';
+  h+='<button class="btn ai" onclick="autoSearchHH()">🇷🇺 Найти все ('+db.profile.specs.join(', ')+')</button>';
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">';
+  db.profile.specs.forEach(function(spec){
+    h+='<button class="btn small" style="background:#1f2530" onclick="searchHHBySpec(\''+spec+'\')">🔍 '+spec+'</button>';
+  });
+  h+='</div>';
   if(db.autoLeads.length){
     h+='<div class="mut" style="margin-top:10px">Найдено сегодня: <b>'+db.autoLeads.length+'</b> вакансий</div>';
-    db.autoLeads.slice(0,5).forEach(function(l,idx){
-      h+='<div class="card" style="margin-top:8px;border-left:3px solid #d6001c;padding-left:12px"><b>'+esc(l.title)+'</b><div class="mut">'+esc(l.company||'')+'</div>';
-      if(l.salary)h+='<div style="color:#3ecf8e;font-size:13px">💰 '+esc(l.salary)+'</div>';
-      h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn small" onclick="leadToClient(\'auto\','+idx+')">👥 В клиенты</button><button class="btn small" style="background:#1f2530" onclick="leadOutreach(\'auto\','+idx+')">✍️ Написать</button></div></div>';
+    var bySpec={};db.autoLeads.forEach(function(l){if(!bySpec[l.spec])bySpec[l.spec]=[];bySpec[l.spec].push(l)});
+    Object.keys(bySpec).forEach(function(spec){
+      h+='<div style="margin-top:15px"><b style="color:#6c8cff;font-size:16px">'+spec+' ('+bySpec[spec].length+' вакансий)</b>';
+      bySpec[spec].forEach(function(l){
+        var globalIdx=db.autoLeads.indexOf(l);
+        h+='<div class="card" style="margin-top:8px;border-left:3px solid #d6001c;padding-left:12px"><b>'+esc(l.title)+'</b><div class="mut">'+esc(l.company||'')+'</div>';
+        if(l.salary)h+='<div style="color:#3ecf8e;font-size:13px">💰 '+esc(l.salary)+'</div>';
+        h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn small" onclick="leadToClient(\'auto\','+globalIdx+')">👥 В клиенты</button><button class="btn small" style="background:#1f2530" onclick="leadOutreach(\'auto\','+globalIdx+')">✍️ Написать</button></div></div>';
+      });
+      h+='</div>';
     });
   }
   h+='<div style="margin-top:10px"><a href="https://www.hh.ru/search/vacancy?text='+encodeURIComponent((db.profile.specs||['разработчик']).join(' '))+'" target="_blank" class="btn small" style="text-decoration:none">🔗 Открыть HH.ru напрямую</a></div>';
@@ -188,17 +199,34 @@ function genOutreach(seg,pain,sol,time,cost){
   navigator.clipboard.writeText(txt).then(function(){alert('✉️ Письмо скопировано!')});
 }
 var hhSearchStatus='';
+function searchHHBySpec(spec){
+  db.autoLeads=[];hhSearchStatus='⏳ Ищу '+spec+'...';renderRadar();
+  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+  var hhUrl='https://api.hh.ru/vacancies?text='+encodeURIComponent(spec)+'&per_page=30&area=1';
+  var found=0;
+  function tryProxy(idx){
+    if(idx>=proxies.length){hhSearchStatus=' Не удалось загрузить '+spec;renderRadar();return Promise.resolve()}
+    return fetch(proxies[idx]+encodeURIComponent(hhUrl)).then(function(r){if(!r.ok)throw new Error('fail');return r.json()}).then(function(data){
+      (data.items||[]).forEach(function(v){
+        var salary='';if(v.salary){if(v.salary.from)salary+=v.salary.from+' ';else if(v.salary.to)salary+=v.salary.to+' ';salary+=(v.salary.currency||'RUB')}
+        db.autoLeads.push({id:uid(),spec:spec,title:v.name,company:v.employer?v.employer.name:'',salary:salary,url:v.alternate_url,date:today()});found++;
+      });
+      hhSearchStatus='✅ '+spec+': найдено '+found+' вакансий';
+    }).catch(function(){return tryProxy(idx+1)});
+  }
+  tryProxy(0).then(function(){save();renderRadar()});
+}
 function autoSearchHH(){
   var specs=db.profile.specs||['разработчик'];var found=0;db.autoLeads=[];hhSearchStatus='⏳ Поиск...';renderRadar();
   var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url=','https://cors-anywhere.herokuapp.com/'];
   var promises=specs.map(function(q){
-    var hhUrl='https://api.hh.ru/vacancies?text='+encodeURIComponent(q)+'&per_page=10&area=1';
+    var hhUrl='https://api.hh.ru/vacancies?text='+encodeURIComponent(q)+'&per_page=30&area=1';
     function tryProxy(idx){
       if(idx>=proxies.length){hhSearchStatus='❌ HH.ru недоступен. Используйте прямые ссылки ниже.';return Promise.resolve()}
       return fetch(proxies[idx]+encodeURIComponent(hhUrl)).then(function(r){if(!r.ok)throw new Error('fail');return r.json()}).then(function(data){
         (data.items||[]).forEach(function(v){
           var salary='';if(v.salary){if(v.salary.from)salary+=v.salary.from+' ';else if(v.salary.to)salary+=v.salary.to+' ';salary+=(v.salary.currency||'RUB')}
-          db.autoLeads.push({id:uid(),title:v.name,company:v.employer?v.employer.name:'',salary:salary,url:v.alternate_url,date:today()});found++;
+          db.autoLeads.push({id:uid(),spec:q,title:v.name,company:v.employer?v.employer.name:'',salary:salary,url:v.alternate_url,date:today()});found++;
         });
         hhSearchStatus='✅ Найдено '+found+' вакансий';
       }).catch(function(){return tryProxy(idx+1)});
