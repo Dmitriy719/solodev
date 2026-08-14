@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v3.1</title>
+<title>SoloDev v3.2</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -37,11 +37,16 @@ input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:30}
 #modal.on{display:flex}.m-card{background:var(--card);width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px}
 .bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+
+.chart-bar{display:flex;align-items:flex-end;gap:4px;height:100px;margin-top:10px}
+.chart-col{flex:1;background:var(--card2);border-radius:4px 4px 0 0;position:relative;min-height:4px}
+.chart-col i{position:absolute;bottom:0;left:0;right:0;background:var(--acc);border-radius:4px 4px 0 0}
+.chart-label{font-size:10px;color:var(--mut);text-align:center;margin-top:4px}
 </style>
 </head>
 <body>
-<div id="splash"><h1 style="font-size:48px;margin-bottom:20px">⚡</h1><h1>SoloDev v3.1</h1><p class="mut">Загрузка...</p></div>
-<header><b>⚡ SoloDev v3.1</b><span id="date"></span></header>
+<div id="splash"><h1 style="font-size:48px;margin-bottom:20px">⚡</h1><h1>SoloDev v3.2</h1><p class="mut">Загрузка...</p></div>
+<header><b>⚡ SoloDev v3.2</b><span id="date"></span></header>
 <main id="app"></main>
 <nav id="nav"></nav><div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
 
