@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v3.3</title>
+<title>SoloDev v3.4</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -12,7 +12,6 @@
 body{background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,sans-serif;padding-bottom:80px}
 header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;z-index:10}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;gap:4px;padding:8px;overflow-x:auto;z-index:20}
-nav::-webkit-scrollbar{display:none}
 .nav-btn{flex:1;min-width:60px;background:var(--card2);border:none;border-radius:10px;padding:8px 4px;color:var(--mut);font-size:11px;cursor:pointer}
 .nav-btn.active{background:var(--acc);color:#fff}
 .nav-btn small{display:block;margin-top:2px;font-size:10px}
@@ -27,196 +26,176 @@ h2{font-size:18px;margin:4px 0 12px}
 .btn{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer}
 .btn.sec{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
 .btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.btn.ai{background:linear-gradient(90deg,var(--acc),#9d6cff)}
 input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px;margin:4px 0 10px}
 .chip{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:6px 12px;font-size:12px}
 .chip.on{background:var(--acc);color:#fff}
 #splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
 #splash.hidden{display:none}
-.error-box{position:fixed;inset:0;background:#200;color:#f88;padding:20px;font-family:monospace;z-index:200;overflow:auto}
-
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#fff;color:#000;padding:10px 18px;border-radius:24px;font-size:14px;z-index:50}
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:30}
 #modal.on{display:flex}.m-card{background:var(--card);width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px}
-.bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
-
 .chart-bar{display:flex;align-items:flex-end;gap:4px;height:100px;margin-top:10px}
 .chart-col{flex:1;background:var(--card2);border-radius:4px 4px 0 0;position:relative;min-height:4px}
 .chart-col i{position:absolute;bottom:0;left:0;right:0;background:var(--acc);border-radius:4px 4px 0 0}
 .chart-label{font-size:10px;color:var(--mut);text-align:center;margin-top:4px}
-
-.article-card{border-left:3px solid var(--acc);padding-left:12px;margin:10px 0}
+.bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
 </style>
 </head>
 <body>
-<div id="splash"><h1 style="font-size:48px;margin-bottom:20px">⚡</h1><h1>SoloDev v3.3</h1><p class="mut">Загрузка...</p></div>
-<header><b>⚡ SoloDev v3.3</b><span id="date"></span></header>
+<div id="splash"><h1 style="font-size:48px">⚡</h1><h1>SoloDev v3.4</h1><p class="mut">Загрузка...</p></div>
+<header><b>⚡ SoloDev v3.4</b><span id="date"></span></header>
 <main id="app"></main>
-<nav id="nav"></nav><div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
-
+<nav id="nav"></nav>
+<div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
 <script>
-// Перехват ошибок, чтобы приложение не зависало молча
-window.onerror = function(msg, url, line) {
-    document.getElementById('splash').classList.add('hidden');
-    document.body.innerHTML = '<div class="error-box"><h2>⚠️ Ошибка в коде:</h2><p>' + msg + '</p><p>Строка: ' + line + '</p><button class="btn" onclick="location.reload()">Перезагрузить</button></div>';
-    return true;
-};
+const KEY='solodev_v4';
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const today=()=>new Date().toISOString().slice(0,10);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-const KEY = 'solodev_v3';
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-const today = () => new Date().toISOString().slice(0, 10);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function seed(){return{profile:{name:'Дмитрий',spec:'Разработчик',specs:['Фронтенд','Бэкенд']},clients:[{id:uid(),name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:uid(),name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:uid(),text:'Сверстать главную',done:false}]}],finances:[{id:uid(),date:today(),type:'in',amt:30000,cat:'Проект'}],savedArticles:[],knowledge:[],courses:[],searchQuery:''}}
+let db=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||seed()}catch(e){return seed()}})();
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 
-function seed() {
-    return {
-        profile: { name: 'Дмитрий', spec: 'Fullstack разработчик' },
-        clients: [{ id: uid(), name: 'Алексей', company: 'TechStart', budget: 45000, status: 'В работе' }],
-        projects: [{ id: uid(), name: 'Интернет-магазин', client: 'Алексей', budget: 45000, stage: 'В работе', tasks: [] }],
-        finances: [{ id: uid(), date: today(), type: 'in', amt: 30000, cat: 'Проект' }]
-    };
-}
+const TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'',label:'Дашборд'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'projects',icon:'📁',label:'Проекты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'knowledge',icon:'📚',label:'База'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+let tab='home';
 
-let db;
-try {
-    const loaded = localStorage.getItem(KEY);
-    db = loaded ? JSON.parse(loaded) : seed();
-} catch (e) {
-    db = seed();
+function renderNav(){document.getElementById('nav').innerHTML=TABS.map(t=>'<button class="nav-btn '+(t.id===tab?'active':'')+'" onclick="go(\\''+t.id+'\\')">'+t.icon+'<br><small>'+t.label+'</small></button>').join('');}
+function go(id){tab=id;renderNav();render();}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2000);}
+function openModal(h){document.getElementById('mcard').innerHTML=h;document.getElementById('modal').classList.add('on')}
+function closeModal(){document.getElementById('modal').classList.remove('on')}
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('Скопировано!')).catch(()=>toast('Ошибка копирования'))}
+
+function rHome(){
+  const inc=db.finances.filter(f=>f.type==='in').reduce((s,f)=>s+f.amt,0);
+  return '<div class="note" style="background:linear-gradient(135deg,var(--acc),#9d6cff);color:#fff;padding:20px;margin-bottom:20px"><div style="font-size:24px">Привет, '+esc(db.profile.name)+'! 👋</div><div style="opacity:.9">'+esc(db.profile.spec)+'</div></div><div class="grid"><div class="card stat"><span>Доход</span><b class="plus">'+inc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Клиентов</span><b>'+db.clients.length+'</b></div><div class="card stat"><span>Проектов</span><b>'+db.projects.length+'</b></div><div class="card stat"><span>Финансов</span><b>'+db.finances.length+'</b></div></div>';
 }
 
-function save() { localStorage.setItem(KEY, JSON.stringify(db)); }
-
-const TABS = [
-    { id: 'home', icon: '🏠', label: 'Главная' },
-    { id: 'clients', icon: '👥', label: 'Клиенты' },
-    { id: 'projects', icon: '📁', label: 'Проекты' },
-    { id: 'finances', icon: '💰', label: 'Финансы' },
-    { id: 'settings', icon: '⚙️', label: 'Настройки' }
-];
-let tab = 'home';
-
-function renderNav() {
-    document.getElementById('nav').innerHTML = TABS.map(t => 
-        '<button class="nav-btn ' + (t.id === tab ? 'active' : '') + '" onclick="go(\'' + t.id + '\')">' + t.icon + '<br><small>' + t.label + '</small></button>'
-    ).join('');
+function rDashboard(){
+  const m=today().slice(0,7);
+  const monthFin=db.finances.filter(f=>f.date&&f.date.startsWith(m));
+  const monthInc=monthFin.filter(f=>f.type==='in').reduce((s,f)=>s+f.amt,0);
+  const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
+  const weekStr=weekAgo.toISOString().slice(0,10);
+  const weekFin=db.finances.filter(f=>f.date&&f.date>=weekStr);
+  const weekInc=weekFin.filter(f=>f.type==='in').reduce((s,f)=>s+f.amt,0);
+  const completedProjects=db.projects.filter(p=>p.stage===3).length;
+  const totalTasks=db.projects.reduce((s,p)=>s+(p.tasks?p.tasks.length:0),0);
+  const doneTasks=db.projects.reduce((s,p)=>s+(p.tasks?p.tasks.filter(t=>t.done).length:0),0);
+  const weekData=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().slice(0,10);const dayInc=db.finances.filter(f=>f.date===ds&&f.type==='in').reduce((s,f)=>s+f.amt,0);weekData.push({day:d.getDate(),inc:dayInc});}
+  const maxInc=Math.max(...weekData.map(d=>d.inc),1);
+  const daysInMonth=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
+  const currentDay=new Date().getDate();
+  const forecast=currentDay>0?Math.round(monthInc/currentDay*daysInMonth):0;
+  let h='<div class="row spread"><h2>📊 Дашборд</h2></div>';
+  h+='<div class="grid"><div class="card stat"><span>Доход за неделю</span><b class="plus">'+weekInc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Доход за месяц</span><b class="plus">'+monthInc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Проектов завершено</span><b>'+completedProjects+'</b></div><div class="card stat"><span>Задач выполнено</span><b>'+doneTasks+'/'+totalTasks+'</b></div></div>';
+  h+='<div class="card"><b>📈 Доходы за 7 дней</b><div class="chart-bar">';
+  weekData.forEach(d=>{const hPct=(d.inc/maxInc)*100;h+='<div style="flex:1;text-align:center"><div class="chart-col" style="height:100px"><i style="height:'+hPct+'%"></i></div><div class="chart-label">'+d.day+'</div></div>';});
+  h+='</div></div>';
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>💰 Прогноз дохода на месяц</b><div style="font-size:32px;text-align:center;margin:10px 0;color:var(--ok)"><b>'+forecast.toLocaleString()+' ₽</b></div><div class="mut" style="text-align:center">На основе текущей динамики</div></div>';
+  return h;
 }
 
-function go(id) { tab = id; renderNav(); render(); window.scrollTo(0, 0); }
-function toast(msg) { 
-    const t = document.createElement('div'); 
-    t.style.cssText = 'position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#fff;color:#000;padding:10px 18px;border-radius:24px;font-size:14px;z-index:50';
-    t.textContent = msg; 
-    document.body.appendChild(t); 
-    setTimeout(() => t.remove(), 2000); 
+function rClients(){
+  let h='<div class="row spread"><h2>👥 Клиенты</h2><button class="btn" onclick="addClient()">+ Клиент</button></div>';
+  db.clients.forEach(c=>{h+='<div class="card"><div class="row spread"><b>'+esc(c.name)+'</b><span class="chip on">'+c.status+'</span></div><div class="mut">'+esc(c.company)+' · '+c.budget+' ₽</div><button class="btn danger" onclick="delClient(\\''+c.id+'\\')">🗑 Удалить</button></div>';});
+  return h;
 }
+function addClient(){const n=prompt('Имя:');if(!n)return;db.clients.push({id:uid(),name:n,company:prompt('Компания:')||'',budget:+prompt('Бюджет:')||0,status:'Новый'});save();render();}
+function delClient(id){db.clients=db.clients.filter(c=>c.id!==id);save();render();}
 
-function rHome() {
-    const inc = db.finances.filter(f => f.type === 'in').reduce((s, f) => s + f.amt, 0);
-    return '<div class="note" style="background:linear-gradient(135deg,var(--acc),#9d6cff);color:#fff;padding:20px;margin-bottom:20px"><div style="font-size:24px">Привет, ' + esc(db.profile.name) + '! 👋</div><div style="opacity:.9">' + esc(db.profile.spec) + '</div></div>' +
-    '<div class="grid">' +
-    '<div class="card stat"><span>Доход</span><b class="plus">' + inc.toLocaleString() + ' ₽</b></div>' +
-    '<div class="card stat"><span>Клиентов</span><b>' + db.clients.length + '</b></div>' +
-    '<div class="card stat"><span>Проектов</span><b>' + db.projects.length + '</b></div>' +
-    '<div class="card stat"><span>Операций</span><b>' + db.finances.length + '</b></div>' +
-    '</div>';
+function rProjects(){
+  let h='<div class="row spread"><h2> Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button></div>';
+  if(!db.projects.length) h+='<div class="card mut">Нет проектов</div>';
+  db.projects.forEach(p=>{
+    const doneTasks=p.tasks?p.tasks.filter(t=>t.done).length:0;
+    const totalTasks=p.tasks?p.tasks.length:0;
+    const progress=totalTasks?Math.round(doneTasks/totalTasks*100):0;
+    const roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;
+    h+='<div class="card"><div class="row spread"><b>'+esc(p.name)+'</b><span class="chip on">'+['Идея','В работе','Тестирование','Завершён'][p.stage]+'</span></div>';
+    h+='<div class="mut">'+esc(p.client||'—')+' · '+p.budget.toLocaleString()+' ₽</div>';
+    if(p.deadline) h+='<div class="mut">📅 Дедлайн: '+p.deadline+'</div>';
+    if(roi) h+='<div class="plus">🧮 ROI: '+roi+' ₽/час</div>';
+    h+='<div class="bar" style="margin:10px 0"><i style="width:'+progress+'%"></i></div>';
+    h+='<div class="mut">Задачи: '+doneTasks+'/'+totalTasks+' ('+progress+'%)</div>';
+    h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">';
+    if(p.stage<3) h+='<button class="btn sec" onclick="nextStage(\\''+p.id+'\\')">Этап →</button>';
+    h+='<button class="btn sec" onclick="showProjectTasks(\\''+p.id+'\\')">📋 Задачи</button>';
+    h+='<button class="btn sec" onclick="projectROI(\\''+p.id+'\\')">🧮 ROI</button>';
+    h+='<button class="btn sec" onclick="projectReport(\\''+p.id+'\\')">📊 Отчёт</button>';
+    h+='<button class="btn danger" onclick="delProject(\\''+p.id+'\\')"></button>';
+    h+='</div></div>';
+  });
+  if(db.projects.length>1){h+='<div class="card"><b>📈 Сравнение проектов</b>';db.projects.forEach(p=>{const roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;h+='<div class="row spread" style="margin:8px 0"><span>'+esc(p.name)+'</span><b class="plus">'+roi+' ₽/час</b></div>';});h+='</div>';}
+  return h;
 }
+function addProject(){openModal('<h3>Новый проект</h3><label>Название</label><input id="pj_name"><label>Клиент</label><input id="pj_client"><label>Бюджет (₽)</label><input type="number" id="pj_budget" value="0"><label>Дедлайн</label><input type="date" id="pj_deadline"><label>Оценка часов</label><input type="number" id="pj_hours" value="40"><div class="row"><button class="btn" onclick="saveProject()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
+function saveProject(){const name=document.getElementById('pj_name').value.trim();if(!name){toast('Название?');return;}db.projects.push({id:uid(),name:name,client:document.getElementById('pj_client').value.trim(),budget:+document.getElementById('pj_budget').value||0,deadline:document.getElementById('pj_deadline').value,estimatedHours:+document.getElementById('pj_hours').value||0,stage:0,tasks:[],date:today()});save();closeModal();render();toast('Проект создан');}
+function nextStage(id){const p=db.projects.find(x=>x.id===id);if(p&&p.stage<3){p.stage++;save();render();toast('Этап: '+['Идея','В работе','Тестирование','Завершён'][p.stage]);}}
+function delProject(id){if(confirm('Удалить проект?')){db.projects=db.projects.filter(p=>p.id!==id);save();render();}}
+function showProjectTasks(id){const p=db.projects.find(x=>x.id===id);if(!p)return;let h='<h3>Задачи: '+esc(p.name)+'</h3>';if(p.tasks&&p.tasks.length){p.tasks.forEach(t=>{h+='<div class="row" style="margin:8px 0"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleProjTask(\\''+id+'\\',\\''+t.id+'\\')"><span style="flex:1;'+(t.done?'text-decoration:line-through;color:var(--mut)':'')+'">'+esc(t.text)+'</span><button class="btn danger" onclick="delProjTask(\\''+id+'\\',\\''+t.id+'\\')">✕</button></div>';});}else{h+='<div class="mut">Нет задач</div>';}h+='<div class="row" style="margin-top:10px"><input id="newTask" placeholder="Новая задача"><button class="btn" onclick="addProjTask(\\''+id+'\\')">+</button></div>';openModal(h);}
+function addProjTask(projId){const text=document.getElementById('newTask').value.trim();if(!text)return;const p=db.projects.find(x=>x.id===projId);if(p){if(!p.tasks)p.tasks=[];p.tasks.push({id:uid(),text:text,done:false});save();showProjectTasks(projId);render();}}
+function toggleProjTask(projId,taskId){const p=db.projects.find(x=>x.id===projId);if(p&&p.tasks){const t=p.tasks.find(x=>x.id===taskId);if(t)t.done=!t.done;save();showProjectTasks(projId);render();}}
+function delProjTask(projId,taskId){const p=db.projects.find(x=>x.id===projId);if(p&&p.tasks){p.tasks=p.tasks.filter(t=>t.id!==taskId);save();showProjectTasks(projId);render();}}
+function projectROI(id){const p=db.projects.find(x=>x.id===id);if(!p)return;const roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;const verdict=roi>=1000?'✅ Отлично':roi>=500?' Нормально':'⚠️ Низкий ROI';openModal('<h3>🧮 ROI проекта</h3><div class="card"><div class="row spread"><span>Бюджет:</span><b>'+p.budget.toLocaleString()+' ₽</b></div><div class="row spread"><span>Часов:</span><b>'+p.estimatedHours+'</b></div><div class="row spread" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><span>Ставка:</span><b class="plus">'+roi+' ₽/час</b></div><div style="margin-top:10px;font-size:18px;text-align:center">'+verdict+'</div></div><button class="btn" style="width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>');}
+function projectReport(id){const p=db.projects.find(x=>x.id===id);if(!p)return;const doneTasks=p.tasks?p.tasks.filter(t=>t.done).length:0;const totalTasks=p.tasks?p.tasks.length:0;const report='ОТЧЁТ ПО ПРОЕКТУ\\n\\nПроект: '+p.name+'\\nКлиент: '+p.client+'\\nДата: '+today()+'\\n\\nСтатус: '+['Идея','В работе','Тестирование','Завершён'][p.stage]+'\\nБюджет: '+p.budget+' ₽\\nДедлайн: '+p.deadline+'\\n\\nПрогресс: '+doneTasks+'/'+totalTasks+' задач ('+Math.round(doneTasks/totalTasks*100)+'%)\\n\\nЗадачи:\\n'+(p.tasks||[]).map(t=>(t.done?'✓':'○')+' '+t.text).join('\\n')+'\\n\\nС уважением,\\n'+db.profile.name;openModal('<h3>📊 Отчёт</h3><textarea id="reportText" rows="12" style="width:100%;font-family:monospace;font-size:13px">'+esc(report)+'</textarea><div class="row" style="margin-top:10px;gap:8px"><button class="btn" onclick="copyText(document.getElementById(\\'reportText\\').value)">📋 Копировать</button></div>');}
 
-function rClients() {
-    let h = '<div class="row spread"><h2>👥 Клиенты</h2><button class="btn" onclick="addClient()">+ Клиент</button></div>';
-    if (!db.clients.length) h += '<div class="card mut">Нет клиентов</div>';
-    db.clients.forEach(c => {
-        h += '<div class="card"><div class="row spread"><b>' + esc(c.name) + '</b><span class="chip on">' + c.status + '</span></div><div class="mut">' + esc(c.company) + ' · ' + c.budget + ' ₽</div><button class="btn danger" style="margin-top:8px" onclick="delClient(\'' + c.id + '\')">🗑 Удалить</button></div>';
-    });
-    return h;
+function rFinances(){
+  let h='<div class="row spread"><h2>💰 Финансы</h2><button class="btn" onclick="addFin()">+ Операция</button></div>';
+  db.finances.forEach(f=>{h+='<div class="card"><b class="'+(f.type==='in'?'plus':'minus')+'">'+(f.type==='in'?'+':'-')+' '+f.amt+' ₽</b><div class="mut">'+f.date+' · '+f.cat+'</div></div>';});
+  return h;
 }
-function addClient() {
-    const n = prompt('Имя клиента:'); if (!n) return;
-    db.clients.push({ id: uid(), name: n, company: prompt('Компания:') || '', budget: +(prompt('Бюджет:') || 0), status: 'Новый' });
-    save(); render(); toast('Клиент добавлен');
-}
-function delClient(id) {
-    if (confirm('Удалить клиента?')) { db.clients = db.clients.filter(c => c.id !== id); save(); render(); }
-}
+function addFin(){const a=+prompt('Сумма:');if(!a)return;db.finances.unshift({id:uid(),date:today(),type:prompt('Тип (in/out):','in'),amt:a,cat:'Проект'});save();render();}
 
-function rProjects() {
-    let h = '<div class="row spread"><h2>📁 Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button></div>';
-    if (!db.projects.length) h += '<div class="card mut">Нет проектов</div>';
-    db.projects.forEach(p => {
-        h += '<div class="card"><div class="row spread"><b>' + esc(p.name) + '</b><span class="chip on">' + p.stage + '</span></div><div class="mut">' + esc(p.client) + ' · ' + p.budget + ' ₽</div><button class="btn danger" style="margin-top:8px" onclick="delProject(\'' + p.id + '\')">🗑 Удалить</button></div>';
-    });
-    return h;
+function rKnowledge(){
+  let h='<div class="row spread"><h2>📚 База знаний</h2></div>';
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>🌐 Поиск статей в интернете</b><input id="searchQuery" placeholder="Поиск: react, node.js..." value="'+esc(db.searchQuery||'')+'" style="margin-top:10px"><div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn ai" onclick="searchHabr()" style="flex:1">📘 Habr</button><button class="btn warn" onclick="searchVC()" style="flex:1">📰 VC.ru</button><button class="btn sec" onclick="searchGitHub()" style="flex:1"> GitHub</button><button class="btn sec" onclick="searchHN()" style="flex:1"> HN</button></div><button class="btn" onclick="searchAll()" style="width:100%;margin-top:8px">🚀 Искать везде</button></div>';
+  if(db.savedArticles&&db.savedArticles.length){h+='<div class="card"><b>📚 Сохранённые статьи ('+db.savedArticles.length+')</b><button class="btn danger" style="margin-top:8px" onclick="clearSavedArticles()">🗑 Очистить</button>';db.savedArticles.slice(0,10).forEach((a,idx)=>{h+='<div class="card" style="margin-top:10px;border-left:3px solid var(--acc);padding-left:12px"><div class="row spread"><b>'+(idx+1)+'. '+esc(a.title)+'</b><span class="chip '+(a.lang==='ru'?'on':'')+'">'+(a.lang==='ru'?'RU':'EN')+'</span></div>';if(a.description) h+='<div class="note" style="margin-top:8px">'+esc(a.description).substring(0,100)+'</div>';h+='<div class="row" style="margin-top:10px;gap:8px"><a href="'+esc(a.url)+'" target="_blank" class="btn sec" style="text-decoration:none">🔗 Открыть</a><button class="btn danger" onclick="delSavedArticle('+idx+')">🗑</button></div></div>';});h+='</div>';}
+  h+='<div class="card"><b>📚 Локальная база</b><button class="btn ai" onclick="addLocalKnowledge()" style="width:100%;margin-bottom:10px">+ Добавить тему</button>';
+  if(!db.knowledge.length) h+='<div class="mut">Нет записей</div>';
+  db.knowledge.forEach(k=>{h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(k.topic)+'</b><span class="chip '+(k.status===3?'on':'')+'">'+['Не начато','Изучаю','Практика','Освоено'][k.status]+'</span></div><div class="mut">📁 '+esc(k.dir||'—')+'</div><div class="row" style="margin-top:8px;gap:6px">';for(let i=0;i<4;i++){h+='<button class="btn '+(k.status===i?'ai':'sec')+'" style="padding:6px 10px;font-size:12px" onclick="setKbStatus(\\''+k.id+'\\','+i+')">'+['Не начато','Изучаю','Практика','Освоено'][i]+'</button>';}h+='<button class="btn danger" onclick="delKnowledge(\\''+k.id+'\\')">🗑</button></div></div>';});
+  h+='</div>';
+  h+='<div class="card"><b>📚 Трекер курсов</b><button class="btn ai" onclick="addCourse()" style="width:100%;margin-bottom:10px">+ Добавить курс</button>';
+  if(!db.courses.length) h+='<div class="mut">Нет курсов</div>';
+  db.courses.forEach((c,i)=>{h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(c.name)+'</b><span class="chip '+(c.status==='completed'?'on':'')+'">'+{not_started:'Не начат',in_progress:'В процессе',completed:'Пройден'}[c.status]+'</span></div><div class="row" style="margin-top:8px;gap:6px"><button class="btn sec" onclick="setCourseStatus('+i+',\\'in_progress\\')">В процессе</button><button class="btn ok" onclick="setCourseStatus('+i+',\\'completed\\')">Пройден</button><button class="btn danger" onclick="delCourse('+i+')">🗑</button></div></div>';});
+  h+='</div>';
+  return h;
 }
-function addProject() {
-    const n = prompt('Название проекта:'); if (!n) return;
-    db.projects.push({ id: uid(), name: n, client: prompt('Клиент:') || '', budget: +(prompt('Бюджет:') || 0), stage: 'В работе', tasks: [] });
-    save(); render(); toast('Проект создан');
-}
-function delProject(id) {
-    if (confirm('Удалить проект?')) { db.projects = db.projects.filter(p => p.id !== id); save(); render(); }
-}
-
-function rFinances() {
-    let h = '<div class="row spread"><h2>💰 Финансы</h2><button class="btn" onclick="addFin()">+ Операция</button></div>';
-    db.finances.forEach(f => {
-        h += '<div class="card row spread"><div><b class="' + (f.type === 'in' ? 'plus' : 'minus') + '">' + (f.type === 'in' ? '+' : '-') + ' ' + f.amt + ' ₽</b><div class="mut">' + f.date + ' · ' + f.cat + '</div></div></div>';
-    });
-    return h;
-}
-function addFin() {
-    const amt = +(prompt('Сумма:')); if (!amt) return;
-    db.finances.unshift({ id: uid(), date: today(), type: prompt('Тип (in/out):', 'in'), amt: amt, cat: 'Проект' });
-    save(); render(); toast('Операция добавлена');
-}
-
-function rSettings() {
-    return '<div class="row spread"><h2>⚙️ Настройки</h2></div>' +
-    '<div class="card"><b>👤 Профиль</b>' +
-    '<label>Имя</label><input value="' + esc(db.profile.name) + '" onchange="db.profile.name=this.value;save()">' +
-    '<label>Специализация</label><input value="' + esc(db.profile.spec) + '" onchange="db.profile.spec=this.value;save()">' +
-    '</div>' +
-    '<div class="card"><button class="btn danger" onclick="hardReset()" style="width:100%">🔄 Сбросить все данные</button></div>';
-}
-function hardReset() {
-    if (confirm('⚠️ Удалить ВСЕ данные? Это действие необратимо.')) {
-        localStorage.removeItem(KEY);
-        location.reload();
-    }
-}
-
-function render() {
-    document.getElementById('date').textContent = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-    const app = document.getElementById('app');
-    if (tab === 'home') app.innerHTML = rHome();
-    else if (tab === 'clients') app.innerHTML = rClients();
-    else if (tab === 'projects') app.innerHTML = rProjects();
-    else if (tab === 'finances') app.innerHTML = rFinances();
-    else if (tab === 'settings') app.innerHTML = rSettings();
-}
-
-window.onload = () => {
-    setTimeout(() => {
-        document.getElementById('splash').classList.add('hidden');
-        renderNav();
-        render();
-    }, 800);
-};
-
-async function searchHabr(){const q=db.searchQuery||db.profile.specs[0]||'javascript';toast('📘 Ищу на Habr...');try{const r=await fetch('https://habr.com/api/v1/articles/?q='+encodeURIComponent(q)+'&page=1&per_page=10');const data=await r.json();let added=0;(data.items||[]).forEach(a=>{if(!db.savedArticles.some(x=>x.url==='https://habr.com'+a.link)){db.savedArticles.push({id:uid(),source:'habr',title:a.title,author:a.author?a.author.login:'',url:'https://habr.com'+a.link,description:a.summary||'',stats:'👁 '+a.stats.views_count,date:today(),lang:'ru'});added++;}});save();render();toast('📘 Habr: +'+added+' статей');}catch(e){toast('Ошибка Habr');}}
-async function searchVC(){const q=db.searchQuery||'разработка';toast('📰 Ищу на VC.ru...');try{const r=await fetch('https://vc.ru/api/search?q='+encodeURIComponent(q)+'&type=post');const data=await r.json();let added=0;(data.items||[]).forEach(a=>{if(!db.savedArticles.some(x=>x.url===a.url)){db.savedArticles.push({id:uid(),source:'vc',title:a.title,author:a.author_name||'',url:a.url,description:a.description||'',stats:'👁 '+a.views_count,date:today(),lang:'ru'});added++;}});save();render();toast('📰 VC.ru: +'+added+' статей');}catch(e){toast('Ошибка VC.ru');}}
-async function searchGitHub(){const q=db.searchQuery||'javascript';toast(' Ищу на GitHub...');try{const r=await fetch('https://api.github.com/search/repositories?q='+encodeURIComponent(q)+'&sort=stars&per_page=10');const data=await r.json();let added=0;(data.items||[]).forEach(repo=>{if(!db.savedArticles.some(x=>x.url===repo.html_url)){db.savedArticles.push({id:uid(),source:'github',title:repo.full_name,author:repo.owner?repo.owner.login:'',url:repo.html_url,description:repo.description||'',stats:'⭐ '+repo.stargazers_count,date:today(),lang:'en'});added++;}});save();render();toast('🐙 GitHub: +'+added+' репозиториев');}catch(e){toast('Ошибка GitHub');}}
-async function searchHN(){const q=db.searchQuery||'programming';toast('🔶 Ищу на Hacker News...');try{const r=await fetch('https://hn.algolia.com/api/v1/search?query='+encodeURIComponent(q)+'&tags=story&hitsPerPage=10');const data=await r.json();let added=0;(data.hits||[]).forEach(h=>{const url=h.url||'https://news.ycombinator.com/item?id='+h.object_id;if(!db.savedArticles.some(x=>x.url===url)){db.savedArticles.push({id:uid(),source:'hn',title:h.title,author:h.author||'',url:url,stats:' '+h.points,date:today(),lang:'en'});added++;}});save();render();toast('🔶 HN: +'+added+' постов');}catch(e){toast('Ошибка HN');}}
-async function searchAll(){db.searchQuery=document.getElementById('searchQuery').value.trim()||db.profile.specs[0]||'javascript';toast('🚀 Ищу везде...');await searchHabr();await new Promise(r=>setTimeout(r,500));await searchVC();toast('✅ Найдено: '+(db.savedArticles?db.savedArticles.length:0)+' материалов');}
-function quickSearch(q){db.searchQuery=q;document.getElementById('searchQuery').value=q;searchAll();}
+async function searchHabr(){const q=db.searchQuery||db.profile.specs[0]||'javascript';toast('📘 Habr...');try{const r=await fetch('https://habr.com/api/v1/articles/?q='+encodeURIComponent(q)+'&page=1&per_page=10');const data=await r.json();let added=0;(data.items||[]).forEach(a=>{if(!db.savedArticles.some(x=>x.url==='https://habr.com'+a.link)){db.savedArticles.push({id:uid(),source:'habr',title:a.title,url:'https://habr.com'+a.link,description:a.summary||'',date:today(),lang:'ru'});added++;}});save();render();toast('📘 +'+added);}catch(e){toast('Ошибка Habr');}}
+async function searchVC(){const q=db.searchQuery||'разработка';toast('📰 VC.ru...');try{const r=await fetch('https://vc.ru/api/search?q='+encodeURIComponent(q)+'&type=post');const data=await r.json();let added=0;(data.items||[]).forEach(a=>{if(!db.savedArticles.some(x=>x.url===a.url)){db.savedArticles.push({id:uid(),source:'vc',title:a.title,url:a.url,description:a.description||'',date:today(),lang:'ru'});added++;}});save();render();toast('📰 +'+added);}catch(e){toast('Ошибка VC.ru');}}
+async function searchGitHub(){const q=db.searchQuery||'javascript';toast('🐙 GitHub...');try{const r=await fetch('https://api.github.com/search/repositories?q='+encodeURIComponent(q)+'&sort=stars&per_page=10');const data=await r.json();let added=0;(data.items||[]).forEach(repo=>{if(!db.savedArticles.some(x=>x.url===repo.html_url)){db.savedArticles.push({id:uid(),source:'github',title:repo.full_name,url:repo.html_url,description:repo.description||'',stats:'⭐ '+repo.stargazers_count,date:today(),lang:'en'});added++;}});save();render();toast('🐙 +'+added);}catch(e){toast('Ошибка GitHub');}}
+async function searchHN(){const q=db.searchQuery||'programming';toast('🔶 HN...');try{const r=await fetch('https://hn.algolia.com/api/v1/search?query='+encodeURIComponent(q)+'&tags=story&hitsPerPage=10');const data=await r.json();let added=0;(data.hits||[]).forEach(h=>{const url=h.url||'https://news.ycombinator.com/item?id='+h.object_id;if(!db.savedArticles.some(x=>x.url===url)){db.savedArticles.push({id:uid(),source:'hn',title:h.title,url:url,stats:'🔺 '+h.points,date:today(),lang:'en'});added++;}});save();render();toast('🔶 +'+added);}catch(e){toast('Ошибка HN');}}
+async function searchAll(){db.searchQuery=document.getElementById('searchQuery').value.trim()||db.profile.specs[0]||'javascript';toast('🚀 Ищу...');await searchHabr();await new Promise(r=>setTimeout(r,500));await searchVC();toast('✅ Найдено: '+(db.savedArticles?db.savedArticles.length:0));}
 function delSavedArticle(idx){db.savedArticles.splice(idx,1);save();render();}
-function clearSavedArticles(){if(confirm('Удалить все статьи?')){db.savedArticles=[];save();render();}}
-function saveArticleNote(idx){const note=prompt('Ваша заметка к статье:');if(note!==null){db.savedArticles[idx].note=note;save();render();toast('Заметка сохранена');}}
+function clearSavedArticles(){if(confirm('Удалить все?')){db.savedArticles=[];save();render();}}
 function addLocalKnowledge(){openModal('<h3>Новая тема</h3><label>Тема *</label><input id="kb_topic"><label>Категория</label><input id="kb_dir"><label>Теория</label><textarea id="kb_theory" rows="3"></textarea><label>Практика</label><textarea id="kb_practice" rows="3"></textarea><div class="row"><button class="btn" onclick="saveKnowledge()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
 function saveKnowledge(){const topic=document.getElementById('kb_topic').value.trim();if(!topic){toast('Тема?');return;}db.knowledge.push({id:uid(),topic:topic,dir:document.getElementById('kb_dir').value.trim(),theory:document.getElementById('kb_theory').value.trim(),practice:document.getElementById('kb_practice').value.trim(),status:0});save();closeModal();render();toast('Тема добавлена');}
 function setKbStatus(id,status){const k=db.knowledge.find(x=>x.id===id);if(k){k.status=status;save();render();}}
-function delKnowledge(id){if(confirm('Удалить тему?')){db.knowledge=db.knowledge.filter(k=>k.id!==id);save();render();}}
-function addCourse(){openModal('<h3>Новый курс</h3><label>Название *</label><input id="cr_name"><label>Платформа</label><input id="cr_platform" placeholder="Udemy, Stepik..."><label>Ссылка</label><input id="cr_url"><div class="row"><button class="btn" onclick="saveCourse()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
+function delKnowledge(id){if(confirm('Удалить?')){db.knowledge=db.knowledge.filter(k=>k.id!==id);save();render();}}
+function addCourse(){openModal('<h3>Новый курс</h3><label>Название *</label><input id="cr_name"><label>Платформа</label><input id="cr_platform"><label>Ссылка</label><input id="cr_url"><div class="row"><button class="btn" onclick="saveCourse()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
 function saveCourse(){const name=document.getElementById('cr_name').value.trim();if(!name){toast('Название?');return;}db.courses.push({name:name,platform:document.getElementById('cr_platform').value.trim(),url:document.getElementById('cr_url').value.trim(),status:'not_started'});save();closeModal();render();toast('Курс добавлен');}
 function setCourseStatus(i,status){db.courses[i].status=status;save();render();}
-function delCourse(i){if(confirm('Удалить курс?')){db.courses.splice(i,1);save();render();}}
+function delCourse(i){if(confirm('Удалить?')){db.courses.splice(i,1);save();render();}}
 
+function rSettings(){return '<div class="row spread"><h2>⚙️ Настройки</h2></div><div class="card"><b>👤 Профиль</b><label>Имя</label><input value="'+esc(db.profile.name)+'" onchange="db.profile.name=this.value;save()"><label>Специализация</label><input value="'+esc(db.profile.spec)+'" onchange="db.profile.spec=this.value;save()"></div><div class="card"><button class="btn danger" onclick="hardReset()" style="width:100%">🔄 Сбросить всё</button></div>';}
+function hardReset(){if(confirm('Удалить все данные?')){localStorage.removeItem(KEY);location.reload();}}
+
+function render(){
+  document.getElementById('date').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const app=document.getElementById('app');
+  if(tab==='home')app.innerHTML=rHome();
+  else if(tab==='dashboard')app.innerHTML=rDashboard();
+  else if(tab==='clients')app.innerHTML=rClients();
+  else if(tab==='projects')app.innerHTML=rProjects();
+  else if(tab==='finances')app.innerHTML=rFinances();
+  else if(tab==='knowledge')app.innerHTML=rKnowledge();
+  else if(tab==='settings')app.innerHTML=rSettings();
+}
+
+window.onload=()=>{setTimeout(()=>{document.getElementById('splash').classList.add('hidden');renderNav();render();},500);};
 </script>
 </body>
 </html>
