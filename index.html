@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v3.0</title>
+<title>SoloDev v3.1</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -33,13 +33,17 @@ input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--
 #splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
 #splash.hidden{display:none}
 .error-box{position:fixed;inset:0;background:#200;color:#f88;padding:20px;font-family:monospace;z-index:200;overflow:auto}
+
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:30}
+#modal.on{display:flex}.m-card{background:var(--card);width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px}
+.bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
 </style>
 </head>
 <body>
-<div id="splash"><h1 style="font-size:48px;margin-bottom:20px">⚡</h1><h1>SoloDev v3.0</h1><p class="mut">Загрузка...</p></div>
-<header><b>⚡ SoloDev v3.0</b><span id="date"></span></header>
+<div id="splash"><h1 style="font-size:48px;margin-bottom:20px">⚡</h1><h1>SoloDev v3.1</h1><p class="mut">Загрузка...</p></div>
+<header><b>⚡ SoloDev v3.1</b><span id="date"></span></header>
 <main id="app"></main>
-<nav id="nav"></nav>
+<nav id="nav"></nav><div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
 
 <script>
 // Перехват ошибок, чтобы приложение не зависало молча
