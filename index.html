@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v4.3</title>
+<title>SoloDev v4.4</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px}
 h1{color:#6c8cff}
@@ -23,10 +23,11 @@ h1{color:#6c8cff}
 .modal-content{background:#171b22;width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px}
 input,textarea{width:100%;background:#1f2530;border:1px solid #242b36;color:#e8ecf3;border-radius:8px;padding:10px;margin:8px 0}
 .nav{display:flex;gap:8px;margin-bottom:15px}
+.info-row{display:flex;justify-content:space-between;margin:8px 0;padding:8px;background:#1f2530;border-radius:8px}
 </style>
 </head>
 <body>
-<h1> SoloDev v4.3</h1>
+<h1> SoloDev v4.4</h1>
 <div class="nav">
 <button class="btn small active" id="btnHome" onclick="showHome()">🏠 Главная</button>
 <button class="btn small" id="btnDashboard" onclick="showDashboard()">📊 Дашборд</button>
@@ -76,9 +77,11 @@ function renderDashboard(){
   
   var daysInMonth=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
   var currentDay=new Date().getDate();
+  var dailyAvg=currentDay>0?Math.round(monthInc/currentDay):0;
   var forecast=currentDay>0?Math.round(monthInc/currentDay*daysInMonth):0;
+  var remaining=forecast-monthInc;
   
-  var h='<h2>📊 Дашборд продуктивности</h2>';
+  var h='<h2> Дашборд продуктивности</h2>';
   h+='<div class="grid"><div class="card"><span class="stat">Доход за неделю</span><b style="font-size:20px;color:#3ecf8e">'+weekInc.toLocaleString()+' ₽</b></div><div class="card"><span class="stat">Доход за месяц</span><b style="font-size:20px;color:#3ecf8e">'+monthInc.toLocaleString()+' ₽</b></div><div class="card"><span class="stat">Проектов завершено</span><b style="font-size:20px">'+completedProjects+'</b></div><div class="card"><span class="stat">Задач выполнено</span><b style="font-size:20px">'+doneTasks+'/'+totalTasks+'</b></div></div>';
   
   h+='<div class="card"><h3 style="margin-top:0">📈 Доходы за 7 дней</h3><div class="chart">';
@@ -88,7 +91,13 @@ function renderDashboard(){
   });
   h+='</div></div>';
   
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><h3 style="margin-top:0;color:#fff">💰 Прогноз дохода на месяц</h3><div style="font-size:32px;text-align:center;margin:15px 0;color:#3ecf8e;font-weight:bold">'+forecast.toLocaleString()+' ₽</div><div class="mut" style="text-align:center">На основе текущей динамики</div></div>';
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><h3 style="margin-top:0;color:#fff"> Прогноз дохода на месяц</h3>';
+  h+='<div style="font-size:32px;text-align:center;margin:15px 0;color:#3ecf8e;font-weight:bold">'+forecast.toLocaleString()+' ₽</div>';
+  h+='<div class="info-row"><span>📅 Уже заработано:</span><b style="color:#3ecf8e">'+monthInc.toLocaleString()+' ₽</b></div>';
+  h+='<div class="info-row"><span>📊 Средний доход в день:</span><b style="color:#6c8cff">'+dailyAvg.toLocaleString()+' ₽/день</b></div>';
+  h+='<div class="info-row"><span>📈 Осталось до прогноза:</span><b style="color:#9d6cff">'+remaining.toLocaleString()+' ₽</b></div>';
+  h+='<div class="mut" style="text-align:center;margin-top:10px;padding-top:10px;border-top:1px solid #242b36">При текущей скорости к '+daysInMonth+' числу месяца</div>';
+  h+='</div>';
   
   document.getElementById('app').innerHTML=h;
 }
@@ -103,7 +112,7 @@ function renderProjects(){
     h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>'+esc(p.name)+'</b><span style="padding:4px 12px;background:#6c8cff;border-radius:12px;font-size:12px">'+['Идея','В работе','Тестирование','Завершён'][p.stage]+'</span></div>';
     h+='<div class="mut">'+esc(p.client||'—')+' · '+p.budget.toLocaleString()+' ₽</div>';
     if(p.deadline) h+='<div class="mut"> Дедлайн: '+p.deadline+'</div>';
-    if(roi) h+='<div style="color:#3ecf8e;font-size:13px">🧮 ROI: '+roi+' ₽/час</div>';
+    if(roi) h+='<div style="color:#3ecf8e;font-size:13px"> ROI: '+roi+' ₽/час</div>';
     h+='<div class="bar"><i style="width:'+progress+'%"></i></div>';
     h+='<div class="mut">Задачи: '+doneTasks+'/'+totalTasks+' ('+progress+'%)</div>';
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">';
