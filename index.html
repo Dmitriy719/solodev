@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v3.2</title>
+<title>SoloDev v3.3</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -42,11 +42,13 @@ input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--
 .chart-col{flex:1;background:var(--card2);border-radius:4px 4px 0 0;position:relative;min-height:4px}
 .chart-col i{position:absolute;bottom:0;left:0;right:0;background:var(--acc);border-radius:4px 4px 0 0}
 .chart-label{font-size:10px;color:var(--mut);text-align:center;margin-top:4px}
+
+.article-card{border-left:3px solid var(--acc);padding-left:12px;margin:10px 0}
 </style>
 </head>
 <body>
-<div id="splash"><h1 style="font-size:48px;margin-bottom:20px">⚡</h1><h1>SoloDev v3.2</h1><p class="mut">Загрузка...</p></div>
-<header><b>⚡ SoloDev v3.2</b><span id="date"></span></header>
+<div id="splash"><h1 style="font-size:48px;margin-bottom:20px">⚡</h1><h1>SoloDev v3.3</h1><p class="mut">Загрузка...</p></div>
+<header><b>⚡ SoloDev v3.3</b><span id="date"></span></header>
 <main id="app"></main>
 <nav id="nav"></nav><div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
 
@@ -196,6 +198,25 @@ window.onload = () => {
         render();
     }, 800);
 };
+
+async function searchHabr(){const q=db.searchQuery||db.profile.specs[0]||'javascript';toast('📘 Ищу на Habr...');try{const r=await fetch('https://habr.com/api/v1/articles/?q='+encodeURIComponent(q)+'&page=1&per_page=10');const data=await r.json();let added=0;(data.items||[]).forEach(a=>{if(!db.savedArticles.some(x=>x.url==='https://habr.com'+a.link)){db.savedArticles.push({id:uid(),source:'habr',title:a.title,author:a.author?a.author.login:'',url:'https://habr.com'+a.link,description:a.summary||'',stats:'👁 '+a.stats.views_count,date:today(),lang:'ru'});added++;}});save();render();toast('📘 Habr: +'+added+' статей');}catch(e){toast('Ошибка Habr');}}
+async function searchVC(){const q=db.searchQuery||'разработка';toast('📰 Ищу на VC.ru...');try{const r=await fetch('https://vc.ru/api/search?q='+encodeURIComponent(q)+'&type=post');const data=await r.json();let added=0;(data.items||[]).forEach(a=>{if(!db.savedArticles.some(x=>x.url===a.url)){db.savedArticles.push({id:uid(),source:'vc',title:a.title,author:a.author_name||'',url:a.url,description:a.description||'',stats:'👁 '+a.views_count,date:today(),lang:'ru'});added++;}});save();render();toast('📰 VC.ru: +'+added+' статей');}catch(e){toast('Ошибка VC.ru');}}
+async function searchGitHub(){const q=db.searchQuery||'javascript';toast(' Ищу на GitHub...');try{const r=await fetch('https://api.github.com/search/repositories?q='+encodeURIComponent(q)+'&sort=stars&per_page=10');const data=await r.json();let added=0;(data.items||[]).forEach(repo=>{if(!db.savedArticles.some(x=>x.url===repo.html_url)){db.savedArticles.push({id:uid(),source:'github',title:repo.full_name,author:repo.owner?repo.owner.login:'',url:repo.html_url,description:repo.description||'',stats:'⭐ '+repo.stargazers_count,date:today(),lang:'en'});added++;}});save();render();toast('🐙 GitHub: +'+added+' репозиториев');}catch(e){toast('Ошибка GitHub');}}
+async function searchHN(){const q=db.searchQuery||'programming';toast('🔶 Ищу на Hacker News...');try{const r=await fetch('https://hn.algolia.com/api/v1/search?query='+encodeURIComponent(q)+'&tags=story&hitsPerPage=10');const data=await r.json();let added=0;(data.hits||[]).forEach(h=>{const url=h.url||'https://news.ycombinator.com/item?id='+h.object_id;if(!db.savedArticles.some(x=>x.url===url)){db.savedArticles.push({id:uid(),source:'hn',title:h.title,author:h.author||'',url:url,stats:' '+h.points,date:today(),lang:'en'});added++;}});save();render();toast('🔶 HN: +'+added+' постов');}catch(e){toast('Ошибка HN');}}
+async function searchAll(){db.searchQuery=document.getElementById('searchQuery').value.trim()||db.profile.specs[0]||'javascript';toast('🚀 Ищу везде...');await searchHabr();await new Promise(r=>setTimeout(r,500));await searchVC();toast('✅ Найдено: '+(db.savedArticles?db.savedArticles.length:0)+' материалов');}
+function quickSearch(q){db.searchQuery=q;document.getElementById('searchQuery').value=q;searchAll();}
+function delSavedArticle(idx){db.savedArticles.splice(idx,1);save();render();}
+function clearSavedArticles(){if(confirm('Удалить все статьи?')){db.savedArticles=[];save();render();}}
+function saveArticleNote(idx){const note=prompt('Ваша заметка к статье:');if(note!==null){db.savedArticles[idx].note=note;save();render();toast('Заметка сохранена');}}
+function addLocalKnowledge(){openModal('<h3>Новая тема</h3><label>Тема *</label><input id="kb_topic"><label>Категория</label><input id="kb_dir"><label>Теория</label><textarea id="kb_theory" rows="3"></textarea><label>Практика</label><textarea id="kb_practice" rows="3"></textarea><div class="row"><button class="btn" onclick="saveKnowledge()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
+function saveKnowledge(){const topic=document.getElementById('kb_topic').value.trim();if(!topic){toast('Тема?');return;}db.knowledge.push({id:uid(),topic:topic,dir:document.getElementById('kb_dir').value.trim(),theory:document.getElementById('kb_theory').value.trim(),practice:document.getElementById('kb_practice').value.trim(),status:0});save();closeModal();render();toast('Тема добавлена');}
+function setKbStatus(id,status){const k=db.knowledge.find(x=>x.id===id);if(k){k.status=status;save();render();}}
+function delKnowledge(id){if(confirm('Удалить тему?')){db.knowledge=db.knowledge.filter(k=>k.id!==id);save();render();}}
+function addCourse(){openModal('<h3>Новый курс</h3><label>Название *</label><input id="cr_name"><label>Платформа</label><input id="cr_platform" placeholder="Udemy, Stepik..."><label>Ссылка</label><input id="cr_url"><div class="row"><button class="btn" onclick="saveCourse()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
+function saveCourse(){const name=document.getElementById('cr_name').value.trim();if(!name){toast('Название?');return;}db.courses.push({name:name,platform:document.getElementById('cr_platform').value.trim(),url:document.getElementById('cr_url').value.trim(),status:'not_started'});save();closeModal();render();toast('Курс добавлен');}
+function setCourseStatus(i,status){db.courses[i].status=status;save();render();}
+function delCourse(i){if(confirm('Удалить курс?')){db.courses.splice(i,1);save();render();}}
+
 </script>
 </body>
 </html>
