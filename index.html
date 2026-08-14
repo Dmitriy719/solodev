@@ -119,6 +119,7 @@ function renderRadar(){
       h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn small" onclick="leadToClient(\'auto\','+idx+')">👥 В клиенты</button><button class="btn small" style="background:#1f2530" onclick="leadOutreach(\'auto\','+idx+')">✍️ Написать</button></div></div>';
     });
   }
+  h+='<div style="margin-top:10px"><a href="https://www.hh.ru/search/vacancy?text='+encodeURIComponent((db.profile.specs||['разработчик']).join(' '))+'" target="_blank" class="btn small" style="text-decoration:none">🔗 Открыть HH.ru напрямую</a></div>';
   h+='</div>';
   h+='<div class="card"><h3 style="margin-top:0">🔍 Где искать клиентов ('+db.sources.length+' источников)</h3>';
   h+='<p class="mut">Биржи, Telegram, Reddit, форумы, прямые работодатели</p>';
@@ -186,17 +187,25 @@ function genOutreach(seg,pain,sol,time,cost){
   var txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nЗаметил, что для '+seg+' актуальна проблема: "'+pain+'".\n\nЯ решаю такие задачи следующим образом: '+sol+'.\n\nОбычно реализация занимает '+time+', а бюджет составляет '+cost+'.\n\nНайдётся 5-10 минут на этой неделе, чтобы обсудить детали?\n\nС уважением,\n'+db.profile.name;
   navigator.clipboard.writeText(txt).then(function(){alert('✉️ Письмо скопировано!')});
 }
+var hhSearchStatus='';
 function autoSearchHH(){
-  var specs=db.profile.specs||['разработчик'];var found=0;db.autoLeads=[];
+  var specs=db.profile.specs||['разработчик'];var found=0;db.autoLeads=[];hhSearchStatus='⏳ Поиск...';renderRadar();
+  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url=','https://cors-anywhere.herokuapp.com/'];
   var promises=specs.map(function(q){
-    return fetch('https://corsproxy.io/?'+encodeURIComponent('https://api.hh.ru/vacancies?text='+encodeURIComponent(q)+'&per_page=10&area=1')).then(function(r){return r.json()}).then(function(data){
-      (data.items||[]).forEach(function(v){
-        var salary='';if(v.salary){if(v.salary.from)salary+=v.salary.from+' ';else if(v.salary.to)salary+=v.salary.to+' ';salary+=(v.salary.currency||'RUB')}
-        db.autoLeads.push({id:uid(),title:v.name,company:v.employer?v.employer.name:'',salary:salary,url:v.alternate_url,date:today()});found++;
-      });
-    }).catch(function(){alert('⚠️ HH.ru недоступен (CORS). Попробуйте позже.')});
+    var hhUrl='https://api.hh.ru/vacancies?text='+encodeURIComponent(q)+'&per_page=10&area=1';
+    function tryProxy(idx){
+      if(idx>=proxies.length){hhSearchStatus='❌ HH.ru недоступен. Используйте прямые ссылки ниже.';return Promise.resolve()}
+      return fetch(proxies[idx]+encodeURIComponent(hhUrl)).then(function(r){if(!r.ok)throw new Error('fail');return r.json()}).then(function(data){
+        (data.items||[]).forEach(function(v){
+          var salary='';if(v.salary){if(v.salary.from)salary+=v.salary.from+' ';else if(v.salary.to)salary+=v.salary.to+' ';salary+=(v.salary.currency||'RUB')}
+          db.autoLeads.push({id:uid(),title:v.name,company:v.employer?v.employer.name:'',salary:salary,url:v.alternate_url,date:today()});found++;
+        });
+        hhSearchStatus='✅ Найдено '+found+' вакансий';
+      }).catch(function(){return tryProxy(idx+1)});
+    }
+    return tryProxy(0);
   });
-  Promise.all(promises).then(function(){save();renderRadar();if(found>0)alert('🇷🇺 Найдено: '+found+' вакансий!')});
+  Promise.all(promises).then(function(){save();renderRadar()});
 }
 function leadToClient(type,idx){var list=type==='auto'?db.autoLeads:db.leads;var l=list[idx];if(!l)return;db.clients.push({id:uid(),name:l.company||l.title,company:l.company||'',budget:0,status:'Новый',date:today()});save();alert(' Добавлен в клиенты!')}
 function leadOutreach(type,idx){var list=type==='auto'?db.autoLeads:db.leads;var l=list[idx];if(!l)return;var txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nУвидел вашу вакансию: "'+l.title+'".\n\nБуду рад обсудить детали.\n\nС уважением,\n'+db.profile.name;navigator.clipboard.writeText(txt).then(function(){alert('✉️ Письмо скопировано!')})}
