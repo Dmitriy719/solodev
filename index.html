@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v4.6</title>
+<title>SoloDev v4.7</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px}
 h1{color:#6c8cff}
@@ -25,14 +25,18 @@ h1{color:#6c8cff}
 input,textarea{width:100%;background:#1f2530;border:1px solid #242b36;color:#e8ecf3;border-radius:8px;padding:10px;margin:8px 0}
 .nav{display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap}
 .info-row{display:flex;justify-content:space-between;margin:8px 0;padding:8px;background:#1f2530;border-radius:8px}
-.lead-card{border-left:3px solid #6c8cff;padding-left:12px;margin:10px 0}
 .estimate-box{background:#1f2530;border-radius:8px;padding:10px;margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
 .estimate-item div:first-child{font-size:11px;color:#8b94a7;margin-bottom:4px}
 .estimate-item div:last-child{font-size:14px;font-weight:bold;color:#e8ecf3}
+.source-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.source-item{background:#1f2530;padding:10px;border-radius:8px;text-align:center}
+.source-item a{color:#6c8cff;text-decoration:none;font-weight:bold}
+.filter-btn{background:#1f2530;color:#e8ecf3;border:1px solid #242b36;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;margin:4px}
+.filter-btn.active{background:#6c8cff;border-color:#6c8cff}
 </style>
 </head>
 <body>
-<h1>⚡ SoloDev v4.6</h1>
+<h1> SoloDev v4.7</h1>
 <div class="nav">
 <button class="btn small active" id="btnHome" onclick="showHome()">🏠 Главная</button>
 <button class="btn small" id="btnDashboard" onclick="showDashboard()">📊 Дашборд</button>
@@ -42,7 +46,7 @@ input,textarea{width:100%;background:#1f2530;border:1px solid #242b36;color:#e8e
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
 <script>
-var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты']},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[]};
+var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты']},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],showAllTemplates:false};
 var currentView='home';
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -81,37 +85,84 @@ function renderDashboard(){
 
 var PAIN_DB=[
   {spec:'Фронтенд',seg:'Интернет-магазины',pain:'Медленная загрузка страниц, клиенты уходят',sol:'Оптимизация Core Web Vitals, lazy loading, сжатие изображений',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 80 000 ₽'},
-  {spec:'Фронтенд',seg:'Стартапы',pain:'Нет адаптивной версии сайта (не работает на мобильных)',sol:'Полная адаптивная вёрстка (Mobile First)',complexity:'Низкая',time:'3-7 дней',cost:'15 000 - 40 000 ₽'},
-  {spec:'Фронтенд',seg:'Инфобизнес',pain:'Сложно обновлять контент на сайте',sol:'Внедрение простой CMS (Strapi, WordPress) или конструктора блоков',complexity:'Средняя',time:'1-2 недели',cost:'40 000 - 90 000 ₽'},
-  {spec:'Бэкенд',seg:'SaaS-сервисы',pain:'База данных не выдерживает нагрузку при росте',sol:'Оптимизация SQL-запросов, индексы, внедрение кэширования (Redis)',complexity:'Высокая',time:'2-4 недели',cost:'100 000 - 250 000 ₽'},
-  {spec:'Бэкенд',seg:'Малый бизнес',pain:'Нужен простой API для мобильного приложения или сайта',sol:'Разработка REST API на Node.js/Python с документацией (Swagger)',complexity:'Средняя',time:'1-3 недели',cost:'40 000 - 100 000 ₽'},
-  {spec:'Бэкенд',seg:'E-commerce',pain:'Интеграция с 1С, CRM или платёжными системами',sol:'Написание надёжных интеграционных шлюзов с обработкой ошибок',complexity:'Высокая',time:'2-5 недель',cost:'80 000 - 200 000 ₽'},
-  {spec:'Мобильная разработка',seg:'Доставка еды / Услуги',pain:'Нет собственного приложения, высокая комиссия агрегаторов',sol:'Кроссплатформенное приложение (Flutter / React Native)',complexity:'Высокая',time:'1.5 - 3 месяца',cost:'150 000 - 400 000 ₽'},
-  {spec:'Мобильная разработка',seg:'Фитнес-клубы',pain:'Клиенты забывают о тренировках, высокий отток',sol:'Приложение с push-уведомлениями и записью на занятия',complexity:'Средняя',time:'3-6 недель',cost:'80 000 - 180 000 ₽'},
-  {spec:'Боты',seg:'Онлайн-школы',pain:'Менеджеры тонут в однотипных вопросах в Telegram',sol:'Чат-бот с автоответами, приёмом оплаты и выдачей материалов',complexity:'Средняя',time:'1-2 недели',cost:'25 000 - 60 000 ₽'},
-  {spec:'Боты',seg:'Рестораны / Салоны',pain:'Много звонков для бронирования в нерабочее время',sol:'Бот для бронирования столов/записи с интеграцией в календарь',complexity:'Низкая',time:'5-10 дней',cost:'15 000 - 35 000 ₽'},
-  {spec:'DevOps',seg:'Веб-студии',pain:'Ручной и долгий деплой проектов, человеческий фактор',sol:'Настройка CI/CD пайплайна (GitHub Actions / GitLab CI)',complexity:'Средняя',time:'3-7 дней',cost:'20 000 - 50 000 ₽'},
-  {spec:'DevOps',seg:'Стартапы',pain:'Сайт периодически падает, нет мониторинга',sol:'Настройка серверов, Nginx, Docker + мониторинг (Prometheus/Grafana)',complexity:'Высокая',time:'1-3 недели',cost:'50 000 - 120 000 ₽'},
-  {spec:'Дизайн',seg:'Локальный бизнес',pain:'Устаревший, непродающий дизайн сайта',sol:'Редизайн ключевых страниц с упором на UX/UI и конверсию',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 70 000 ₽'},
-  {spec:'Дизайн',seg:'Приложения',pain:'Нет единого стиля, интерфейс неудобный',sol:'Разработка UI-кита и прототипов в Figma',complexity:'Высокая',time:'2-4 недели',cost:'60 000 - 150 000 ₽'}
+  {spec:'Фронтенд',seg:'Стартапы',pain:'Нет адаптивной версии сайта',sol:'Полная адаптивная вёрстка (Mobile First)',complexity:'Низкая',time:'3-7 дней',cost:'15 000 - 40 000 ₽'},
+  {spec:'Фронтенд',seg:'Инфобизнес',pain:'Сложно обновлять контент на сайте',sol:'Внедрение простой CMS (Strapi, WordPress)',complexity:'Средняя',time:'1-2 недели',cost:'40 000 - 90 000 ₽'},
+  {spec:'Фронтенд',seg:'SaaS',pain:'Сложный интерфейс, пользователи путаются',sol:'Редизайн UI/UX с фокусом на usability',complexity:'Высокая',time:'2-4 недели',cost:'80 000 - 200 000 ₽'},
+  {spec:'Фронтенд',seg:'Медиа-сайты',pain:'Нужна быстрая загрузка тысяч статей',sol:'Оптимизация рендеринга, SSR, кэширование',complexity:'Высокая',time:'2-3 недели',cost:'60 000 - 150 000 ₽'},
+  {spec:'Фронтенд',seg:'Образовательные платформы',pain:'Интерактивные элементы не работают на мобильных',sol:'Адаптация интерактивных компонентов',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 70 000 ₽'},
+  {spec:'Бэкенд',seg:'SaaS-сервисы',pain:'База данных не выдерживает нагрузку',sol:'Оптимизация SQL, индексы, кэширование (Redis)',complexity:'Высокая',time:'2-4 недели',cost:'100 000 - 250 000 ₽'},
+  {spec:'Бэкенд',seg:'Малый бизнес',pain:'Нужен простой API для мобильного приложения',sol:'REST API на Node.js/Python с документацией',complexity:'Средняя',time:'1-3 недели',cost:'40 000 - 100 000 ₽'},
+  {spec:'Бэкенд',seg:'E-commerce',pain:'Интеграция с 1С, CRM или платёжными системами',sol:'Интеграционные шлюзы с обработкой ошибок',complexity:'Высокая',time:'2-5 недель',cost:'80 000 - 200 000 ₽'},
+  {spec:'Бэкенд',seg:'Стартапы',pain:'Нужна система авторизации и ролей',sol:'JWT-аутентификация, RBAC, OAuth2',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 80 000 ₽'},
+  {spec:'Бэкенд',seg:'Медиа',pain:'Нужна обработка и хранение видео',sol:'Интеграция с AWS S3, транскодирование',complexity:'Высокая',time:'2-4 недели',cost:'70 000 - 180 000 ₽'},
+  {spec:'Бэкенд',seg:'Финтех',pain:'Нужны надёжные транзакции и отчёты',sol:'Разработка платёжного модуля с логированием',complexity:'Высокая',time:'3-6 недель',cost:'120 000 - 300 000 ₽'},
+  {spec:'Мобильная разработка',seg:'Доставка еды',pain:'Нет приложения, высокая комиссия агрегаторов',sol:'Кроссплатформенное приложение (Flutter/React Native)',complexity:'Высокая',time:'1.5-3 месяца',cost:'150 000 - 400 000 ₽'},
+  {spec:'Мобильная разработка',seg:'Фитнес-клубы',pain:'Клиенты забывают о тренировках',sol:'Приложение с push-уведомлениями и записью',complexity:'Средняя',time:'3-6 недель',cost:'80 000 - 180 000 ₽'},
+  {spec:'Мобильная разработка',seg:'Ритейл',pain:'Нужно мобильное приложение для лояльности',sol:'Приложение с бонусной системой и сканером QR',complexity:'Средняя',time:'1-2 месяца',cost:'100 000 - 250 000 ₽'},
+  {spec:'Мобильная разработка',seg:'Недвижимость',pain:'Клиенты не могут удобно смотреть объекты',sol:'Приложение с картой, фильтрами и 3D-турами',complexity:'Высокая',time:'2-4 месяца',cost:'200 000 - 500 000 ₽'},
+  {spec:'Боты',seg:'Онлайн-школы',pain:'Менеджеры тонут в однотипных вопросах',sol:'Чат-бот с автоответами и приёмом оплаты',complexity:'Средняя',time:'1-2 недели',cost:'25 000 - 60 000 ₽'},
+  {spec:'Боты',seg:'Рестораны',pain:'Много звонков для бронирования',sol:'Бот для бронирования с интеграцией в календарь',complexity:'Низкая',time:'5-10 дней',cost:'15 000 - 35 000 ₽'},
+  {spec:'Боты',seg:'E-commerce',pain:'Клиенты бросают корзины',sol:'Бот с напоминаниями и персональными скидками',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 70 000 ₽'},
+  {spec:'Боты',seg:'HR-агентства',pain:'Ручной сбор резюме от кандидатов',sol:'Бот для сбора анкет и фильтрации кандидатов',complexity:'Средняя',time:'1-3 недели',cost:'40 000 - 90 000 ₽'},
+  {spec:'Боты',seg:'Медицина',pain:'Пациенты забывают о приёмах',sol:'Бот с напоминаниями и записью к врачу',complexity:'Низкая',time:'5-12 дней',cost:'20 000 - 50 000 ₽'},
+  {spec:'DevOps',seg:'Веб-студии',pain:'Ручной и долгий деплой',sol:'CI/CD пайплайн (GitHub Actions/GitLab CI)',complexity:'Средняя',time:'3-7 дней',cost:'20 000 - 50 000 ₽'},
+  {spec:'DevOps',seg:'Стартапы',pain:'Сайт падает, нет мониторинга',sol:'Docker, Nginx, мониторинг (Prometheus/Grafana)',complexity:'Высокая',time:'1-3 недели',cost:'50 000 - 120 000 ₽'},
+  {spec:'DevOps',seg:'E-commerce',pain:'Нужна масштабируемость в пиковые нагрузки',sol:'Kubernetes, автоскейлинг, балансировка',complexity:'Высокая',time:'2-4 недели',cost:'80 000 - 200 000 ₽'},
+  {spec:'Дизайн',seg:'Локальный бизнес',pain:'Устаревший дизайн сайта',sol:'Редизайн с упором на UX/UI и конверсию',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 70 000 ₽'},
+  {spec:'Дизайн',seg:'Приложения',pain:'Нет единого стиля, неудобный интерфейс',sol:'UI-кит и прототипы в Figma',complexity:'Высокая',time:'2-4 недели',cost:'60 000 - 150 000 ₽'},
+  {spec:'Дизайн',seg:'Стартапы',pain:'Нет фирменного стиля',sol:'Логотип, брендбук, гайдлайны',complexity:'Средняя',time:'1-3 недели',cost:'40 000 - 100 000 ₽'},
+  {spec:'Дизайн',seg:'E-commerce',pain:'Низкая конверсия сайта',sol:'UX-аудит и редизайн ключевых страниц',complexity:'Высокая',time:'2-4 недели',cost:'70 000 - 180 000 ₽'}
 ];
 
 function renderRadar(){
-  var h='<h2>🎯 Радар — генератор предложений</h2>';
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><h3 style="margin-top:0;color:#fff">💡 Где искать клиентов</h3>';
-  h+='<p class="mut">Внешние API часто блокируются, используйте прямые ссылки:</p>';
-  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">';
-  h+='<a href="https://www.hh.ru" target="_blank" class="btn small" style="flex:1;text-decoration:none">🇷🇺 HH.ru (сайт)</a>';
-  h+='<a href="https://t.me/s/job_for_devs" target="_blank" class="btn small" style="flex:1;text-decoration:none">✈️ Telegram-каналы</a>';
-  h+='<a href="https://kwork.ru/projects" target="_blank" class="btn small" style="flex:1;text-decoration:none">🛒 Kwork</a>';
+  var h='<h2>🎯 Радар — поиск клиентов</h2>';
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><h3 style="margin-top:0;color:#fff">🔍 Где искать клиентов (30+ источников)</h3>';
+  h+='<p class="mut">Биржи, Telegram-каналы, форумы, соцсети</p>';
+  h+='<div class="source-grid">';
+  h+='<div class="source-item"><a href="https://www.hh.ru" target="_blank">🇷🇺 HH.ru</a><div class="mut">Вакансии</div></div>';
+  h+='<div class="source-item"><a href="https://kwork.ru/projects" target="_blank">🛒 Kwork</a><div class="mut">Биржа</div></div>';
+  h+='<div class="source-item"><a href="https://www.fl.ru/projects" target="_blank">💼 FL.ru</a><div class="mut">Биржа</div></div>';
+  h+='<div class="source-item"><a href="https://freelance.ru" target="_blank">🎯 Freelance.ru</a><div class="mut">Биржа</div></div>';
+  h+='<div class="source-item"><a href="https://t.me/s/job_for_devs" target="_blank">✈️ job_for_devs</a><div class="mut">Telegram</div></div>';
+  h+='<div class="source-item"><a href="https://t.me/s/it_vacancies" target="_blank">️ it_vacancies</a><div class="mut">Telegram</div></div>';
+  h+='<div class="source-item"><a href="https://t.me/s/devjob" target="_blank">✈️ devjob</a><div class="mut">Telegram</div></div>';
+  h+='<div class="source-item"><a href="https://t.me/s/remote_job" target="_blank">✈️ remote_job</a><div class="mut">Telegram</div></div>';
+  h+='<div class="source-item"><a href="https://t.me/s/freelance_for_devs" target="_blank">️ freelance_for_devs</a><div class="mut">Telegram</div></div>';
+  h+='<div class="source-item"><a href="https://t.me/s/webdev_jobs" target="_blank">✈️ webdev_jobs</a><div class="mut">Telegram</div></div>';
+  h+='<div class="source-item"><a href="https://vc.ru/services" target="_blank">📰 VC.ru</a><div class="mut">Заказы</div></div>';
+  h+='<div class="source-item"><a href="https://habr.com/ru/freelance/" target="_blank">📘 Habr</a><div class="mut">Фриланс</div></div>';
+  h+='<div class="source-item"><a href="https://www.upwork.com" target="_blank">🌍 Upwork</a><div class="mut">Международная</div></div>';
+  h+='<div class="source-item"><a href="https://www.fiverr.com" target="_blank"> Fiverr</a><div class="mut">Международная</div></div>';
+  h+='<div class="source-item"><a href="https://www.freelancer.com" target="_blank"> Freelancer</a><div class="mut">Международная</div></div>';
+  h+='<div class="source-item"><a href="https://toptal.com" target="_blank">🌍 Toptal</a><div class="mut">Премиум</div></div>';
+  h+='<div class="source-item"><a href="https://linkedin.com/jobs" target="_blank">💼 LinkedIn</a><div class="mut">Вакансии</div></div>';
+  h+='<div class="source-item"><a href="https://indeed.com" target="_blank">💼 Indeed</a><div class="mut">Вакансии</div></div>';
+  h+='<div class="source-item"><a href="https://stackoverflow.com/jobs" target="_blank">💼 Stack Overflow</a><div class="mut">Вакансии</div></div>';
+  h+='<div class="source-item"><a href="https://github.com/jobs" target="_blank">🐙 GitHub Jobs</a><div class="mut">Вакансии</div></div>';
+  h+='<div class="source-item"><a href="https://www.reddit.com/r/forhire" target="_blank">🔴 Reddit r/forhire</a><div class="mut">Форум</div></div>';
+  h+='<div class="source-item"><a href="https://www.reddit.com/r/freelance_forhire" target="_blank">🔴 Reddit freelance</a><div class="mut">Форум</div></div>';
+  h+='<div class="source-item"><a href="https://hackernews.jobs" target="_blank">🔶 HN Jobs</a><div class="mut">Вакансии</div></div>';
+  h+='<div class="source-item"><a href="https://angel.co/jobs" target="_blank">👼 AngelList</a><div class="mut">Стартапы</div></div>';
+  h+='<div class="source-item"><a href="https://youdo.com" target="_blank">🔧 YouDo</a><div class="mut">Услуги</div></div>';
+  h+='<div class="source-item"><a href="https://profy.ru" target="_blank"> Profy</a><div class="mut">Дизайн</div></div>';
+  h+='<div class="source-item"><a href="https://www.behance.net/jobs" target="_blank"> Behance</a><div class="mut">Дизайн</div></div>';
+  h+='<div class="source-item"><a href="https://dribbble.com/jobs" target="_blank"> Dribbble</a><div class="mut">Дизайн</div></div>';
+  h+='<div class="source-item"><a href="https://www.instagram.com" target="_blank">📷 Instagram</a><div class="mut">Поиск по хэштегам</div></div>';
+  h+='<div class="source-item"><a href="https://vk.com" target="_blank">🔵 VK</a><div class="mut">Группы вакансий</div></div>';
   h+='</div></div>';
   
-  h+='<div class="card"><h3 style="margin-top:0">🤖 Генератор шаблонов проектов</h3>';
-  h+='<p class="mut">Создаёт готовые коммерческие предложения по вашим навыкам: '+(db.profile.specs||[]).join(', ')+'</p>';
+  h+='<div class="card"><h3 style="margin-top:0"> Генератор шаблонов проектов</h3>';
+  h+='<p class="mut">База: '+PAIN_DB.length+' сценариев по 8 специализациям</p>';
+  h+='<div style="margin:10px 0">';
+  h+='<button class="filter-btn '+(db.showAllTemplates?'':'active')+'" onclick="toggleFilter()">Только мои навыки</button>';
+  h+='<button class="filter-btn '+(db.showAllTemplates?'active':'')+'" onclick="toggleFilter()">Показать все ('+PAIN_DB.length+')</button>';
+  h+='</div>';
   h+='<button class="btn ai" onclick="generatePains()">🎯 Сгенерировать шаблоны</button>';
-  h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:8px" onclick="clearPains()">🗑 Очистить все шаблоны</button></div>';
+  h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:8px" onclick="clearPains()">🗑 Очистить все</button></div>';
   
   if(db.pains&&db.pains.length){
+    h+='<div class="mut" style="margin:10px 0">Показано: '+db.pains.length+' шаблонов</div>';
     db.pains.forEach(function(p,idx){
       h+='<div class="card">';
       h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="background:#6c8cff;color:#fff;padding:2px 8px;border-radius:6px;font-size:11px">'+esc(p.spec)+'</span><b>'+esc(p.seg)+'</b></div>';
@@ -129,17 +180,20 @@ function renderRadar(){
   document.getElementById('app').innerHTML=h;
 }
 
+function toggleFilter(){db.showAllTemplates=!db.showAllTemplates;save();renderRadar()}
+
 function generatePains(){
   var added=0;
   var userSpecs = db.profile.specs || ['Фронтенд', 'Бэкенд', 'Боты'];
   PAIN_DB.forEach(function(p){
-    if(userSpecs.includes(p.spec) && !db.pains.some(function(x){return x.pain===p.pain})){
+    var shouldAdd = db.showAllTemplates || userSpecs.includes(p.spec);
+    if(shouldAdd && !db.pains.some(function(x){return x.pain===p.pain})){
       db.pains.push({id:uid(), spec:p.spec, seg:p.seg, pain:p.pain, sol:p.sol, complexity:p.complexity, time:p.time, cost:p.cost, status:'Гипотеза'});
       added++;
     }
   });
   save(); renderRadar();
-  alert(added>0 ? '✅ Добавлено '+added+' готовых шаблонов проектов!' : '⚠️ Все шаблоны по вашим навыкам уже в базе');
+  alert(added>0 ? '✅ Добавлено '+added+' готовых шаблонов проектов!' : '⚠️ Все шаблоны уже в базе');
 }
 
 function clearPains(){if(confirm('Удалить все шаблоны?')){db.pains=[];save();renderRadar()}}
@@ -151,7 +205,7 @@ function genOutreach(seg, pain, sol, time, cost){
 }
 
 function renderProjects(){
-  var h='<h2>📁 Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button>';
+  var h='<h2> Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button>';
   db.projects.forEach(function(p){
     var doneTasks=p.tasks?p.tasks.filter(function(t){return t.done}).length:0;
     var totalTasks=p.tasks?p.tasks.length:0;
@@ -185,16 +239,13 @@ function delTask(projId,taskId){var p=db.projects.find(function(x){return x.id==
 
 function showROI(id){var p=db.projects.find(function(x){return x.id===id});if(!p)return;var roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;var verdict=roi>=1000?'✅ Отлично':roi>=500?'👍 Нормально':'⚠️ Низкий ROI';var h='<h3>🧮 ROI проекта</h3><div class="card"><div style="display:flex;justify-content:space-between;margin:10px 0"><span>Бюджет:</span><b>'+p.budget.toLocaleString()+' ₽</b></div><div style="display:flex;justify-content:space-between;margin:10px 0"><span>Часов:</span><b>'+p.estimatedHours+'</b></div><div style="display:flex;justify-content:space-between;margin:10px 0;padding-top:10px;border-top:1px solid #242b36"><span>Ставка:</span><b style="color:#3ecf8e">'+roi+' ₽/час</b></div><div style="margin-top:15px;font-size:18px;text-align:center">'+verdict+'</div></div><button class="btn" onclick="closeModal()">Закрыть</button>';openModal(h)}
 
-function showReport(id){var p=db.projects.find(function(x){return x.id===id});if(!p)return;var doneTasks=p.tasks?p.tasks.filter(function(t){return t.done}).length:0;var totalTasks=p.tasks?p.tasks.length:0;var report='ОТЧЁТ ПО ПРОЕКТУ\n\nПроект: '+p.name+'\nКлиент: '+p.client+'\nДата: '+today()+'\n\nСтатус: '+['Идея','В работе','Тестирование','Завершён'][p.stage]+'\nБюджет: '+p.budget+' ₽\nДедлайн: '+p.deadline+'\n\nПрогресс: '+doneTasks+'/'+totalTasks+' задач\n\nЗадачи:\n'+(p.tasks||[]).map(function(t){return (t.done?'✓':'○')+' '+t.text}).join('\n')+'\n\nС уважением,\n'+db.profile.name;var h='<h3>📊 Отчёт</h3><textarea id="reportText" rows="12" style="font-family:monospace;font-size:13px">'+esc(report)+'</textarea><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="copyReport()">📋 Копировать</button></div><button class="btn" onclick="closeModal()">Закрыть</button>';openModal(h)}
+function showReport(id){var p=db.projects.find(function(x){return x.id===id});if(!p)return;var doneTasks=p.tasks?p.tasks.filter(function(t){return t.done}).length:0;var totalTasks=p.tasks?p.tasks.length:0;var report='ОТЧЁТ ПО ПРОЕКТУ\n\nПроект: '+p.name+'\nКлиент: '+p.client+'\nДата: '+today()+'\n\nСтатус: '+['Идея','В работе','Тестирование','Завершён'][p.stage]+'\nБюджет: '+p.budget+' ₽\nДедлайн: '+p.deadline+'\n\nПрогресс: '+doneTasks+'/'+totalTasks+' задач\n\nЗадачи:\n'+(p.tasks||[]).map(function(t){return (t.done?'✓':'○')+' '+t.text}).join('\n')+'\n\nС уважением,\n'+db.profile.name;var h='<h3>📊 Отчёт</h3><textarea id="reportText" rows="12" style="font-family:monospace;font-size:13px">'+esc(report)+'</textarea><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="copyReport()"> Копировать</button></div><button class="btn" onclick="closeModal()">Закрыть</button>';openModal(h)}
 function copyReport(){var text=document.getElementById('reportText').value;navigator.clipboard.writeText(text).then(function(){alert('📋 Скопировано!')})}
 
 function openModal(h){document.getElementById('modalContent').innerHTML=h;document.getElementById('modal').classList.add('on')}
 function closeModal(){document.getElementById('modal').classList.remove('on')}
 
-window.onload=function(){
-  save(); // Инициализация localStorage
-  renderHome()
-};
+window.onload=function(){save();renderHome()};
 </script>
 </body>
 </html>
