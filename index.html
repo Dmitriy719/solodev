@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v2.5</title>
+<title>SoloDev v2.4</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg">
 <style>
@@ -33,7 +33,7 @@ h2{font-size:18px;margin:4px 0 12px}
 .btn.ok{background:var(--ok)}
 input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px;margin:4px 0 10px}
 .chip{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:6px 12px;font-size:12px}
-.chip.on{background:var(--acc);color:#fff}.chip.ok{background:var(--ok);color:#fff}.chip.warn{background:var(--warn);color:#000}.chip.ru{background:#d6001c;color:#fff}.chip.en{background:#0039a6;color:#fff}
+.chip.on{background:var(--acc);color:#fff}.chip.ok{background:var(--ok);color:#fff}.chip.warn{background:var(--warn);color:#000}
 .bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
 #splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity .5s}
 #splash.hidden{opacity:0;pointer-events:none}
@@ -54,29 +54,16 @@ input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--
 .chart-label{font-size:10px;color:var(--mut);text-align:center;margin-top:4px}
 .article-card{border-left:3px solid var(--acc);padding-left:12px;margin:10px 0}
 .tag{display:inline-block;background:var(--card2);padding:4px 10px;border-radius:12px;font-size:11px;margin:2px}
-.stage{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px}
-.stage-0{background:#3a4a7a;color:#fff}.stage-1{background:var(--acc);color:#fff}
-.stage-2{background:var(--warn);color:#000}.stage-3{background:var(--ok);color:#fff}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
-.cal-day{background:var(--card2);border-radius:8px;padding:8px 4px;text-align:center;font-size:12px;min-height:50px;position:relative}
-.cal-day.today{border:2px solid var(--acc)}
-.cal-day.has-deadline{background:#2a1040}
-.cal-day .deadline-dot{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:6px;height:6px;background:var(--bad);border-radius:50%}
-.cal-header{text-align:center;color:var(--mut);font-size:11px;padding:4px}
-.habit-check{width:32px;height:32px;border-radius:8px;background:var(--card2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
-.habit-check.done{background:var(--ok);border-color:var(--ok);color:#fff}
-.voice-btn{width:80px;height:80px;border-radius:50%;background:var(--bad);border:none;color:#fff;font-size:32px;cursor:pointer;margin:20px auto;display:block}
-.voice-btn.recording{animation:pulse 1s ease infinite}
 </style>
 </head>
 <body>
 <div id="splash">
-  <h1 style="font-size:48px;margin-bottom:20px;animation:pulse 1.5s ease infinite"></h1>
-  <h1>SoloDev v2.5</h1>
+  <h1 style="font-size:48px;margin-bottom:20px;animation:pulse 1.5s ease infinite">⚡</h1>
+  <h1>SoloDev v2.4</h1>
   <p class="mut">Загрузка приложения...</p>
   <div class="bar" style="width:200px;margin-top:20px"><i style="width:0%;animation:load 2s ease forwards"></i></div>
 </div>
-<header><b>⚡ SoloDev v2.5</b><span id="date"></span></header>
+<header><b>⚡ SoloDev v2.4</b><span id="date"></span></header>
 <main id="app"></main>
 <nav id="nav"></nav>
 <div id="modal" onclick="if(event.target===this)closeModal()"><div class="m-card" id="mcard"></div></div>
@@ -92,13 +79,13 @@ const MOODS=[{e:'😞',n:'Плохо'},{e:'😕',n:'Так себе'},{e:'😐',
 const ACHIEVEMENTS=[
   {id:'first_client',name:'Первый клиент',icon:'👥',desc:'Добавить первого клиента',check:d=>d.clients.length>=1},
   {id:'five_projects',name:'5 проектов',icon:'📁',desc:'Завершить 5 проектов',check:d=>d.projects.filter(p=>p.stage===3).length>=5},
-  {id:'streak_7',name:'Неделя привычек',icon:'🔥',desc:'7 дней подряд отмечать привычки',check:d=>d.habits.some(h=>h.streak>=7)},
+  {id:'streak_7',name:'Неделя привычек',icon:'🔥',desc:'7 дней подряд отмечать привычки',check:d=>{const h=d.habits[0];return h&&h.streak>=7;}},
   {id:'earn_100k',name:'100K заработано',icon:'💰',desc:'Заработать 100 000 ₽',check:d=>d.finances.filter(f=>f.type==='in').reduce((s,f)=>s+f.amt,0)>=100000},
-  {id:'knowledge_10',name:'Учёный',icon:'🎓',desc:'Освоить 10 тем',check:d=>d.knowledge.filter(k=>k.status===3).length>=10},
+  {id:'knowledge_10',name:'Учёный',icon:'',desc:'Освоить 10 тем',check:d=>d.knowledge.filter(k=>k.status===3).length>=10},
   {id:'articles_20',name:'Читатель',icon:'📖',desc:'Сохранить 20 статей',check:d=>(d.savedArticles||[]).length>=20}
 ];
 const EMAIL_TEMPLATES=[
-  {id:'cold',name:'Холодное письмо',text:'Здравствуйте!\n\nМеня зовут {name}, я {spec}.\n\nПредлагаю услуги по {service}.\n\nБуду рад обсудить детали.\n\nС уважением,\n{name}\n{phone}\n{email}'},
+  {id:'cold',name:'Холодное письмо',text:'Здравствуйте!\n\nМеня зовут {name}, я {spec}.\n\nПредлагаю свои услуги по {service}.\n\nБуду рад обсудить детали.\n\nС уважением,\n{name}\n{phone}\n{email}'},
   {id:'follow',name:'После встречи',text:'Здравствуйте, {client}!\n\nСпасибо за встречу. Как договаривались:\n\n• Задача: {task}\n• Срок: {deadline}\n• Бюджет: {budget}\n\nЖду вашего решения.\n\n{name}'},
   {id:'reminder',name:'Напоминание',text:'Здравствуйте, {client}!\n\nНапоминаю о проекте "{project}".\n\nГотовы двигаться дальше?\n\n{name}'},
   {id:'invoice',name:'Счёт на оплату',text:'Счёт №{num} от {date}\n\nИсполнитель: {name}\nЗаказчик: {client}\n\nУслуга: {service}\nСумма: {budget} {cur}\n\nРеквизиты: {bank}'},
@@ -110,9 +97,9 @@ function seed(){return{
   clients:[],projects:[],finances:[],pains:[],
   skills:[{n:'JavaScript',l:4},{n:'React',l:3}],
   goals:[],knowledge:[],prices:[],tasks:[],
-  templates:EMAIL_TEMPLATES,outreachStats:{sent:0,replied:0,converted:0},
+  templates:[],outreachStats:{sent:0,replied:0,converted:0},
   timerMode:0,leads:[],diary:[],
-  habits:[{id:uid(),name:'Код 2 часа',icon:'💻',streak:0,history:{}},{id:uid(),name:'Спорт',icon:'',streak:0,history:{}},{id:uid(),name:'Чтение',icon:'',streak:0,history:{}}],
+  habits:[{id:uid(),name:'Код 2 часа',icon:'💻',streak:0,history:{}},{id:uid(),name:'Спорт',icon:'🏃',streak:0,history:{}},{id:uid(),name:'Чтение',icon:'📚',streak:0,history:{}}],
   calendarView:'month',calendarDate:today(),
   savedArticles:[],searchQuery:'',
   moodHistory:[],
@@ -130,13 +117,15 @@ const TABS=[
   {id:'home',icon:'🏠',label:'Главная'},
   {id:'dashboard',icon:'📊',label:'Дашборд'},
   {id:'radar',icon:'🎯',label:'Радар'},
-  {id:'clients',icon:'👥',label:'Клиенты'},
-  {id:'projects',icon:'',label:'Проекты'},
+  {id:'clients',icon:'',label:'Клиенты'},
+  {id:'projects',icon:'📁',label:'Проекты'},
   {id:'knowledge',icon:'📚',label:'База'},
+  {id:'achievements',icon:'🏆',label:'Бейджи'},
   {id:'portfolio',icon:'💼',label:'Портфолио'},
+  {id:'mood',icon:'😊',label:'Настрой'},
   {id:'habits',icon:'✅',label:'Привычки'},
   {id:'time',icon:'⏱',label:'Время'},
-  {id:'settings',icon:'️',label:'Настройки'}
+  {id:'settings',icon:'⚙️',label:'Настройки'}
 ];
 let tab='home';
 
@@ -147,26 +136,29 @@ function openModal(h){document.getElementById('mcard').innerHTML=h;document.getE
 function closeModal(){document.getElementById('modal').classList.remove('on')}
 function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('Скопировано!')).catch(()=>toast('Ошибка копирования'))}
 
+// ===== АВТО-ТЕМА ПО ВРЕМЕНИ =====
 function applyAutoTheme(){
   if(!db.autoTheme)return;
   const h=new Date().getHours();
   const isNight=h<7||h>=21;
-  if(isNight&&localStorage.getItem('theme')!=='light'){document.body.classList.remove('light-theme');}
-  else if(!isNight&&localStorage.getItem('theme')==='light'){document.body.classList.add('light-theme');}
+  if(isNight&&!document.body.classList.contains('light-theme')&&localStorage.getItem('theme')!=='light'){
+    // Ночь - тёмная тема (по умолчанию)
+  }else if(!isNight&&localStorage.getItem('theme')==='light'){
+    document.body.classList.add('light-theme');
+  }
 }
 
 // ===== ГЛАВНАЯ =====
 function rHome(){
   const m=MONTHS[new Date().getMonth()];
-  const inc=db.finances.filter(f=>f.type==='in'&&f.date.startsWith(today().slice(0,7))).reduce((s,f)=>s+f.amt,0);
+  const inc=db.finances.filter(f=>f.type==='in').reduce((s,f)=>s+f.amt,0);
   const activeProjects=db.projects.filter(p=>p.stage<3).length;
   const leadsCount=(db.leads?db.leads.length:0)+(db.pains?db.pains.length:0);
   const earnedBadges=(db.achievements||[]).length;
-  const reminders=db.clients.filter(c=>c.remindDate&&c.remindDate<=today()).length;
-  return '<div class="note" style="background:linear-gradient(135deg,var(--acc),#9d6cff);color:#fff;padding:20px;margin-bottom:20px"><div style="font-size:24px">Привет, '+esc(db.profile.name)+'! 👋</div><div style="opacity:.9">'+esc(db.profile.spec)+'</div></div><div class="grid"><div class="card stat"><span>Доход, '+m+'</span><b class="plus">'+inc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Проектов</span><b>'+activeProjects+'</b></div><div class="card stat"><span>Лидов</span><b>'+leadsCount+'</b></div><div class="card stat"><span>Бейджей</span><b>🏆 '+earnedBadges+'</b></div></div>'+(reminders>0?'<div class="card" style="background:#241d0e;border-color:#5a4a1e"><b>🔔 Напоминания ('+reminders+')</b>'+db.clients.filter(c=>c.remindDate&&c.remindDate<=today()).map(c=>'<div class="row spread" style="margin-top:8px"><span>'+esc(c.name)+' — написать '+c.remindDate+'</span><button class="btn sec" onclick="setRemind(\\''+c.id+'\\',null)">✓</button></div>').join('')+'</div>':'')+'<div class="card"><b>⚡ Быстрые действия</b><div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn" onclick="go(\\'dashboard\\')">📊 Дашборд</button><button class="btn sec" onclick="go(\\'radar\\')">🎯 Клиенты</button><button class="btn sec" onclick="go(\\'knowledge\\')">📚 База</button><button class="btn sec" onclick="go(\\'portfolio\\')">💼 Портфолио</button></div></div>';
+  return '<div class="note" style="background:linear-gradient(135deg,var(--acc),#9d6cff);color:#fff;padding:20px;margin-bottom:20px"><div style="font-size:24px">Привет, '+esc(db.profile.name)+'! 👋</div><div style="opacity:.9">'+esc(db.profile.spec)+'</div></div><div class="grid"><div class="card stat"><span>Доход, '+m+'</span><b class="plus">'+inc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Проектов</span><b>'+activeProjects+'</b></div><div class="card stat"><span>Лидов</span><b>'+leadsCount+'</b></div><div class="card stat"><span>Бейджей</span><b>🏆 '+earnedBadges+'</b></div></div><div class="card"><b>⚡ Быстрые действия</b><div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn" onclick="go(\\'dashboard\\')">📊 Дашборд</button><button class="btn sec" onclick="go(\\'radar\\')">🎯 Клиенты</button><button class="btn sec" onclick="go(\\'knowledge\\')">📚 База</button><button class="btn sec" onclick="go(\\'portfolio\\')">💼 Портфолио</button></div></div>';
 }
 
-// ===== ДАШБОРД =====
+// ===== ДАШБОРД ПРОДУКТИВНОСТИ =====
 function rDashboard(){
   const m=today().slice(0,7);
   const monthFin=db.finances.filter(f=>f.date.startsWith(m));
@@ -179,223 +171,237 @@ function rDashboard(){
   const completedProjects=db.projects.filter(p=>p.stage===3).length;
   const totalTasks=db.projects.reduce((s,p)=>s+(p.tasks?p.tasks.length:0),0);
   const doneTasks=db.projects.reduce((s,p)=>s+(p.tasks?p.tasks.filter(t=>t.done).length:0),0);
+  
+  // Данные для графика за последние 7 дней
   const weekData=[];
-  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().slice(0,10);const dayInc=db.finances.filter(f=>f.date===ds&&f.type==='in').reduce((s,f)=>s+f.amt,0);weekData.push({day:d.getDate(),inc:dayInc});}
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    const dayInc=db.finances.filter(f=>f.date===ds&&f.type==='in').reduce((s,f)=>s+f.amt,0);
+    weekData.push({day:d.getDate(),inc:dayInc});
+  }
   const maxInc=Math.max(...weekData.map(d=>d.inc),1);
+  
+  // Настроение за неделю
   const weekMoods=db.moodHistory.filter(m=>m.date>=weekStr);
   const avgMood=weekMoods.length?Math.round(weekMoods.reduce((s,m)=>s+m.value,0)/weekMoods.length):0;
+  
+  let h='<div class="row spread"><h2> Дашборд продуктивности</h2></div>';
+  
+  h+='<div class="grid"><div class="card stat"><span>Доход за неделю</span><b class="plus">'+weekInc.toLocaleString()+' ₽</b></div>';
+  h+='<div class="card stat"><span>Доход за месяц</span><b class="plus">'+monthInc.toLocaleString()+' ₽</b></div>';
+  h+='<div class="card stat"><span>Проектов завершено</span><b>'+completedProjects+'</b></div>';
+  h+='<div class="card stat"><span>Задач выполнено</span><b>'+doneTasks+'/'+totalTasks+'</b></div></div>';
+  
+  h+='<div class="card"><b>📈 Доходы за последние 7 дней</b>';
+  h+='<div class="chart-bar">';
+  weekData.forEach(d=>{
+    const hPct=(d.inc/maxInc)*100;
+    h+='<div style="flex:1;text-align:center"><div class="chart-col" style="height:100px"><i style="height:'+hPct+'%"></i></div><div class="chart-label">'+d.day+'</div></div>';
+  });
+  h+='</div></div>';
+  
+  h+='<div class="card"><b>😊 Настроение (среднее за неделю)</b>';
+  h+='<div style="font-size:48px;text-align:center;margin:10px 0">'+(avgMood>0?MOODS[avgMood-1].e:'')+'</div>';
+  h+='<div class="mut" style="text-align:center">'+(avgMood>0?MOODS[avgMood-1].n:'Нет данных')+'</div></div>';
+  
+  // Прогноз дохода
   const daysInMonth=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
   const currentDay=new Date().getDate();
   const forecast=currentDay>0?Math.round(monthInc/currentDay*daysInMonth):0;
-  const earned=(db.achievements||[]).length;
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>💰 Прогноз дохода на месяц</b>';
+  h+='<div style="font-size:32px;text-align:center;margin:10px 0;color:var(--ok)"><b>'+forecast.toLocaleString()+' ₽</b></div>';
+  h+='<div class="mut" style="text-align:center">На основе текущей динамики</div></div>';
   
-  let h='<div class="row spread"><h2>📊 Дашборд</h2></div>';
-  h+='<div class="grid"><div class="card stat"><span>Доход за неделю</span><b class="plus">'+weekInc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Доход за месяц</span><b class="plus">'+monthInc.toLocaleString()+' ₽</b></div><div class="card stat"><span>Проектов завершено</span><b>'+completedProjects+'</b></div><div class="card stat"><span>Задач выполнено</span><b>'+doneTasks+'/'+totalTasks+'</b></div></div>';
-  h+='<div class="card"><b> Доходы за 7 дней</b><div class="chart-bar">';
-  weekData.forEach(d=>{const hPct=(d.inc/maxInc)*100;h+='<div style="flex:1;text-align:center"><div class="chart-col" style="height:100px"><i style="height:'+hPct+'%"></i></div><div class="chart-label">'+d.day+'</div></div>';});
+  return h;
+}
+
+// ===== СИСТЕМА ДОСТИЖЕНИЙ =====
+function rAchievements(){
+  const earned=db.achievements||[];
+  let h='<div class="row spread"><h2>🏆 Достижения</h2></div>';
+  h+='<div class="card" style="background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000"><b>🏆 Получено бейджей: '+earned.length+' / '+ACHIEVEMENTS.length+'</b>';
+  h+='<div class="bar" style="margin-top:10px;background:rgba(0,0,0,.2)"><i style="width:'+(earned.length/ACHIEVEMENTS.length*100)+'%;background:#000"></i></div></div>';
+  
+  h+='<div class="card"><b>Ваши бейджи</b><div class="row" style="flex-wrap:wrap">';
+  ACHIEVEMENTS.forEach(a=>{
+    const isEarned=earned.includes(a.id);
+    h+='<div class="badge '+(isEarned?'earned':'')+'" style="'+(isEarned?'animation:badge-pop .5s ease':'opacity:.4')+'"><span class="icon">'+a.icon+'</span><span class="name">'+a.name+'</span></div>';
+  });
   h+='</div></div>';
-  h+='<div class="card"><b>😊 Настроение (среднее)</b><div style="font-size:48px;text-align:center;margin:10px 0">'+(avgMood>0?MOODS[avgMood-1].e:'')+'</div><div class="mut" style="text-align:center">'+(avgMood>0?MOODS[avgMood-1].n:'Нет данных')+' <button class="btn sec" style="margin-left:10px;padding:6px 10px" onclick="go(\\'mood\\')">Отметить</button></div></div>';
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>💰 Прогноз дохода на месяц</b><div style="font-size:32px;text-align:center;margin:10px 0;color:var(--ok)"><b>'+forecast.toLocaleString()+' ₽</b></div><div class="mut" style="text-align:center">На основе текущей динамики</div></div>';
-  h+='<div class="card"><b>🏆 Достижения ('+earned+'/'+ACHIEVEMENTS.length+')</b><div class="row" style="flex-wrap:wrap">';
-  ACHIEVEMENTS.forEach(a=>{const isEarned=(db.achievements||[]).includes(a.id);h+='<div class="badge '+(isEarned?'earned':'')+'" style="'+(isEarned?'':'opacity:.4')+'"><span class="icon">'+a.icon+'</span><span class="name">'+a.name+'</span></div>';});
-  h+='</div><button class="btn ai" onclick="checkAchievements()" style="width:100%;margin-top:10px">🔄 Проверить достижения</button></div>';
+  
+  h+='<div class="card"><b>📋 Условия получения</b>';
+  ACHIEVEMENTS.forEach(a=>{
+    const isEarned=earned.includes(a.id);
+    h+='<div class="row spread" style="margin:8px 0"><span>'+(isEarned?'✅':'⬜')+' '+a.icon+' '+a.name+'</span><span class="mut">'+a.desc+'</span></div>';
+  });
+  h+='</div>';
+  
+  h+='<button class="btn ai" onclick="checkAchievements()" style="width:100%"> Проверить достижения</button>';
   return h;
 }
 
 function checkAchievements(){
   let newBadges=0;
   if(!db.achievements)db.achievements=[];
-  ACHIEVEMENTS.forEach(a=>{if(!db.achievements.includes(a.id)&&a.check(db)){db.achievements.push(a.id);newBadges++;setTimeout(()=>toast('🏆 '+a.name),500);}});
+  ACHIEVEMENTS.forEach(a=>{
+    if(!db.achievements.includes(a.id)&&a.check(db)){
+      db.achievements.push(a.id);
+      newBadges++;
+      setTimeout(()=>toast('🏆 Новый бейдж: '+a.name),500);
+    }
+  });
   save();render();
   if(newBadges===0)toast('Новых достижений нет');
 }
 
-// ===== РАДАР =====
-function rRadar(){
-  let h='<div class="row spread"><h2>🎯 Радар</h2></div>';
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>🇷🇺 Российские биржи</b><p class="mut">Поиск: '+(db.profile.specs||[]).join(', ')+'</p>';
-  const q=encodeURIComponent((db.profile.specs||['разработчик']).join(' '));
-  h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><a href="https://freelance.habr.com/tasks?q='+q+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">Habr</a><a href="https://www.fl.ru/projects/?keyword='+q+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">FL.ru</a><a href="https://kwork.ru/projects?keyword='+q+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">Kwork</a></div></div>';
-  if(db.leads&&db.leads.length){h+='<div class="card"><b>🎯 Лиды: '+db.leads.length+'</b><button class="btn danger" style="margin-top:8px" onclick="clearLeads()">🗑 Очистить</button>';db.leads.slice(0,10).forEach((l,idx)=>{h+='<div class="card article-card" style="margin-top:10px"><div class="row spread"><b>'+(idx+1)+'. '+esc(l.title)+'</b><span class="chip warn">'+(l.source==='hh'?'🇺 HH':l.source==='hn'?'🔶 HN':'🔴 Reddit')+'</span></div>';if(l.company) h+='<div class="mut">🏢 '+esc(l.company)+'</div>';if(l.salary) h+='<div class="plus">💰 '+esc(l.salary)+'</div>';h+='<div class="row" style="margin-top:10px;gap:8px"><button class="btn sec" onclick="leadToClient('+idx+')">👥 В клиенты</button><button class="btn sec" onclick="leadOutreach('+idx+')">️</button><button class="btn danger" onclick="delLead('+idx+')">🗑</button></div></div>';});h+='</div>';}
-  h+='<div class="card" style="background:#1a2035;border-color:#3a4a7a"><b>🤖 Шаблоны болей</b><button class="btn ai" onclick="generatePains()" style="width:100%">🎯 Сгенерировать</button></div>';
-  if(db.pains&&db.pains.length){db.pains.slice(0,5).forEach((p,idx)=>{h+='<div class="card"><div class="row spread"><b>'+(idx+1)+'. '+esc(p.seg)+'</b><span class="chip on">'+'★'.repeat(p.demand)+'</span></div><div class="mut">'+esc(p.pain)+'</div><div class="note">💡 '+esc(p.sol)+'</div><div class="row" style="margin-top:10px;gap:8px"><button class="btn sec" onclick="genOutreach(\\''+esc(p.pain)+'\\',\\''+esc(p.sol)+'\\',\\''+esc(p.seg)+'\\')">✍️ Написать</button><button class="btn danger" onclick="delPain(\\''+p.id+'\\')">🗑</button></div></div>';});}
+// ===== АВТОГЕНЕРАТОР ПОРТФОЛИО =====
+function rPortfolio(){
+  let h='<div class="row spread"><h2>💼 Портфолио</h2></div>';
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>🎨 Автогенератор портфолио</b>';
+  h+='<p class="mut">Создаёт красивую HTML-страницу из ваших проектов</p>';
+  h+='<button class="btn ai" onclick="generatePortfolio()" style="width:100%;margin-top:10px">✨ Сгенерировать портфолио</button>';
+  h+='<button class="btn sec" onclick="previewPortfolio()" style="width:100%;margin-top:8px">👁 Предпросмотр</button></div>';
+  
+  if(db.projects.length){
+    h+='<div class="card"><b>📁 Ваши проекты ('+db.projects.length+')</b>';
+    db.projects.forEach(p=>{
+      h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(p.name)+'</b><span class="chip '+(p.stage===3?'ok':'on')+'">'+STAGES[p.stage]+'</span></div>';
+      h+='<div class="mut">'+esc(p.client||'—')+' · '+p.budget.toLocaleString()+' '+p.cur+'</div></div>';
+    });
+    h+='</div>';
+  }else{
+    h+='<div class="card mut">Добавьте проекты для генерации портфолио</div>';
+  }
   return h;
 }
-async function searchHH(){toast('🇷🇺 HH.ru...');const q=db.profile.specs[0]||'разработчик';try{const r=await fetch('https://api.hh.ru/vacancies?text='+encodeURIComponent(q)+'&per_page=5');const data=await r.json();let added=0;(data.items||[]).forEach(v=>{if(!db.leads.some(l=>l.url===v.alternate_url)){db.leads.push({id:uid(),source:'hh',title:v.name,company:v.employer?v.employer.name:'',salary:v.salary?(v.salary.from?v.salary.from+'':v.salary.to?v.salary.to+'':'')+' '+(v.salary.currency||'RUB'):'',url:v.alternate_url,date:today(),lang:'ru'});added++;}});save();render();toast('🇷🇺 +'+added);}catch(e){toast('Ошибка HH');}}
-async function searchHNLeads(){toast('🔶 HN...');try{const r=await fetch('https://hn.algolia.com/api/v1/search?query=hiring+developer&tags=story&hitsPerPage=5');const data=await r.json();let added=0;(data.hits||[]).forEach(h=>{if(!db.leads.some(l=>l.title===h.title)){db.leads.push({id:uid(),source:'hn',title:h.title,author:h.author||'',url:h.url||'https://news.ycombinator.com/item?id='+h.object_id,date:today(),lang:'en'});added++;}});save();render();toast('🔶 +'+added);}catch(e){toast('Ошибка HN');}}
-async function searchReddit(){toast('🔴 Reddit...');let added=0;try{const r=await fetch('https://www.reddit.com/r/forhire/hot.json?limit=5');const data=await r.json();(data.data?data.data.children||[]:[]).forEach(p=>{const post=p.data;if(!db.leads.some(l=>l.url==='https://reddit.com'+post.permalink)){db.leads.push({id:uid(),source:'reddit',title:post.title,company:'r/forhire',url:'https://reddit.com'+post.permalink,date:today(),lang:'en'});added++;}});save();render();toast('🔴 +'+added);}catch(e){toast('Ошибка Reddit');}}
-async function searchAllLeads(){toast('🚀 Ищу...');await searchHH();await new Promise(r=>setTimeout(r,500));await searchHNLeads();await new Promise(r=>setTimeout(r,500));await searchReddit();toast('✅ Найдено: '+db.leads.length);}
-function leadToClient(idx){const l=db.leads[idx];if(!l)return;db.clients.push({id:uid(),name:l.company||l.title,company:l.company||'',budget:0,cur:'RUB',status:'Новый',date:today(),remindDate:null});save();render();toast(' Добавлен!');checkAchievements();}
-function leadOutreach(idx){const l=db.leads[idx];if(!l)return;const txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nУвидел ваш запрос: "'+l.title+'".\n\nБуду рад обсудить.\n\nС уважением,\n'+db.profile.name;copyText(txt);db.outreachStats=db.outreachStats||{sent:0,replied:0,converted:0};db.outreachStats.sent++;save();openModal('<h3>✉️ Скопировано!</h3><textarea rows="8" style="width:100%">'+esc(txt)+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>');}
-function delLead(idx){db.leads.splice(idx,1);save();render();}
-function clearLeads(){if(confirm('Удалить все лиды?')){db.leads=[];save();render();}}
-function generatePains(){const PAIN_DB={'Фронтенд':[{seg:'Владельцы магазинов',pain:'Сайт медленно грузится',sol:'Оптимизация скорости',demand:5}],'Бэкенд':[{seg:'Стартапы',pain:'Нужен API',sol:'REST API',demand:5}],'Боты':[{seg:'Владельцы каналов',pain:'Много вопросов',sol:'Бот с FAQ',demand:5}]};let added=0;(db.profile.specs||[]).forEach(sp=>{(PAIN_DB[sp]||[]).forEach(p=>{if(!db.pains.some(x=>x.pain===p.pain)){db.pains.push({id:uid(),...p,status:'Гипотеза'});added++;}});});save();render();toast(added>0?'✅ +'+added:'⚠️ Все в базе');}
-function delPain(id){if(confirm('Удалить?')){db.pains=db.pains.filter(p=>p.id!==id);save();render();}}
-function genOutreach(pain,sol,seg){const txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nВижу, что для "'+seg+'" актуально: "'+pain+'".\nЯ решаю: '+sol+'.\n\nНайдётся 5 минут?\n\n'+db.profile.name;copyText(txt);db.outreachStats=db.outreachStats||{sent:0,replied:0,converted:0};db.outreachStats.sent++;save();openModal('<h3>✉️ Скопировано!</h3><textarea rows="8" style="width:100%">'+esc(txt)+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.getElementById(\\'outText2\\').value);closeModal()"> Копировать</button>');}
 
-// ===== КЛИЕНТЫ С НАПОМИНАНИЯМИ =====
-function rClients(){
-  const reminders=db.clients.filter(c=>c.remindDate&&c.remindDate<=today());
-  let h='<div class="row spread"><h2>👥 Клиенты</h2><button class="btn" onclick="addClient()">+ Лид</button></div>';
-  if(reminders.length){h+='<div class="card" style="background:#241d0e;border-color:#5a4a1e"><b>🔔 Напоминания ('+reminders.length+')</b>';reminders.forEach(c=>{h+='<div class="row spread" style="margin-top:8px"><span>'+esc(c.name)+' — написать '+c.remindDate+'</span><button class="btn sec" onclick="setRemind(\\''+c.id+'\\',null)">✓</button></div>';});h+='</div>';}
-  db.clients.forEach(c=>{h+='<div class="card"><div class="row spread"><b>'+esc(c.name)+'</b><span class="chip on">'+c.status+'</span></div><div class="mut">'+esc(c.company)+' · '+c.budget+' '+c.cur+'</div>'+(c.remindDate?'<div class="mut"> Напомнить: '+c.remindDate+'</div>':'')+'<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn sec" onclick="setRemind(\\''+c.id+'\\')">🔔 Напомнить</button><button class="btn danger" onclick="delClient(\\''+c.id+'\\')">🗑</button></div></div>';});
-  return h;
+function generatePortfolioHTML(){
+  const completed=db.projects.filter(p=>p.stage===3);
+  const skills=db.skills.map(s=>s.n).join(', ');
+  let projectsHTML=completed.map(p=>'<div class="project-card"><h3>'+esc(p.name)+'</h3><p>Клиент: '+esc(p.client||'—')+'</p><p>Бюджет: '+p.budget+' '+p.cur+'</p></div>').join('');
+  
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Портфолио - '+esc(db.profile.name)+'</title><style>body{font-family:system-ui;max-width:800px;margin:0 auto;padding:20px;background:#0e1116;color:#e8ecf3}h1{color:#6c8cff}.project-card{background:#171b22;padding:20px;border-radius:12px;margin:15px 0;border:1px solid #242b36}.skills{display:flex;gap:8px;flex-wrap:wrap}.skill{background:#6c8cff;color:#fff;padding:6px 12px;border-radius:16px;font-size:13px}a{color:#6c8cff}</style></head><body><h1>⚡ '+esc(db.profile.name)+'</h1><p style="color:#8b94a7">'+esc(db.profile.spec)+'</p><p>📧 '+esc(db.profile.email)+' | 📱 '+esc(db.profile.phone)+'</p><h2> Навыки</h2><div class="skills">'+db.skills.map(s=>'<span class="skill">'+esc(s.n)+'</span>').join('')+'</div><h2>📁 Завершённые проекты ('+completed.length+')</h2>'+(projectsHTML||'<p>Пока нет завершённых проектов</p>')+'<footer style="margin-top:40px;color:#8b94a7;text-align:center">Создано с помощью SoloDev</footer></body></html>';
 }
-function addClient(){const n=prompt('Имя:');if(!n)return;db.clients.push({id:uid(),name:n,company:prompt('Компания:')||'',budget:+prompt('Бюджет:')||0,cur:'RUB',status:'Новый',date:today(),remindDate:null});save();render();checkAchievements();}
-function delClient(id){if(confirm('Удалить?')){db.clients=db.clients.filter(c=>c.id!==id);save();render();}}
-function setRemind(id,date){if(!date){const c=db.clients.find(x=>x.id===id);if(c)c.remindDate=null;save();render();toast('Напоминание снято');return;}const d=prompt('Дата напоминания (ГГГГ-ММ-ДД):',today());if(d){const c=db.clients.find(x=>x.id===id);if(c){c.remindDate=d;save();render();toast('🔔 Напоминание: '+d);}}}
 
-// ===== ПРОЕКТЫ С ЭТАПАМИ, ЗАДАЧАМИ, ROI, ОТЧЁТАМИ =====
-function rProjects(){
-  let h='<div class="row spread"><h2>📁 Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button></div>';
-  if(!db.projects.length) h+='<div class="card mut">Нет проектов</div>';
-  db.projects.forEach(p=>{
-    const doneTasks=p.tasks?p.tasks.filter(t=>t.done).length:0;
-    const totalTasks=p.tasks?p.tasks.length:0;
-    const progress=totalTasks?Math.round(doneTasks/totalTasks*100):0;
-    const roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;
-    h+='<div class="card"><div class="row spread"><b>'+esc(p.name)+'</b><span class="stage stage-'+p.stage+'">'+STAGES[p.stage]+'</span></div><div class="mut">'+esc(p.client||'—')+' · '+p.budget.toLocaleString()+' '+p.cur+'</div>';
-    if(p.deadline) h+='<div class="mut"> Дедлайн: '+p.deadline+'</div>';
-    if(roi) h+='<div class="plus">🧮 ROI: '+roi+' ₽/час</div>';
-    h+='<div class="bar" style="margin:10px 0"><i style="width:'+progress+'%"></i></div><div class="mut">Задачи: '+doneTasks+'/'+totalTasks+' ('+progress+'%)</div>';
-    h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">';
-    if(p.stage<3) h+='<button class="btn sec" onclick="nextStage(\\''+p.id+'\\')">Этап →</button>';
-    h+='<button class="btn sec" onclick="showProjectTasks(\\''+p.id+'\\')">📋 Задачи</button>';
-    h+='<button class="btn sec" onclick="projectROI(\\''+p.id+'\\')">🧮 ROI</button>';
-    h+='<button class="btn sec" onclick="projectReport(\\''+p.id+'\\')">📊 Отчёт</button>';
-    h+='<button class="btn danger" onclick="delProject(\\''+p.id+'\\')">🗑</button>';
-    h+='</div></div>';
+function generatePortfolio(){
+  const html=generatePortfolioHTML();
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download='portfolio_'+db.profile.name.replace(/\s+/g,'_')+'.html';
+  link.click();
+  toast('✅ Портфолио скачано!');
+}
+
+function previewPortfolio(){
+  const html=generatePortfolioHTML();
+  openModal('<h3>👁 Предпросмотр портфолио</h3><iframe srcdoc="'+esc(html).replace(/"/g,'&quot;')+'" style="width:100%;height:400px;border:1px solid var(--line);border-radius:8px"></iframe><button class="btn" style="width:100%;margin-top:10px" onclick="generatePortfolio()">📥 Скачать HTML</button>');
+}
+
+// ===== ТРЕКЕР НАСТРОЕНИЯ =====
+function rMood(){
+  const todayMood=db.moodHistory.find(m=>m.date===today());
+  const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
+  const weekStr=weekAgo.toISOString().slice(0,10);
+  const weekMoods=db.moodHistory.filter(m=>m.date>=weekStr);
+  const avgMood=weekMoods.length?Math.round(weekMoods.reduce((s,m)=>s+m.value,0)/weekMoods.length):0;
+  
+  let h='<div class="row spread"><h2>😊 Трекер настроения</h2></div>';
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>Как вы себя чувствуете сегодня?</b>';
+  h+='<div class="row" style="justify-content:center;margin:20px 0;gap:10px">';
+  MOODS.forEach((m,i)=>{
+    const isSelected=todayMood&&todayMood.value===i+1;
+    h+='<button class="mood-btn '+(isSelected?'selected':'')+'" onclick="setMood('+(i+1)+')">'+m.e+'</button>';
   });
-  if(db.projects.length>1){h+='<div class="card"><b>📈 Сравнение проектов</b>';db.projects.forEach(p=>{const roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;h+='<div class="row spread" style="margin:8px 0"><span>'+esc(p.name)+'</span><b class="plus">'+roi+' ₽/час</b></div>';});h+='</div>';}
+  h+='</div>';
+  if(todayMood) h+='<div class="mut" style="text-align:center">Сегодня: '+MOODS[todayMood.value-1].e+' '+MOODS[todayMood.value-1].n+'</div>';
+  h+='</div>';
+  
+  h+='<div class="card"><b>📊 Статистика за неделю</b>';
+  h+='<div style="font-size:48px;text-align:center;margin:10px 0">'+(avgMood>0?MOODS[avgMood-1].e:'😐')+'</div>';
+  h+='<div class="mut" style="text-align:center">Среднее: '+(avgMood>0?MOODS[avgMood-1].n:'Нет данных')+'</div>';
+  h+='<div class="mut" style="text-align:center;margin-top:10px">Отмечено дней: '+weekMoods.length+'/7</div></div>';
+  
+  h+='<div class="card"><b>📝 История</b>';
+  db.moodHistory.slice().reverse().slice(0,14).forEach(m=>{
+    h+='<div class="row spread" style="margin:8px 0"><span>'+m.date+'</span><span style="font-size:24px">'+MOODS[m.value-1].e+'</span></div>';
+  });
+  h+='</div>';
   return h;
 }
-function addProject(){openModal('<h3>Новый проект</h3><label>Название</label><input id="pj_name"><label>Клиент</label><input id="pj_client"><label>Бюджет (₽)</label><input type="number" id="pj_budget" value="0"><label>Дедлайн</label><input type="date" id="pj_deadline"><label>Оценка часов</label><input type="number" id="pj_hours" value="40"><div class="row"><button class="btn" onclick="saveProject()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
-function saveProject(){const name=document.getElementById('pj_name').value.trim();if(!name){toast('Название?');return;}db.projects.push({id:uid(),name:name,client:document.getElementById('pj_client').value.trim(),budget:+document.getElementById('pj_budget').value||0,cur:'RUB',deadline:document.getElementById('pj_deadline').value,estimatedHours:+document.getElementById('pj_hours').value||0,stage:0,tasks:[],date:today()});save();closeModal();render();toast('Проект создан');}
-function nextStage(id){const p=db.projects.find(x=>x.id===id);if(p&&p.stage<3){p.stage++;save();render();toast('Этап: '+STAGES[p.stage]);checkAchievements();}}
-function delProject(id){if(confirm('Удалить?')){db.projects=db.projects.filter(p=>p.id!==id);save();render();}}
-function showProjectTasks(id){const p=db.projects.find(x=>x.id===id);if(!p)return;let h='<h3>Задачи: '+esc(p.name)+'</h3>';if(p.tasks&&p.tasks.length){p.tasks.forEach(t=>{h+='<div class="row" style="margin:8px 0"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleProjTask(\\''+id+'\\',\\''+t.id+'\\')"><span style="flex:1;'+(t.done?'text-decoration:line-through;color:var(--mut)':'')+'">'+esc(t.text)+'</span><button class="btn danger" onclick="delProjTask(\\''+id+'\\',\\''+t.id+'\\')">✕</button></div>';});}else{h+='<div class="mut">Нет задач</div>';}h+='<div class="row" style="margin-top:10px"><input id="newTask" placeholder="Задача"><button class="btn" onclick="addProjTask(\\''+id+'\\')">+</button></div>';openModal(h);}
-function addProjTask(projId){const text=document.getElementById('newTask').value.trim();if(!text)return;const p=db.projects.find(x=>x.id===projId);if(p){if(!p.tasks)p.tasks=[];p.tasks.push({id:uid(),text:text,done:false});save();showProjectTasks(projId);render();}}
-function toggleProjTask(projId,taskId){const p=db.projects.find(x=>x.id===projId);if(p&&p.tasks){const t=p.tasks.find(x=>x.id===taskId);if(t)t.done=!t.done;save();showProjectTasks(projId);render();}}
-function delProjTask(projId,taskId){const p=db.projects.find(x=>x.id===projId);if(p&&p.tasks){p.tasks=p.tasks.filter(t=>t.id!==taskId);save();showProjectTasks(projId);render();}}
-function projectROI(id){const p=db.projects.find(x=>x.id===id);if(!p)return;const roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;const verdict=roi>=1000?'✅ Отлично':roi>=500?' Нормально':'⚠️ Низкий ROI';openModal('<h3> ROI проекта</h3><div class="card"><div class="row spread"><span>Бюджет:</span><b>'+p.budget.toLocaleString()+' '+p.cur+'</b></div><div class="row spread"><span>Часов:</span><b>'+p.estimatedHours+'</b></div><div class="row spread" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)"><span>Ставка:</span><b class="plus">'+roi+' ₽/час</b></div><div style="margin-top:10px;font-size:18px;text-align:center">'+verdict+'</div></div><button class="btn" style="width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>');}
-function projectReport(id){const p=db.projects.find(x=>x.id===id);if(!p)return;const doneTasks=p.tasks?p.tasks.filter(t=>t.done).length:0;const totalTasks=p.tasks?p.tasks.length:0;const report='ОТЧЁТ ПО ПРОЕКТУ\n\nПроект: '+p.name+'\nКлиент: '+p.client+'\nДата: '+today()+'\n\nСтатус: '+STAGES[p.stage]+'\nБюджет: '+p.budget+' '+p.cur+'\nДедлайн: '+p.deadline+'\n\nПрогресс: '+doneTasks+'/'+totalTasks+' задач\n\nЗадачи:\n'+(p.tasks||[]).map(t=>(t.done?'✓':'○')+' '+t.text).join('\n')+'\n\nС уважением,\n'+db.profile.name;openModal('<h3>📊 Отчёт</h3><textarea id="reportText" rows="12" style="width:100%;font-family:monospace;font-size:13px">'+esc(report)+'</textarea><div class="row" style="margin-top:10px;gap:8px"><button class="btn" onclick="copyText(document.getElementById(\\'reportText\\').value)">📋 Копировать</button><button class="btn sec" onclick="printReport(\\''+id+'\\')">🖨 Печать/PDF</button></div>');}
-function printReport(id){const p=db.projects.find(x=>x.id===id);if(!p)return;const doneTasks=p.tasks?p.tasks.filter(t=>t.done).length:0;const totalTasks=p.tasks?p.tasks.length:0;document.getElementById('modal').classList.remove('on');const w=window.open('','_blank');w.document.write('<html><head><title>Отчёт: '+esc(p.name)+'</title><style>body{font-family:system-ui;padding:20px}h1{color:#6c8cff}</style></head><body><h1>Отчёт: '+esc(p.name)+'</h1><p><b>Клиент:</b> '+esc(p.client)+'</p><p><b>Дата:</b> '+today()+'</p><p><b>Статус:</b> '+STAGES[p.stage]+'</p><p><b>Бюджет:</b> '+p.budget+' '+p.cur+'</p><p><b>Дедлайн:</b> '+p.deadline+'</p><p><b>Прогресс:</b> '+doneTasks+'/'+totalTasks+'</p><h3>Задачи:</h3><ul>'+(p.tasks||[]).map(t=>'<li>'+(t.done?'✓':'○')+' '+esc(t.text)+'</li>').join('')+'</ul><p style="margin-top:40px">С уважением,<br>'+esc(db.profile.name)+'</p></body></html>');w.document.close();w.print();}
 
-// ===== БАЗА ЗНАНИЙ (интернет + локальная + курсы) =====
+function setMood(value){
+  const todayStr=today();
+  const existing=db.moodHistory.findIndex(m=>m.date===todayStr);
+  if(existing>=0){db.moodHistory[existing].value=value;}
+  else{db.moodHistory.push({date:todayStr,value:value,note:''});}
+  save();render();
+  toast('Настроение сохранено: '+MOODS[value-1].e);
+  checkAchievements();
+}
+
+// ===== БАЗА ЗНАНИЙ (из v2.3) =====
 function rKnowledge(){
   let h='<div class="row spread"><h2>📚 База знаний</h2></div>';
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>🇷🇺 Русскоязычные источники</b><input id="searchQuery" placeholder="Поиск..." value="'+esc(db.searchQuery||'')+'" style="margin-top:10px"><div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn ai" onclick="searchHabr()" style="flex:1">Habr</button><button class="btn warn" onclick="searchVC()" style="flex:1">VC.ru</button></div><button class="btn" onclick="searchAllRU()" style="width:100%;margin-top:8px"> Искать на РУССКОМ</button></div>';
-  h+='<div class="card"><b>🌐 Англоязычные</b><div class="row" style="margin-top:10px;gap:8px"><button class="btn sec" onclick="searchGitHub()" style="flex:1">GitHub</button><button class="btn sec" onclick="searchHN()" style="flex:1">HN</button></div><p class="mut" style="margin-top:8px">💡 Для английских статей есть кнопка "Перевести"</p></div>';
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>🇷🇺 Русскоязычные источники</b>';
+  h+='<input id="searchQuery" placeholder="Поиск..." value="'+esc(db.searchQuery||'')+'" style="margin-top:10px">';
+  h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="btn ai" onclick="searchHabr()" style="flex:1">Habr</button><button class="btn warn" onclick="searchVC()" style="flex:1">VC.ru</button></div>';
+  h+='<button class="btn" onclick="searchAllRU()" style="width:100%;margin-top:8px"> Искать на РУССКОМ</button></div>';
+  h+='<div class="card"><b>🌐 Англоязычные</b><div class="row" style="margin-top:10px;gap:8px"><button class="btn sec" onclick="searchGitHub()" style="flex:1">GitHub</button><button class="btn sec" onclick="searchHN()" style="flex:1">HN</button></div></div>';
   h+='<div class="row" style="margin-top:10px;gap:6px;flex-wrap:wrap">'+(db.profile.specs||[]).map(sp=>'<button class="tag" onclick="quickSearch(\\''+esc(sp)+'\\')">'+esc(sp)+'</button>').join('')+'</div>';
-  if(db.savedArticles&&db.savedArticles.length){h+='<div class="card"><b>📚 Сохранённые ('+db.savedArticles.length+')</b><button class="btn danger" style="margin-top:8px" onclick="clearSavedArticles()">🗑 Очистить</button>';db.savedArticles.slice(0,15).forEach((a,idx)=>{const langChip=a.lang==='ru'?'<span class="chip ru">RU</span>':'<span class="chip en">EN</span>';const translateBtn=a.lang==='en'?'<a href="https://translate.google.com/translate?sl=en&tl=ru&u='+encodeURIComponent(a.url)+'" target="_blank" class="btn sec" style="text-decoration:none;padding:6px 10px;font-size:12px">🌐 Перевести</a>':'';h+='<div class="card article-card" style="margin-top:10px"><div class="row spread"><b>'+(idx+1)+'. '+esc(a.title)+'</b>'+langChip+'</div>';if(a.description) h+='<div class="note" style="margin-top:8px">'+esc(a.description).substring(0,100)+'</div>';h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><a href="'+esc(a.url)+'" target="_blank" class="btn sec" style="text-decoration:none">🔗 Открыть</a>'+translateBtn+'<button class="btn sec" onclick="saveArticleNote('+idx+')">📝 Заметка</button><button class="btn danger" onclick="delSavedArticle('+idx+')">🗑</button></div>';if(a.note) h+='<div class="note" style="margin-top:8px"><b> Заметка:</b> '+esc(a.note)+'</div>';h+='</div>';});h+='</div>';}
-  h+='<div class="card"><b>📚 Локальная база</b><button class="btn ai" onclick="addLocalKnowledge()" style="width:100%;margin-bottom:10px">+ Добавить тему</button>';
-  if(!db.knowledge.length) h+='<div class="mut">Нет записей</div>';
-  db.knowledge.forEach(k=>{h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(k.topic)+'</b><span class="chip '+(k.status===3?'ok':'on')+'">'+['Не начато','Изучаю','Практика','Освоено'][k.status]+'</span></div><div class="mut">📁 '+esc(k.dir||'—')+'</div>';if(k.theory) h+='<div class="mut">📖 '+esc(k.theory).substring(0,100)+'</div>';h+='<div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap">';for(let i=0;i<4;i++){h+='<button class="btn '+(k.status===i?'ai':'sec')+'" style="padding:6px 10px;font-size:12px" onclick="setKbStatus(\\''+k.id+'\\','+i+')">'+['Не начато','Изучаю','Практика','Освоено'][i]+'</button>';}h+='<button class="btn danger" style="padding:6px 10px" onclick="delKnowledge(\\''+k.id+'\\')">🗑</button></div></div>';});
-  h+='</div>';
-  h+='<div class="card"><b>📚 Трекер курсов</b><button class="btn ai" onclick="addCourse()" style="width:100%;margin-bottom:10px">+ Добавить курс</button>';
-  if(!db.courses.length) h+='<div class="mut">Нет курсов</div>';
-  db.courses.forEach((c,i)=>{h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(c.name)+'</b><span class="chip '+(c.status==='completed'?'ok':c.status==='in_progress'?'on':'')+'">'+{not_started:'Не начат',in_progress:'В процессе',completed:'Пройден'}[c.status]+'</span></div><div class="mut">🔗 '+esc(c.url||'—')+'</div><div class="row" style="margin-top:8px;gap:6px"><button class="btn sec" onclick="setCourseStatus('+i+',\\'in_progress\\')">В процессе</button><button class="btn ok" onclick="setCourseStatus('+i+',\\'completed\\')">Пройден</button><button class="btn danger" onclick="delCourse('+i+')">🗑</button></div></div>';});
-  h+='</div>';
+  
+  if(db.savedArticles&&db.savedArticles.length){
+    h+='<div class="card"><b>📚 Сохранённые ('+db.savedArticles.length+')</b><button class="btn danger" style="margin-top:8px" onclick="clearSavedArticles()"> Очистить</button>';
+    db.savedArticles.slice(0,15).forEach((a,idx)=>{
+      const langChip=a.lang==='ru'?'<span class="chip ru">RU</span>':'<span class="chip en">EN</span>';
+      const translateBtn=a.lang==='en'?'<a href="https://translate.google.com/translate?sl=en&tl=ru&u='+encodeURIComponent(a.url)+'" target="_blank" class="btn sec" style="text-decoration:none;padding:6px 10px;font-size:12px"> Перевести</a>':'';
+      h+='<div class="card article-card" style="margin-top:10px"><div class="row spread"><b>'+(idx+1)+'. '+esc(a.title)+'</b>'+langChip+'</div>';
+      if(a.description) h+='<div class="note" style="margin-top:8px">'+esc(a.description).substring(0,100)+'</div>';
+      h+='<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><a href="'+esc(a.url)+'" target="_blank" class="btn sec" style="text-decoration:none">🔗 Открыть</a>'+translateBtn+'<button class="btn danger" onclick="delSavedArticle('+idx+')">🗑</button></div>';
+      if(a.note) h+='<div class="note" style="margin-top:8px"><b>📝 Заметка:</b> '+esc(a.note)+'</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
   return h;
 }
+
 async function searchHabr(){const q=db.searchQuery||db.profile.specs[0]||'javascript';toast('📘 Habr...');try{const r=await fetch('https://habr.com/api/v1/articles/?q='+encodeURIComponent(q)+'&page=1&per_page=10');const data=await r.json();let added=0;(data.items||[]).forEach(a=>{if(!db.savedArticles.some(x=>x.url==='https://habr.com'+a.link)){db.savedArticles.push({id:uid(),source:'habr',title:a.title,author:a.author?a.author.login:'',url:'https://habr.com'+a.link,description:a.summary||'',stats:'👁 '+a.stats.views_count,date:today(),lang:'ru'});added++;}});save();render();toast('📘 +'+added);}catch(e){toast('Ошибка Habr');}}
-async function searchVC(){const q=db.searchQuery||'разработка';toast('📰 VC.ru...');try{const r=await fetch('https://vc.ru/api/search?q='+encodeURIComponent(q)+'&type=post');const data=await r.json();let added=0;(data.items||[]).forEach(a=>{if(!db.savedArticles.some(x=>x.url===a.url)){db.savedArticles.push({id:uid(),source:'vc',title:a.title,author:a.author_name||'',url:a.url,description:a.description||'',stats:' '+a.views_count,date:today(),lang:'ru'});added++;}});save();render();toast('📰 +'+added);}catch(e){toast('Ошибка VC.ru');}}
-async function searchGitHub(){const q=db.searchQuery||'javascript';toast(' GitHub...');try{const r=await fetch('https://api.github.com/search/repositories?q='+encodeURIComponent(q)+'&sort=stars&per_page=10');const data=await r.json();let added=0;(data.items||[]).forEach(repo=>{if(!db.savedArticles.some(x=>x.url===repo.html_url)){db.savedArticles.push({id:uid(),source:'github',title:repo.full_name,author:repo.owner?repo.owner.login:'',url:repo.html_url,description:repo.description||'',stats:'⭐ '+repo.stargazers_count,date:today(),lang:'en'});added++;}});save();render();toast(' +'+added);}catch(e){toast('Ошибка GitHub');}}
-async function searchHN(){const q=db.searchQuery||'programming';toast('🔶 HN...');try{const r=await fetch('https://hn.algolia.com/api/v1/search?query='+encodeURIComponent(q)+'&tags=story&hitsPerPage=10');const data=await r.json();let added=0;(data.hits||[]).forEach(h=>{const url=h.url||'https://news.ycombinator.com/item?id='+h.object_id;if(!db.savedArticles.some(x=>x.url===url)){db.savedArticles.push({id:uid(),source:'hn',title:h.title,author:h.author||'',url:url,stats:' '+h.points,date:today(),lang:'en'});added++;}});save();render();toast('🔶 +'+added);}catch(e){toast('Ошибка HN');}}
+async function searchVC(){const q=db.searchQuery||'разработка';toast('📰 VC.ru...');try{const r=await fetch('https://vc.ru/api/search?q='+encodeURIComponent(q)+'&type=post');const data=await r.json();let added=0;(data.items||[]).forEach(a=>{if(!db.savedArticles.some(x=>x.url===a.url)){db.savedArticles.push({id:uid(),source:'vc',title:a.title,author:a.author_name||'',url:a.url,description:a.description||'',stats:'👁 '+a.views_count,date:today(),lang:'ru'});added++;}});save();render();toast('📰 +'+added);}catch(e){toast('Ошибка VC.ru');}}
+async function searchGitHub(){const q=db.searchQuery||'javascript';toast('🐙 GitHub...');try{const r=await fetch('https://api.github.com/search/repositories?q='+encodeURIComponent(q)+'&sort=stars&per_page=10');const data=await r.json();let added=0;(data.items||[]).forEach(repo=>{if(!db.savedArticles.some(x=>x.url===repo.html_url)){db.savedArticles.push({id:uid(),source:'github',title:repo.full_name,author:repo.owner?repo.owner.login:'',url:repo.html_url,description:repo.description||'',stats:'⭐ '+repo.stargazers_count,date:today(),lang:'en'});added++;}});save();render();toast('🐙 +'+added);}catch(e){toast('Ошибка GitHub');}}
+async function searchHN(){const q=db.searchQuery||'programming';toast(' HN...');try{const r=await fetch('https://hn.algolia.com/api/v1/search?query='+encodeURIComponent(q)+'&tags=story&hitsPerPage=10');const data=await r.json();let added=0;(data.hits||[]).forEach(h=>{const url=h.url||'https://news.ycombinator.com/item?id='+h.object_id;if(!db.savedArticles.some(x=>x.url===url)){db.savedArticles.push({id:uid(),source:'hn',title:h.title,author:h.author||'',url:url,stats:'🔺 '+h.points,date:today(),lang:'en'});added++;}});save();render();toast('🔶 +'+added);}catch(e){toast('Ошибка HN');}}
 async function searchAllRU(){db.searchQuery=document.getElementById('searchQuery').value.trim()||db.profile.specs[0]||'javascript';toast('🚀 Ищу...');await searchHabr();await new Promise(r=>setTimeout(r,500));await searchVC();toast('✅ Найдено: '+(db.savedArticles?db.savedArticles.length:0));}
 function quickSearch(q){db.searchQuery=q;document.getElementById('searchQuery').value=q;searchAllRU();}
 function delSavedArticle(idx){db.savedArticles.splice(idx,1);save();render();}
 function clearSavedArticles(){if(confirm('Удалить все?')){db.savedArticles=[];save();render();}}
-function saveArticleNote(idx){const note=prompt('Ваша заметка:');if(note!==null){db.savedArticles[idx].note=note;save();render();toast('Заметка сохранена');}}
-function addLocalKnowledge(){openModal('<h3>Новая тема</h3><label>Тема *</label><input id="kb_topic"><label>Категория</label><input id="kb_dir"><label>Теория</label><textarea id="kb_theory" rows="3"></textarea><label>Практика</label><textarea id="kb_practice" rows="3"></textarea><div class="row"><button class="btn" onclick="saveKnowledge()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
-function saveKnowledge(){const topic=document.getElementById('kb_topic').value.trim();if(!topic){toast('Тема?');return;}db.knowledge.push({id:uid(),topic:topic,dir:document.getElementById('kb_dir').value.trim(),theory:document.getElementById('kb_theory').value.trim(),practice:document.getElementById('kb_practice').value.trim(),status:0});save();closeModal();render();toast('Тема добавлена');}
-function setKbStatus(id,status){const k=db.knowledge.find(x=>x.id===id);if(k){k.status=status;save();render();checkAchievements();}}
-function delKnowledge(id){if(confirm('Удалить?')){db.knowledge=db.knowledge.filter(k=>k.id!==id);save();render();}}
-function addCourse(){openModal('<h3>Новый курс</h3><label>Название *</label><input id="cr_name"><label>Платформа</label><input id="cr_platform" placeholder="Udemy, Stepik..."><label>Ссылка</label><input id="cr_url"><div class="row"><button class="btn" onclick="saveCourse()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
-function saveCourse(){const name=document.getElementById('cr_name').value.trim();if(!name){toast('Название?');return;}db.courses.push({name:name,platform:document.getElementById('cr_platform').value.trim(),url:document.getElementById('cr_url').value.trim(),status:'not_started'});save();closeModal();render();toast('Курс добавлен');}
-function setCourseStatus(i,status){db.courses[i].status=status;save();render();}
-function delCourse(i){if(confirm('Удалить курс?')){db.courses.splice(i,1);save();render();}}
 
-// ===== ПОРТФОЛИО =====
-function rPortfolio(){
-  let h='<div class="row spread"><h2>💼 Портфолио</h2></div>';
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>🎨 Автогенератор портфолио</b><p class="mut">Создаёт HTML-страницу из ваших проектов</p><button class="btn ai" onclick="generatePortfolio()" style="width:100%;margin-top:10px">✨ Сгенерировать и скачать</button><button class="btn sec" onclick="previewPortfolio()" style="width:100%;margin-top:8px">👁 Предпросмотр</button></div>';
-  if(db.projects.length){h+='<div class="card"><b>📁 Ваши проекты ('+db.projects.length+')</b>';db.projects.forEach(p=>{h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(p.name)+'</b><span class="chip '+(p.stage===3?'ok':'on')+'">'+STAGES[p.stage]+'</span></div><div class="mut">'+esc(p.client||'—')+' · '+p.budget.toLocaleString()+' '+p.cur+'</div></div>';});h+='</div>';}else{h+='<div class="card mut">Добавьте проекты для генерации портфолио</div>';}
-  return h;
-}
-function generatePortfolioHTML(){const completed=db.projects.filter(p=>p.stage===3);let projectsHTML=completed.map(p=>'<div class="project-card"><h3>'+esc(p.name)+'</h3><p>Клиент: '+esc(p.client||'—')+'</p><p>Бюджет: '+p.budget+' '+p.cur+'</p></div>').join('');return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Портфолио - '+esc(db.profile.name)+'</title><style>body{font-family:system-ui;max-width:800px;margin:0 auto;padding:20px;background:#0e1116;color:#e8ecf3}h1{color:#6c8cff}.project-card{background:#171b22;padding:20px;border-radius:12px;margin:15px 0;border:1px solid #242b36}.skills{display:flex;gap:8px;flex-wrap:wrap}.skill{background:#6c8cff;color:#fff;padding:6px 12px;border-radius:16px;font-size:13px}</style></head><body><h1>⚡ '+esc(db.profile.name)+'</h1><p style="color:#8b94a7">'+esc(db.profile.spec)+'</p><p>📧 '+esc(db.profile.email)+' | 📱 '+esc(db.profile.phone)+'</p><h2>💪 Навыки</h2><div class="skills">'+db.skills.map(s=>'<span class="skill">'+esc(s.n)+'</span>').join('')+'</div><h2> Завершённые проекты ('+completed.length+')</h2>'+(projectsHTML||'<p>Пока нет завершённых проектов</p>')+'</body></html>';}
-function generatePortfolio(){const html=generatePortfolioHTML();const blob=new Blob([html],{type:'text/html;charset=utf-8'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='portfolio_'+db.profile.name.replace(/\s+/g,'_')+'.html';link.click();toast('✅ Портфолио скачано!');}
-function previewPortfolio(){const html=generatePortfolioHTML();openModal('<h3>👁 Предпросмотр</h3><iframe srcdoc="'+esc(html).replace(/"/g,'&quot;')+'" style="width:100%;height:400px;border:1px solid var(--line);border-radius:8px"></iframe><button class="btn" style="width:100%;margin-top:10px" onclick="generatePortfolio()">📥 Скачать HTML</button>');}
-
-// ===== ПРИВЫЧКИ С СЕРИЯМИ =====
-function rHabits(){
-  const todayStr=today();
-  let h='<div class="row spread"><h2>✅ Трекер привычек</h2><button class="btn" onclick="addHabit()">+ Привычка</button></div>';
-  h+='<div class="card"><b>Сегодня: '+todayStr+'</b>';
-  if(!db.habits.length) h+='<div class="mut">Нет привычек</div>';
-  db.habits.forEach(hab=>{const done=hab.history&&hab.history[todayStr];h+='<div class="row spread" style="margin:12px 0"><div class="row" style="gap:10px"><span style="font-size:24px">'+hab.icon+'</span><span>'+esc(hab.name)+'</span><span class="mut">🔥'+hab.streak+'</span></div><div class="habit-check'+(done?' done':'')+'" onclick="toggleHabit(\\''+hab.id+'\\')">'+(done?'✓':'')+'</div></div>';});
-  h+='</div>';
-  h+='<div class="card"><b>📊 Статистика</b>';
-  db.habits.forEach(hab=>{const total=Object.keys(hab.history||{}).length;h+='<div class="row spread" style="margin:8px 0"><span>'+hab.icon+' '+esc(hab.name)+'</span><b>'+total+' дней · 🔥'+hab.streak+'</b></div>';});
-  h+='</div>';
-  return h;
-}
-function addHabit(){const name=prompt('Название привычки:');if(!name)return;const icon=prompt('Иконка (эмодзи):','✅');db.habits.push({id:uid(),name:name,icon:icon,streak:0,history:{}});save();render();}
+// ===== ОСТАЛЬНЫЕ ВКЛАДКИ =====
+function rRadar(){let h='<div class="row spread"><h2>🎯 Радар</h2></div><div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><b>🇷🇺 Российские биржи</b><div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><a href="https://freelance.habr.com/tasks?q='+encodeURIComponent((db.profile.specs||[]).join(' '))+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">Habr</a><a href="https://www.fl.ru/projects/?keyword='+encodeURIComponent((db.profile.specs||[]).join(' '))+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">FL.ru</a><a href="https://kwork.ru/projects?keyword='+encodeURIComponent((db.profile.specs||[]).join(' '))+'" target="_blank" class="btn sec" style="flex:1;text-align:center;text-decoration:none">Kwork</a></div></div>';if(db.leads&&db.leads.length){h+='<div class="card"><b>🎯 Лиды: '+db.leads.length+'</b>';db.leads.slice(0,5).forEach((l,idx)=>{h+='<div class="card" style="margin-top:10px"><b>'+(idx+1)+'. '+esc(l.title)+'</b><div class="mut">'+esc(l.company||'')+'</div><div class="row" style="margin-top:10px;gap:8px"><button class="btn sec" onclick="leadToClient('+idx+')">👥</button><button class="btn danger" onclick="delLead('+idx+')">🗑</button></div></div>';});h+='</div>';}return h;}
+function leadToClient(idx){const l=db.leads[idx];if(!l)return;db.clients.push({id:uid(),name:l.company||l.title,company:l.company||'',budget:0,cur:'RUB',status:'Новый',date:today()});save();render();toast('👥 Добавлен!');checkAchievements();}
+function delLead(idx){db.leads.splice(idx,1);save();render();}
+function rClients(){let h='<div class="row spread"><h2>👥 Клиенты</h2><button class="btn" onclick="addClient()">+ Лид</button></div>';db.clients.forEach(c=>{h+='<div class="card"><div class="row spread"><b>'+esc(c.name)+'</b><span class="chip on">'+c.status+'</span></div><div class="mut">'+esc(c.company)+' · '+c.budget+' '+c.cur+'</div></div>';});return h;}
+function addClient(){const n=prompt('Имя:');if(!n)return;db.clients.push({id:uid(),name:n,company:prompt('Компания:')||'',budget:+prompt('Бюджет:')||0,cur:'RUB',status:'Новый',date:today()});save();render();checkAchievements();}
+function rProjects(){let h='<div class="row spread"><h2>📁 Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button></div>';db.projects.forEach(p=>{h+='<div class="card"><div class="row spread"><b>'+esc(p.name)+'</b><span class="chip on">'+STAGES[p.stage]+'</span></div><div class="mut">'+esc(p.client||'—')+' · '+p.budget+' '+p.cur+'</div></div>';});return h;}
+function addProject(){const n=prompt('Название:');if(!n)return;db.projects.push({id:uid(),name:n,client:prompt('Клиент:')||'',budget:+prompt('Бюджет:')||0,cur:'RUB',stage:0,date:today(),tasks:[]});save();render();}
+function rHabits(){let h='<div class="row spread"><h2>✅ Привычки</h2><button class="btn" onclick="addHabit()">+ Привычка</button></div>';const todayStr=today();db.habits.forEach(hab=>{const done=hab.history&&hab.history[todayStr];h+='<div class="card row spread"><div class="row" style="gap:10px"><span style="font-size:24px">'+hab.icon+'</span><span>'+esc(hab.name)+'</span><span class="mut">🔥'+hab.streak+'</span></div><button class="btn '+(done?'ok':'sec')+'" onclick="toggleHabit(\\''+hab.id+'\\')">'+(done?'✓':'Отметить')+'</button></div>';});return h;}
+function addHabit(){const name=prompt('Название:');if(!name)return;db.habits.push({id:uid(),name:name,icon:'✅',streak:0,history:{}});save();render();}
 function toggleHabit(id){const h=db.habits.find(x=>x.id===id);if(!h)return;if(!h.history)h.history={};const todayStr=today();if(h.history[todayStr]){delete h.history[todayStr];h.streak=Math.max(0,h.streak-1);}else{h.history[todayStr]=true;h.streak++;}save();render();checkAchievements();}
-
-// ===== ВРЕМЯ =====
-function rTime(){
-  const mode=TIMER_MODES[db.timerMode||0];
-  return '<div class="row spread"><h2> Время</h2></div><div class="card" style="text-align:center"><div style="font-size:48px;font-weight:bold;color:var(--acc)" id="timer">'+formatTime(mode.work*60)+'</div><div class="mut" id="timerMode" style="margin:10px 0">🎯 Режим: Фокус</div><div class="mut" style="margin-bottom:10px">'+mode.name+'</div><div class="row" style="justify-content:center;margin-top:15px;gap:8px"><button class="btn" onclick="startT()">▶ Старт</button><button class="btn sec" onclick="resetT()">Сброс</button></div></div><div class="card"><b>⚙️ Режимы таймера</b>'+TIMER_MODES.map((m,i)=>'<div class="row spread" style="margin:8px 0"><span>'+m.name+' ('+m.work+'мин / '+m.break+'мин)</span><button class="btn '+(db.timerMode===i?'ai':'sec')+'" onclick="setTimerMode('+i+')">Выбрать</button></div>').join('')+'</div>';
-}
+function rTime(){const mode=TIMER_MODES[db.timerMode||0];return '<div class="row spread"><h2>⏱ Время</h2></div><div class="card" style="text-align:center"><div style="font-size:48px;font-weight:bold;color:var(--acc)" id="timer">'+formatTime(mode.work*60)+'</div><div class="mut">'+mode.name+'</div><div class="row" style="justify-content:center;margin-top:15px;gap:8px"><button class="btn" onclick="startT()">▶ Старт</button><button class="btn sec" onclick="resetT()">Сброс</button></div></div><div class="card"><b>Режимы</b>'+TIMER_MODES.map((m,i)=>'<div class="row spread" style="margin:8px 0"><span>'+m.name+'</span><button class="btn '+(db.timerMode===i?'ai':'sec')+'" onclick="setTimerMode('+i+')">Выбрать</button></div>').join('')+'</div>';}
 function formatTime(sec){const m=Math.floor(sec/60).toString().padStart(2,'0'),s=(sec%60).toString().padStart(2,'0');return m+':'+s;}
 let tInt,tSec,tMode='focus';
-function getTimerSec(){const mode=TIMER_MODES[db.timerMode||0];return tMode==='focus'?mode.work*60:mode.break*60;}
-function startT(){if(tInt)return;tSec=getTimerSec();tInt=setInterval(()=>{tSec--;const el=document.getElementById('timer'),modeEl=document.getElementById('timerMode');if(el)el.textContent=formatTime(tSec);if(modeEl)modeEl.textContent=tMode==='focus'?'🎯 Фокус':'☕ Перерыв';if(tSec<=0){clearInterval(tInt);tInt=null;if(tMode==='focus'){toast(' Перерыв!');tMode='break';}else{toast('🎯 Работаем!');tMode='focus';}startT();}},1000);}
-function resetT(){clearInterval(tInt);tInt=null;tMode='focus';const el=document.getElementById('timer'),modeEl=document.getElementById('timerMode');if(el)el.textContent=formatTime(TIMER_MODES[db.timerMode||0].work*60);if(modeEl)modeEl.textContent='🎯 Фокус';}
-function setTimerMode(i){db.timerMode=i;save();render();toast('Режим: '+TIMER_MODES[i].name);}
-
-// ===== НАСТРОЙКИ (профиль, тема, шаблоны, партнёры, юрист, прайс, экспорт) =====
+function startT(){if(tInt)return;const mode=TIMER_MODES[db.timerMode||0];tSec=mode.work*60;tInt=setInterval(()=>{tSec--;const el=document.getElementById('timer');if(el)el.textContent=formatTime(tSec);if(tSec<=0){clearInterval(tInt);tInt=null;toast('Время вышло!');}},1000);}
+function resetT(){clearInterval(tInt);tInt=null;const el=document.getElementById('timer');if(el)el.textContent=formatTime(TIMER_MODES[db.timerMode||0].work*60);}
+function setTimerMode(i){db.timerMode=i;save();render();}
 function rSettings(){
-  const qrData='BEGIN:VCARD\nVERSION:3.0\nFN:'+db.profile.name+'\nTITLE:'+db.profile.spec+'\nTEL:'+db.profile.phone+'\nEMAIL:'+db.profile.email+'\nEND:VCARD';
+  const qrData='BEGIN:VCARD\\nVERSION:3.0\\nFN:'+db.profile.name+'\\nTITLE:'+db.profile.spec+'\\nTEL:'+db.profile.phone+'\\nEMAIL:'+db.profile.email+'\\nEND:VCARD';
   const qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(qrData);
-  let h='<div class="row spread"><h2>⚙️ Настройки</h2></div>';
-  h+='<div class="card"><b> Профиль</b><label>Имя</label><input value="'+esc(db.profile.name)+'" onchange="db.profile.name=this.value;save()"><label>Специализация</label><input value="'+esc(db.profile.spec)+'" onchange="db.profile.spec=this.value;save()"><label>Телефон</label><input value="'+esc(db.profile.phone||'')+'" onchange="db.profile.phone=this.value;save()"><label>Email</label><input value="'+esc(db.profile.email||'')+'" onchange="db.profile.email=this.value;save()"><label>Банк/реквизиты</label><input value="'+esc(db.profile.bank||'')+'" onchange="db.profile.bank=this.value;save()"></div>';
-  h+='<div class="card"><b>📱 QR-код визитки</b><p class="mut">Отсканируйте чтобы добавить контакт</p><img src="'+qrUrl+'" style="width:200px;height:200px;margin:10px auto;display:block;border-radius:10px"></div>';
-  h+='<div class="card"><b>🎨 Тема</b><button class="btn sec" onclick="document.body.classList.toggle(\\'light-theme\\');localStorage.setItem(\\'theme\\',document.body.classList.contains(\\'light-theme\\')?\\'light\\':\\'dark\\')" style="width:100%">🌓 Переключить тему</button><label style="margin-top:10px;display:flex;align-items:center;gap:8px"><input type="checkbox" '+(db.autoTheme?'checked':'')+' onchange="db.autoTheme=this.checked;save()" style="margin:0"><span>🌙 Авто-тема по времени</span></label></div>';
-  h+='<div class="card"><b>🔔 Уведомления</b><button class="btn" onclick="requestNotifications()" style="width:100%">Разрешить уведомления</button></div>';
-  h+='<div class="card"><b>️ Шаблоны писем ('+db.templates.length+')</b><button class="btn ai" onclick="addTemplate()" style="width:100%;margin-bottom:10px">+ Новый шаблон</button>';
-  db.templates.forEach((t,i)=>{h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(t.name)+'</b></div><div class="mut" style="margin-top:5px">'+esc(t.text).substring(0,80)+'...</div><div class="row" style="margin-top:8px;gap:6px"><button class="btn sec" onclick="useTemplate('+i+')">Использовать</button><button class="btn sec" onclick="editTemplate('+i+')">✏️</button><button class="btn danger" onclick="delTemplate('+i+')">🗑</button></div></div>';});
-  h+='</div>';
-  h+='<div class="card"><b>🤝 Партнёры/субподрядчики</b><button class="btn ai" onclick="addPartner()" style="width:100%;margin-bottom:10px">+ Добавить партнёра</button>';
-  if(!db.partners.length) h+='<div class="mut">Нет партнёров</div>';
-  db.partners.forEach((p,i)=>{h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(p.name)+'</b><span class="chip on">'+esc(p.role||'—')+'</span></div><div class="mut">📧 '+esc(p.email||'—')+' · 📱 '+esc(p.phone||'—')+'</div><div class="row" style="margin-top:8px;gap:6px"><button class="btn danger" onclick="delPartner('+i+')">🗑</button></div></div>';});
-  h+='</div>';
-  h+='<div class="card"><b>⚖️ Юрист — шаблоны документов</b><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn sec" onclick="useDocTpl(\\'dogovor\\')" style="flex:1">📄 Договор</button><button class="btn sec" onclick="useDocTpl(\\'act\\')" style="flex:1">📋 Акт</button><button class="btn sec" onclick="useDocTpl(\\'nda\\')" style="flex:1">🔐 NDA</button></div></div>';
-  h+='<div class="card"><b>💵 Прайс услуг ('+db.prices.length+')</b><button class="btn ai" onclick="addPriceItem()" style="width:100%;margin-bottom:10px">+ Добавить услугу</button>';
-  db.prices.forEach((p,i)=>{h+='<div class="note" style="margin-top:8px"><div class="row spread"><b>'+esc(p.name)+'</b><b class="plus">'+p.price+' '+p.cur+'/'+p.unit+'</b></div><div class="row" style="margin-top:8px;gap:6px"><button class="btn danger" onclick="delPriceItem('+i+')">🗑</button></div></div>';});
-  h+='</div>';
-  h+='<div class="card"><b>📊 Экспорт данных</b><button class="btn" onclick="exportCSV()" style="width:100%">📥 Скачать Excel (CSV)</button></div>';
-  h+='<div class="card"><b>🔄 Сброс</b><button class="btn danger" onclick="hardReset()" style="width:100%">🔄 Сбросить кэш и обновить</button></div>';
-  return h;
+  return '<div class="row spread"><h2>️ Настройки</h2></div><div class="card"><b>👤 Профиль</b><label>Имя</label><input value="'+esc(db.profile.name)+'" onchange="db.profile.name=this.value;save()"><label>Специализация</label><input value="'+esc(db.profile.spec)+'" onchange="db.profile.spec=this.value;save()"><label>Телефон</label><input value="'+esc(db.profile.phone||'')+'" onchange="db.profile.phone=this.value;save()"><label>Email</label><input value="'+esc(db.profile.email||'')+'" onchange="db.profile.email=this.value;save()"></div><div class="card"><b>📱 QR-код визитки</b><img src="'+qrUrl+'" style="width:200px;height:200px;margin:10px auto;display:block;border-radius:10px"></div><div class="card"><b>🎨 Тема</b><button class="btn sec" onclick="document.body.classList.toggle(\\'light-theme\\');localStorage.setItem(\\'theme\\',document.body.classList.contains(\\'light-theme\\')?\\'light\\':\\'dark\\')" style="width:100%"> Переключить тему</button><label style="margin-top:10px;display:flex;align-items:center;gap:8px"><input type="checkbox" '+(db.autoTheme?'checked':'')+' onchange="db.autoTheme=this.checked;save()" style="margin:0"><span>🌙 Авто-тема по времени</span></label></div><div class="card"><b>🔔 Уведомления</b><button class="btn" onclick="requestNotifications()" style="width:100%">Разрешить уведомления</button></div><div class="card"><b>🔄 Сброс</b><button class="btn danger" onclick="hardReset()" style="width:100%">🔄 Сбросить кэш</button></div>';
 }
-function requestNotifications(){if('Notification' in window){Notification.requestPermission().then(p=>{if(p==='granted'){toast('✅ Уведомления разрешены!');new Notification('SoloDev',{body:'Уведомления работают!'});}else{toast('Уведомления запрещены');}});}else{toast('Браузер не поддерживает');}}
-function addTemplate(){openModal('<h3>Новый шаблон</h3><label>Название</label><input id="tpl_name"><label>Текст (используйте {name}, {client}, {budget} и т.д.)</label><textarea id="tpl_text" rows="8"></textarea><div class="row"><button class="btn" onclick="saveTemplate()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
-function saveTemplate(){const name=document.getElementById('tpl_name').value.trim();const text=document.getElementById('tpl_text').value.trim();if(!name||!text){toast('Заполните все поля');return;}db.templates.push({id:uid(),name:name,text:text});save();closeModal();render();toast('Шаблон сохранён');}
-function useTemplate(i){const t=db.templates[i];if(!t)return;let text=t.text;text=text.replace(/{name}/g,db.profile.name).replace(/{spec}/g,db.profile.spec).replace(/{phone}/g,db.profile.phone).replace(/{email}/g,db.profile.email).replace(/{bank}/g,db.profile.bank||'—');copyText(text);openModal('<h3>✉️ '+esc(t.name)+'</h3><textarea rows="12" style="width:100%">'+esc(text)+'</textarea><button class="btn" style="width:100%;margin-top:10px" onclick="copyText(document.querySelector(\\'textarea\\').value);closeModal()">📋 Копировать</button>');}
-function editTemplate(i){const t=db.templates[i];if(!t)return;openModal('<h3>Редактировать</h3><label>Название</label><input id="tpl_name" value="'+esc(t.name)+'"><label>Текст</label><textarea id="tpl_text" rows="8">'+esc(t.text)+'</textarea><div class="row"><button class="btn" onclick="updateTemplate('+i+')">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
-function updateTemplate(i){const t=db.templates[i];if(!t)return;t.name=document.getElementById('tpl_name').value.trim();t.text=document.getElementById('tpl_text').value.trim();save();closeModal();render();toast('Шаблон обновлён');}
-function delTemplate(i){if(confirm('Удалить шаблон?')){db.templates.splice(i,1);save();render();}}
-function addPartner(){openModal('<h3>Новый партнёр</h3><label>Имя *</label><input id="pt_name"><label>Роль/специализация</label><input id="pt_role"><label>Email</label><input id="pt_email"><label>Телефон</label><input id="pt_phone"><div class="row"><button class="btn" onclick="savePartner()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
-function savePartner(){const name=document.getElementById('pt_name').value.trim();if(!name){toast('Имя?');return;}db.partners.push({name:name,role:document.getElementById('pt_role').value.trim(),email:document.getElementById('pt_email').value.trim(),phone:document.getElementById('pt_phone').value.trim()});save();closeModal();render();toast('Партнёр добавлен');}
-function delPartner(i){if(confirm('Удалить партнёра?')){db.partners.splice(i,1);save();render();}}
-function useDocTpl(type){const t={dogovor:'ДОГОВОР ВОЗМЕЗДНОГО ОКАЗАНИЯ УСЛУГ\n\nг. _________ «___» _________ 20__ г.\n\nЗаказчик: _________\nИсполнитель: '+db.profile.name+'\n\n1. ПРЕДМЕТ\nИсполнитель оказывает услуги по: _________\n\n2. СТОИМОСТЬ\n_________ рублей\n\n3. СРОКИ\nНачало: «___» _________ 20__ г.\nОкончание: «___» _________ 20__ г.\n\nПодписи:\nЗаказчик: _________\nИсполнитель: _________',act:'АКТ ВЫПОЛНЕННЫХ РАБОТ №___\n\nк договору от «___» _________ 20__ г.\n\nИсполнитель: '+db.profile.name+'\n\nВыполнено:\n- _________\n- _________\n\nСтоимость: _________ рублей\n\nЗаказчик претензий не имеет.\n\nПодписи:\nЗаказчик: _________\nИсполнитель: _________',nda:'СОГЛАШЕНИЕ О НЕРАЗГЛАШЕНИИ\n\nСтороны обязуются не разглашать конфиденциальную информацию, полученную в ходе сотрудничества.\n\nСрок действия: _________ лет\n\nПодписи:\nСторона 1: _________\nСторона 2: _________'};openModal('<h3> '+{dogovor:'Договор',act:'Акт',nda:'NDA'}[type]+'</h3><textarea id="docText" rows="15" style="width:100%;font-family:monospace;font-size:13px">'+esc(t[type])+'</textarea><div class="row" style="margin-top:10px;gap:8px"><button class="btn" onclick="copyText(document.getElementById(\\'docText\\').value)">📋 Копировать</button><button class="btn sec" onclick="printDoc()">🖨 Печать/PDF</button></div>');}
-function printDoc(){const text=document.getElementById('docText').value;const w=window.open('','_blank');w.document.write('<html><head><title>Документ</title><style>body{font-family:monospace;padding:20px;white-space:pre-wrap}</style></head><body>'+esc(text)+'</body></html>');w.document.close();w.print();}
-function addPriceItem(){openModal('<h3>Новая услуга</h3><label>Название *</label><input id="pr_name"><label>Цена</label><input type="number" id="pr_price" value="0"><label>Валюта</label><select id="pr_cur"><option>RUB</option><option>USD</option></select><label>Единица</label><select id="pr_unit"><option>проект</option><option>час</option><option>месяц</option></select><div class="row"><button class="btn" onclick="savePriceItem()">Сохранить</button><button class="btn sec" onclick="closeModal()">Отмена</button></div>');}
-function savePriceItem(){const name=document.getElementById('pr_name').value.trim();if(!name){toast('Название?');return;}db.prices.push({id:uid(),name:name,price:+document.getElementById('pr_price').value||0,cur:document.getElementById('pr_cur').value,unit:document.getElementById('pr_unit').value});save();closeModal();render();toast('Услуга добавлена');}
-function delPriceItem(i){if(confirm('Удалить услугу?')){db.prices.splice(i,1);save();render();}}
-function exportCSV(){let csv='Тип,Имя,Сумма,Статус\n';db.clients.forEach(c=>{csv+='Клиент,'+c.name+','+c.budget+','+c.status+'\n';});db.projects.forEach(p=>{csv+='Проект,'+p.name+','+p.budget+','+STAGES[p.stage]+'\n';});db.finances.forEach(f=>{csv+='Финансы,'+f.cat+','+f.amt+','+f.type+'\n';});const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='SoloDev_'+today()+'.csv';link.click();toast('✅ Экспорт завершён!');}
-function hardReset(){if(confirm("⚠️ Удалить кэш? Данные сохранятся.")){if("serviceWorker"in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if("caches"in window)caches.keys().then(n=>n.forEach(k=>caches.delete(k)));window.location.href=window.location.pathname+"?v="+Date.now();}}
+function requestNotifications(){if('Notification' in window){Notification.requestPermission().then(p=>{if(p==='granted'){toast('✅ Уведомления разрешены!');new Notification('SoloDev',{body:'Уведомления работают!'});}else{toast('Уведомления запрещены');}});}else{toast('Браузер не поддерживает уведомления');}}
+function hardReset(){if(confirm("⚠️ Удалить кэш?")){if("serviceWorker"in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if("caches"in window)caches.keys().then(n=>n.forEach(k=>caches.delete(k)));window.location.href=window.location.pathname+"?v="+Date.now();}}
 
 function render(){
   document.getElementById('date').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
@@ -403,8 +409,8 @@ function render(){
   switch(tab){
     case 'home':app.innerHTML=rHome();break;case 'dashboard':app.innerHTML=rDashboard();break;case 'radar':app.innerHTML=rRadar();break;
     case 'clients':app.innerHTML=rClients();break;case 'projects':app.innerHTML=rProjects();break;case 'knowledge':app.innerHTML=rKnowledge();break;
-    case 'portfolio':app.innerHTML=rPortfolio();break;case 'habits':app.innerHTML=rHabits();break;case 'time':app.innerHTML=rTime();break;
-    case 'settings':app.innerHTML=rSettings();break;
+    case 'achievements':app.innerHTML=rAchievements();break;case 'portfolio':app.innerHTML=rPortfolio();break;case 'mood':app.innerHTML=rMood();break;
+    case 'habits':app.innerHTML=rHabits();break;case 'time':app.innerHTML=rTime();break;case 'settings':app.innerHTML=rSettings();break;
   }
 }
 
