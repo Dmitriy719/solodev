@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v4.7</title>
+<title>SoloDev v5.0</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px}
 h1{color:#6c8cff}
@@ -12,13 +12,11 @@ h1{color:#6c8cff}
 .btn.small{width:auto;padding:8px 12px;font-size:14px}
 .btn.active{background:#9d6cff}
 .btn.ai{background:linear-gradient(90deg,#6c8cff,#9d6cff)}
+.btn.ok{background:#3ecf8e}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mut{color:#8b94a7;font-size:13px}
 .stat{display:block;font-size:12px;color:#8b94a7}.stat b{font-size:20px}
 .bar{height:6px;background:#1f2530;border-radius:3px;overflow:hidden;margin:10px 0}.bar i{display:block;height:100%;background:#6c8cff;border-radius:3px}
-.chart{display:flex;align-items:flex-end;gap:6px;height:120px;margin-top:15px;padding:10px;background:#1f2530;border-radius:8px}
-.chart-col{flex:1;background:#6c8cff;border-radius:4px 4px 0 0;min-height:4px;position:relative}
-.chart-col span{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:#8b94a7}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:30}
 .modal.on{display:flex}
 .modal-content{background:#171b22;width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px}
@@ -31,23 +29,30 @@ input,textarea{width:100%;background:#1f2530;border:1px solid #242b36;color:#e8e
 .source-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
 .source-item{background:#1f2530;padding:10px;border-radius:8px;text-align:center}
 .source-item a{color:#6c8cff;text-decoration:none;font-weight:bold}
-.filter-btn{background:#1f2530;color:#e8ecf3;border:1px solid #242b36;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;margin:4px}
+.source-item .mut{font-size:11px;margin-top:4px}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.filter-btn{background:#1f2530;color:#e8ecf3;border:1px solid #242b36;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer}
 .filter-btn.active{background:#6c8cff;border-color:#6c8cff}
+.loading{text-align:center;padding:20px;color:#8b94a7}
+.big-number{font-size:32px;font-weight:bold;color:#3ecf8e;text-align:center;margin:10px 0}
 </style>
 </head>
 <body>
-<h1> SoloDev v4.7</h1>
+<h1>⚡ SoloDev v5.0</h1>
 <div class="nav">
 <button class="btn small active" id="btnHome" onclick="showHome()">🏠 Главная</button>
 <button class="btn small" id="btnDashboard" onclick="showDashboard()">📊 Дашборд</button>
 <button class="btn small" id="btnRadar" onclick="showRadar()">🎯 Радар</button>
-<button class="btn small" id="btnProjects" onclick="showProjects()">📁 Проекты</button>
+<button class="btn small" id="btnProjects" onclick="showProjects()"> Проекты</button>
 </div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
 <script>
-var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты']},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],showAllTemplates:false};
+var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты']},clients:[],projects:[],finances:[],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[]};
 var currentView='home';
+var TEMPLATES_LOADED=false;
+var SOURCES_LOADED=false;
+
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function today(){return new Date().toISOString().slice(0,10)}
@@ -62,7 +67,8 @@ function updateNav(){document.getElementById('btnHome').classList.toggle('active
 function renderHome(){
   var inc=0;db.finances.forEach(function(f){if(f.type==='in')inc+=f.amt});
   var h='<div class="card" style="background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff"><h2 style="margin:0">Привет, '+esc(db.profile.name)+'! 👋</h2><p style="margin:5px 0 0 0;opacity:0.9">'+esc(db.profile.spec)+'</p></div>';
-  h+='<div class="grid"><div class="card"><span class="stat">Доход</span><b style="font-size:20px;color:#3ecf8e">'+inc.toLocaleString()+' ₽</b></div><div class="card"><span class="stat">Клиентов</span><b style="font-size:20px">'+db.clients.length+'</b></div><div class="card"><span class="stat">Проектов</span><b style="font-size:20px">'+db.projects.length+'</b></div><div class="card"><span class="stat">Шаблонов КП</span><b style="font-size:20px">'+db.pains.length+'</b></div></div>';
+  h+='<div class="grid"><div class="card"><span class="stat">Доход</span><b style="font-size:20px;color:#3ecf8e">'+inc.toLocaleString()+' ₽</b></div><div class="card"><span class="stat">Клиентов</span><b style="font-size:20px">'+db.clients.length+'</b></div><div class="card"><span class="stat">Проектов</span><b style="font-size:20px">'+db.projects.length+'</b></div><div class="card"><span class="stat">Шаблонов</span><b style="font-size:20px">'+db.pains.length+'</b></div></div>';
+  h+='<div class="card"><div class="mut">📚 База шаблонов</div><div class="big-number">'+db.templates.length+'</div><div class="mut"> Источников поиска</div><div class="big-number">'+db.sources.length+'</div><div class="mut">🤖 Авто-лидов сегодня</div><div class="big-number">'+db.autoLeads.length+'</div></div>';
   document.getElementById('app').innerHTML=h;
 }
 
@@ -77,89 +83,59 @@ function renderDashboard(){
   var h='<h2>📊 Дашборд продуктивности</h2>';
   h+='<div class="grid"><div class="card"><span class="stat">Доход за месяц</span><b style="font-size:20px;color:#3ecf8e">'+monthInc.toLocaleString()+' ₽</b></div><div class="card"><span class="stat">Ср. в день</span><b style="font-size:20px">'+dailyAvg.toLocaleString()+' ₽</b></div></div>';
   h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><h3 style="margin-top:0;color:#fff">💰 Прогноз дохода на месяц</h3><div style="font-size:32px;text-align:center;margin:15px 0;color:#3ecf8e;font-weight:bold">'+forecast.toLocaleString()+' ₽</div>';
-  h+='<div class="info-row"><span>📅 Уже заработано:</span><b style="color:#3ecf8e">'+monthInc.toLocaleString()+' ₽</b></div>';
+  h+='<div class="info-row"><span> Уже заработано:</span><b style="color:#3ecf8e">'+monthInc.toLocaleString()+' ₽</b></div>';
   h+='<div class="info-row"><span>📈 Осталось до прогноза:</span><b style="color:#9d6cff">'+remaining.toLocaleString()+' ₽</b></div>';
   h+='<div class="mut" style="text-align:center;margin-top:10px;padding-top:10px;border-top:1px solid #242b36">При текущей скорости к '+daysInMonth+' числу</div></div>';
   document.getElementById('app').innerHTML=h;
 }
 
-var PAIN_DB=[
-  {spec:'Фронтенд',seg:'Интернет-магазины',pain:'Медленная загрузка страниц, клиенты уходят',sol:'Оптимизация Core Web Vitals, lazy loading, сжатие изображений',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 80 000 ₽'},
-  {spec:'Фронтенд',seg:'Стартапы',pain:'Нет адаптивной версии сайта',sol:'Полная адаптивная вёрстка (Mobile First)',complexity:'Низкая',time:'3-7 дней',cost:'15 000 - 40 000 ₽'},
-  {spec:'Фронтенд',seg:'Инфобизнес',pain:'Сложно обновлять контент на сайте',sol:'Внедрение простой CMS (Strapi, WordPress)',complexity:'Средняя',time:'1-2 недели',cost:'40 000 - 90 000 ₽'},
-  {spec:'Фронтенд',seg:'SaaS',pain:'Сложный интерфейс, пользователи путаются',sol:'Редизайн UI/UX с фокусом на usability',complexity:'Высокая',time:'2-4 недели',cost:'80 000 - 200 000 ₽'},
-  {spec:'Фронтенд',seg:'Медиа-сайты',pain:'Нужна быстрая загрузка тысяч статей',sol:'Оптимизация рендеринга, SSR, кэширование',complexity:'Высокая',time:'2-3 недели',cost:'60 000 - 150 000 ₽'},
-  {spec:'Фронтенд',seg:'Образовательные платформы',pain:'Интерактивные элементы не работают на мобильных',sol:'Адаптация интерактивных компонентов',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 70 000 ₽'},
-  {spec:'Бэкенд',seg:'SaaS-сервисы',pain:'База данных не выдерживает нагрузку',sol:'Оптимизация SQL, индексы, кэширование (Redis)',complexity:'Высокая',time:'2-4 недели',cost:'100 000 - 250 000 ₽'},
-  {spec:'Бэкенд',seg:'Малый бизнес',pain:'Нужен простой API для мобильного приложения',sol:'REST API на Node.js/Python с документацией',complexity:'Средняя',time:'1-3 недели',cost:'40 000 - 100 000 ₽'},
-  {spec:'Бэкенд',seg:'E-commerce',pain:'Интеграция с 1С, CRM или платёжными системами',sol:'Интеграционные шлюзы с обработкой ошибок',complexity:'Высокая',time:'2-5 недель',cost:'80 000 - 200 000 ₽'},
-  {spec:'Бэкенд',seg:'Стартапы',pain:'Нужна система авторизации и ролей',sol:'JWT-аутентификация, RBAC, OAuth2',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 80 000 ₽'},
-  {spec:'Бэкенд',seg:'Медиа',pain:'Нужна обработка и хранение видео',sol:'Интеграция с AWS S3, транскодирование',complexity:'Высокая',time:'2-4 недели',cost:'70 000 - 180 000 ₽'},
-  {spec:'Бэкенд',seg:'Финтех',pain:'Нужны надёжные транзакции и отчёты',sol:'Разработка платёжного модуля с логированием',complexity:'Высокая',time:'3-6 недель',cost:'120 000 - 300 000 ₽'},
-  {spec:'Мобильная разработка',seg:'Доставка еды',pain:'Нет приложения, высокая комиссия агрегаторов',sol:'Кроссплатформенное приложение (Flutter/React Native)',complexity:'Высокая',time:'1.5-3 месяца',cost:'150 000 - 400 000 ₽'},
-  {spec:'Мобильная разработка',seg:'Фитнес-клубы',pain:'Клиенты забывают о тренировках',sol:'Приложение с push-уведомлениями и записью',complexity:'Средняя',time:'3-6 недель',cost:'80 000 - 180 000 ₽'},
-  {spec:'Мобильная разработка',seg:'Ритейл',pain:'Нужно мобильное приложение для лояльности',sol:'Приложение с бонусной системой и сканером QR',complexity:'Средняя',time:'1-2 месяца',cost:'100 000 - 250 000 ₽'},
-  {spec:'Мобильная разработка',seg:'Недвижимость',pain:'Клиенты не могут удобно смотреть объекты',sol:'Приложение с картой, фильтрами и 3D-турами',complexity:'Высокая',time:'2-4 месяца',cost:'200 000 - 500 000 ₽'},
-  {spec:'Боты',seg:'Онлайн-школы',pain:'Менеджеры тонут в однотипных вопросах',sol:'Чат-бот с автоответами и приёмом оплаты',complexity:'Средняя',time:'1-2 недели',cost:'25 000 - 60 000 ₽'},
-  {spec:'Боты',seg:'Рестораны',pain:'Много звонков для бронирования',sol:'Бот для бронирования с интеграцией в календарь',complexity:'Низкая',time:'5-10 дней',cost:'15 000 - 35 000 ₽'},
-  {spec:'Боты',seg:'E-commerce',pain:'Клиенты бросают корзины',sol:'Бот с напоминаниями и персональными скидками',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 70 000 ₽'},
-  {spec:'Боты',seg:'HR-агентства',pain:'Ручной сбор резюме от кандидатов',sol:'Бот для сбора анкет и фильтрации кандидатов',complexity:'Средняя',time:'1-3 недели',cost:'40 000 - 90 000 ₽'},
-  {spec:'Боты',seg:'Медицина',pain:'Пациенты забывают о приёмах',sol:'Бот с напоминаниями и записью к врачу',complexity:'Низкая',time:'5-12 дней',cost:'20 000 - 50 000 ₽'},
-  {spec:'DevOps',seg:'Веб-студии',pain:'Ручной и долгий деплой',sol:'CI/CD пайплайн (GitHub Actions/GitLab CI)',complexity:'Средняя',time:'3-7 дней',cost:'20 000 - 50 000 ₽'},
-  {spec:'DevOps',seg:'Стартапы',pain:'Сайт падает, нет мониторинга',sol:'Docker, Nginx, мониторинг (Prometheus/Grafana)',complexity:'Высокая',time:'1-3 недели',cost:'50 000 - 120 000 ₽'},
-  {spec:'DevOps',seg:'E-commerce',pain:'Нужна масштабируемость в пиковые нагрузки',sol:'Kubernetes, автоскейлинг, балансировка',complexity:'Высокая',time:'2-4 недели',cost:'80 000 - 200 000 ₽'},
-  {spec:'Дизайн',seg:'Локальный бизнес',pain:'Устаревший дизайн сайта',sol:'Редизайн с упором на UX/UI и конверсию',complexity:'Средняя',time:'1-2 недели',cost:'30 000 - 70 000 ₽'},
-  {spec:'Дизайн',seg:'Приложения',pain:'Нет единого стиля, неудобный интерфейс',sol:'UI-кит и прототипы в Figma',complexity:'Высокая',time:'2-4 недели',cost:'60 000 - 150 000 ₽'},
-  {spec:'Дизайн',seg:'Стартапы',pain:'Нет фирменного стиля',sol:'Логотип, брендбук, гайдлайны',complexity:'Средняя',time:'1-3 недели',cost:'40 000 - 100 000 ₽'},
-  {spec:'Дизайн',seg:'E-commerce',pain:'Низкая конверсия сайта',sol:'UX-аудит и редизайн ключевых страниц',complexity:'Высокая',time:'2-4 недели',cost:'70 000 - 180 000 ₽'}
-];
-
 function renderRadar(){
-  var h='<h2>🎯 Радар — поиск клиентов</h2>';
+  var h='<h2>🎯 Радар v5.0</h2>';
   
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><h3 style="margin-top:0;color:#fff">🔍 Где искать клиентов (30+ источников)</h3>';
-  h+='<p class="mut">Биржи, Telegram-каналы, форумы, соцсети</p>';
-  h+='<div class="source-grid">';
-  h+='<div class="source-item"><a href="https://www.hh.ru" target="_blank">🇷🇺 HH.ru</a><div class="mut">Вакансии</div></div>';
-  h+='<div class="source-item"><a href="https://kwork.ru/projects" target="_blank">🛒 Kwork</a><div class="mut">Биржа</div></div>';
-  h+='<div class="source-item"><a href="https://www.fl.ru/projects" target="_blank">💼 FL.ru</a><div class="mut">Биржа</div></div>';
-  h+='<div class="source-item"><a href="https://freelance.ru" target="_blank">🎯 Freelance.ru</a><div class="mut">Биржа</div></div>';
-  h+='<div class="source-item"><a href="https://t.me/s/job_for_devs" target="_blank">✈️ job_for_devs</a><div class="mut">Telegram</div></div>';
-  h+='<div class="source-item"><a href="https://t.me/s/it_vacancies" target="_blank">️ it_vacancies</a><div class="mut">Telegram</div></div>';
-  h+='<div class="source-item"><a href="https://t.me/s/devjob" target="_blank">✈️ devjob</a><div class="mut">Telegram</div></div>';
-  h+='<div class="source-item"><a href="https://t.me/s/remote_job" target="_blank">✈️ remote_job</a><div class="mut">Telegram</div></div>';
-  h+='<div class="source-item"><a href="https://t.me/s/freelance_for_devs" target="_blank">️ freelance_for_devs</a><div class="mut">Telegram</div></div>';
-  h+='<div class="source-item"><a href="https://t.me/s/webdev_jobs" target="_blank">✈️ webdev_jobs</a><div class="mut">Telegram</div></div>';
-  h+='<div class="source-item"><a href="https://vc.ru/services" target="_blank">📰 VC.ru</a><div class="mut">Заказы</div></div>';
-  h+='<div class="source-item"><a href="https://habr.com/ru/freelance/" target="_blank">📘 Habr</a><div class="mut">Фриланс</div></div>';
-  h+='<div class="source-item"><a href="https://www.upwork.com" target="_blank">🌍 Upwork</a><div class="mut">Международная</div></div>';
-  h+='<div class="source-item"><a href="https://www.fiverr.com" target="_blank"> Fiverr</a><div class="mut">Международная</div></div>';
-  h+='<div class="source-item"><a href="https://www.freelancer.com" target="_blank"> Freelancer</a><div class="mut">Международная</div></div>';
-  h+='<div class="source-item"><a href="https://toptal.com" target="_blank">🌍 Toptal</a><div class="mut">Премиум</div></div>';
-  h+='<div class="source-item"><a href="https://linkedin.com/jobs" target="_blank">💼 LinkedIn</a><div class="mut">Вакансии</div></div>';
-  h+='<div class="source-item"><a href="https://indeed.com" target="_blank">💼 Indeed</a><div class="mut">Вакансии</div></div>';
-  h+='<div class="source-item"><a href="https://stackoverflow.com/jobs" target="_blank">💼 Stack Overflow</a><div class="mut">Вакансии</div></div>';
-  h+='<div class="source-item"><a href="https://github.com/jobs" target="_blank">🐙 GitHub Jobs</a><div class="mut">Вакансии</div></div>';
-  h+='<div class="source-item"><a href="https://www.reddit.com/r/forhire" target="_blank">🔴 Reddit r/forhire</a><div class="mut">Форум</div></div>';
-  h+='<div class="source-item"><a href="https://www.reddit.com/r/freelance_forhire" target="_blank">🔴 Reddit freelance</a><div class="mut">Форум</div></div>';
-  h+='<div class="source-item"><a href="https://hackernews.jobs" target="_blank">🔶 HN Jobs</a><div class="mut">Вакансии</div></div>';
-  h+='<div class="source-item"><a href="https://angel.co/jobs" target="_blank">👼 AngelList</a><div class="mut">Стартапы</div></div>';
-  h+='<div class="source-item"><a href="https://youdo.com" target="_blank">🔧 YouDo</a><div class="mut">Услуги</div></div>';
-  h+='<div class="source-item"><a href="https://profy.ru" target="_blank"> Profy</a><div class="mut">Дизайн</div></div>';
-  h+='<div class="source-item"><a href="https://www.behance.net/jobs" target="_blank"> Behance</a><div class="mut">Дизайн</div></div>';
-  h+='<div class="source-item"><a href="https://dribbble.com/jobs" target="_blank"> Dribbble</a><div class="mut">Дизайн</div></div>';
-  h+='<div class="source-item"><a href="https://www.instagram.com" target="_blank">📷 Instagram</a><div class="mut">Поиск по хэштегам</div></div>';
-  h+='<div class="source-item"><a href="https://vk.com" target="_blank">🔵 VK</a><div class="mut">Группы вакансий</div></div>';
-  h+='</div></div>';
-  
-  h+='<div class="card"><h3 style="margin-top:0"> Генератор шаблонов проектов</h3>';
-  h+='<p class="mut">База: '+PAIN_DB.length+' сценариев по 8 специализациям</p>';
-  h+='<div style="margin:10px 0">';
-  h+='<button class="filter-btn '+(db.showAllTemplates?'':'active')+'" onclick="toggleFilter()">Только мои навыки</button>';
-  h+='<button class="filter-btn '+(db.showAllTemplates?'active':'')+'" onclick="toggleFilter()">Показать все ('+PAIN_DB.length+')</button>';
+  // Статистика базы
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><h3 style="margin-top:0;color:#fff">📊 Ваша база</h3>';
+  h+='<div class="grid"><div style="text-align:center"><div class="mut">Шаблонов проектов</div><div class="big-number">'+db.templates.length+'</div></div><div style="text-align:center"><div class="mut">Источников поиска</div><div class="big-number">'+db.sources.length+'</div></div></div>';
   h+='</div>';
-  h+='<button class="btn ai" onclick="generatePains()">🎯 Сгенерировать шаблоны</button>';
-  h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:8px" onclick="clearPains()">🗑 Очистить все</button></div>';
+  
+  // Автопоиск
+  h+='<div class="card"><h3 style="margin-top:0">🤖 Автопополнение из HH.ru</h3>';
+  h+='<p class="mut">Автоматически ищет свежие вакансии по вашим навыкам</p>';
+  h+='<button class="btn ai" onclick="autoSearchHH()">🇷🇺 Найти вакансии на HH.ru</button>';
+  if(db.autoLeads.length){
+    h+='<div class="mut" style="margin-top:10px">Найдено сегодня: <b>'+db.autoLeads.length+'</b> вакансий</div>';
+    db.autoLeads.slice(0,5).forEach(function(l,idx){
+      h+='<div class="card" style="margin-top:8px;border-left:3px solid #d6001c;padding-left:12px"><b>'+esc(l.title)+'</b><div class="mut">'+esc(l.company||'')+'</div>';
+      if(l.salary)h+='<div style="color:#3ecf8e;font-size:13px"> '+esc(l.salary)+'</div>';
+      h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn small" onclick="leadToClient(\'auto\','+idx+')">👥 В клиенты</button><button class="btn small" style="background:#1f2530" onclick="leadOutreach(\'auto\','+idx+')">✍️ Написать</button></div></div>';
+    });
+  }
+  h+='</div>';
+  
+  // Источники
+  h+='<div class="card"><h3 style="margin-top:0">🔍 Где искать клиентов ('+db.sources.length+' источников)</h3>';
+  h+='<p class="mut">Биржи, Telegram, Reddit, форумы, прямые работодатели</p>';
+  
+  var categories={};
+  db.sources.forEach(function(s){if(!categories[s.category])categories[s.category]=[];categories[s.category].push(s)});
+  
+  Object.keys(categories).forEach(function(cat){
+    h+='<div style="margin-top:15px"><b style="color:#6c8cff">'+cat+' ('+categories[cat].length+')</b>';
+    h+='<div class="source-grid">';
+    categories[cat].forEach(function(s){
+      h+='<div class="source-item"><a href="'+esc(s.url)+'" target="_blank">'+s.icon+' '+esc(s.name)+'</a><div class="mut">'+esc(s.description)+'</div></div>';
+    });
+    h+='</div></div>';
+  });
+  h+='</div>';
+  
+  // Фильтр шаблонов
+  h+='<div class="card"><h3 style="margin-top:0"> Шаблоны проектов ('+db.templates.length+' в базе)</h3>';
+  h+='<div class="filter-row">';
+  h+='<button class="filter-btn '+(db.showAllTemplates?'':'active')+'" onclick="toggleFilter()">Только мои навыки</button>';
+  h+='<button class="filter-btn '+(db.showAllTemplates?'active':'')+'" onclick="toggleFilter()">Показать все</button>';
+  h+='</div>';
+  h+='<button class="btn ai" onclick="generatePains()">🎯 Сгенерировать из базы</button>';
+  h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:8px" onclick="clearPains()">🗑 Очистить мои шаблоны</button></div>';
   
   if(db.pains&&db.pains.length){
     h+='<div class="mut" style="margin:10px 0">Показано: '+db.pains.length+' шаблонов</div>';
@@ -185,23 +161,54 @@ function toggleFilter(){db.showAllTemplates=!db.showAllTemplates;save();renderRa
 function generatePains(){
   var added=0;
   var userSpecs = db.profile.specs || ['Фронтенд', 'Бэкенд', 'Боты'];
-  PAIN_DB.forEach(function(p){
+  db.templates.forEach(function(p){
     var shouldAdd = db.showAllTemplates || userSpecs.includes(p.spec);
-    if(shouldAdd && !db.pains.some(function(x){return x.pain===p.pain})){
-      db.pains.push({id:uid(), spec:p.spec, seg:p.seg, pain:p.pain, sol:p.sol, complexity:p.complexity, time:p.time, cost:p.cost, status:'Гипотеза'});
+    if(shouldAdd && !db.pains.some(function(x){return x.pain===p.pain && x.seg===p.seg})){
+      db.pains.push({id:uid(), spec:p.spec, seg:p.seg, pain:p.pain, sol:p.sol, complexity:p.complexity, time:p.time, cost:p.cost, demand:p.demand||5, status:'Гипотеза'});
       added++;
     }
   });
   save(); renderRadar();
-  alert(added>0 ? '✅ Добавлено '+added+' готовых шаблонов проектов!' : '⚠️ Все шаблоны уже в базе');
+  alert(added>0 ? '✅ Добавлено '+added+' шаблонов из базы '+db.templates.length+'!' : '️ Все подходящие шаблоны уже в базе');
 }
 
-function clearPains(){if(confirm('Удалить все шаблоны?')){db.pains=[];save();renderRadar()}}
+function clearPains(){if(confirm('Удалить все мои шаблоны?')){db.pains=[];save();renderRadar()}}
 function delPain(id){if(confirm('Удалить этот шаблон?')){db.pains=db.pains.filter(function(p){return p.id!==id});save();renderRadar()}}
 
 function genOutreach(seg, pain, sol, time, cost){
-  var txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nЗаметил, что для '+seg+' актуальна проблема: "'+pain+'".\n\nЯ решаю такие задачи следующим образом: '+sol+'.\n\nОбычно реализация занимает '+time+', а бюджет составляет '+cost+'.\n\nНайдётся 5-10 минут на этой неделе, чтобы обсудить детали?\n\nС уважением,\n'+db.profile.name+'\n'+(db.profile.phone||'Телефон');
-  navigator.clipboard.writeText(txt).then(function(){alert('✉️ Письмо скопировано! Вставьте его в Telegram или почту.')});
+  var txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nЗаметил, что для '+seg+' актуальна проблема: "'+pain+'".\n\nЯ решаю такие задачи следующим образом: '+sol+'.\n\nОбычно реализация занимает '+time+', а бюджет составляет '+cost+'.\n\nНайдётся 5-10 минут на этой неделе, чтобы обсудить детали?\n\nС уважением,\n'+db.profile.name;
+  navigator.clipboard.writeText(txt).then(function(){alert('✉️ Письмо скопировано!')});
+}
+
+function autoSearchHH(){
+  var specs=db.profile.specs||['разработчик'];
+  var found=0;
+  db.autoLeads=[];
+  var promises=specs.map(function(q){
+    return fetch('https://api.hh.ru/vacancies?text='+encodeURIComponent(q)+'&per_page=10&area=1').then(function(r){return r.json()}).then(function(data){
+      (data.items||[]).forEach(function(v){
+        var salary='';
+        if(v.salary){if(v.salary.from)salary+=v.salary.from+' ';else if(v.salary.to)salary+=v.salary.to+' ';salary+=(v.salary.currency||'RUB')}
+        db.autoLeads.push({id:uid(),title:v.name,company:v.employer?v.employer.name:'',salary:salary,url:v.alternate_url,date:today()});
+        found++;
+      });
+    }).catch(function(){alert('⚠️ HH.ru недоступен (CORS). Попробуйте позже.')});
+  });
+  Promise.all(promises).then(function(){save();renderRadar();if(found>0)alert('🇷🇺 Найдено: '+found+' вакансий!')});
+}
+
+function leadToClient(type,idx){
+  var list=type==='auto'?db.autoLeads:db.leads;
+  var l=list[idx];if(!l)return;
+  db.clients.push({id:uid(),name:l.company||l.title,company:l.company||'',budget:0,status:'Новый',date:today()});
+  save();alert('👥 Добавлен в клиенты!');
+}
+
+function leadOutreach(type,idx){
+  var list=type==='auto'?db.autoLeads:db.leads;
+  var l=list[idx];if(!l)return;
+  var txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nУвидел вашу вакансию: "'+l.title+'".\n\nБуду рад обсудить детали.\n\nС уважением,\n'+db.profile.name;
+  navigator.clipboard.writeText(txt).then(function(){alert('✉️ Письмо скопировано!')});
 }
 
 function renderProjects(){
@@ -210,42 +217,41 @@ function renderProjects(){
     var doneTasks=p.tasks?p.tasks.filter(function(t){return t.done}).length:0;
     var totalTasks=p.tasks?p.tasks.length:0;
     var progress=totalTasks?Math.round(doneTasks/totalTasks*100):0;
-    var roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;
     h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>'+esc(p.name)+'</b><span style="padding:4px 12px;background:#6c8cff;border-radius:12px;font-size:12px">'+['Идея','В работе','Тестирование','Завершён'][p.stage]+'</span></div>';
     h+='<div class="mut">'+esc(p.client||'—')+' · '+p.budget.toLocaleString()+' ₽</div>';
-    if(p.deadline) h+='<div class="mut">📅 Дедлайн: '+p.deadline+'</div>';
-    if(roi) h+='<div style="color:#3ecf8e;font-size:13px">🧮 ROI: '+roi+' ₽/час</div>';
     h+='<div class="bar"><i style="width:'+progress+'%"></i></div>';
-    h+='<div class="mut">Задачи: '+doneTasks+'/'+totalTasks+' ('+progress+'%)</div>';
-    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">';
-    if(p.stage<3) h+='<button class="btn small" onclick="nextStage(\''+p.id+'\')">Этап →</button>';
-    h+='<button class="btn small" style="background:#1f2530" onclick="showTasks(\''+p.id+'\')">Задачи</button>';
-    h+='<button class="btn small" style="background:#1f2530" onclick="showROI(\''+p.id+'\')">ROI</button>';
-    h+='<button class="btn small" style="background:#1f2530" onclick="showReport(\''+p.id+'\')">Отчёт</button>';
-    h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b" onclick="delProject(\''+p.id+'\')">🗑</button>';
-    h+='</div></div>';
+    h+='<div class="mut">Задачи: '+doneTasks+'/'+totalTasks+'</div></div>';
   });
   document.getElementById('app').innerHTML=h;
 }
 
-function addProject(){var name=prompt('Название проекта:');if(!name)return;var client=prompt('Клиент:')||'';var budget=+prompt('Бюджет (₽):')||0;var deadline=prompt('Дедлайн (ГГГГ-ММ-ДД):')||'';var hours=+prompt('Оценка часов:')||40;db.projects.push({id:uid(),name:name,client:client,budget:budget,stage:0,deadline:deadline,estimatedHours:hours,tasks:[],date:today()});save();renderProjects()}
-function nextStage(id){var p=db.projects.find(function(x){return x.id===id});if(p&&p.stage<3){p.stage++;save();renderProjects();alert('Этап: '+['Идея','В работе','Тестирование','Завершён'][p.stage])}}
-function delProject(id){if(confirm('Удалить проект?')){db.projects=db.projects.filter(function(p){return p.id!==id});save();renderProjects()}}
-
-function showTasks(id){var p=db.projects.find(function(x){return x.id===id});if(!p)return;var h='<h3>Задачи: '+esc(p.name)+'</h3>';if(p.tasks&&p.tasks.length){p.tasks.forEach(function(t){h+='<div style="display:flex;align-items:center;gap:10px;margin:10px 0"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTask(\''+id+'\',\''+t.id+'\')" style="width:auto"><span style="flex:1;'+(t.done?'text-decoration:line-through;color:#8b94a7':'')+'">'+esc(t.text)+'</span><button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:5px 10px" onclick="delTask(\''+id+'\',\''+t.id+'\')">✕</button></div>'})}else{h+='<div class="mut">Нет задач</div>'}h+='<div style="display:flex;gap:8px;margin-top:15px"><input id="newTask" placeholder="Новая задача" style="flex:1"><button class="btn small" onclick="addTask(\''+id+'\')">+</button></div><button class="btn" onclick="closeModal()">Закрыть</button>';openModal(h)}
-function addTask(projId){var text=document.getElementById('newTask').value.trim();if(!text)return;var p=db.projects.find(function(x){return x.id===projId});if(p){if(!p.tasks)p.tasks=[];p.tasks.push({id:uid(),text:text,done:false});save();showTasks(projId);renderProjects()}}
-function toggleTask(projId,taskId){var p=db.projects.find(function(x){return x.id===projId});if(p&&p.tasks){var t=p.tasks.find(function(x){return x.id===taskId});if(t)t.done=!t.done;save();showTasks(projId);renderProjects()}}
-function delTask(projId,taskId){var p=db.projects.find(function(x){return x.id===projId});if(p&&p.tasks){p.tasks=p.tasks.filter(function(t){return t.id!==taskId});save();showTasks(projId);renderProjects()}}
-
-function showROI(id){var p=db.projects.find(function(x){return x.id===id});if(!p)return;var roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;var verdict=roi>=1000?'✅ Отлично':roi>=500?'👍 Нормально':'⚠️ Низкий ROI';var h='<h3>🧮 ROI проекта</h3><div class="card"><div style="display:flex;justify-content:space-between;margin:10px 0"><span>Бюджет:</span><b>'+p.budget.toLocaleString()+' ₽</b></div><div style="display:flex;justify-content:space-between;margin:10px 0"><span>Часов:</span><b>'+p.estimatedHours+'</b></div><div style="display:flex;justify-content:space-between;margin:10px 0;padding-top:10px;border-top:1px solid #242b36"><span>Ставка:</span><b style="color:#3ecf8e">'+roi+' ₽/час</b></div><div style="margin-top:15px;font-size:18px;text-align:center">'+verdict+'</div></div><button class="btn" onclick="closeModal()">Закрыть</button>';openModal(h)}
-
-function showReport(id){var p=db.projects.find(function(x){return x.id===id});if(!p)return;var doneTasks=p.tasks?p.tasks.filter(function(t){return t.done}).length:0;var totalTasks=p.tasks?p.tasks.length:0;var report='ОТЧЁТ ПО ПРОЕКТУ\n\nПроект: '+p.name+'\nКлиент: '+p.client+'\nДата: '+today()+'\n\nСтатус: '+['Идея','В работе','Тестирование','Завершён'][p.stage]+'\nБюджет: '+p.budget+' ₽\nДедлайн: '+p.deadline+'\n\nПрогресс: '+doneTasks+'/'+totalTasks+' задач\n\nЗадачи:\n'+(p.tasks||[]).map(function(t){return (t.done?'✓':'○')+' '+t.text}).join('\n')+'\n\nС уважением,\n'+db.profile.name;var h='<h3>📊 Отчёт</h3><textarea id="reportText" rows="12" style="font-family:monospace;font-size:13px">'+esc(report)+'</textarea><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="copyReport()"> Копировать</button></div><button class="btn" onclick="closeModal()">Закрыть</button>';openModal(h)}
-function copyReport(){var text=document.getElementById('reportText').value;navigator.clipboard.writeText(text).then(function(){alert('📋 Скопировано!')})}
+function addProject(){var name=prompt('Название:');if(!name)return;db.projects.push({id:uid(),name:name,client:prompt('Клиент:')||'',budget:+prompt('Бюджет:')||0,stage:1,tasks:[]});save();renderProjects()}
 
 function openModal(h){document.getElementById('modalContent').innerHTML=h;document.getElementById('modal').classList.add('on')}
 function closeModal(){document.getElementById('modal').classList.remove('on')}
 
-window.onload=function(){save();renderHome()};
+// Загрузка JSON-файлов при старте
+function loadExternalData(){
+  fetch('templates.json?v='+Date.now()).then(function(r){return r.json()}).then(function(data){
+    db.templates=data;
+    TEMPLATES_LOADED=true;
+    save();
+    if(currentView==='home'||currentView==='radar')renderHome();
+  }).catch(function(e){console.log('Templates load error:',e)});
+  
+  fetch('sources.json?v='+Date.now()).then(function(r){return r.json()}).then(function(data){
+    db.sources=data;
+    SOURCES_LOADED=true;
+    save();
+    if(currentView==='home'||currentView==='radar')renderHome();
+  }).catch(function(e){console.log('Sources load error:',e)});
+}
+
+window.onload=function(){
+  save();
+  renderHome();
+  loadExternalData();
+};
 </script>
 </body>
 </html>

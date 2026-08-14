@@ -1,0 +1,1242 @@
+[
+  {
+    "id": "s1",
+    "category": "Российские биржи",
+    "name": "HH.ru",
+    "url": "https://www.hh.ru",
+    "description": "Вакансии и проекты",
+    "icon": "🇷🇺"
+  },
+  {
+    "id": "s2",
+    "category": "Российские биржи",
+    "name": "Kwork",
+    "url": "https://kwork.ru/projects",
+    "description": "Магазин услуг",
+    "icon": "🛒"
+  },
+  {
+    "id": "s3",
+    "category": "Российские биржи",
+    "name": "FL.ru",
+    "url": "https://www.fl.ru/projects",
+    "description": "Крупнейшая биржа",
+    "icon": "💼"
+  },
+  {
+    "id": "s4",
+    "category": "Российские биржи",
+    "name": "Freelance.ru",
+    "url": "https://freelance.ru",
+    "description": "Старая биржа",
+    "icon": "🎯"
+  },
+  {
+    "id": "s5",
+    "category": "Российские биржи",
+    "name": "YouDo",
+    "url": "https://youdo.com",
+    "description": "Разовые задачи",
+    "icon": "🔧"
+  },
+  {
+    "id": "s6",
+    "category": "Российские биржи",
+    "name": "Profy.ru",
+    "url": "https://profy.ru",
+    "description": "Дизайн и разработка",
+    "icon": "🎨"
+  },
+  {
+    "id": "s7",
+    "category": "Российские биржи",
+    "name": "Habr Freelance",
+    "url": "https://freelance.habr.com",
+    "description": "IT-фриланс",
+    "icon": "📘"
+  },
+  {
+    "id": "s8",
+    "category": "Российские биржи",
+    "name": "VC.ru Услуги",
+    "url": "https://vc.ru/services",
+    "description": "Заказы от бизнеса",
+    "icon": "📰"
+  },
+  {
+    "id": "s9",
+    "category": "Российские биржи",
+    "name": "Workspace.ru",
+    "url": "https://workspace.ru",
+    "description": "Digital-заказы",
+    "icon": "💻"
+  },
+  {
+    "id": "s10",
+    "category": "Российские биржи",
+    "name": "Tgstat Jobs",
+    "url": "https://tgstat.ru",
+    "description": "Каталог каналов",
+    "icon": "📊"
+  },
+  {
+    "id": "s11",
+    "category": "Международные биржи",
+    "name": "Upwork",
+    "url": "https://www.upwork.com",
+    "description": "Крупнейшая мировая",
+    "icon": "🌍"
+  },
+  {
+    "id": "s12",
+    "category": "Международные биржи",
+    "name": "Fiverr",
+    "url": "https://www.fiverr.com",
+    "description": "Магазин услуг",
+    "icon": "🎪"
+  },
+  {
+    "id": "s13",
+    "category": "Международные биржи",
+    "name": "Freelancer.com",
+    "url": "https://www.freelancer.com",
+    "description": "Аукцион проектов",
+    "icon": ""
+  },
+  {
+    "id": "s14",
+    "category": "Международные биржи",
+    "name": "Toptal",
+    "url": "https://www.toptal.com",
+    "description": "Топ-3% разработчиков",
+    "icon": "⭐"
+  },
+  {
+    "id": "s15",
+    "category": "Международные биржи",
+    "name": "Guru",
+    "url": "https://www.guru.com",
+    "description": "Средний сегмент",
+    "icon": "💼"
+  },
+  {
+    "id": "s16",
+    "category": "Международные биржи",
+    "name": "PeoplePerHour",
+    "url": "https://www.peopleperhour.com",
+    "description": "Европа",
+    "icon": "🇪🇺"
+  },
+  {
+    "id": "s17",
+    "category": "Международные биржи",
+    "name": "99designs",
+    "url": "https://99designs.com",
+    "description": "Дизайн-конкурсы",
+    "icon": "🎨"
+  },
+  {
+    "id": "s18",
+    "category": "Международные биржи",
+    "name": "DesignCrowd",
+    "url": "https://www.designcrowd.com",
+    "description": "Дизайн",
+    "icon": "🖌️"
+  },
+  {
+    "id": "s19",
+    "category": "Международные биржи",
+    "name": "Dribbble Jobs",
+    "url": "https://dribbble.com/jobs",
+    "description": "Дизайн-вакансии",
+    "icon": ""
+  },
+  {
+    "id": "s20",
+    "category": "Международные биржи",
+    "name": "Behance Jobs",
+    "url": "https://www.behance.net/jobs",
+    "description": "Креатив",
+    "icon": "🎭"
+  },
+  {
+    "id": "s21",
+    "category": "Международные биржи",
+    "name": "AngelList",
+    "url": "https://angel.co/jobs",
+    "description": "Стартапы",
+    "icon": "👼"
+  },
+  {
+    "id": "s22",
+    "category": "Международные биржи",
+    "name": "Wellfound",
+    "url": "https://wellfound.com",
+    "description": "Стартапы (бывш. AngelList)",
+    "icon": ""
+  },
+  {
+    "id": "s23",
+    "category": "Международные биржи",
+    "name": "Arc.dev",
+    "url": "https://arc.dev",
+    "description": "Удалёнка",
+    "icon": "🌐"
+  },
+  {
+    "id": "s24",
+    "category": "Международные биржи",
+    "name": "Turing",
+    "url": "https://www.turing.com",
+    "description": "AI-подбор",
+    "icon": "🤖"
+  },
+  {
+    "id": "s25",
+    "category": "Международные биржи",
+    "name": "Crossover",
+    "url": "https://www.crossover.com",
+    "description": "Высокие ставки",
+    "icon": "💎"
+  },
+  {
+    "id": "s26",
+    "category": "Международные биржи",
+    "name": "Gun.io",
+    "url": "https://gun.io",
+    "description": "Senior-разработчики",
+    "icon": "🔫"
+  },
+  {
+    "id": "s27",
+    "category": "Международные биржи",
+    "name": "Gun.io",
+    "url": "https://gun.io",
+    "description": "Senior-разработчики",
+    "icon": ""
+  },
+  {
+    "id": "s28",
+    "category": "Международные биржи",
+    "name": "Hired",
+    "url": "https://hired.com",
+    "description": "Reverse recruiting",
+    "icon": "🎯"
+  },
+  {
+    "id": "s29",
+    "category": "Международные биржи",
+    "name": "Triplebyte",
+    "url": "https://triplebyte.com",
+    "description": "Тех-собеседования",
+    "icon": ""
+  },
+  {
+    "id": "s30",
+    "category": "Международные биржи",
+    "name": "Stack Overflow Jobs",
+    "url": "https://stackoverflow.com/jobs",
+    "description": "IT-вакансии",
+    "icon": ""
+  },
+  {
+    "id": "s31",
+    "category": "Telegram: общие IT",
+    "name": "job_for_devs",
+    "url": "https://t.me/s/job_for_devs",
+    "description": "Вакансии для разработчиков",
+    "icon": "️"
+  },
+  {
+    "id": "s32",
+    "category": "Telegram: общие IT",
+    "name": "it_vacancies",
+    "url": "https://t.me/s/it_vacancies",
+    "description": "IT-вакансии РФ",
+    "icon": "💼"
+  },
+  {
+    "id": "s33",
+    "category": "Telegram: общие IT",
+    "name": "devjob",
+    "url": "https://t.me/s/devjob",
+    "description": "Работа в IT",
+    "icon": "👨‍"
+  },
+  {
+    "id": "s34",
+    "category": "Telegram: общие IT",
+    "name": "remote_job",
+    "url": "https://t.me/s/remote_job",
+    "description": "Удалёнка",
+    "icon": "🏠"
+  },
+  {
+    "id": "s35",
+    "category": "Telegram: общие IT",
+    "name": "freelance_for_devs",
+    "url": "https://t.me/s/freelance_for_devs",
+    "description": "Фриланс для разрабов",
+    "icon": "🎯"
+  },
+  {
+    "id": "s36",
+    "category": "Telegram: общие IT",
+    "name": "webdev_jobs",
+    "url": "https://t.me/s/webdev_jobs",
+    "description": "Web-разработка",
+    "icon": "🌐"
+  },
+  {
+    "id": "s37",
+    "category": "Telegram: общие IT",
+    "name": "python_jobs",
+    "url": "https://t.me/s/python_jobs",
+    "description": "Python-вакансии",
+    "icon": "🐍"
+  },
+  {
+    "id": "s38",
+    "category": "Telegram: общие IT",
+    "name": "js_jobs",
+    "url": "https://t.me/s/js_jobs",
+    "description": "JavaScript-вакансии",
+    "icon": ""
+  },
+  {
+    "id": "s39",
+    "category": "Telegram: общие IT",
+    "name": "frontend_jobs",
+    "url": "https://t.me/s/frontend_jobs",
+    "description": "Фронтенд",
+    "icon": "🎨"
+  },
+  {
+    "id": "s40",
+    "category": "Telegram: общие IT",
+    "name": "backend_jobs",
+    "url": "https://t.me/s/backend_jobs",
+    "description": "Бэкенд",
+    "icon": "⚙️"
+  },
+  {
+    "id": "s41",
+    "category": "Telegram: общие IT",
+    "name": "devops_jobs",
+    "url": "https://t.me/s/devops_jobs",
+    "description": "DevOps",
+    "icon": "🔧"
+  },
+  {
+    "id": "s42",
+    "category": "Telegram: общие IT",
+    "name": "qa_jobs",
+    "url": "https://t.me/s/qa_jobs",
+    "description": "Тестирование",
+    "icon": ""
+  },
+  {
+    "id": "s43",
+    "category": "Telegram: общие IT",
+    "name": "design_jobs",
+    "url": "https://t.me/s/design_jobs",
+    "description": "Дизайн",
+    "icon": "🎨"
+  },
+  {
+    "id": "s44",
+    "category": "Telegram: общие IT",
+    "name": "mobile_jobs",
+    "url": "https://t.me/s/mobile_jobs",
+    "description": "Мобильная разработка",
+    "icon": "📱"
+  },
+  {
+    "id": "s45",
+    "category": "Telegram: общие IT",
+    "name": "data_jobs",
+    "url": "https://t.me/s/data_jobs",
+    "description": "Data Science",
+    "icon": ""
+  },
+  {
+    "id": "s46",
+    "category": "Telegram: общие IT",
+    "name": "ml_jobs",
+    "url": "https://t.me/s/ml_jobs",
+    "description": "Machine Learning",
+    "icon": "🤖"
+  },
+  {
+    "id": "s47",
+    "category": "Telegram: общие IT",
+    "name": "startup_jobs",
+    "url": "https://t.me/s/startup_jobs",
+    "description": "Стартапы",
+    "icon": "🚀"
+  },
+  {
+    "id": "s48",
+    "category": "Telegram: общие IT",
+    "name": "freelance_ru",
+    "url": "https://t.me/s/freelance_ru",
+    "description": "Русский фриланс",
+    "icon": "🇷🇺"
+  },
+  {
+    "id": "s49",
+    "category": "Telegram: общие IT",
+    "name": "work_in_it",
+    "url": "https://t.me/s/work_in_it",
+    "description": "Работа в IT",
+    "icon": "💼"
+  },
+  {
+    "id": "s50",
+    "category": "Telegram: общие IT",
+    "name": "it_recruiter",
+    "url": "https://t.me/s/it_recruiter",
+    "description": "Рекрутеры",
+    "icon": "👔"
+  },
+  {
+    "id": "s51",
+    "category": "Telegram: общие IT",
+    "name": "findjob_it",
+    "url": "https://t.me/s/findjob_it",
+    "description": "Поиск работы",
+    "icon": "🔍"
+  },
+  {
+    "id": "s52",
+    "category": "Telegram: общие IT",
+    "name": "jobhunt_it",
+    "url": "https://t.me/s/jobhunt_it",
+    "description": "Охота за работой",
+    "icon": ""
+  },
+  {
+    "id": "s53",
+    "category": "Telegram: общие IT",
+    "name": "remote_work_ru",
+    "url": "https://t.me/s/remote_work_ru",
+    "description": "Удалёнка РФ",
+    "icon": "🏡"
+  },
+  {
+    "id": "s54",
+    "category": "Telegram: общие IT",
+    "name": "digital_nomad",
+    "url": "https://t.me/s/digital_nomad",
+    "description": "Цифровые кочевники",
+    "icon": "🌍"
+  },
+  {
+    "id": "s55",
+    "category": "Telegram: общие IT",
+    "name": "freelance_habr",
+    "url": "https://t.me/s/freelance_habr",
+    "description": "Хабр Фриланс",
+    "icon": "📘"
+  },
+  {
+    "id": "s56",
+    "category": "Telegram: общие IT",
+    "name": "vc_freelance",
+    "url": "https://t.me/s/vc_freelance",
+    "description": "VC Фриланс",
+    "icon": "📰"
+  },
+  {
+    "id": "s57",
+    "category": "Telegram: общие IT",
+    "name": "kwork_freelance",
+    "url": "https://t.me/s/kwork_freelance",
+    "description": "Kwork заказы",
+    "icon": "🛒"
+  },
+  {
+    "id": "s58",
+    "category": "Telegram: общие IT",
+    "name": "fl_ru_jobs",
+    "url": "https://t.me/s/fl_ru_jobs",
+    "description": "FL.ru заказы",
+    "icon": "💼"
+  },
+  {
+    "id": "s59",
+    "category": "Telegram: общие IT",
+    "name": "upwork_ru",
+    "url": "https://t.me/s/upwork_ru",
+    "description": "Upwork для русских",
+    "icon": "🌍"
+  },
+  {
+    "id": "s60",
+    "category": "Telegram: общие IT",
+    "name": "fiverr_tips",
+    "url": "https://t.me/s/fiverr_tips",
+    "description": "Советы по Fiverr",
+    "icon": "💡"
+  },
+  {
+    "id": "s61",
+    "category": "Reddit-сабреддиты",
+    "name": "r/forhire",
+    "url": "https://www.reddit.com/r/forhire",
+    "description": "Поиск работы",
+    "icon": "🔴"
+  },
+  {
+    "id": "s62",
+    "category": "Reddit-сабреддиты",
+    "name": "r/freelance_forhire",
+    "url": "https://www.reddit.com/r/freelance_forhire",
+    "description": "Фриланс",
+    "icon": "🔴"
+  },
+  {
+    "id": "s63",
+    "category": "Reddit-сабреддиты",
+    "name": "r/hireawebdeveloper",
+    "url": "https://www.reddit.com/r/hireawebdeveloper",
+    "description": "Web-разработчики",
+    "icon": "🔴"
+  },
+  {
+    "id": "s64",
+    "category": "Reddit-сабреддиты",
+    "name": "r/jobbit",
+    "url": "https://www.reddit.com/r/jobbit",
+    "description": "IT-вакансии",
+    "icon": "🔴"
+  },
+  {
+    "id": "s65",
+    "category": "Reddit-сабреддиты",
+    "name": "r/techjobs",
+    "url": "https://www.reddit.com/r/techjobs",
+    "description": "Тех-вакансии",
+    "icon": "🔴"
+  },
+  {
+    "id": "s66",
+    "category": "Reddit-сабреддиты",
+    "name": "r/remotework",
+    "url": "https://www.reddit.com/r/remotework",
+    "description": "Удалёнка",
+    "icon": "🔴"
+  },
+  {
+    "id": "s67",
+    "category": "Reddit-сабреддиты",
+    "name": "r/digitalnomad",
+    "url": "https://www.reddit.com/r/digitalnomad",
+    "description": "Кочевники",
+    "icon": "🔴"
+  },
+  {
+    "id": "s68",
+    "category": "Reddit-сабреддиты",
+    "name": "r/freelance",
+    "url": "https://www.reddit.com/r/freelance",
+    "description": "Фриланс",
+    "icon": "🔴"
+  },
+  {
+    "id": "s69",
+    "category": "Reddit-сабреддиты",
+    "name": "r/webdev",
+    "url": "https://www.reddit.com/r/webdev",
+    "description": "Web-разработка",
+    "icon": "🔴"
+  },
+  {
+    "id": "s70",
+    "category": "Reddit-сабреддиты",
+    "name": "r/javascript",
+    "url": "https://www.reddit.com/r/javascript",
+    "description": "JavaScript",
+    "icon": "🔴"
+  },
+  {
+    "id": "s71",
+    "category": "Reddit-сабреддиты",
+    "name": "r/python",
+    "url": "https://www.reddit.com/r/python",
+    "description": "Python",
+    "icon": "🔴"
+  },
+  {
+    "id": "s72",
+    "category": "Reddit-сабреддиты",
+    "name": "r/reactjs",
+    "url": "https://www.reddit.com/r/reactjs",
+    "description": "React",
+    "icon": "🔴"
+  },
+  {
+    "id": "s73",
+    "category": "Reddit-сабреддиты",
+    "name": "r/node",
+    "url": "https://www.reddit.com/r/node",
+    "description": "Node.js",
+    "icon": ""
+  },
+  {
+    "id": "s74",
+    "category": "Reddit-сабреддиты",
+    "name": "r/devops",
+    "url": "https://www.reddit.com/r/devops",
+    "description": "DevOps",
+    "icon": ""
+  },
+  {
+    "id": "s75",
+    "category": "Reddit-сабреддиты",
+    "name": "r/cscareerquestions",
+    "url": "https://www.reddit.com/r/cscareerquestions",
+    "description": "Карьера в CS",
+    "icon": "🔴"
+  },
+  {
+    "id": "s76",
+    "category": "Reddit-сабреддиты",
+    "name": "r/ExperiencedDevs",
+    "url": "https://www.reddit.com/r/ExperiencedDevs",
+    "description": "Опытные разрабы",
+    "icon": ""
+  },
+  {
+    "id": "s77",
+    "category": "Reddit-сабреддиты",
+    "name": "r/DesignJobs",
+    "url": "https://www.reddit.com/r/DesignJobs",
+    "description": "Дизайн-вакансии",
+    "icon": ""
+  },
+  {
+    "id": "s78",
+    "category": "Reddit-сабреддиты",
+    "name": "r/UXDesign",
+    "url": "https://www.reddit.com/r/UXDesign",
+    "description": "UX-дизайн",
+    "icon": "🔴"
+  },
+  {
+    "id": "s79",
+    "category": "Reddit-сабреддиты",
+    "name": "r/dataisbeautiful",
+    "url": "https://www.reddit.com/r/dataisbeautiful",
+    "description": "Data Viz",
+    "icon": "🔴"
+  },
+  {
+    "id": "s80",
+    "category": "Reddit-сабреддиты",
+    "name": "r/datascience",
+    "url": "https://www.reddit.com/r/datascience",
+    "description": "Data Science",
+    "icon": "🔴"
+  },
+  {
+    "id": "s81",
+    "category": "Сообщества и платформы",
+    "name": "GitHub Jobs",
+    "url": "https://github.com/jobs",
+    "description": "Вакансии от GitHub",
+    "icon": ""
+  },
+  {
+    "id": "s82",
+    "category": "Сообщества и платформы",
+    "name": "Hacker News Jobs",
+    "url": "https://news.ycombinator.com/jobs",
+    "description": "HN Вакансии",
+    "icon": "🔶"
+  },
+  {
+    "id": "s83",
+    "category": "Сообщества и платформы",
+    "name": "LinkedIn Jobs",
+    "url": "https://linkedin.com/jobs",
+    "description": "Профессиональная сеть",
+    "icon": ""
+  },
+  {
+    "id": "s84",
+    "category": "Сообщества и платформы",
+    "name": "Indeed",
+    "url": "https://www.indeed.com",
+    "description": "Агрегатор вакансий",
+    "icon": "🔍"
+  },
+  {
+    "id": "s85",
+    "category": "Сообщества и платформы",
+    "name": "Glassdoor",
+    "url": "https://www.glassdoor.com",
+    "description": "Вакансии + отзывы",
+    "icon": "🏢"
+  },
+  {
+    "id": "s86",
+    "category": "Сообщества и платформы",
+    "name": "Monster",
+    "url": "https://www.monster.com",
+    "description": "Международная биржа",
+    "icon": "👾"
+  },
+  {
+    "id": "s87",
+    "category": "Сообщества и платформы",
+    "name": "CareerBuilder",
+    "url": "https://www.careerbuilder.com",
+    "description": "Карьера",
+    "icon": "🏗️"
+  },
+  {
+    "id": "s88",
+    "category": "Сообщества и платформы",
+    "name": "SimplyHired",
+    "url": "https://www.simplyhired.com",
+    "description": "Простой поиск",
+    "icon": ""
+  },
+  {
+    "id": "s89",
+    "category": "Сообщества и платформы",
+    "name": "ZipRecruiter",
+    "url": "https://www.ziprecruiter.com",
+    "description": "Быстрый найм",
+    "icon": "⚡"
+  },
+  {
+    "id": "s90",
+    "category": "Сообщества и платформы",
+    "name": "Dice",
+    "url": "https://www.dice.com",
+    "description": "Тех-вакансии",
+    "icon": "🎲"
+  },
+  {
+    "id": "s91",
+    "category": "Сообщества и платформы",
+    "name": "StackShare Jobs",
+    "url": "https://stackshare.io/jobs",
+    "description": "По стеку",
+    "icon": "📚"
+  },
+  {
+    "id": "s92",
+    "category": "Сообщества и платформы",
+    "name": "Remote OK",
+    "url": "https://remoteok.com",
+    "description": "Удалёнка",
+    "icon": "🌍"
+  },
+  {
+    "id": "s93",
+    "category": "Сообщества и платформы",
+    "name": "We Work Remotely",
+    "url": "https://weworkremotely.com",
+    "description": "Удалёнка",
+    "icon": "🏠"
+  },
+  {
+    "id": "s94",
+    "category": "Сообщества и платформы",
+    "name": "FlexJobs",
+    "url": "https://www.flexjobs.com",
+    "description": "Гибкая работа",
+    "icon": "🤸"
+  },
+  {
+    "id": "s95",
+    "category": "Сообщества и платформы",
+    "name": "Working Nomads",
+    "url": "https://www.workingnomads.com/jobs",
+    "description": "Кочевники",
+    "icon": ""
+  },
+  {
+    "id": "s96",
+    "category": "Сообщества и платформы",
+    "name": "Remotive",
+    "url": "https://remotive.com",
+    "description": "Удалёнка",
+    "icon": "🏡"
+  },
+  {
+    "id": "s97",
+    "category": "Сообщества и платформы",
+    "name": "Jobspresso",
+    "url": "https://jobspresso.co",
+    "description": "Курируемая удалёнка",
+    "icon": "☕"
+  },
+  {
+    "id": "s98",
+    "category": "Сообщества и платформы",
+    "name": "SkipTheDrive",
+    "url": "https://www.skipthedrive.com",
+    "description": "Без офиса",
+    "icon": "🚗"
+  },
+  {
+    "id": "s99",
+    "category": "Сообщества и платформы",
+    "name": "Virtual Vocations",
+    "url": "https://www.virtualvocations.com",
+    "description": "Виртуальные",
+    "icon": "💻"
+  },
+  {
+    "id": "s100",
+    "category": "Сообщества и платформы",
+    "name": "Pangian",
+    "url": "https://pangian.com",
+    "description": "Глобальная удалёнка",
+    "icon": "🌏"
+  },
+  {
+    "id": "s101",
+    "category": "Telegram: по регионам",
+    "name": "moscow_it_jobs",
+    "url": "https://t.me/s/moscow_it_jobs",
+    "description": "Москва IT",
+    "icon": "🏙️"
+  },
+  {
+    "id": "s102",
+    "category": "Telegram: по регионам",
+    "name": "spb_jobs_it",
+    "url": "https://t.me/s/spb_jobs_it",
+    "description": "Питер IT",
+    "icon": "🌉"
+  },
+  {
+    "id": "s103",
+    "category": "Telegram: по регионам",
+    "name": "kazan_it",
+    "url": "https://t.me/s/kazan_it",
+    "description": "Казань",
+    "icon": "🕌"
+  },
+  {
+    "id": "s104",
+    "category": "Telegram: по регионам",
+    "name": "novosibirsk_it",
+    "url": "https://t.me/s/novosibirsk_it",
+    "description": "Новосибирск",
+    "icon": "❄️"
+  },
+  {
+    "id": "s105",
+    "category": "Telegram: по регионам",
+    "name": "ekb_jobs",
+    "url": "https://t.me/s/ekb_jobs",
+    "description": "Екатеринбург",
+    "icon": "️"
+  },
+  {
+    "id": "s106",
+    "category": "Telegram: по регионам",
+    "name": "samara_it",
+    "url": "https://t.me/s/samara_it",
+    "description": "Самара",
+    "icon": "🚀"
+  },
+  {
+    "id": "s107",
+    "category": "Telegram: по регионам",
+    "name": "nn_it_jobs",
+    "url": "https://t.me/s/nn_it_jobs",
+    "description": "Нижний Новгород",
+    "icon": "🏛️"
+  },
+  {
+    "id": "s108",
+    "category": "Telegram: по регионам",
+    "name": "chel_it",
+    "url": "https://t.me/s/chel_it",
+    "description": "Челябинск",
+    "icon": "🏭"
+  },
+  {
+    "id": "s109",
+    "category": "Telegram: по регионам",
+    "name": "omsk_jobs",
+    "url": "https://t.me/s/omsk_jobs",
+    "description": "Омск",
+    "icon": ""
+  },
+  {
+    "id": "s110",
+    "category": "Telegram: по регионам",
+    "name": "rostov_it",
+    "url": "https://t.me/s/rostov_it",
+    "description": "Ростов-на-Дону",
+    "icon": "🌻"
+  },
+  {
+    "id": "s111",
+    "category": "Telegram: по регионам",
+    "name": "ufa_it_jobs",
+    "url": "https://t.me/s/ufa_it_jobs",
+    "description": "Уфа",
+    "icon": "🛢️"
+  },
+  {
+    "id": "s112",
+    "category": "Telegram: по регионам",
+    "name": "krasnoyarsk_it",
+    "url": "https://t.me/s/krasnoyarsk_it",
+    "description": "Красноярск",
+    "icon": "🌲"
+  },
+  {
+    "id": "s113",
+    "category": "Telegram: по регионам",
+    "name": "perm_it",
+    "url": "https://t.me/s/perm_it",
+    "description": "Пермь",
+    "icon": "🐻"
+  },
+  {
+    "id": "s114",
+    "category": "Telegram: по регионам",
+    "name": "volgograd_jobs",
+    "url": "https://t.me/s/volgograd_jobs",
+    "description": "Волгоград",
+    "icon": "⚔️"
+  },
+  {
+    "id": "s115",
+    "category": "Telegram: по регионам",
+    "name": "voronezh_it",
+    "url": "https://t.me/s/voronezh_it",
+    "description": "Воронеж",
+    "icon": "🌳"
+  },
+  {
+    "id": "s116",
+    "category": "Нишевые платформы",
+    "name": "CodeMentor",
+    "url": "https://www.codementor.io",
+    "description": "Менторство",
+    "icon": "👨‍"
+  },
+  {
+    "id": "s117",
+    "category": "Нишевые платформы",
+    "name": "Topcoder",
+    "url": "https://www.topcoder.com",
+    "description": "Соревнования",
+    "icon": "🏆"
+  },
+  {
+    "id": "s118",
+    "category": "Нишевые платформы",
+    "name": "Kaggle",
+    "url": "https://www.kaggle.com",
+    "description": "Data Science",
+    "icon": "📊"
+  },
+  {
+    "id": "s119",
+    "category": "Нишевые платформы",
+    "name": "Bugcrowd",
+    "url": "https://www.bugcrowd.com",
+    "description": "Bug bounty",
+    "icon": "🐛"
+  },
+  {
+    "id": "s120",
+    "category": "Нишевые платформы",
+    "name": "HackerOne",
+    "url": "https://www.hackerone.com",
+    "description": "Security",
+    "icon": "🔒"
+  },
+  {
+    "id": "s121",
+    "category": "Нишевые платформы",
+    "name": "Synack",
+    "url": "https://www.synack.com",
+    "description": "Pentest",
+    "icon": "🛡️"
+  },
+  {
+    "id": "s122",
+    "category": "Нишевые платформы",
+    "name": "Cobalt",
+    "url": "https://cobalt.io",
+    "description": "Pentest-as-a-Service",
+    "icon": "🔐"
+  },
+  {
+    "id": "s123",
+    "category": "Нишевые платформы",
+    "name": "Testbirds",
+    "url": "https://www.testbirds.com",
+    "description": "Crowdtesting",
+    "icon": "🐦"
+  },
+  {
+    "id": "s124",
+    "category": "Нишевые платформы",
+    "name": "UserTesting",
+    "url": "https://www.usertesting.com",
+    "description": "UX-тесты",
+    "icon": "️"
+  },
+  {
+    "id": "s125",
+    "category": "Нишевые платформы",
+    "name": "Respondent",
+    "url": "https://www.respondent.io",
+    "description": "Интервью",
+    "icon": ""
+  },
+  {
+    "id": "s126",
+    "category": "Нишевые платформы",
+    "name": "Clarity.fm",
+    "url": "https://www.clarity.fm",
+    "description": "Консультации",
+    "icon": ""
+  },
+  {
+    "id": "s127",
+    "category": "Нишевые платформы",
+    "name": "Maven",
+    "url": "https://www.maven.com",
+    "description": "Экспертность",
+    "icon": "🎓"
+  },
+  {
+    "id": "s128",
+    "category": "Нишевые платформы",
+    "name": "Contra",
+    "url": "https://www.contra.com",
+    "description": "Комиссия 0%",
+    "icon": "💸"
+  },
+  {
+    "id": "s129",
+    "category": "Нишевые платформы",
+    "name": "Working Not Working",
+    "url": "https://workingnotworking.com",
+    "description": "Креатив",
+    "icon": "🎨"
+  },
+  {
+    "id": "s130",
+    "category": "Нишевые платформы",
+    "name": "Dribbble",
+    "url": "https://dribbble.com",
+    "description": "Дизайн-сообщество",
+    "icon": "🏀"
+  },
+  {
+    "id": "s131",
+    "category": "Нишевые платформы",
+    "name": "ArtStation",
+    "url": "https://www.artstation.com",
+    "description": "3D/Game Art",
+    "icon": "🎮"
+  },
+  {
+    "id": "s132",
+    "category": "Нишевые платформы",
+    "name": "DeviantArt",
+    "url": "https://www.deviantart.com",
+    "description": "Арт",
+    "icon": "🖼️"
+  },
+  {
+    "id": "s133",
+    "category": "Нишевые платформы",
+    "name": "Guru Design",
+    "url": "https://www.guru.com/d",
+    "description": "Дизайн",
+    "icon": "🎭"
+  },
+  {
+    "id": "s134",
+    "category": "Нишевые платформы",
+    "name": "Crowdspring",
+    "url": "https://www.crowdspring.com",
+    "description": "Крауд-дизайн",
+    "icon": ""
+  },
+  {
+    "id": "s135",
+    "category": "Нишевые платформы",
+    "name": "DesignCrowd",
+    "url": "https://www.designcrowd.com",
+    "description": "Конкурсы дизайна",
+    "icon": "🏅"
+  },
+  {
+    "id": "s136",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Яндекс Карьера",
+    "url": "https://yandex.ru/jobs",
+    "description": "Крупнейший IT",
+    "icon": ""
+  },
+  {
+    "id": "s137",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "VK Работа",
+    "url": "https://team.vk.company/vacancies",
+    "description": "Соцсети",
+    "icon": "🔵"
+  },
+  {
+    "id": "s138",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "СберКарьера",
+    "url": "https://sberbank.ru/ru/jobs",
+    "description": "Банк",
+    "icon": "🟢"
+  },
+  {
+    "id": "s139",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Тинькофф Работа",
+    "url": "https://www.tinkoff.ru/career/",
+    "description": "Финтех",
+    "icon": "🟡"
+  },
+  {
+    "id": "s140",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Ozon Tech",
+    "url": "https://tech.ozon.ru/career/",
+    "description": "E-commerce",
+    "icon": "🔵"
+  },
+  {
+    "id": "s141",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Wildberries Tech",
+    "url": "https://jobs.wildberries.ru",
+    "description": "E-commerce",
+    "icon": ""
+  },
+  {
+    "id": "s142",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Авито Tech",
+    "url": "https://tech.avito.ru",
+    "description": "Classifieds",
+    "icon": "🟢"
+  },
+  {
+    "id": "s143",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Kaspersky",
+    "url": "https://careers.kaspersky.ru",
+    "description": "Кибербез",
+    "icon": "🔴"
+  },
+  {
+    "id": "s144",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "ABBYY",
+    "url": "https://www.abbyy.com/ru-ru/careers/",
+    "description": "OCR/AI",
+    "icon": "🔷"
+  },
+  {
+    "id": "s145",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Positive Tech",
+    "url": "https://www.ptsecurity.com/ru-ru/careers/",
+    "description": "Security",
+    "icon": "️"
+  },
+  {
+    "id": "s146",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "1С",
+    "url": "https://1c.ru/rus/about/jobs.htm",
+    "description": "Enterprise",
+    "icon": "🟥"
+  },
+  {
+    "id": "s147",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "VK Play",
+    "url": "https://team.vk.company/vacancies",
+    "description": "Games",
+    "icon": "🎮"
+  },
+  {
+    "id": "s148",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "My.Games",
+    "url": "https://my.games/career",
+    "description": "Games",
+    "icon": "🎯"
+  },
+  {
+    "id": "s149",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Lesta Games",
+    "url": "https://lesta.ru/career/",
+    "description": "Games",
+    "icon": ""
+  },
+  {
+    "id": "s150",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Gazprom IT",
+    "url": "https://www.gazprom.ru/jobs/",
+    "description": "Газпром",
+    "icon": "🔵"
+  },
+  {
+    "id": "s151",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Ростелеком",
+    "url": "https://rt.ru/about/career/",
+    "description": "Телеком",
+    "icon": "🟠"
+  },
+  {
+    "id": "s152",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "МТС",
+    "url": "https://mts.ru/personal/karera",
+    "description": "Телеком",
+    "icon": ""
+  },
+  {
+    "id": "s153",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Билайн",
+    "url": "https://beeline.ru/employer/",
+    "description": "Телеком",
+    "icon": "🟡"
+  },
+  {
+    "id": "s154",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Мегафон",
+    "url": "https://megafon.ru/about/career/",
+    "description": "Телеком",
+    "icon": "🟢"
+  },
+  {
+    "id": "s155",
+    "category": "Прямой поиск (РФ компании)",
+    "name": "Mail.ru Group",
+    "url": "https://team.vk.company/vacancies",
+    "description": "Internet",
+    "icon": "🔵"
+  }
+]
