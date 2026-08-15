@@ -361,7 +361,7 @@ function renderEmailList(){
     displayed++;
     var card=document.createElement('div');
     card.className='card template-card';
-    card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="background:#9d6cff;color:#fff;padding:2px 8px;border-radius:6px;font-size:11px">'+t.category+'</span><span style="font-size:11px;color:#8b94a7">'+t.tone+' · '+t.tech+'</span></div>'+
+    card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="background:#6c8cff;color:#fff;padding:2px 8px;border-radius:6px;font-size:11px">#'+displayed+'</span><span style="background:#9d6cff;color:#fff;padding:2px 8px;border-radius:6px;font-size:11px">'+t.category+'</span><span style="font-size:11px;color:#8b94a7">'+t.tone+' · '+t.tech+'</span></div>'+
     '<div style="font-weight:bold;margin-bottom:6px">📌 '+esc(t.subject)+'</div>'+
     '<div class="mut" style="margin-bottom:10px;white-space:pre-wrap;font-size:13px">'+esc(t.body)+'</div>'+
     '<button class="btn small" onclick="copySmartEmail(\''+t.id+'\')">📋 Копировать и подставить данные</button>';
