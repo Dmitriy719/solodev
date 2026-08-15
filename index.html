@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v5.9.5</title>
+<title>SoloDev v5.9.6</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px;padding-bottom:80px}
 h1{color:#6c8cff;margin:0 0 10px 0}h2{margin:15px 0 10px 0}h3{margin:0 0 10px 0}
@@ -49,7 +49,7 @@ label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 </style>
 </head>
 <body>
-<h1>⚡ SoloDev v5.9.5</h1>
+<h1>⚡ SoloDev v5.9.6</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
@@ -282,7 +282,8 @@ function renderProjects(){
   var h='<h2>📁 Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button>';
   if(completed>0){h+='<button class="btn ai" onclick="generatePortfolio()">✨ Сгенерировать портфолио ('+completed+' проектов)</button>';
   h+='<button class="btn small" style="background:#1f2530;margin-top:8px" onclick="previewPortfolio()">👁 Предпросмотр</button>';
-  h+='<button class="btn small" style="background:#1f2530;margin-top:8px" onclick="downloadPortfolio()">📥 Скачать HTML</button>';}
+  h+='<button class="btn small" style="background:#1f2530;margin-top:8px" onclick="downloadPortfolio()">📥 Скачать HTML</button>';
+  h+='<button class="btn small" style="background:#9d6cff;margin-top:8px" onclick="showDocAssistant()">🤖 Умный помощник</button>';}
   db.projects.forEach(function(p){
     var doneTasks=p.tasks?p.tasks.filter(function(t){return t.done}).length:0;var totalTasks=p.tasks?p.tasks.length:0;var progress=totalTasks?Math.round(doneTasks/totalTasks*100):0;
     var roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;
@@ -331,7 +332,33 @@ function saveNewProject(){
   db.projects.push({id:uid(),name:name,client:client,budget:budget,stage:0,deadline:deadline,estimatedHours:hours,description:desc,tech_stack:tech,tasks:[],date:today()});
   save();closeModal();renderProjects();
 }
-function nextStage(id){var p=db.projects.find(function(x){return x.id===id});if(p&&p.stage<3){p.stage++;save();renderProjects();alert('Этап: '+['Идея','В работе','Тестирование','Завершён'][p.stage])}}
+function nextStage(id){
+  var p=db.projects.find(function(x){return x.id===id});
+  if(!p||p.stage>=3)return;
+  var stages=['Идея','В работе','Тестирование','Завершён'];
+  var nextStageName=stages[p.stage+1];
+  var h='<h3>🔄 Переход на этап: '+nextStageName+'</h3>';
+  h+='<p style="color:#8b94a7">Проект: <b>'+esc(p.name)+'</b></p>';
+  h+='<p>Текущий этап: <span style="color:#6c8cff">'+stages[p.stage]+'</span> → <span style="color:#3ecf8e">'+nextStageName+'</span></p>';
+  h+='<label>Комментарий к переходу (необязательно)</label>';
+  h+='<textarea id="stage_comment" rows="3" placeholder="Например: Завершил вёрстку главной страницы"></textarea>';
+  h+='<div style="display:flex;gap:10px;margin-top:15px">';
+  h+='<button class="btn" onclick="confirmStageChange(\''+id+'\')">✅ Подтвердить переход</button>';
+  h+='<button class="btn" style="background:#1f2530" onclick="closeModal()">Отмена</button>';
+  h+='</div>';
+  openModal(h);
+}
+function confirmStageChange(id){
+  var p=db.projects.find(function(x){return x.id===id});
+  if(!p)return;
+  var comment=document.getElementById('stage_comment').value.trim();
+  p.stage++;
+  if(comment){
+    if(!p.stage_comments)p.stage_comments=[];
+    p.stage_comments.push({stage:p.stage,comment:comment,date:today()});
+  }
+  save();closeModal();renderProjects();
+}
 function delProject(id){if(confirm('Удалить проект?')){db.projects=db.projects.filter(function(p){return p.id!==id});save();renderProjects()}}
 function showTasks(id){var p=db.projects.find(function(x){return x.id===id});if(!p)return;var h='<h3>Задачи: '+esc(p.name)+'</h3>';if(p.tasks&&p.tasks.length){p.tasks.forEach(function(t){h+='<div style="display:flex;align-items:center;gap:10px;margin:10px 0"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTask(\''+id+'\',\''+t.id+'\')" style="width:auto"><span style="flex:1;'+(t.done?'text-decoration:line-through;color:#8b94a7':'')+'">'+esc(t.text)+'</span><button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:5px 10px" onclick="delTask(\''+id+'\',\''+t.id+'\')">✕</button></div>'})}else{h+='<div class="mut">Нет задач</div>'}h+='<div style="display:flex;gap:8px;margin-top:15px"><input id="newTask" placeholder="Новая задача" style="flex:1"><button class="btn small" onclick="addTask(\''+id+'\')">+</button></div><button class="btn" onclick="closeModal()">Закрыть</button>';openModal(h)}
 function addTask(projId){var text=document.getElementById('newTask').value.trim();if(!text)return;var p=db.projects.find(function(x){return x.id===projId});if(p){if(!p.tasks)p.tasks=[];p.tasks.push({id:uid(),text:text,done:false});save();showTasks(projId);renderProjects()}}
@@ -544,9 +571,10 @@ function downloadPortfolio(){
   var blob=new Blob([html],{type:'text/html'});
   var a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='portfolio_'+db.profile.name.replace(/\s/g,'_')+'_'+today()+'.html';
+  var fileName='Портфолио_'+db.profile.name.replace(/\s/g,'_')+'_'+today()+'.html';
+  a.download=fileName;
   a.click();
-  alert('✅ Портфолио скачано! Открой файл в браузере и нажми Ctrl+P для сохранения в PDF.');
+  alert('✅ Портфолио скачано: '+fileName+'\n\nОткрой файл в браузере и нажми Ctrl+P для сохранения в PDF.');
 }
 
 function generatePortfolio(){
@@ -555,6 +583,136 @@ function generatePortfolio(){
     return;
   }
   previewPortfolio();
+}
+
+
+function showDocAssistant(){
+  var h='<h3>🤖 Умный помощник документов</h3>';
+  h+='<p class="mut">Выберите тип документа для генерации</p>';
+  h+='<div style="display:grid;gap:10px;margin-top:15px">';
+  h+='<button class="btn" onclick="generateContract()"> Договор подряда</button>';
+  h+='<button class="btn" onclick="generateAct()"> Акт выполненных работ</button>';
+  h+='<button class="btn" onclick="generateTZ()"> Техническое задание</button>';
+  h+='<button class="btn" onclick="generateInvoice()">💳 Счёт на оплату</button>';
+  h+='</div>';
+  h+='<button class="btn" style="background:#1f2530;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function generateContract(){
+  var client=db.clients.length>0?db.clients[0]:{name:'Клиент',company:'Компания'};
+  var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Договор подряда</title>';
+  h+='<style>body{font-family:serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.6}';
+  h+='h1{text-align:center}h2{margin-top:30px}.section{margin:20px 0}';
+  h+='@media print{body{margin:0}}</style></head><body>';
+  h+='<h1>ДОГОВОР ПОДРЯДА №'+Math.floor(Math.random()*1000)+'</h1>';
+  h+='<p style="text-align:right">г. Москва, '+today()+'</p>';
+  h+='<div class="section"><h2>1. ПРЕДМЕТ ДОГОВОРА</h2>';
+  h+='<p>1.1. Исполнитель ('+esc(db.profile.name)+', '+esc(db.profile.spec)+') обязуется выполнить работы по разработке программного обеспечения для Заказчика ('+esc(client.company)+').</p>';
+  h+='<p>1.2. Конкретный перечень работ определяется в Техническом задании, которое является неотъемлемой частью настоящего Договора.</p></div>';
+  h+='<div class="section"><h2>2. СТОИМОСТЬ И ПОРЯДОК ОПЛАТЫ</h2>';
+  h+='<p>2.1. Общая стоимость работ составляет: <b>___________ рублей</b>.</p>';
+  h+='<p>2.2. Оплата производится в следующем порядке:</p>';
+  h+='<p>• Предоплата 30% — до начала работ</p><p>• 40% — после сдачи промежуточного этапа</p><p>• 30% — после окончательной сдачи проекта</p></div>';
+  h+='<div class="section"><h2>3. СРОКИ ВЫПОЛНЕНИЯ</h2>';
+  h+='<p>3.1. Начало работ: ___________ 2026 г.</p><p>3.2. Окончание работ: ___________ 2026 г.</p></div>';
+  h+='<div class="section"><h2>4. ПРАВА И ОБЯЗАННОСТИ СТОРОН</h2>';
+  h+='<p>4.1. Исполнитель обязуется выполнить работы качественно и в срок.</p>';
+  h+='<p>4.2. Заказчик обязуется своевременно оплачивать работы и предоставлять необходимую информацию.</p></div>';
+  h+='<div class="section"><h2>5. РЕКВИЗИТЫ СТОРОН</h2>';
+  h+='<p><b>Исполнитель:</b><br>'+esc(db.profile.name)+'<br>'+esc(db.profile.spec)+'<br>Тел: '+esc(db.profile.phone||'')+ '<br>Email: '+esc(db.profile.email||'')+'</p>';
+  h+='<p><b>Заказчик:</b><br>'+esc(client.name)+'<br>'+esc(client.company)+'</p></div>';
+  h+='<div style="margin-top:50px;display:flex;justify-content:space-between">';
+  h+='<div>Подпись Исполнителя: ___________</div><div>Подпись Заказчика: ___________</div></div>';
+  h+='</body></html>';
+  openDocInNewTab(h,'Договор_подряда_'+client.company+'_'+today()+'.html');
+}
+
+function generateAct(){
+  var client=db.clients.length>0?db.clients[0]:{name:'Клиент',company:'Компания'};
+  var completed=db.projects.filter(function(p){return p.stage===3});
+  var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Акт выполненных работ</title>';
+  h+='<style>body{font-family:serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.6}';
+  h+='h1{text-align:center}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid #000;padding:8px;text-align:left}';
+  h+='@media print{body{margin:0}}</style></head><body>';
+  h+='<h1>АКТ ВЫПОЛНЕННЫХ РАБОТ №'+Math.floor(Math.random()*1000)+'</h1>';
+  h+='<p style="text-align:right">г. Москва, '+today()+'</p>';
+  h+='<p>Мы, нижеподписавшиеся, Исполнитель '+esc(db.profile.name)+' с одной стороны, и Заказчик '+esc(client.company)+' с другой стороны, составили настоящий Акт о нижеследующем:</p>';
+  h+='<p>Исполнитель выполнил, а Заказчик принял следующие работы:</p>';
+  h+='<table><tr><th>№</th><th>Наименование работ</th><th>Стоимость</th></tr>';
+  var total=0;
+  completed.forEach(function(p,i){
+    h+='<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+(p.budget||0).toLocaleString()+' ₽</td></tr>';
+    total+=p.budget||0;
+  });
+  h+='<tr><td colspan="2"><b>ИТОГО:</b></td><td><b>'+total.toLocaleString()+' ₽</b></td></tr></table>';
+  h+='<p>Работы выполнены в полном объёме, в срок и с надлежащим качеством. Заказчик претензий по объёму, качеству и срокам выполнения работ не имеет.</p>';
+  h+='<div style="margin-top:50px;display:flex;justify-content:space-between">';
+  h+='<div>Исполнитель: ___________ / '+esc(db.profile.name)+'</div>';
+  h+='<div>Заказчик: ___________ / '+esc(client.name)+'</div></div>';
+  h+='</body></html>';
+  openDocInNewTab(h,'Акт_выполненных_работ_'+client.company+'_'+today()+'.html');
+}
+
+function generateTZ(){
+  var client=db.clients.length>0?db.clients[0]:{name:'Клиент',company:'Компания'};
+  var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Техническое задание</title>';
+  h+='<style>body{font-family:serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.6}';
+  h+='h1,h2{color:#333}ul{margin:10px 0}';
+  h+='@media print{body{margin:0}}</style></head><body>';
+  h+='<h1>ТЕХНИЧЕСКОЕ ЗАДАНИЕ</h1>';
+  h+='<p style="text-align:right">г. Москва, '+today()+'</p>';
+  h+='<h2>1. ОБЩИЕ СВЕДЕНИЯ</h2>';
+  h+='<p><b>Заказчик:</b> '+esc(client.company)+'</p>';
+  h+='<p><b>Исполнитель:</b> '+esc(db.profile.name)+' ('+esc(db.profile.spec)+')</p>';
+  h+='<p><b>Название проекта:</b> ___________</p>';
+  h+='<h2>2. ЦЕЛИ И ЗАДАЧИ</h2>';
+  h+='<p>2.1. Цель проекта: ___________</p>';
+  h+='<p>2.2. Задачи проекта:</p><ul><li>___________</li><li>___________</li><li>___________</li></ul>';
+  h+='<h2>3. ФУНКЦИОНАЛЬНЫЕ ТРЕБОВАНИЯ</h2>';
+  h+='<p>3.1. Система должна обеспечивать:</p><ul><li>___________</li><li>___________</li></ul>';
+  h+='<h2>4. ТЕХНИЧЕСКИЕ ТРЕБОВАНИЯ</h2>';
+  h+='<p>4.1. Используемые технологии: ___________</p>';
+  h+='<p>4.2. Требования к производительности: ___________</p>';
+  h+='<h2>5. СРОКИ И ЭТАПЫ</h2>';
+  h+='<p>5.1. Общий срок выполнения: ___________</p>';
+  h+='<p>5.2. Этапы выполнения:</p><ul><li>Этап 1: ___________ (срок: ___)</li><li>Этап 2: ___________ (срок: ___)</li><li>Этап 3: ___________ (срок: ___)</li></ul>';
+  h+='<h2>6. ПОРЯДОК СДАЧИ-ПРИЁМКИ</h2>';
+  h+='<p>6.1. Сдача работ осуществляется по Акту выполненных работ.</p>';
+  h+='<p>6.2. Заказчик имеет право вносить правки в течение 14 дней после сдачи этапа.</p>';
+  h+='<div style="margin-top:50px;display:flex;justify-content:space-between">';
+  h+='<div>Заказчик: ___________</div><div>Исполнитель: ___________</div></div>';
+  h+='</body></html>';
+  openDocInNewTab(h,'ТЗ_'+client.company+'_'+today()+'.html');
+}
+
+function generateInvoice(){
+  var client=db.clients.length>0?db.clients[0]:{name:'Клиент',company:'Компания'};
+  var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Счёт на оплату</title>';
+  h+='<style>body{font-family:serif;max-width:800px;margin:40px auto;padding:20px}';
+  h+='h1{text-align:center;color:#333}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid #000;padding:10px}';
+  h+='.total{font-size:18px;font-weight:bold;text-align:right;margin-top:20px}';
+  h+='@media print{body{margin:0}}</style></head><body>';
+  h+='<h1>СЧЁТ НА ОПЛАТУ №'+Math.floor(Math.random()*1000)+'</h1>';
+  h+='<p style="text-align:right">от '+today()+'</p>';
+  h+='<table><tr><td style="width:50%"><b>Поставщик:</b><br>'+esc(db.profile.name)+'<br>'+esc(db.profile.spec)+'<br>Тел: '+esc(db.profile.phone||'')+'<br>Email: '+esc(db.profile.email||'')+'</td>';
+  h+='<td><b>Покупатель:</b><br>'+esc(client.name)+'<br>'+esc(client.company)+'</td></tr></table>';
+  h+='<table><tr><th>№</th><th>Наименование</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr>';
+  h+='<tr><td>1</td><td>Услуги по разработке ПО</td><td>1</td><td>___________ ₽</td><td>___________ ₽</td></tr>';
+  h+='</table>';
+  h+='<div class="total">Итого к оплате: ___________ ₽</div>';
+  h+='<p style="margin-top:30px"><b>Реквизиты для оплаты:</b><br>Банк: ___________<br>БИК: ___________<br>Р/с: ___________</p>';
+  h+='<p style="margin-top:50px">Счёт действителен до оплаты.</p>';
+  h+='</body></html>';
+  openDocInNewTab(h,'Счёт_'+client.company+'_'+today()+'.html');
+}
+
+function openDocInNewTab(html,fileName){
+  var w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  w.document.title=fileName;
+  alert('✅ Документ открыт в новой вкладке: '+fileName+'\n\nНажмите Ctrl+P для сохранения в PDF.');
 }
 
 function renderSettings(){
