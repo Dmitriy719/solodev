@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v5.9.12</title>
+<title>SoloDev v5.9.13</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px;padding-bottom:80px}
 h1{color:#6c8cff;margin:0 0 10px 0}h2{margin:15px 0 10px 0}h3{margin:0 0 10px 0}
@@ -49,13 +49,13 @@ label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 </style>
 </head>
 <body>
-<h1>⚡ SoloDev v5.9.12</h1>
+<h1>⚡ SoloDev v5.9.13</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
 <script>
 var ALL_SPECS=['Фронтенд','Бэкенд','Fullstack','Мобильная разработка','iOS','Android','Flutter','React Native','Боты (Telegram/VK)','DevOps','SRE','QA','Автотесты','Дизайн','UI/UX','Графический дизайн','Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','1С','GameDev','Unity','Unreal Engine','Администрирование','Системный анализ','Бизнес-анализ','Техподдержка','ERP/CRM','Blockchain','Web3','AR/VR','Кибербезопасность','Pentest','Embedded','IoT','Python','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Swift','Kotlin','C/C++','Ruby','Django','Flask','FastAPI','Spring','WordPress','Bitrix','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','Scrum/Agile','Project Management','Product Management','SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг','Видеопродакшн','3D-моделирование','Анимация','Саунд-дизайн','Техническое писательство','Локализация'];
-var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[]};
+var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{}};
 var currentView='home';
 var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
@@ -78,6 +78,7 @@ function render(){
   else if(currentView==='clients')renderClients();
   else if(currentView==='finances')renderFinances();
   else if(currentView==='emails')renderEmails();
+  else if(currentView==='pricing')renderPricing();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -924,6 +925,133 @@ function openDocInNewTab(html, fileName){
   w.document.title = displayName; // Без .html, чтобы PDF назывался правильно
 }
 
+
+var selectedServices = [];
+function renderPricing(){
+  var h='<h2> Прайс-лист услуг</h2>';
+  h+='<button class="btn ai" onclick="generatePriceList()">✨ Сгенерировать прайс</button>';
+  h+='<button class="btn small" style="background:#1f2530;margin-top:8px" onclick="downloadPriceList()">📥 Скачать HTML</button>';
+  h+='<div class="mut" style="margin:15px 0">Выберите услуги для прайса:</div>';
+  
+  Object.keys(db.services).forEach(function(cat){
+    h+='<div class="card"><h3>'+cat+'</h3>';
+    Object.keys(db.services[cat]).forEach(function(subcat){
+      h+='<div style="margin-top:10px"><b style="color:#6c8cff">'+subcat+'</b></div>';
+      db.services[cat][subcat].forEach(function(s){
+        var id=cat+'|'+subcat+'|'+s.name;
+        var checked=selectedServices.includes(id)?'checked':'';
+        h+='<label class="spec-check" style="margin:4px 0"><input type="checkbox" '+checked+' onchange="toggleService(\''+id+'\')" style="width:auto"><span>'+s.name+' — <b style="color:#3ecf8e">'+formatPrice(s.price_min)+'-'+formatPrice(s.price_max)+' ₽</b> /'+s.unit+'</span></label>';
+      });
+    });
+    h+='</div>';
+  });
+  document.getElementById('app').innerHTML=h;
+}
+
+function toggleService(id){
+  var idx=selectedServices.indexOf(id);
+  if(idx>=0)selectedServices.splice(idx,1);else selectedServices.push(id);
+  renderPricing();
+}
+
+function formatPrice(p){
+  return p.toLocaleString();
+}
+
+function getSelectedServices(){
+  var result=[];
+  selectedServices.forEach(function(id){
+    var parts=id.split('|');
+    var cat=parts[0], subcat=parts[1], name=parts[2];
+    if(db.services[cat]&&db.services[cat][subcat]){
+      var svc=db.services[cat][subcat].find(function(s){return s.name===name});
+      if(svc)result.push({category:cat,subcategory:subcat,name:name,price_min:svc.price_min,price_max:svc.price_max,unit:svc.unit});
+    }
+  });
+  return result;
+}
+
+function generatePriceListHTML(){
+  var services=getSelectedServices();
+  if(services.length===0){
+    alert('⚠️ Выберите хотя бы одну услугу!');
+    return null;
+  }
+  
+  var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">';
+  h+='<title>Прайс-лист — '+esc(db.profile.name)+'</title>';
+  h+='<style>body{font-family:system-ui,sans-serif;background:#fff;color:#000;margin:0;padding:0}';
+  h+='.container{max-width:900px;margin:0 auto;padding:40px 20px}';
+  h+='.header{background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff;padding:40px 30px;border-radius:16px;margin-bottom:30px;text-align:center}';
+  h+='.header h1{margin:0 0 10px 0;font-size:36px}';
+  h+='.header p{margin:5px 0;opacity:0.9;font-size:16px}';
+  h+='.contact{background:#f5f5f5;padding:15px;border-radius:12px;margin-bottom:30px;text-align:center}';
+  h+='.contact a{color:#6c8cff;text-decoration:none}';
+  h+='.category{margin:30px 0}';
+  h+='.category h2{color:#6c8cff;border-bottom:2px solid #6c8cff;padding-bottom:10px}';
+  h+='.subcategory{margin:20px 0}';
+  h+='.subcategory h3{color:#333;margin-bottom:10px}';
+  h+='table{width:100%;border-collapse:collapse;margin:10px 0}';
+  h+='th,td{border:1px solid #ddd;padding:12px;text-align:left}';
+  h+='th{background:#6c8cff;color:#fff;font-weight:bold}';
+  h+='tr:nth-child(even){background:#f9f9f9}';
+  h+='.price{color:#3ecf8e;font-weight:bold;white-space:nowrap}';
+  h+='.footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #ddd;color:#666;font-size:13px}';
+  h+='@media print{body{margin:0}.header{-webkit-print-color-adjust:exact}}</style></head><body><div class="container">';
+  
+  h+='<div class="header"><h1>Прайс-лист услуг</h1><p>'+esc(db.profile.name)+' · '+esc(db.profile.spec)+'</p></div>';
+  h+='<div class="contact">';
+  if(db.profile.phone)h+='📞 '+esc(db.profile.phone)+' | ';
+  if(db.profile.email)h+='✉️ <a href="mailto:'+esc(db.profile.email)+'">'+esc(db.profile.email)+'</a>';
+  h+='</div>';
+  
+  var grouped={};
+  services.forEach(function(s){
+    if(!grouped[s.category])grouped[s.category]={};
+    if(!grouped[s.category][s.subcategory])grouped[s.category][s.subcategory]=[];
+    grouped[s.category][s.subcategory].push(s);
+  });
+  
+  Object.keys(grouped).forEach(function(cat){
+    h+='<div class="category"><h2>'+cat+'</h2>';
+    Object.keys(grouped[cat]).forEach(function(subcat){
+      h+='<div class="subcategory"><h3>'+subcat+'</h3>';
+      h+='<table><tr><th>Услуга</th><th>Цена</th></tr>';
+      grouped[cat][subcat].forEach(function(s){
+        h+='<tr><td>'+s.name+'</td><td class="price">'+formatPrice(s.price_min)+'-'+formatPrice(s.price_max)+' ₽ /'+s.unit+'</td></tr>';
+      });
+      h+='</table></div>';
+    });
+    h+='</div>';
+  });
+  
+  h+='<div class="footer">';
+  h+='Прайс действителен до '+new Date(Date.now()+30*24*60*60*1000).toLocaleDateString('ru-RU')+'<br>';
+  h+='Точная стоимость определяется после обсуждения проекта<br>';
+  h+='Сгенерировано '+today()+' · SoloDev v5.9.13';
+  h+='</div></div></body></html>';
+  return h;
+}
+
+function generatePriceList(){
+  var html=generatePriceListHTML();
+  if(!html)return;
+  var w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+function downloadPriceList(){
+  var html=generatePriceListHTML();
+  if(!html)return;
+  var blob=new Blob([html],{type:'text/html'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='Прайс_'+db.profile.name.replace(/\s/g,'_')+'_'+today()+'.html';
+  a.click();
+  alert('✅ Прайс скачан! Открой файл и нажми Ctrl+P для сохранения в PDF.');
+}
+
 function renderSettings(){
   var h='<h2>⚙️ Настройки</h2>';
   h+='<div class="card"><h3>👤 Профиль</h3>';
@@ -952,6 +1080,7 @@ function loadExternalData(){
   var cacheBuster='?v='+Date.now();fetch('templates.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.templates=data;save();render()}).catch(function(e){console.log('Templates error:',e)});
   fetch('sources.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.sources=data;save();render()}).catch(function(e){console.log('Sources error:',e)});
   fetch('email_templates.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.emailTemplates=data;save();}).catch(function(e){console.log('Email templates error:',e)});
+  fetch('services.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.services=data;save();}).catch(function(e){console.log('Services error:',e)});
 }
 
 window.onload=function(){save();renderNav();render();loadExternalData()};
