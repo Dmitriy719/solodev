@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v5.9.7</title>
+<title>SoloDev v5.9.8</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px;padding-bottom:80px}
 h1{color:#6c8cff;margin:0 0 10px 0}h2{margin:15px 0 10px 0}h3{margin:0 0 10px 0}
@@ -49,7 +49,7 @@ label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 </style>
 </head>
 <body>
-<h1>⚡ SoloDev v5.9.7</h1>
+<h1>⚡ SoloDev v5.9.8</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
@@ -328,12 +328,12 @@ function showProjectHelper(){
   var h='<h3>💡 Помощник создания проекта</h3>';
   h+='<p class="mut">Выберите тип проекта для автозаполнения:</p>';
   h+='<div style="display:grid;gap:8px;margin-top:10px">';
-  h+='<button class="btn small" onclick="fillProjectTemplate('shop')">🛒 Интернет-магазин</button>';
-  h+='<button class="btn small" onclick="fillProjectTemplate('corp')">🏢 Корпоративный сайт</button>';
-  h+='<button class="btn small" onclick="fillProjectTemplate('app')"> Мобильное приложение</button>';
-  h+='<button class="btn small" onclick="fillProjectTemplate('bot')">🤖 Telegram-бот</button>';
-  h+='<button class="btn small" onclick="fillProjectTemplate('crm')">💼 CRM-система</button>';
-  h+='<button class="btn small" onclick="fillProjectTemplate('landing')">🎯 Лендинг</button>';
+  h+='<button class="btn small" onclick="fillProjectTemplate(\'shop\')">🛒 Интернет-магазин</button>';
+  h+='<button class="btn small" onclick="fillProjectTemplate(\'corp\')">🏢 Корпоративный сайт</button>';
+  h+='<button class="btn small" onclick="fillProjectTemplate(\'app\')">📱 Мобильное приложение</button>';
+  h+='<button class="btn small" onclick="fillProjectTemplate(\'bot\')">🤖 Telegram-бот</button>';
+  h+='<button class="btn small" onclick="fillProjectTemplate(\'crm\')">💼 CRM-система</button>';
+  h+='<button class="btn small" onclick="fillProjectTemplate(\'landing\')">🎯 Лендинг</button>';
   h+='</div>';
   h+='<button class="btn" style="background:#1f2530;margin-top:10px" onclick="closeModal()">Закрыть</button>';
   openModal(h);
@@ -668,12 +668,43 @@ function showDocAssistant(){
   var h='<h3>🤖 Умный помощник документов</h3>';
   h+='<p class="mut">Выберите тип документа для генерации</p>';
   h+='<div style="display:grid;gap:10px;margin-top:15px">';
-  h+='<button class="btn" onclick="generateContract()"> Договор подряда</button>';
-  h+='<button class="btn" onclick="generateAct()"> Акт выполненных работ</button>';
-  h+='<button class="btn" onclick="generateTZ()"> Техническое задание</button>';
+  h+='<button class="btn" onclick="generateContract()">📄 Договор подряда</button>';
+  h+='<button class="btn" onclick="generateAct()">📋 Акт выполненных работ</button>';
+  h+='<button class="btn" onclick="generateTZ()">📝 Техническое задание</button>';
   h+='<button class="btn" onclick="generateInvoice()">💳 Счёт на оплату</button>';
   h+='</div>';
+  h+='<div style="margin-top:15px;padding-top:15px;border-top:1px solid #242b36">';
+  h+='<p class="mut">Нужна помощь с заполнением?</p>';
+  h+='<button class="btn small" style="background:#9d6cff" onclick="showDocHelper()">💡 Помощник по документам</button>';
+  h+='</div>';
   h+='<button class="btn" style="background:#1f2530;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function showDocHelper(){
+  var h='<h3>💡 Помощник по документам</h3>';
+  h+='<p class="mut">Что вас интересует?</p>';
+  h+='<div style="display:grid;gap:8px;margin-top:10px">';
+  h+='<button class="btn small" onclick="showDocTip(\'contract\')">📄 Как заполнить договор</button>';
+  h+='<button class="btn small" onclick="showDocTip(\'act\')">📋 Как составить акт</button>';
+  h+='<button class="btn small" onclick="showDocTip(\'tz\')">📝 Как написать ТЗ</button>';
+  h+='<button class="btn small" onclick="showDocTip(\'invoice\')">💳 Как выставить счёт</button>';
+  h+='<button class="btn small" onclick="showDocTip(\'tips\')">💰 Советы по ценам</button>';
+  h+='</div>';
+  h+='<button class="btn" style="background:#1f2530;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function showDocTip(type){
+  var tips={
+    contract:'<h3>📄 Договор подряда — ключевые пункты</h3><ul style="line-height:1.8"><li><b>Предмет:</b> чётко опишите, что делаете (разработка сайта, бота и т.д.)</li><li><b>Стоимость:</b> укажите общую сумму или почасовую ставку</li><li><b>Сроки:</b> дата начала и окончания работ</li><li><b>Оплата:</b> предоплата 30-50%, остальное по этапам</li><li><b>Правки:</b> сколько бесплатных правок включено (обычно 2-3 раунда)</li><li><b>Исходный код:</b> кому принадлежит после оплаты (обычно заказчику)</li></ul>',
+    act:'<h3>📋 Акт выполненных работ</h3><ul style="line-height:1.8"><li>Составляется после завершения каждого этапа или всего проекта</li><li>Перечислите все выполненные работы с ценами</li><li>Укажите общую сумму</li><li>Фраза "Претензий не имею" защищает вас от будущих споров</li><li>Подписывается обеими сторонами</li></ul>',
+    tz:'<h3>📝 Техническое задание — структура</h3><ul style="line-height:1.8"><li><b>Цели проекта:</b> зачем делается продукт</li><li><b>Целевая аудитория:</b> кто будет пользоваться</li><li><b>Функциональные требования:</b> что должен делать продукт (список функций)</li><li><b>Технические требования:</b> стек технологий, производительность</li><li><b>Сроки и этапы:</b> календарный план</li><li><b>Критерии приёмки:</b> как понимается, что работа выполнена</li></ul><p class="mut" style="margin-top:10px">Чем детальнее ТЗ — тем меньше правок!</p>',
+    invoice:'<h3>💳 Счёт на оплату</h3><ul style="line-height:1.8"><li>Укажите номер счёта и дату</li><li>Ваши реквизиты (банк, БИК, расчётный счёт)</li><li>Реквизиты заказчика</li><li>Наименование услуги и сумма</li><li>Срок оплаты (обычно 3-5 банковских дней)</li></ul>',
+    tips:'<h3>💰 Советы по ценообразованию</h3><ul style="line-height:1.8"><li><b>Почасовая ставка:</b> Junior 500-1000₽/час, Middle 1000-2000₽/час, Senior 2000-4000₽/час</li><li><b>Фиксированная цена:</b> умножьте оценку часов на ставку + 20% буфер</li><li><b>Предоплата:</b> всегда берите 30-50% до начала работ</li><li><b>Этапы:</b> разбивайте крупные проекты на этапы с оплатой каждого</li><li><b>Правки:</b> включите 2-3 раунда бесплатных правок, далее по часам</li></ul>'
+  };
+  var h=tips[type]||'<p>Информация недоступна</p>';
+  h+='<button class="btn" style="background:#1f2530;margin-top:15px" onclick="showDocHelper()">← Назад</button>';
   openModal(h);
 }
 
