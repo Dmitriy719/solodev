@@ -344,8 +344,8 @@ function openModal(h){document.getElementById('modalContent').innerHTML=h;docume
 function closeModal(){document.getElementById('modal').classList.remove('on')}
 
 function loadExternalData(){
-  fetch('templates.json?v='+Date.now()).then(function(r){return r.json()}).then(function(data){db.templates=data;save();render()}).catch(function(e){console.log('Templates error:',e)});
-  fetch('sources.json?v='+Date.now()).then(function(r){return r.json()}).then(function(data){db.sources=data;save();render()}).catch(function(e){console.log('Sources error:',e)});
+  var cacheBuster='?v='+Date.now();fetch('templates.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.templates=data;save();render()}).catch(function(e){console.log('Templates error:',e)});
+  fetch('sources.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.sources=data;save();render()}).catch(function(e){console.log('Sources error:',e)});
 }
 
 window.onload=function(){save();renderNav();render();loadExternalData()};
