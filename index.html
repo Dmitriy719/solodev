@@ -41,6 +41,11 @@ input,textarea,select{width:100%;background:#1f2530;border:1px solid #242b36;col
 .spec-check input{width:auto;margin:0}
 label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 .spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+
+.portfolio-preview{background:#1a2035;border:2px solid #6c8cff;border-radius:12px;padding:20px;margin:15px 0}
+.portfolio-header{background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff;padding:20px;border-radius:12px;margin-bottom:20px}
+.portfolio-project{border-left:4px solid #6c8cff;padding-left:15px;margin:15px 0}
+.portfolio-tech{display:inline-block;background:#242b36;color:#6c8cff;padding:3px 8px;border-radius:4px;font-size:11px;margin:2px}
 </style>
 </head>
 <body>
@@ -273,12 +278,18 @@ function leadOutreach(type,idx){var list=type==='auto'?db.autoLeads:db.leads;var
 function delLead(idx){db.autoLeads.splice(idx,1);save();renderRadar()}
 
 function renderProjects(){
+  var completed=db.projects.filter(function(p){return p.stage===3}).length;
   var h='<h2>📁 Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button>';
+  if(completed>0){h+='<button class="btn ai" onclick="generatePortfolio()">✨ Сгенерировать портфолио ('+completed+' проектов)</button>';
+  h+='<button class="btn small" style="background:#1f2530;margin-top:8px" onclick="previewPortfolio()">👁 Предпросмотр</button>';
+  h+='<button class="btn small" style="background:#1f2530;margin-top:8px" onclick="downloadPortfolio()">📥 Скачать HTML</button>';}
   db.projects.forEach(function(p){
     var doneTasks=p.tasks?p.tasks.filter(function(t){return t.done}).length:0;var totalTasks=p.tasks?p.tasks.length:0;var progress=totalTasks?Math.round(doneTasks/totalTasks*100):0;
     var roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;
     h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>'+esc(p.name)+'</b><span style="padding:4px 12px;background:#6c8cff;border-radius:12px;font-size:12px">'+['Идея','В работе','Тестирование','Завершён'][p.stage]+'</span></div>';
     h+='<div class="mut">'+esc(p.client||'—')+' · '+p.budget.toLocaleString()+' ₽</div>';
+    if(p.description)h+='<div style="margin-top:8px;font-size:13px;color:#e8ecf3">'+esc(p.description)+'</div>';
+    if(p.tech_stack){var techs=p.tech_stack.split(',').map(function(t){return '<span class="portfolio-tech">'+esc(t.trim())+'</span>'}).join('');h+='<div style="margin-top:6px">'+techs+'</div>';}
     if(p.deadline)h+='<div class="mut"> Дедлайн: '+p.deadline+'</div>';
     if(roi)h+='<div style="color:#3ecf8e;font-size:13px">🧮 ROI: '+roi+' ₽/час</div>';
     h+='<div class="bar"><i style="width:'+progress+'%"></i></div>';
@@ -293,7 +304,7 @@ function renderProjects(){
   });
   document.getElementById('app').innerHTML=h;
 }
-function addProject(){var name=prompt('Название проекта:');if(!name)return;var client=prompt('Клиент:')||'';var budget=+prompt('Бюджет (₽):')||0;var deadline=prompt('Дедлайн (ГГГГ-ММ-ДД):')||'';var hours=+prompt('Оценка часов:')||40;db.projects.push({id:uid(),name:name,client:client,budget:budget,stage:0,deadline:deadline,estimatedHours:hours,tasks:[],date:today()});save();renderProjects()}
+function addProject(){var name=prompt('Название проекта:');if(!name)return;var client=prompt('Клиент:')||'';var budget=+prompt('Бюджет (₽):')||0;var deadline=prompt('Дедлайн (ГГГГ-ММ-ДД):')||'';var hours=+prompt('Оценка часов:')||40;var desc=prompt('Описание проекта (что сделано):')||'';var tech=prompt('Технологии (через запятую):')||'';db.projects.push({id:uid(),name:name,client:client,budget:budget,stage:0,deadline:deadline,estimatedHours:hours,description:desc,tech_stack:tech,tasks:[],date:today()});save();renderProjects()}
 function nextStage(id){var p=db.projects.find(function(x){return x.id===id});if(p&&p.stage<3){p.stage++;save();renderProjects();alert('Этап: '+['Идея','В работе','Тестирование','Завершён'][p.stage])}}
 function delProject(id){if(confirm('Удалить проект?')){db.projects=db.projects.filter(function(p){return p.id!==id});save();renderProjects()}}
 function showTasks(id){var p=db.projects.find(function(x){return x.id===id});if(!p)return;var h='<h3>Задачи: '+esc(p.name)+'</h3>';if(p.tasks&&p.tasks.length){p.tasks.forEach(function(t){h+='<div style="display:flex;align-items:center;gap:10px;margin:10px 0"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTask(\''+id+'\',\''+t.id+'\')" style="width:auto"><span style="flex:1;'+(t.done?'text-decoration:line-through;color:#8b94a7':'')+'">'+esc(t.text)+'</span><button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:5px 10px" onclick="delTask(\''+id+'\',\''+t.id+'\')">✕</button></div>'})}else{h+='<div class="mut">Нет задач</div>'}h+='<div style="display:flex;gap:8px;margin-top:15px"><input id="newTask" placeholder="Новая задача" style="flex:1"><button class="btn small" onclick="addTask(\''+id+'\')">+</button></div><button class="btn" onclick="closeModal()">Закрыть</button>';openModal(h)}
@@ -400,6 +411,88 @@ function copySmartEmail(id){
   text=text.replace(/{price}/g, '50000');
   text=text.replace(/{deadline}/g, '3 рабочих дня');
   navigator.clipboard.writeText(text).then(function(){alert('✅ Письмо скопировано! Переменные подставлены из профиля/клиентов.')});
+}
+
+
+function getPortfolioHTML(){
+  var completed=db.projects.filter(function(p){return p.stage===3});
+  var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">';
+  h+='<title>Портфолио — '+esc(db.profile.name)+'</title>';
+  h+='<style>body{font-family:system-ui,sans-serif;background:#0e1116;color:#e8ecf3;margin:0;padding:0}';
+  h+='.container{max-width:900px;margin:0 auto;padding:30px 20px}';
+  h+='.header{background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff;padding:40px 30px;border-radius:16px;margin-bottom:30px}';
+  h+='.header h1{margin:0 0 10px 0;font-size:32px}';
+  h+='.header p{margin:5px 0;opacity:0.9}';
+  h+='.contact{background:#171b22;padding:15px;border-radius:12px;margin-bottom:20px}';
+  h+='.contact a{color:#6c8cff;text-decoration:none}';
+  h+='.section-title{color:#6c8cff;border-bottom:2px solid #242b36;padding-bottom:10px;margin:30px 0 20px 0}';
+  h+='.project{background:#171b22;border:1px solid #242b36;border-left:4px solid #6c8cff;border-radius:12px;padding:20px;margin:15px 0}';
+  h+='.project h3{margin:0 0 10px 0;color:#fff}';
+  h+='.meta{color:#8b94a7;font-size:13px;margin:5px 0}';
+  h+='.tech{display:inline-block;background:#242b36;color:#6c8cff;padding:4px 10px;border-radius:6px;font-size:12px;margin:3px}';
+  h+='.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:20px 0}';
+  h+='.stat-box{background:#171b22;padding:15px;border-radius:12px;text-align:center}';
+  h+='.stat-box b{font-size:24px;color:#3ecf8e;display:block}';
+  h+='.stat-box span{font-size:12px;color:#8b94a7}';
+  h+='@media print{body{background:#fff;color:#000}.header{background:#6c8cff !important;-webkit-print-color-adjust:exact}}';
+  h+='</style></head><body><div class="container">';
+  
+  h+='<div class="header"><h1>'+esc(db.profile.name)+'</h1><p>'+esc(db.profile.spec)+'</p>';
+  if(db.profile.phone)h+='<p>📞 '+esc(db.profile.phone)+'</p>';
+  if(db.profile.email)h+='<p>✉️ <a href="mailto:'+esc(db.profile.email)+'">'+esc(db.profile.email)+'</a></p>';
+  h+='</div>';
+  
+  h+='<div class="stats">';
+  h+='<div class="stat-box"><b>'+completed.length+'</b><span>Завершённых проектов</span></div>';
+  var totalBudget=0;completed.forEach(function(p){totalBudget+=p.budget||0});
+  h+='<div class="stat-box"><b>'+totalBudget.toLocaleString()+' ₽</b><span>Общий бюджет</span></div>';
+  var totalHours=0;completed.forEach(function(p){totalHours+=p.estimatedHours||0});
+  h+='<div class="stat-box"><b>'+totalHours+'</b><span>Часов работы</span></div>';
+  h+='</div>';
+  
+  h+='<h2 class="section-title">📁 Завершённые проекты</h2>';
+  if(completed.length===0){h+='<p style="color:#8b94a7">Пока нет завершённых проектов. Отметьте проекты как "Завершён" в разделе Проекты.</p>';}
+  completed.forEach(function(p){
+    h+='<div class="project"><h3>'+esc(p.name)+'</h3>';
+    h+='<div class="meta">👤 Клиент: '+esc(p.client||'Не указан')+'</div>';
+    if(p.deadline)h+='<div class="meta"> Завершён: '+esc(p.deadline)+'</div>';
+    h+='<div class="meta">💰 Бюджет: '+(p.budget||0).toLocaleString()+' ₽</div>';
+    if(p.estimatedHours)h+='<div class="meta">⏱ Часов: '+p.estimatedHours+'</div>';
+    if(p.description)h+='<div style="margin:12px 0;line-height:1.6">'+esc(p.description)+'</div>';
+    if(p.tech_stack){h+='<div style="margin-top:10px"><b style="font-size:12px;color:#8b94a7">Технологии:</b><br>';
+      p.tech_stack.split(',').forEach(function(t){h+='<span class="tech">'+esc(t.trim())+'</span>'});h+='</div>';}
+    h+='</div>';
+  });
+  
+  h+='<div style="text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #242b36;color:#8b94a7;font-size:13px">';
+  h+='Портфолио сгенерировано '+today()+' · SoloDev v5.9.3';
+  h+='</div></div></body></html>';
+  return h;
+}
+
+function previewPortfolio(){
+  var html=getPortfolioHTML();
+  var w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+function downloadPortfolio(){
+  var html=getPortfolioHTML();
+  var blob=new Blob([html],{type:'text/html'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='portfolio_'+db.profile.name.replace(/\s/g,'_')+'_'+today()+'.html';
+  a.click();
+  alert('✅ Портфолио скачано! Открой файл в браузере и нажми Ctrl+P для сохранения в PDF.');
+}
+
+function generatePortfolio(){
+  if(db.projects.filter(function(p){return p.stage===3}).length===0){
+    alert('⚠️ Нет завершённых проектов! Сначала отметь проекты как "Завершён" (этап 4).');
+    return;
+  }
+  previewPortfolio();
 }
 
 function renderSettings(){
