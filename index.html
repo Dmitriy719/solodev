@@ -50,7 +50,7 @@ label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
 <script>
 var ALL_SPECS=['Фронтенд','Бэкенд','Fullstack','Мобильная разработка','iOS','Android','Flutter','React Native','Боты (Telegram/VK)','DevOps','SRE','QA','Автотесты','Дизайн','UI/UX','Графический дизайн','Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','1С','GameDev','Unity','Unreal Engine','Администрирование','Системный анализ','Бизнес-анализ','Техподдержка','ERP/CRM','Blockchain','Web3','AR/VR','Кибербезопасность','Pentest','Embedded','IoT','Python','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Swift','Kotlin','C/C++','Ruby','Django','Flask','FastAPI','Spring','WordPress','Bitrix','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','Scrum/Agile','Project Management','Product Management','SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг','Видеопродакшн','3D-моделирование','Анимация','Саунд-дизайн','Техническое писательство','Локализация'];
-var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:''};
+var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[]};
 var currentView='home';
 var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
@@ -72,6 +72,7 @@ function render(){
   else if(currentView==='projects')renderProjects();
   else if(currentView==='clients')renderClients();
   else if(currentView==='finances')renderFinances();
+  else if(currentView==='emails')renderEmails();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -319,6 +320,65 @@ function renderFinances(){
 function addFin(){var a=+prompt('Сумма:');if(!a)return;db.finances.unshift({id:uid(),date:today(),type:prompt('Тип (in/out):','in'),amt:a,cat:'Проект'});save();renderFinances()}
 function delFin(id){db.finances=db.finances.filter(function(f){return f.id!==id});save();renderFinances()}
 
+
+var currentEmailCat='all';
+function renderEmails(){
+  var h='<h2>✉️ Шаблоны писем</h2>';
+  h+='<input id="emailSearch" placeholder="🔍 Поиск по категории, ситуации или тексту..." oninput="filterEmails()" style="margin-bottom:10px">';
+  h+='<div class="filter-row" id="emailCats">';
+  h+='<button class="filter-btn '+(currentEmailCat==='all'?'active':'')+'" onclick="filterEmailCat(\'all\')">Все</button>';
+  h+='<button class="filter-btn '+(currentEmailCat==='Cold Outreach'?'active':'')+'" onclick="filterEmailCat(\'Cold Outreach\')">Холодные</button>';
+  h+='<button class="filter-btn '+(currentEmailCat==='Follow-up'?'active':'')+'" onclick="filterEmailCat(\'Follow-up\')">Напоминания</button>';
+  h+='<button class="filter-btn '+(currentEmailCat==='Payment'?'active':'')+'" onclick="filterEmailCat(\'Payment\')">Оплата</button>';
+  h+='<button class="filter-btn '+(currentEmailCat==='Proposal'?'active':'')+'" onclick="filterEmailCat(\'Proposal\')">КП</button>';
+  h+='</div>';
+  h+='<div class="mut" style="margin:10px 0">Всего в базе: '+db.emailTemplates.length+' шаблонов</div>';
+  h+='<div id="emailList"></div>';
+  document.getElementById('app').innerHTML=h;
+  filterEmails();
+}
+function filterEmailCat(cat){currentEmailCat=cat;filterEmails()}
+function filterEmails(){
+  var q=(document.getElementById('emailSearch')?document.getElementById('emailSearch').value:'').toLowerCase();
+  var list=document.getElementById('emailList');
+  if(!list)return;
+  list.innerHTML='';
+  var count=0;
+  db.emailTemplates.forEach(function(t){
+    if(currentEmailCat!=='all' && t.category!==currentEmailCat)return;
+    var text=(t.category+' '+t.scenario+' '+t.subject+' '+t.body).toLowerCase();
+    if(q && !text.includes(q))return;
+    count++;
+    if(count>50)return;
+    var card=document.createElement('div');
+    card.className='card template-card';
+    card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="background:#9d6cff;color:#fff;padding:2px 8px;border-radius:6px;font-size:11px">'+t.category+'</span><span style="font-size:11px;color:#8b94a7">'+t.tone+' · '+t.tech+'</span></div>'+
+    '<div style="font-weight:bold;margin-bottom:6px">📌 '+esc(t.subject)+'</div>'+
+    '<div class="mut" style="margin-bottom:10px;white-space:pre-wrap;font-size:13px">'+esc(t.body)+'</div>'+
+    '<button class="btn small" onclick="copySmartEmail(\''+t.id+'\')">📋 Копировать и подставить данные</button>';
+    list.appendChild(card);
+  });
+  var info=document.createElement('div');
+  info.className='mut';
+  info.style.marginTop='10px';
+  info.textContent='Показано: '+count+(count>=50?'+ (уточните поиск)':'')+' шаблонов';
+  list.appendChild(info);
+}
+function copySmartEmail(id){
+  var t=db.emailTemplates.find(function(x){return x.id===id});
+  if(!t)return;
+  var client=db.clients.length>0?db.clients[0]:{name:'Клиент',company:'Компания'};
+  var text=t.subject+'\n\n'+t.body;
+  text=text.replace(/{client_name}/g, client.name);
+  text=text.replace(/{company}/g, client.company);
+  text=text.replace(/{my_name}/g, db.profile.name);
+  text=text.replace(/{my_role}/g, db.profile.spec);
+  text=text.replace(/{my_phone}/g, db.profile.phone||'+79000000000');
+  text=text.replace(/{price}/g, '50000');
+  text=text.replace(/{deadline}/g, '3 рабочих дня');
+  navigator.clipboard.writeText(text).then(function(){alert('✅ Письмо скопировано! Переменные подставлены из профиля/клиентов.')});
+}
+
 function renderSettings(){
   var h='<h2>⚙️ Настройки</h2>';
   h+='<div class="card"><h3>👤 Профиль</h3>';
@@ -346,6 +406,7 @@ function closeModal(){document.getElementById('modal').classList.remove('on')}
 function loadExternalData(){
   var cacheBuster='?v='+Date.now();fetch('templates.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.templates=data;save();render()}).catch(function(e){console.log('Templates error:',e)});
   fetch('sources.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.sources=data;save();render()}).catch(function(e){console.log('Sources error:',e)});
+  fetch('email_templates.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.emailTemplates=data;save();}).catch(function(e){console.log('Email templates error:',e)});
 }
 
 window.onload=function(){save();renderNav();render();loadExternalData()};
