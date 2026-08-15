@@ -322,6 +322,7 @@ function delFin(id){db.finances=db.finances.filter(function(f){return f.id!==id}
 
 
 var currentEmailCat='all';
+var emailDisplayLimit=50;
 function renderEmails(){
   var h='<h2>✉️ Шаблоны писем</h2>';
   h+='<input id="emailSearch" placeholder="🔍 Поиск по категории, ситуации или тексту..." oninput="filterEmails()" style="margin-bottom:10px">';
@@ -337,19 +338,27 @@ function renderEmails(){
   document.getElementById('app').innerHTML=h;
   filterEmails();
 }
-function filterEmailCat(cat){currentEmailCat=cat;filterEmails()}
+function filterEmailCat(cat){currentEmailCat=cat;emailDisplayLimit=50;renderEmailList()}
 function filterEmails(){
+  emailDisplayLimit=50;
+  renderEmailList();
+}
+function renderEmailList(){
   var q=(document.getElementById('emailSearch')?document.getElementById('emailSearch').value:'').toLowerCase();
   var list=document.getElementById('emailList');
   if(!list)return;
   list.innerHTML='';
-  var count=0;
-  db.emailTemplates.forEach(function(t){
-    if(currentEmailCat!=='all' && t.category!==currentEmailCat)return;
+  var displayed=0;
+  var filtered=db.emailTemplates.filter(function(t){
+    if(currentEmailCat!=='all' && t.category!==currentEmailCat)return false;
     var text=(t.category+' '+t.scenario+' '+t.subject+' '+t.body).toLowerCase();
-    if(q && !text.includes(q))return;
-    count++;
-    if(count>50)return;
+    if(q && !text.includes(q))return false;
+    return true;
+  });
+  
+  filtered.forEach(function(t){
+    if(displayed>=emailDisplayLimit)return;
+    displayed++;
     var card=document.createElement('div');
     card.className='card template-card';
     card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="background:#9d6cff;color:#fff;padding:2px 8px;border-radius:6px;font-size:11px">'+t.category+'</span><span style="font-size:11px;color:#8b94a7">'+t.tone+' · '+t.tech+'</span></div>'+
@@ -358,11 +367,25 @@ function filterEmails(){
     '<button class="btn small" onclick="copySmartEmail(\''+t.id+'\')">📋 Копировать и подставить данные</button>';
     list.appendChild(card);
   });
+  
   var info=document.createElement('div');
   info.className='mut';
   info.style.marginTop='10px';
-  info.textContent='Показано: '+count+(count>=50?'+ (уточните поиск)':'')+' шаблонов';
+  info.style.textAlign='center';
+  info.textContent='Показано '+displayed+' из '+filtered.length+' шаблонов';
   list.appendChild(info);
+  
+  if(displayed<filtered.length){
+    var btn=document.createElement('button');
+    btn.className='btn';
+    btn.style.marginTop='10px';
+    btn.textContent='Показать еще 50';
+    btn.onclick=function(){
+      emailDisplayLimit+=50;
+      renderEmailList();
+    };
+    list.appendChild(btn);
+  }
 }
 function copySmartEmail(id){
   var t=db.emailTemplates.find(function(x){return x.id===id});
