@@ -142,6 +142,7 @@ function renderRadar(){
   } else if(db.autoLeads.length===0 && !db.hhSearchStatus){
     h+='<div class="mut" style="margin-top:10px">Нажмите кнопку выше, чтобы найти вакансии</div>';
   }
+  if(db.hhSearchStatus&&db.hhSearchStatus.indexOf('❌')>=0){h+='<button class="btn small" style="background:#ff6b6b;margin-top:10px" onclick="retryFailedSearch()">🔄 Повторить поиск</button>';}
   h+='<div style="margin-top:10px"><a href="https://www.hh.ru/search/vacancy?text='+encodeURIComponent((db.profile.specs||['разработчик']).join(' '))+'" target="_blank" class="btn small" style="text-decoration:none">🔗 Открыть HH.ru напрямую</a></div>';
   h+='</div>';
   h+='<div class="card"><h3>🔍 Где искать клиентов ('+db.sources.length+' источников)</h3>';
@@ -219,23 +220,27 @@ function searchHHBySpec(spec){
   db.autoLeads=db.autoLeads.filter(function(l){return l.spec!==spec});
   db.hhSearchStatus='⏳ Ищу только: '+spec+'...';
   renderRadar();
-  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url=','https://cors-anywhere.herokuapp.com/','https://thingproxy.freeboard.io/fetch/','https://cors.bridged.cc/'];
   var hhUrl='https://api.hh.ru/vacancies?text='+encodeURIComponent(spec)+'&per_page=30&area=1';
   var found=0;
   function tryProxy(idx){
     if(idx>=proxies.length){db.hhSearchStatus='❌ Не удалось загрузить: '+spec+'. Попробуйте прямую ссылку ниже.';renderRadar();return Promise.resolve()}
     return fetch(proxies[idx]+encodeURIComponent(hhUrl)).then(function(r){if(!r.ok)throw new Error('fail');return r.json()}).then(function(data){
-      if(!data.items)throw new Error('no items');
+      if(!data.items){db.hhSearchStatus='⚠️ '+spec+': вакансий не найдено (0 результатов)';renderRadar();return;}
       (data.items||[]).forEach(function(v){
         var salary='';if(v.salary){if(v.salary.from)salary+=v.salary.from+' ';else if(v.salary.to)salary+=v.salary.to+' ';salary+=(v.salary.currency||'RUB')}
         db.autoLeads.push({id:uid(),spec:spec,title:v.name,company:v.employer?v.employer.name:'',salary:salary,url:v.alternate_url,date:today()});found++;
       });
-      db.hhSearchStatus='✅ '+spec+': найдено '+found+' вакансий (показаны только они)';
+      db.hhSearchStatus='✅ '+spec+': найдено '+found+' вакансий. Нажмите "Снять фильтр" чтобы увидеть все.';
     }).catch(function(){return tryProxy(idx+1)});
   }
   tryProxy(0).then(function(){save();renderRadar()});
 }
 
+function retryFailedSearch(){
+  if(db.currentSearchSpec){searchHHBySpec(db.currentSearchSpec)}
+  else{autoSearchHH()}
+}
 function autoSearchHH(){
   db.currentSearchSpec=null;
   var specs=db.profile.specs||['разработчик'];
@@ -243,13 +248,13 @@ function autoSearchHH(){
   db.autoLeads=[];
   db.hhSearchStatus='⏳ Поиск по всем '+specs.length+' специализациям...';
   renderRadar();
-  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url=','https://cors-anywhere.herokuapp.com/','https://thingproxy.freeboard.io/fetch/','https://cors.bridged.cc/'];
   var promises=specs.map(function(q){
     var hhUrl='https://api.hh.ru/vacancies?text='+encodeURIComponent(q)+'&per_page=30&area=1';
     function tryProxy(idx){
       if(idx>=proxies.length){return Promise.resolve()}
       return fetch(proxies[idx]+encodeURIComponent(hhUrl)).then(function(r){if(!r.ok)throw new Error('fail');return r.json()}).then(function(data){
-        if(!data.items)throw new Error('no items');
+        if(!data.items){db.hhSearchStatus='⚠️ '+spec+': вакансий не найдено (0 результатов)';renderRadar();return;}
         (data.items||[]).forEach(function(v){
           var salary='';if(v.salary){if(v.salary.from)salary+=v.salary.from+' ';else if(v.salary.to)salary+=v.salary.to+' ';salary+=(v.salary.currency||'RUB')}
           db.autoLeads.push({id:uid(),spec:q,title:v.name,company:v.employer?v.employer.name:'',salary:salary,url:v.alternate_url,date:today()});found++;
