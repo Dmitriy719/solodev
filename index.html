@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v5.9.4</title>
+<title>SoloDev v5.9.5</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px;padding-bottom:80px}
 h1{color:#6c8cff;margin:0 0 10px 0}h2{margin:15px 0 10px 0}h3{margin:0 0 10px 0}
@@ -49,7 +49,7 @@ label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 </style>
 </head>
 <body>
-<h1>⚡ SoloDev v5.9.4</h1>
+<h1>⚡ SoloDev v5.9.5</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
@@ -304,7 +304,33 @@ function renderProjects(){
   });
   document.getElementById('app').innerHTML=h;
 }
-function addProject(){var name=prompt('Название проекта:');if(!name)return;var client=prompt('Клиент:')||'';var budget=+prompt('Бюджет (₽):')||0;var deadline=prompt('Дедлайн (ГГГГ-ММ-ДД):')||'';var hours=+prompt('Оценка часов:')||40;var desc=prompt('Описание проекта (что сделано):')||'';var tech=prompt('Технологии (через запятую):')||'';db.projects.push({id:uid(),name:name,client:client,budget:budget,stage:0,deadline:deadline,estimatedHours:hours,description:desc,tech_stack:tech,tasks:[],date:today()});save();renderProjects()}
+function addProject(){
+  var h='<h3>➕ Новый проект</h3>';
+  h+='<label>Название проекта *</label><input id="p_name" placeholder="Например: Интернет-магазин">';
+  h+='<label>Клиент</label><input id="p_client" placeholder="Название компании или имя">';
+  h+='<label>Бюджет (₽)</label><input id="p_budget" type="number" placeholder="0">';
+  h+='<label>Дедлайн</label><input id="p_deadline" type="date">';
+  h+='<label>Оценка часов</label><input id="p_hours" type="number" placeholder="40">';
+  h+='<label>Описание (что сделано)</label><textarea id="p_desc" rows="3" placeholder="Краткое описание задач и результата"></textarea>';
+  h+='<label>Технологии (через запятую)</label><input id="p_tech" placeholder="React, Node.js, PostgreSQL">';
+  h+='<div style="display:flex;gap:10px;margin-top:15px">';
+  h+='<button class="btn" onclick="saveNewProject()">💾 Сохранить проект</button>';
+  h+='<button class="btn" style="background:#1f2530" onclick="closeModal()">Отмена</button>';
+  h+='</div>';
+  openModal(h);
+}
+function saveNewProject(){
+  var name=document.getElementById('p_name').value.trim();
+  if(!name){alert('⚠️ Введите название проекта!');return;}
+  var client=document.getElementById('p_client').value.trim();
+  var budget=+document.getElementById('p_budget').value||0;
+  var deadline=document.getElementById('p_deadline').value;
+  var hours=+document.getElementById('p_hours').value||0;
+  var desc=document.getElementById('p_desc').value.trim();
+  var tech=document.getElementById('p_tech').value.trim();
+  db.projects.push({id:uid(),name:name,client:client,budget:budget,stage:0,deadline:deadline,estimatedHours:hours,description:desc,tech_stack:tech,tasks:[],date:today()});
+  save();closeModal();renderProjects();
+}
 function nextStage(id){var p=db.projects.find(function(x){return x.id===id});if(p&&p.stage<3){p.stage++;save();renderProjects();alert('Этап: '+['Идея','В работе','Тестирование','Завершён'][p.stage])}}
 function delProject(id){if(confirm('Удалить проект?')){db.projects=db.projects.filter(function(p){return p.id!==id});save();renderProjects()}}
 function showTasks(id){var p=db.projects.find(function(x){return x.id===id});if(!p)return;var h='<h3>Задачи: '+esc(p.name)+'</h3>';if(p.tasks&&p.tasks.length){p.tasks.forEach(function(t){h+='<div style="display:flex;align-items:center;gap:10px;margin:10px 0"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTask(\''+id+'\',\''+t.id+'\')" style="width:auto"><span style="flex:1;'+(t.done?'text-decoration:line-through;color:#8b94a7':'')+'">'+esc(t.text)+'</span><button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:5px 10px" onclick="delTask(\''+id+'\',\''+t.id+'\')">✕</button></div>'})}else{h+='<div class="mut">Нет задач</div>'}h+='<div style="display:flex;gap:8px;margin-top:15px"><input id="newTask" placeholder="Новая задача" style="flex:1"><button class="btn small" onclick="addTask(\''+id+'\')">+</button></div><button class="btn" onclick="closeModal()">Закрыть</button>';openModal(h)}
@@ -320,7 +346,25 @@ function renderClients(){
   db.clients.forEach(function(c){h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>'+esc(c.name)+'</b><span style="padding:4px 12px;background:#6c8cff;border-radius:12px;font-size:12px">'+c.status+'</span></div><div class="mut">'+esc(c.company||'')+' · '+c.budget.toLocaleString()+' ₽</div><button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:10px" onclick="delClient(\''+c.id+'\')">🗑 Удалить</button></div>'});
   document.getElementById('app').innerHTML=h;
 }
-function addClient(){var n=prompt('Имя:');if(!n)return;db.clients.push({id:uid(),name:n,company:prompt('Компания:')||'',budget:+prompt('Бюджет:')||0,status:'Новый'});save();renderClients()}
+function addClient(){
+  var h='<h3>➕ Новый клиент</h3>';
+  h+='<label>Имя *</label><input id="c_name" placeholder="Имя контактного лица">';
+  h+='<label>Компания</label><input id="c_company" placeholder="Название компании">';
+  h+='<label>Бюджет (₽)</label><input id="c_budget" type="number" placeholder="0">';
+  h+='<div style="display:flex;gap:10px;margin-top:15px">';
+  h+='<button class="btn" onclick="saveNewClient()">💾 Сохранить</button>';
+  h+='<button class="btn" style="background:#1f2530" onclick="closeModal()">Отмена</button>';
+  h+='</div>';
+  openModal(h);
+}
+function saveNewClient(){
+  var name=document.getElementById('c_name').value.trim();
+  if(!name){alert('⚠️ Введите имя!');return;}
+  var company=document.getElementById('c_company').value.trim();
+  var budget=+document.getElementById('c_budget').value||0;
+  db.clients.push({id:uid(),name:name,company:company,budget:budget,status:'Новый',date:today()});
+  save();closeModal();renderClients();
+}
 function delClient(id){db.clients=db.clients.filter(function(c){return c.id!==id});save();renderClients()}
 
 function renderFinances(){
@@ -328,7 +372,25 @@ function renderFinances(){
   db.finances.forEach(function(f){h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b style="color:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+';font-size:20px">'+(f.type==='in'?'+':'-')+' '+f.amt.toLocaleString()+' ₽</b><span style="padding:4px 12px;background:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+';color:#fff;border-radius:12px;font-size:12px">'+(f.type==='in'?'Доход':'Расход')+'</span></div><div class="mut">'+f.date+' · '+f.cat+'</div><button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:10px" onclick="delFin(\''+f.id+'\')">🗑 Удалить</button></div>'});
   document.getElementById('app').innerHTML=h;
 }
-function addFin(){var a=+prompt('Сумма:');if(!a)return;db.finances.unshift({id:uid(),date:today(),type:prompt('Тип (in/out):','in'),amt:a,cat:'Проект'});save();renderFinances()}
+function addFin(){
+  var h='<h3>➕ Новая операция</h3>';
+  h+='<label>Сумма (₽) *</label><input id="f_amt" type="number" placeholder="0">';
+  h+='<label>Тип</label><select id="f_type" style="width:100%;background:#1f2530;border:1px solid #242b36;color:#e8ecf3;border-radius:8px;padding:10px;margin:8px 0"><option value="in">Доход (+)</option><option value="out">Расход (-)</option></select>';
+  h+='<label>Категория</label><input id="f_cat" placeholder="Например: Проект, Реклама" value="Проект">';
+  h+='<div style="display:flex;gap:10px;margin-top:15px">';
+  h+='<button class="btn" onclick="saveNewFin()">💾 Сохранить</button>';
+  h+='<button class="btn" style="background:#1f2530" onclick="closeModal()">Отмена</button>';
+  h+='</div>';
+  openModal(h);
+}
+function saveNewFin(){
+  var amt=+document.getElementById('f_amt').value;
+  if(!amt){alert('⚠️ Введите сумму!');return;}
+  var type=document.getElementById('f_type').value;
+  var cat=document.getElementById('f_cat').value.trim()||'Проект';
+  db.finances.unshift({id:uid(),date:today(),type:type,amt:amt,cat:cat});
+  save();closeModal();renderFinances();
+}
 function delFin(id){db.finances=db.finances.filter(function(f){return f.id!==id});save();renderFinances()}
 
 
