@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v6.3.1</title>
+<title>SoloDev v6.4.0</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px;padding-bottom:80px}
 h1{color:#6c8cff;margin:0 0 10px 0}h2{margin:15px 0 10px 0}h3{margin:0 0 10px 0}
@@ -49,13 +49,13 @@ label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 </style>
 </head>
 <body>
-<h1>⚡ SoloDev v6.3.1</h1>
+<h1>⚡ SoloDev v6.4.0</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
 <script>
 var ALL_SPECS=['Фронтенд','Бэкенд','Fullstack','Мобильная разработка','iOS','Android','Flutter','React Native','Боты (Telegram/VK)','DevOps','SRE','QA','Автотесты','Дизайн','UI/UX','Графический дизайн','Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','1С','GameDev','Unity','Unreal Engine','Администрирование','Системный анализ','Бизнес-анализ','Техподдержка','ERP/CRM','Blockchain','Web3','AR/VR','Кибербезопасность','Pentest','Embedded','IoT','Python','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Swift','Kotlin','C/C++','Ruby','Django','Flask','FastAPI','Spring','WordPress','Bitrix','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','Scrum/Agile','Project Management','Product Management','SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг','Видеопродакшн','3D-моделирование','Анимация','Саунд-дизайн','Техническое писательство','Локализация'];
-var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{}};
+var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1}};
 var currentView='home';
 var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
@@ -505,31 +505,411 @@ function saveNewClient(){
 }
 function delClient(id){db.clients=db.clients.filter(function(c){return c.id!==id});save();renderClients()}
 
+var financePeriod = 'month';
+
 function renderFinances(){
-  var h='<h2>💰 Финансы</h2><button class="btn" onclick="addFin()">+ Операция</button>';
-  db.finances.forEach(function(f){h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b style="color:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+';font-size:20px">'+(f.type==='in'?'+':'-')+' '+f.amt.toLocaleString()+' ₽</b><span style="padding:4px 12px;background:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+';color:#fff;border-radius:12px;font-size:12px">'+(f.type==='in'?'Доход':'Расход')+'</span></div><div class="mut">'+f.date+' · '+f.cat+'</div><button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:10px" onclick="delFin(\''+f.id+'\')">🗑 Удалить</button></div>'});
-  document.getElementById('app').innerHTML=h;
+  var now = new Date();
+  var periodStart, periodLabel;
+  if(financePeriod === 'week'){
+    periodStart = new Date(now); periodStart.setDate(now.getDate() - 7);
+    periodLabel = 'за последние 7 дней';
+  } else if(financePeriod === 'month'){
+    periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    periodLabel = 'за ' + ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'][now.getMonth()];
+  } else if(financePeriod === 'quarter'){
+    var qm = Math.floor(now.getMonth()/3)*3;
+    periodStart = new Date(now.getFullYear(), qm, 1);
+    periodLabel = 'за ' + Math.floor(qm/3+1) + ' квартал';
+  } else {
+    periodStart = new Date(now.getFullYear(), 0, 1);
+    periodLabel = 'за ' + now.getFullYear() + ' год';
+  }
+  var periodStr = periodStart.toISOString().slice(0,10);
+  
+  var periodFin = db.finances.filter(function(f){return f.date && f.date >= periodStr});
+  var income = 0, expense = 0;
+  var byCategory = {};
+  periodFin.forEach(function(f){
+    if(f.type === 'in') income += f.amt; else expense += f.amt;
+    byCategory[f.cat] = (byCategory[f.cat] || 0) + (f.type === 'in' ? f.amt : -f.amt);
+  });
+  
+  var tax = calculateTax(income);
+  var netProfit = income - expense - tax.amount;
+  
+  var h = '<h2>💰 Финансы · '+periodLabel+'</h2>';
+  
+  // Переключатель периода
+  h += '<div class="filter-row">';
+  ['week','month','quarter','year'].forEach(function(p){
+    var label = {week:'Неделя',month:'Месяц',quarter:'Квартал',year:'Год'}[p];
+    h += '<button class="filter-btn '+(financePeriod===p?'active':'')+'" onclick="financePeriod=\''+p+'\';renderFinances()">'+label+'</button>';
+  });
+  h += '</div>';
+  
+  // Главные показатели
+  h += '<div class="grid" style="grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0">';
+  h += '<div class="card" style="text-align:center"><div class="mut">Доход</div><b style="font-size:18px;color:#3ecf8e">'+formatCurrency(income)+'</b></div>';
+  h += '<div class="card" style="text-align:center"><div class="mut">Расход</div><b style="font-size:18px;color:#ff6b6b">'+formatCurrency(expense)+'</b></div>';
+  h += '<div class="card" style="text-align:center"><div class="mut">Налоги ('+tax.name+')</div><b style="font-size:18px;color:#f59e0b">'+formatCurrency(tax.amount)+'</b></div>';
+  h += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><div class="mut" style="color:#fff">Чистая прибыль</div><b style="font-size:18px;color:#3ecf8e">'+formatCurrency(netProfit)+'</b></div>';
+  h += '</div>';
+  
+  // Быстрые действия
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">';
+  h += '<button class="btn" onclick="addFin()">+ Операция</button>';
+  h += '<button class="btn" style="background:#9d6cff" onclick="showCurrencyConverter()">💱 Конвертер валют</button>';
+  h += '<button class="btn" style="background:#f59e0b" onclick="showTaxSettings()">🧾 Настройки налогов</button>';
+  h += '<button class="btn" style="background:#1f2530" onclick="exportFinancesPDF()">📥 PDF-отчёт</button>';
+  h += '</div>';
+  
+  // Аналитика: график доходов по месяцам (последние 6 месяцев)
+  h += '<div class="card"><h3>📈 Доходы по месяцам (6 мес.)</h3>';
+  h += renderMonthlyChart();
+  h += '</div>';
+  
+  // Расходы по категориям
+  var expenseCategories = {};
+  db.finances.filter(function(f){return f.date && f.date >= periodStr && f.type === 'out'}).forEach(function(f){
+    expenseCategories[f.cat] = (expenseCategories[f.cat] || 0) + f.amt;
+  });
+  if(Object.keys(expenseCategories).length > 0){
+    h += '<div class="card"><h3>📊 Расходы по категориям</h3>';
+    var totalExp = Object.values(expenseCategories).reduce(function(a,b){return a+b}, 0);
+    Object.keys(expenseCategories).sort(function(a,b){return expenseCategories[b]-expenseCategories[a]}).forEach(function(cat){
+      var pct = Math.round(expenseCategories[cat]/totalExp*100);
+      h += '<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>'+esc(cat)+'</span><b>'+formatCurrency(expenseCategories[cat])+' ('+pct+'%)</b></div>';
+      h += '<div class="bar"><i style="width:'+pct+'%;background:#ff6b6b"></i></div></div>';
+    });
+    h += '</div>';
+  }
+  
+  // Налоговый блок
+  h += '<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a">';
+  h += '<h3 style="color:#fff">🧾 Налоговая сводка ('+tax.jurisdictionLabel+' · '+tax.name+')</h3>';
+  h += '<div class="info-row"><span style="color:#fff">Доход за период:</span><b style="color:#3ecf8e">'+formatCurrency(income)+'</b></div>';
+  h += '<div class="info-row"><span style="color:#fff">Налоговая ставка:</span><b style="color:#f59e0b">'+tax.rate+'%</b></div>';
+  h += '<div class="info-row"><span style="color:#fff">Налог к уплате:</span><b style="color:#ff6b6b">'+formatCurrency(tax.amount)+'</b></div>';
+  h += '<div class="info-row"><span style="color:#fff">Чистая прибыль:</span><b style="color:#3ecf8e">'+formatCurrency(netProfit)+'</b></div>';
+  if(tax.note) h += '<div class="mut" style="margin-top:10px;font-size:12px">💡 '+tax.note+'</div>';
+  h += '</div>';
+  
+  // Топ-5 клиентов по доходу
+  var byClient = {};
+  db.finances.filter(function(f){return f.type === 'in' && f.client}).forEach(function(f){
+    byClient[f.client] = (byClient[f.client] || 0) + f.amt;
+  });
+  var topClients = Object.keys(byClient).sort(function(a,b){return byClient[b]-byClient[a]}).slice(0,5);
+  if(topClients.length > 0){
+    h += '<div class="card"><h3>🏆 Топ клиентов по доходу</h3>';
+    topClients.forEach(function(c,i){
+      h += '<div class="info-row"><span><b>#'+(i+1)+'</b> '+esc(c)+'</span><b style="color:#3ecf8e">'+formatCurrency(byClient[c])+'</b></div>';
+    });
+    h += '</div>';
+  }
+  
+  // Средняя ставка в час
+  var totalHours = 0;
+  db.projects.forEach(function(p){totalHours += p.estimatedHours || 0});
+  if(totalHours > 0 && income > 0){
+    var hourlyRate = Math.round(income / totalHours);
+    h += '<div class="card" style="text-align:center"><div class="mut">Средняя ставка в час</div><div style="font-size:28px;font-weight:bold;color:#3ecf8e;margin-top:5px">'+formatCurrency(hourlyRate)+'</div><div class="mut" style="font-size:11px">на основе '+totalHours+' часов работы</div></div>';
+  }
+  
+  // Список операций
+  h += '<div class="card"><h3>📋 Операции за период ('+periodFin.length+')</h3>';
+  if(periodFin.length === 0){
+    h += '<div class="mut" style="text-align:center;padding:20px">Нет операций за этот период</div>';
+  } else {
+    periodFin.sort(function(a,b){return b.date.localeCompare(a.date)}).forEach(function(f){
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #242b36">';
+      h += '<div><div style="font-weight:bold;color:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+'">'+(f.type==='in'?'+ ':'- ')+formatCurrency(f.amt)+'</div>';
+      h += '<div class="mut" style="font-size:11px">'+f.date+' · '+esc(f.cat)+(f.client?' · '+esc(f.client):'')+'</div></div>';
+      h += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="delFin(\''+f.id+'\')">🗑</button>';
+      h += '</div>';
+    });
+  }
+  h += '</div>';
+  
+  document.getElementById('app').innerHTML = h;
 }
-function addFin(){
-  var h='<h3>➕ Новая операция</h3>';
-  h+='<label>Сумма (₽) *</label><input id="f_amt" type="number" placeholder="0">';
-  h+='<label>Тип</label><select id="f_type" style="width:100%;background:#1f2530;border:1px solid #242b36;color:#e8ecf3;border-radius:8px;padding:10px;margin:8px 0"><option value="in">Доход (+)</option><option value="out">Расход (-)</option></select>';
-  h+='<label>Категория</label><input id="f_cat" placeholder="Например: Проект, Реклама" value="Проект">';
-  h+='<div style="display:flex;gap:10px;margin-top:15px">';
-  h+='<button class="btn" onclick="saveNewFin()">💾 Сохранить</button>';
-  h+='<button class="btn" style="background:#1f2530" onclick="closeModal()">Отмена</button>';
-  h+='</div>';
+
+function renderMonthlyChart(){
+  var months = [];
+  var now = new Date();
+  for(var i=5; i>=0; i--){
+    var d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    var key = d.toISOString().slice(0,7);
+    var label = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'][d.getMonth()];
+    months.push({key:key, label:label, income:0});
+  }
+  db.finances.forEach(function(f){
+    if(f.type !== 'in') return;
+    var k = f.date ? f.date.slice(0,7) : '';
+    var m = months.find(function(x){return x.key === k});
+    if(m) m.income += f.amt;
+  });
+  var maxInc = Math.max.apply(null, months.map(function(m){return m.income})) || 1;
+  var h = '<div class="chart">';
+  months.forEach(function(m){
+    var hPct = (m.income/maxInc)*100;
+    h += '<div class="chart-col" style="height:'+Math.max(hPct,3)+'%"><span>'+m.label+'</span></div>';
+  });
+  h += '</div>';
+  h += '<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:#8b94a7">';
+  months.forEach(function(m){
+    h += '<div style="flex:1;text-align:center">'+(m.income > 0 ? formatCurrency(m.income) : '—')+'</div>';
+  });
+  h += '</div>';
+  return h;
+}
+
+function formatCurrency(amount){
+  var cur = db.currency || 'RUB';
+  var symbols = {RUB:'₽', USD:'$', EUR:'€', CNY:'¥', BYN:'Br', KZT:'₸'};
+  var symbol = symbols[cur] || cur;
+  return Math.round(amount).toLocaleString('ru-RU') + ' ' + symbol;
+}
+
+function calculateTax(income){
+  var j = db.taxJurisdiction || 'russia';
+  var s = db.taxSystem || 'npd';
+  var rate = 0, name = '', note = '', jurisdictionLabel = '';
+  
+  if(j === 'russia'){
+    jurisdictionLabel = '🇷🇺 Россия';
+    if(s === 'npd'){ rate = 6; name = 'НПД (самозанятый)'; note = 'Налог на профессиональный доход: 6% при работе с юрлицами, 4% с физлицами. Лимит 2.4 млн ₽/год.'; }
+    else if(s === 'usn6'){ rate = 6; name = 'УСН 6% (доходы)'; note = 'Упрощённая система: 6% со всех доходов. Лимит ~200 млн ₽/год.'; }
+    else if(s === 'usn15'){ rate = 15; name = 'УСН 15% (доходы-расходы)'; note = '15% с разницы доходов и расходов. Выгодно при расходах >60% от доходов.'; }
+    else if(s === 'ndfl'){ rate = 13; name = 'НДФЛ (физлицо)'; note = '13% для резидентов РФ. Декларация 3-НДФЛ до 30 апреля.'; }
+  } else if(j === 'belarus'){
+    jurisdictionLabel = '🇧🇾 Беларусь';
+    if(s === 'pvt'){ rate = 1; name = 'ПВТ (1% НДС)'; note = 'Парк высоких технологий: 1% НДС с выручки, 9% прибыль. Льготный режим для IT.'; }
+    else if(s === 'ip_no_vat'){ rate = 10; name = 'ИП без НДС'; note = '10% подоходный для ИП на упрощёнке. Лимит ~715 000 BYN/год.'; }
+    else if(s === 'ndfl_by'){ rate = 13; name = 'Подоходный 13%'; note = 'Стандартный подоходный налог для физлиц-резидентов.'; }
+  } else if(j === 'china'){
+    jurisdictionLabel = '🇨🇳 Китай';
+    if(s === 'vat_small'){ rate = 3; name = 'VAT малый (3%)'; note = 'Упрощённый НДС для малых предприятий. Стандартный VAT 13%.'; }
+    else if(s === 'corporate'){ rate = 25; name = 'Corporate Income Tax'; note = '25% на прибыль компаний. Для малых IT-компаний может быть 15%.'; }
+    else if(s === 'iit'){ rate = 20; name = 'IIT (индивидуальный)'; note = 'Прогрессивный налог 3-45%. Средний ~20% для фрилансеров.'; }
+  }
+  
+  var amount = Math.round(income * rate / 100);
+  return {rate:rate, name:name, amount:amount, note:note, jurisdictionLabel:jurisdictionLabel};
+}
+
+function showCurrencyConverter(){
+  var rates = db.exchangeRates || {USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1};
+  var h = '<h3>💱 Конвертер валют</h3>';
+  h += '<p class="mut">Курсы можно обновить в настройках</p>';
+  h += '<label>Сумма</label><input id="cc_amount" type="number" placeholder="1000" value="1000" oninput="updateConversion()">';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  h += '<div><label>Из валюты</label><select id="cc_from" onchange="updateConversion()">';
+  ['RUB','USD','EUR','CNY','BYN','KZT'].forEach(function(c){h += '<option value="'+c+'" '+(c===db.currency?'selected':'')+'>'+c+'</option>';});
+  h += '</select></div>';
+  h += '<div><label>В валюту</label><select id="cc_to" onchange="updateConversion()">';
+  ['RUB','USD','EUR','CNY','BYN','KZT'].forEach(function(c){h += '<option value="'+c+'" '+(c==='USD'?'selected':'')+'>'+c+'</option>';});
+  h += '</select></div></div>';
+  h += '<div id="cc_result" style="background:#1a2035;border:1px solid #3ecf8e;border-radius:8px;padding:15px;margin-top:15px;text-align:center;font-size:20px;font-weight:bold;color:#3ecf8e"></div>';
+  h += '<div class="mut" style="margin-top:10px;font-size:11px">Текущие курсы (к RUB): USD='+rates.USD+' · EUR='+rates.EUR+' · CNY='+rates.CNY+' · BYN='+rates.BYN+' · KZT='+rates.KZT+'</div>';
+  h += '<button class="btn" style="background:#f59e0b;margin-top:10px;width:100%" onclick="editExchangeRates()">⚙️ Обновить курсы</button>';
+  h += '<div style="display:flex;gap:10px;margin-top:10px">';
+  h += '<button class="btn" style="background:#1f2530" onclick="closeModal()">Закрыть</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(updateConversion, 50);
+}
+
+function updateConversion(){
+  var amount = +document.getElementById('cc_amount').value || 0;
+  var from = document.getElementById('cc_from').value;
+  var to = document.getElementById('cc_to').value;
+  var rates = db.exchangeRates;
+  var inRub = amount * (rates[from] || 1);
+  var result = inRub / (rates[to] || 1);
+  var symbols = {RUB:'₽', USD:'$', EUR:'€', CNY:'¥', BYN:'Br', KZT:'₸'};
+  document.getElementById('cc_result').innerHTML = amount.toLocaleString('ru-RU')+' '+from+' =<br><span style="font-size:28px">'+Math.round(result).toLocaleString('ru-RU')+' '+symbols[to]+'</span>';
+}
+
+function editExchangeRates(){
+  var rates = db.exchangeRates || {};
+  var h = '<h3>⚙️ Курсы валют (к RUB)</h3>';
+  h += '<p class="mut">Введите, сколько рублей стоит 1 единица валюты</p>';
+  ['USD','EUR','CNY','BYN','KZT'].forEach(function(c){
+    h += '<label>'+c+' (1 '+c+' = ? ₽)</label><input id="rate_'+c+'" type="number" step="0.01" value="'+(rates[c]||0)+'">';
+  });
+  h += '<div style="display:flex;gap:10px;margin-top:15px">';
+  h += '<button class="btn" onclick="saveExchangeRates()">💾 Сохранить</button>';
+  h += '<button class="btn" style="background:#1f2530" onclick="showCurrencyConverter()">← Назад</button>';
+  h += '</div>';
   openModal(h);
 }
-function saveNewFin(){
-  var amt=+document.getElementById('f_amt').value;
-  if(!amt){alert('⚠️ Введите сумму!');return;}
-  var type=document.getElementById('f_type').value;
-  var cat=document.getElementById('f_cat').value.trim()||'Проект';
-  db.finances.unshift({id:uid(),date:today(),type:type,amt:amt,cat:cat});
-  save();closeModal();renderFinances();
+
+function saveExchangeRates(){
+  ['USD','EUR','CNY','BYN','KZT'].forEach(function(c){
+    db.exchangeRates[c] = +document.getElementById('rate_'+c).value || 0;
+  });
+  save();
+  showCurrencyConverter();
 }
-function delFin(id){db.finances=db.finances.filter(function(f){return f.id!==id});save();renderFinances()}
+
+function showTaxSettings(){
+  var jurisdictions = {
+    'russia': {label:'🇷🇺 Россия', systems:{'npd':'НПД (самозанятый, 6%)','usn6':'УСН 6% (доходы)','usn15':'УСН 15% (доходы-расходы)','ndfl':'НДФЛ 13%'}},
+    'belarus': {label:'🇧🇾 Беларусь', systems:{'pvt':'ПВТ (1% НДС)','ip_no_vat':'ИП без НДС (10%)','ndfl_by':'Подоходный 13%'}},
+    'china': {label:'🇨🇳 Китай', systems:{'vat_small':'VAT малый (3%)','corporate':'Corporate Tax (25%)','iit':'IIT индивидуальный (~20%)'}}
+  };
+  
+  var h = '<h3>🧾 Настройки налогов</h3>';
+  h += '<label>Юрисдикция</label><select id="tax_jur" onchange="updateTaxSystems()">';
+  Object.keys(jurisdictions).forEach(function(j){
+    h += '<option value="'+j+'" '+(db.taxJurisdiction===j?'selected':'')+'>'+jurisdictions[j].label+'</option>';
+  });
+  h += '</select>';
+  h += '<label>Система налогообложения</label><select id="tax_sys"></select>';
+  h += '<label>Основная валюта</label><select id="main_cur">';
+  ['RUB','USD','EUR','CNY','BYN','KZT'].forEach(function(c){
+    h += '<option value="'+c+'" '+(db.currency===c?'selected':'')+'>'+c+'</option>';
+  });
+  h += '</select>';
+  h += '<div id="tax_note" class="mut" style="margin-top:10px;font-size:12px"></div>';
+  h += '<div style="display:flex;gap:10px;margin-top:15px">';
+  h += '<button class="btn" onclick="saveTaxSettings()">💾 Сохранить</button>';
+  h += '<button class="btn" style="background:#1f2530" onclick="closeModal()">Отмена</button>';
+  h += '</div>';
+  openModal(h);
+  
+  window._taxJurisdictions = jurisdictions;
+  updateTaxSystems();
+}
+
+function updateTaxSystems(){
+  var j = document.getElementById('tax_jur').value;
+  var systems = window._taxJurisdictions[j].systems;
+  var sel = document.getElementById('tax_sys');
+  sel.innerHTML = '';
+  Object.keys(systems).forEach(function(s){
+    var opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = systems[s];
+    if(db.taxSystem === s && db.taxJurisdiction === j) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function saveTaxSettings(){
+  db.taxJurisdiction = document.getElementById('tax_jur').value;
+  db.taxSystem = document.getElementById('tax_sys').value;
+  db.currency = document.getElementById('main_cur').value;
+  save();
+  closeModal();
+  renderFinances();
+}
+
+function exportFinancesPDF(){
+  var now = new Date();
+  var periodStr = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+  var periodFin = db.finances.filter(function(f){return f.date && f.date >= periodStr});
+  var income = 0, expense = 0;
+  periodFin.forEach(function(f){if(f.type === 'in') income += f.amt; else expense += f.amt;});
+  var tax = calculateTax(income);
+  
+  var h = '<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Финансовый отчёт</title>';
+  h += '<style>body{font-family:system-ui,sans-serif;color:#000;margin:0;padding:20px}';
+  h += 'h1{text-align:center;color:#2563eb}';
+  h += '.header{text-align:center;color:#666;margin-bottom:30px}';
+  h += '.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:20px 0}';
+  h += '.stat{background:#f3f4f6;padding:15px;border-radius:8px;text-align:center}';
+  h += '.stat b{font-size:20px;display:block;margin-top:5px}';
+  h += 'table{width:100%;border-collapse:collapse;margin:20px 0}';
+  h += 'th,td{border:1px solid #ddd;padding:8px;text-align:left}';
+  h += 'th{background:#2563eb;color:#fff}';
+  h += '.in{color:#059669;font-weight:bold}.out{color:#dc2626;font-weight:bold}';
+  h += '@media print{body{padding:10px}}</style></head><body>';
+  h += '<h1>💰 Финансовый отчёт</h1>';
+  h += '<div class="header">'+esc(db.profile.name)+' · '+esc(db.profile.spec)+'<br>Период: '+now.toLocaleDateString('ru-RU')+'</div>';
+  h += '<div class="stats">';
+  h += '<div class="stat">Доход<b style="color:#059669">'+formatCurrency(income)+'</b></div>';
+  h += '<div class="stat">Расход<b style="color:#dc2626">'+formatCurrency(expense)+'</b></div>';
+  h += '<div class="stat">Налог ('+tax.name+')<b style="color:#f59e0b">'+formatCurrency(tax.amount)+'</b></div>';
+  h += '<div class="stat">Чистая прибыль<b style="color:#059669">'+formatCurrency(income-expense-tax.amount)+'</b></div>';
+  h += '</div>';
+  h += '<h2>Операции</h2>';
+  h += '<table><tr><th>Дата</th><th>Тип</th><th>Категория</th><th>Сумма</th></tr>';
+  periodFin.sort(function(a,b){return b.date.localeCompare(a.date)}).forEach(function(f){
+    h += '<tr><td>'+f.date+'</td><td>'+(f.type==='in'?'Доход':'Расход')+'</td><td>'+esc(f.cat)+'</td><td class="'+f.type+'">'+(f.type==='in'?'+':'-')+formatCurrency(f.amt)+'</td></tr>';
+  });
+  h += '</table>';
+  h += '<div style="text-align:center;margin-top:30px;color:#666;font-size:12px">Сгенерировано в SoloDev v6.4.0</div>';
+  h += '</body></html>';
+  
+  var w = window.open('','_blank');
+  w.document.write(h);
+  w.document.close();
+  setTimeout(function(){w.print();}, 500);
+}
+
+function addFin(){
+  var clients = db.clients.map(function(c){return c.name}).filter(function(n){return n});
+  var h = '<h3>➕ Новая операция</h3>';
+  h += '<label>Сумма *</label><input id="f_amt" type="number" placeholder="0">';
+  h += '<label>Валюта</label><select id="f_cur">';
+  ['RUB','USD','EUR','CNY','BYN','KZT'].forEach(function(c){h += '<option value="'+c+'" '+(c===db.currency?'selected':'')+'>'+c+'</option>';});
+  h += '</select>';
+  h += '<label>Тип</label><select id="f_type"><option value="in">Доход (+)</option><option value="out">Расход (-)</option></select>';
+  h += '<label>Категория</label><select id="f_cat">';
+  ['Проект','Аванс','Реклама','Подписки','Оборудование','Налоги','Обучение','Транспорт','Другое'].forEach(function(c){h += '<option>'+c+'</option>';});
+  h += '</select>';
+  h += '<label>Клиент (для доходов)</label><select id="f_client"><option value="">— не указан —</option>';
+  clients.forEach(function(c){h += '<option>'+esc(c)+'</option>';});
+  h += '</select>';
+  h += '<label>Дата</label><input id="f_date" type="date" value="'+today()+'">';
+  h += '<label>Комментарий</label><input id="f_note" placeholder="Необязательно">';
+  h += '<div style="display:flex;gap:10px;margin-top:15px">';
+  h += '<button class="btn" onclick="saveNewFin()">💾 Сохранить</button>';
+  h += '<button class="btn" style="background:#1f2530" onclick="closeModal()">Отмена</button>';
+  h += '</div>';
+  openModal(h);
+}
+
+function saveNewFin(){
+  var amt = +document.getElementById('f_amt').value;
+  if(!amt){alert('⚠️ Введите сумму!');return;}
+  var cur = document.getElementById('f_cur').value;
+  var type = document.getElementById('f_type').value;
+  var cat = document.getElementById('f_cat').value;
+  var client = document.getElementById('f_client').value;
+  var date = document.getElementById('f_date').value || today();
+  var note = document.getElementById('f_note').value;
+  
+  // Конвертируем в основную валюту
+  var rates = db.exchangeRates || {RUB:1};
+  var inRub = amt * (rates[cur] || 1);
+  var inMain = inRub / (rates[db.currency] || 1);
+  
+  db.finances.unshift({
+    id: uid(),
+    date: date,
+    type: type,
+    amt: Math.round(inMain),
+    original_amt: amt,
+    original_cur: cur,
+    cat: cat,
+    client: client,
+    note: note
+  });
+  save();
+  closeModal();
+  renderFinances();
+}
+
+function delFin(id){
+  if(confirm('Удалить операцию?')){
+    db.finances = db.finances.filter(function(f){return f.id !== id});
+    save();
+    renderFinances();
+  }
+}
 
 
 var currentEmailCat='all';
@@ -665,7 +1045,7 @@ function getPortfolioHTML(){
   });
   
   h+='<div style="text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #242b36;color:#8b94a7;font-size:13px">';
-  h+='Портфолио сгенерировано '+today()+' · SoloDev v6.3.1';
+  h+='Портфолио сгенерировано '+today()+' · SoloDev v6.4.0';
   h+='</div></div></body></html>';
   return h;
 }
@@ -1046,7 +1426,7 @@ function generatePriceListHTML(){
   h+='<div class="footer">';
   h+='Прайс действителен до '+new Date(Date.now()+30*24*60*60*1000).toLocaleDateString('ru-RU')+'<br>';
   h+='Точная стоимость определяется после обсуждения проекта<br>';
-  h+='Сгенерировано '+today()+' · SoloDev v6.3.1';
+  h+='Сгенерировано '+today()+' · SoloDev v6.4.0';
   h+='</div></div></body></html>';
   return h;
 }
@@ -1314,7 +1694,7 @@ function exportCompetencyMapPDF(){
   }
   
   h += '<div style="text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #ddd;color:#666;font-size:12px">';
-  h += 'Точная стоимость и сроки определяются после обсуждения деталей проекта.<br>Документ сгенерирован в SoloDev v6.3.1';
+  h += 'Точная стоимость и сроки определяются после обсуждения деталей проекта.<br>Документ сгенерирован в SoloDev v6.4.0';
   h += '</div></body></html>';
   
   w.document.write(h);
