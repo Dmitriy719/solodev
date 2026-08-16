@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v6.8.0</title>
+<title>SoloDev v6.9.2</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px;padding-bottom:80px}
 h1{color:#6c8cff;margin:0 0 10px 0}h2{margin:15px 0 10px 0}h3{margin:0 0 10px 0}
@@ -49,14 +49,14 @@ label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 </style>
 </head>
 <body>
-<h1>⚡ SoloDev v6.8.0</h1>
+<h1>⚡ SoloDev v6.9.2</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
 <button onclick="showSmartAssistant()" style="position:fixed;bottom:20px;right:20px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(108,140,255,0.5);z-index:50;transition:0.2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Умный помощник">💡</button>
 <script>
 var ALL_SPECS=['Фронтенд','Бэкенд','Fullstack','Мобильная разработка','iOS','Android','Flutter','React Native','Боты (Telegram/VK)','DevOps','SRE','QA','Автотесты','Дизайн','UI/UX','Графический дизайн','Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','1С','GameDev','Unity','Unreal Engine','Администрирование','Системный анализ','Бизнес-анализ','Техподдержка','ERP/CRM','Blockchain','Web3','AR/VR','Кибербезопасность','Pentest','Embedded','IoT','Python','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Swift','Kotlin','C/C++','Ruby','Django','Flask','FastAPI','Spring','WordPress','Bitrix','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','Scrum/Agile','Project Management','Product Management','SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг','Видеопродакшн','3D-моделирование','Анимация','Саунд-дизайн','Техническое писательство','Локализация'];
-var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1},goals:[],recurring:[],receivables:[],taxReserve:0,budgets:{},pots:[],monthlyNeeds:80000,monthlyWants:30000,monthlySavings:40000,quickTemplates:[],hourlyRate:2000};
+var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1},goals:[],recurring:[],receivables:[],taxReserve:0,budgets:{},pots:[],monthlyNeeds:80000,monthlyWants:30000,monthlySavings:40000,quickTemplates:[],hourlyRate:2000,credits:[],paymentCalendar:[]};
 var currentView='home';
 var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
@@ -859,7 +859,7 @@ function exportFinancesPDF(){
     h += '<tr><td>'+f.date+'</td><td>'+(f.type==='in'?'Доход':'Расход')+'</td><td>'+esc(f.cat)+'</td><td class="'+f.type+'">'+(f.type==='in'?'+':'-')+formatCurrency(f.amt)+'</td></tr>';
   });
   h += '</table>';
-  h += '<div style="text-align:center;margin-top:30px;color:#666;font-size:12px">Сгенерировано в SoloDev v6.8.0</div>';
+  h += '<div style="text-align:center;margin-top:30px;color:#666;font-size:12px">Сгенерировано в SoloDev v6.9.2</div>';
   h += '</body></html>';
   
   var w = window.open('','_blank');
@@ -1064,7 +1064,7 @@ function getPortfolioHTML(){
   });
   
   h+='<div style="text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #242b36;color:#8b94a7;font-size:13px">';
-  h+='Портфолио сгенерировано '+today()+' · SoloDev v6.8.0';
+  h+='Портфолио сгенерировано '+today()+' · SoloDev v6.9.2';
   h+='</div></div></body></html>';
   return h;
 }
@@ -1445,7 +1445,7 @@ function generatePriceListHTML(){
   h+='<div class="footer">';
   h+='Прайс действителен до '+new Date(Date.now()+30*24*60*60*1000).toLocaleDateString('ru-RU')+'<br>';
   h+='Точная стоимость определяется после обсуждения проекта<br>';
-  h+='Сгенерировано '+today()+' · SoloDev v6.8.0';
+  h+='Сгенерировано '+today()+' · SoloDev v6.9.2';
   h+='</div></div></body></html>';
   return h;
 }
@@ -1713,7 +1713,7 @@ function exportCompetencyMapPDF(){
   }
   
   h += '<div style="text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #ddd;color:#666;font-size:12px">';
-  h += 'Точная стоимость и сроки определяются после обсуждения деталей проекта.<br>Документ сгенерирован в SoloDev v6.8.0';
+  h += 'Точная стоимость и сроки определяются после обсуждения деталей проекта.<br>Документ сгенерирован в SoloDev v6.9.2';
   h += '</div></body></html>';
   
   w.document.write(h);
@@ -2255,8 +2255,33 @@ function getSmartTips(){
     }
   }
   
-  // Ограничиваем до 6 самых важных советов
-  return tips.slice(0, 6);
+  // === СОВЕТЫ ПО КРЕДИТАМ ===
+  if(db.credits && db.credits.length > 0){
+    var totalDebt = db.credits.reduce(function(a,c){return a+c.remaining},0);
+    var monthlyPayments = db.credits.reduce(function(a,c){return a+c.monthlyPayment},0);
+    if(monthlyPayments > netIncome * 0.4){
+      tips.push({type:'danger', title:'💳 Кредитная нагрузка >40% дохода', text:'Ежемесячные платежи '+formatCurrency(monthlyPayments)+' — это много. Рассмотри рефинансирование.', action:"closeModal();showCredits()", actionLabel:'💳 К кредитам'});
+    }
+    var highRateCredit = db.credits.find(function(c){return c.rate > 20});
+    if(highRateCredit){
+      tips.push({type:'warning', title:'⚠️ Кредит с высокой ставкой', text:'"'+highRateCredit.name+'" под '+highRateCredit.rate+'%. Погаси его в первую очередь (стратегия "Лавина").', action:"closeModal();showPayoffStrategy("+db.credits.indexOf(highRateCredit)+")", actionLabel:'⚡ Стратегия'});
+    }
+  }
+  
+  // === СОВЕТЫ ПО НАКОПЛЕНИЯМ ===
+  if(db.pots && db.pots.length > 0){
+    var avgMonthlySavings = db.monthlySavings || 5000;
+    var longestPot = db.pots.reduce(function(max,p){
+      var months = Math.ceil((p.target-p.amount)/avgMonthlySavings);
+      return months > max.months ? {p:p, months:months} : max;
+    }, {p:null, months:0});
+    if(longestPot.p && longestPot.months > 12){
+      tips.push({type:'info', title:'🎯 Долгосрочная цель', text:'"'+longestPot.p.name+'" займёт ~'+longestPot.months+' мес. Увеличь отчисления или пересмотри цель.', action:"closeModal();showGoalForecast()", actionLabel:'🎯 Прогноз'});
+    }
+  }
+  
+  // Ограничиваем до 7 самых важных советов
+  return tips.slice(0, 7);
 }
 
 // === РЕЗЕРВ НА НАЛОГИ ===
@@ -3402,6 +3427,564 @@ function autoCategorize(name){
   return 'Другое';
 }
 
+
+// === КРЕДИТЫ ===
+function showCredits(){
+  var h = '<h3>💳 Кредиты и займы</h3>';
+  h += '<p class="mut">Управление кредитами и стратегии погашения</p>';
+  
+  var totalDebt = 0, totalMonthlyPayment = 0;
+  db.credits.forEach(function(c){
+    totalDebt += c.remaining;
+    totalMonthlyPayment += c.monthlyPayment;
+  });
+  
+  if(db.credits.length > 0){
+    h += '<div class="card" style="background:linear-gradient(135deg,#2f1a1a,#1a2035);border-color:#ff6b6b;text-align:center">';
+    h += '<div class="mut" style="color:#fff">Общий долг</div>';
+    h += '<div style="font-size:28px;font-weight:bold;color:#ff6b6b;margin:8px 0">'+formatCurrency(totalDebt)+'</div>';
+    h += '<div class="mut">Ежемесячный платёж: <b style="color:#f59e0b">'+formatCurrency(totalMonthlyPayment)+'</b></div>';
+    h += '</div>';
+  }
+  
+  if(db.credits.length === 0){
+    h += '<div class="mut" style="text-align:center;padding:20px">Нет кредитов. Отлично!</div>';
+  } else {
+    db.credits.forEach(function(c, i){
+      var pct = Math.round((1 - c.remaining / c.original) * 100);
+      h += '<div class="card" style="margin:8px 0;border-left:4px solid #ff6b6b">';
+      h += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+      h += '<div style="flex:1"><b style="font-size:15px">'+esc(c.name)+'</b>';
+      h += '<div class="mut" style="font-size:11px;margin-top:4px">'+c.rate+'% годовых · до '+c.endDate+'</div>';
+      h += '<div class="mut" style="font-size:11px">Остаток: '+formatCurrency(c.remaining)+' из '+formatCurrency(c.original)+'</div></div>';
+      h += '<div style="text-align:right">';
+      h += '<div style="font-size:16px;font-weight:bold;color:#f59e0b">'+formatCurrency(c.monthlyPayment)+'</div>';
+      h += '<div class="mut" style="font-size:10px">в месяц</div></div></div>';
+      h += '<div class="bar" style="margin-top:8px"><i style="width:'+pct+'%;background:#3ecf8e"></i></div>';
+      h += '<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">';
+      h += '<button class="btn small" style="background:#3ecf8e;padding:4px 8px;font-size:11px" onclick="payCredit('+i+')">💳 Оплатить</button>';
+      h += '<button class="btn small" style="background:#9d6cff;padding:4px 8px;font-size:11px" onclick="showPayoffStrategy('+i+')"> Стратегия</button>';
+      h += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px;font-size:11px" onclick="deleteCredit('+i+')">🗑</button>';
+      h += '</div></div>';
+    });
+  }
+  
+  h += '<button class="btn" style="width:100%;margin-top:10px" onclick="addCredit()">+ Новый кредит</button>';
+  h += '<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addCredit(){
+  var h = '<h3>➕ Новый кредит</h3>';
+  h += '<label>Название</label><input id="cr_name" placeholder="Например: Ипотека, Автокредит">';
+  h += '<label>Сумма кредита (₽)</label><input id="cr_amount" type="number" placeholder="1000000">';
+  h += '<label>Процентная ставка (% годовых)</label><input id="cr_rate" type="number" step="0.1" placeholder="12">';
+  h += '<label>Срок (месяцев)</label><input id="cr_term" type="number" placeholder="60">';
+  h += '<label>Дата начала</label><input id="cr_start" type="date" value="'+today()+'">';
+  h += '<div style="display:flex;gap:10px;margin-top:15px">';
+  h += '<button class="btn" onclick="saveCredit()">💾 Сохранить</button>';
+  h += '<button class="btn" style="background:#1f2530" onclick="showCredits()">← Назад</button>';
+  h += '</div>';
+  openModal(h);
+}
+
+function calculateAnnuity(amount, rate, months){
+  var monthlyRate = rate / 100 / 12;
+  if(monthlyRate === 0) return amount / months;
+  return amount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+}
+
+function saveCredit(){
+  var name = document.getElementById('cr_name').value.trim();
+  var amount = +document.getElementById('cr_amount').value;
+  var rate = +document.getElementById('cr_rate').value;
+  var term = +document.getElementById('cr_term').value;
+  var start = document.getElementById('cr_start').value;
+  
+  if(!name || !amount || !rate || !term){alert('️ Заполни все поля!');return;}
+  
+  var monthlyPayment = Math.round(calculateAnnuity(amount, rate, term));
+  var endDate = new Date(start);
+  endDate.setMonth(endDate.getMonth() + term);
+  
+  db.credits.push({
+    name: name,
+    original: amount,
+    remaining: amount,
+    rate: rate,
+    term: term,
+    monthlyPayment: monthlyPayment,
+    startDate: start,
+    endDate: endDate.toISOString().slice(0,10),
+    paymentsMade: 0
+  });
+  save();
+  showCredits();
+}
+
+function payCredit(i){
+  var c = db.credits[i];
+  var amt = +prompt('Сумма платежа (рекомендуется '+formatCurrency(c.monthlyPayment)+'):', c.monthlyPayment);
+  if(!amt || amt <= 0) return;
+  
+  if(amt > c.remaining){
+    if(!confirm('Сумма больше остатка ('+formatCurrency(c.remaining)+'). Погасить полностью?')) return;
+    amt = c.remaining;
+  }
+  
+  c.remaining -= amt;
+  c.paymentsMade++;
+  
+  db.finances.unshift({
+    id: uid(),
+    date: today(),
+    type: 'out',
+    amt: amt,
+    cat: 'Кредиты',
+    note: 'Платёж по "'+c.name+'"'
+  });
+  
+  if(c.remaining <= 0){
+    alert('🎉 Кредит "'+c.name+'" полностью погашен!');
+    db.credits.splice(i, 1);
+  } else {
+    alert('✅ Платёж '+formatCurrency(amt)+' принят. Остаток: '+formatCurrency(c.remaining));
+  }
+  save();
+  showCredits();
+}
+
+function showPayoffStrategy(i){
+  var c = db.credits[i];
+  var extraPayment = 5000;
+  
+  var h = '<h3>⚡ Стратегии погашения</h3>';
+  h += '<p class="mut">Кредит: <b>'+esc(c.name)+'</b> · Остаток: '+formatCurrency(c.remaining)+'</p>';
+  
+  // Стандартный график
+  var monthsLeft = Math.ceil(c.remaining / c.monthlyPayment);
+  var totalStandard = c.monthlyPayment * monthsLeft;
+  
+  h += '<div class="card"><h3>📊 Стандартное погашение</h3>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center">';
+  h += '<div><div class="mut">Осталось месяцев</div><div style="font-size:20px;font-weight:bold;color:#6c8cff">'+monthsLeft+'</div></div>';
+  h += '<div><div class="mut">Всего заплатишь</div><div style="font-size:20px;font-weight:bold;color:#ff6b6b">'+formatCurrency(totalStandard)+'</div></div>';
+  h += '</div></div>';
+  
+  // С досрочным погашением
+  h += '<label>Дополнительный платёж в месяц (₽)</label>';
+  h += '<input id="extra_pay" type="number" value="'+extraPayment+'" oninput="recalcPayoff('+i+')">';
+  
+  h += '<div id="payoff_result" class="card" style="background:linear-gradient(135deg,#1a2f1f,#1a2035);border-color:#3ecf8e">';
+  h += '<h3 style="color:#3ecf8e;margin:0 0 10px 0">🚀 С досрочным погашением</h3>';
+  h += '</div>';
+  
+  h += '<div class="card" style="background:linear-gradient(135deg,#2f2a1a,#1a2035);border-color:#f59e0b">';
+  h += '<h3 style="color:#f59e0b;margin:0 0 10px 0">💡 Стратегии</h3>';
+  h += '<div style="font-size:13px;line-height:1.6">';
+  h += '<b>🎯 "Лавина"</b> — сначала кредит с самой высокой ставкой. Математически выгоднее.<br>';
+  h += '<b>❄️ "Снежный ком"</b> — сначала самый маленький кредит. Психологически мотивирует.<br>';
+  h += '<b>💰 Рефинансирование</b> — если найдёшь ставку ниже, перекредитуйся.';
+  h += '</div></div>';
+  
+  h += '<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="showCredits()">← Назад</button>';
+  openModal(h);
+  
+  setTimeout(function(){recalcPayoff(i);}, 100);
+}
+
+function recalcPayoff(i){
+  var c = db.credits[i];
+  var extra = +document.getElementById('extra_pay').value || 0;
+  var totalPayment = c.monthlyPayment + extra;
+  
+  var monthsLeft = 0;
+  var remaining = c.remaining;
+  var totalPaid = 0;
+  var monthlyRate = c.rate / 100 / 12;
+  
+  while(remaining > 0 && monthsLeft < 600){
+    var interest = remaining * monthlyRate;
+    var principal = totalPayment - interest;
+    if(principal >= remaining){
+      totalPaid += remaining + interest;
+      remaining = 0;
+    } else {
+      totalPaid += totalPayment;
+      remaining -= principal;
+    }
+    monthsLeft++;
+  }
+  
+  var standardMonths = Math.ceil(c.remaining / c.monthlyPayment);
+  var standardTotal = c.monthlyPayment * standardMonths;
+  var saved = standardTotal - totalPaid;
+  var monthsSaved = standardMonths - monthsLeft;
+  
+  var h = '<h3 style="color:#3ecf8e;margin:0 0 10px 0">🚀 С досрочным погашением</h3>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center">';
+  h += '<div><div class="mut">Осталось месяцев</div><div style="font-size:20px;font-weight:bold;color:#3ecf8e">'+monthsLeft+'</div></div>';
+  h += '<div><div class="mut">Всего заплатишь</div><div style="font-size:20px;font-weight:bold;color:#6c8cff">'+formatCurrency(Math.round(totalPaid))+'</div></div>';
+  h += '</div>';
+  h += '<div style="margin-top:15px;padding-top:15px;border-top:1px solid #242b36">';
+  h += '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>Экономия на процентах:</span><b style="color:#3ecf8e">'+formatCurrency(Math.round(saved))+'</b></div>';
+  h += '<div style="display:flex;justify-content:space-between"><span>Сокращение срока:</span><b style="color:#3ecf8e">'+monthsSaved+' мес.</b></div>';
+  h += '</div>';
+  
+  document.getElementById('payoff_result').innerHTML = h;
+}
+
+function deleteCredit(i){
+  if(confirm('Удалить кредит "'+db.credits[i].name+'"?')){
+    db.credits.splice(i, 1);
+    save();
+    showCredits();
+  }
+}
+
+// === КАЛЕНДАРЬ ПЛАТЕЖЕЙ ===
+function showPaymentCalendar(){
+  var now = new Date();
+  var year = now.getFullYear();
+  var month = now.getMonth();
+  var daysInMonth = new Date(year, month+1, 0).getDate();
+  var monthName = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][month];
+  
+  // Собираем платежи на месяц
+  var paymentsByDay = {};
+  
+  // Регулярные платежи
+  db.recurring.forEach(function(r){
+    var days = r.freq === 'weekly' ? [1,8,15,22,29].filter(function(d){return d<=daysInMonth}) :
+               r.freq === 'monthly' ? [15] :
+               r.freq === 'yearly' && month === 0 ? [15] : [];
+    days.forEach(function(d){
+      if(!paymentsByDay[d]) paymentsByDay[d] = [];
+      paymentsByDay[d].push({name: r.name, amt: r.amt, type: r.type, cat: r.cat});
+    });
+  });
+  
+  // Кредиты
+  db.credits.forEach(function(c){
+    if(!paymentsByDay[15]) paymentsByDay[15] = [];
+    paymentsByDay[15].push({name: c.name, amt: c.monthlyPayment, type: 'out', cat: 'Кредит'});
+  });
+  
+  // Копилки с дедлайном в этом месяце
+  db.pots.forEach(function(p){
+    if(p.deadline && p.deadline.startsWith(year+'-'+(month+1<10?'0':'')+(month+1))){
+      var day = +p.deadline.split('-')[2];
+      if(!paymentsByDay[day]) paymentsByDay[day] = [];
+      paymentsByDay[day].push({name: 'Копилка: '+p.name, amt: 0, type: 'info', cat: 'Накопления'});
+    }
+  });
+  
+  var h = '<h3>📅 Календарь платежей</h3>';
+  h += '<p class="mut">'+monthName+' '+year+'</p>';
+  
+  var totalPlanned = 0;
+  h += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:15px">';
+  ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(function(d){
+    h += '<div style="text-align:center;font-size:11px;color:#8b94a7;padding:4px">'+d+'</div>';
+  });
+  
+  var firstDay = new Date(year, month, 1).getDay();
+  if(firstDay === 0) firstDay = 7;
+  for(var i=1; i<firstDay; i++){
+    h += '<div></div>';
+  }
+  
+  for(var d=1; d<=daysInMonth; d++){
+    var hasPayments = paymentsByDay[d] && paymentsByDay[d].length > 0;
+    var isToday = d === now.getDate();
+    var bg = isToday ? '#6c8cff' : hasPayments ? '#2f1a1a' : '#1f2530';
+    var color = isToday ? '#fff' : hasPayments ? '#ff6b6b' : '#e8ecf3';
+    
+    h += '<div style="background:'+bg+';color:'+color+';padding:6px;border-radius:4px;min-height:50px;cursor:pointer" onclick="showDayPayments('+d+')">';
+    h += '<div style="font-size:11px;font-weight:bold">'+d+'</div>';
+    if(hasPayments){
+      paymentsByDay[d].forEach(function(p){
+        if(p.type === 'out') totalPlanned += p.amt;
+        h += '<div style="font-size:9px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name)+'</div>';
+      });
+    }
+    h += '</div>';
+  }
+  h += '</div>';
+  
+  h += '<div class="card" style="background:linear-gradient(135deg,#2f1a1a,#1a2035);border-color:#ff6b6b;text-align:center">';
+  h += '<div class="mut" style="color:#fff">Запланировано расходов</div>';
+  h += '<div style="font-size:24px;font-weight:bold;color:#ff6b6b;margin:8px 0">'+formatCurrency(totalPlanned)+'</div>';
+  h += '</div>';
+  
+  h += '<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function showDayPayments(day){
+  var now = new Date();
+  var paymentsByDay = {};
+  
+  db.recurring.forEach(function(r){
+    var days = r.freq === 'weekly' ? [1,8,15,22,29].filter(function(d){return d<=31}) :
+               r.freq === 'monthly' ? [15] : [];
+    days.forEach(function(d){
+      if(!paymentsByDay[d]) paymentsByDay[d] = [];
+      paymentsByDay[d].push({name: r.name, amt: r.amt, type: r.type});
+    });
+  });
+  
+  db.credits.forEach(function(c){
+    if(!paymentsByDay[15]) paymentsByDay[15] = [];
+    paymentsByDay[15].push({name: c.name, amt: c.monthlyPayment, type: 'out'});
+  });
+  
+  var payments = paymentsByDay[day] || [];
+  var h = '<h3> Платежи '+day+' числа</h3>';
+  
+  if(payments.length === 0){
+    h += '<div class="mut" style="text-align:center;padding:20px">Нет платежей</div>';
+  } else {
+    payments.forEach(function(p){
+      h += '<div class="card" style="margin:8px 0">';
+      h += '<div style="display:flex;justify-content:space-between;align-items:center">';
+      h += '<div><b>'+esc(p.name)+'</b></div>';
+      h += '<div style="font-size:16px;font-weight:bold;color:'+(p.type==='in'?'#3ecf8e':'#ff6b6b')+'">'+(p.type==='in'?'+':'-')+formatCurrency(p.amt)+'</div>';
+      h += '</div></div>';
+    });
+  }
+  
+  h += '<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="showPaymentCalendar()">← Назад</button>';
+  openModal(h);
+}
+
+// === АНАЛИЗ ПО КЛИЕНТАМ ===
+function showClientAnalysis(){
+  var now = new Date();
+  var monthStr = now.toISOString().slice(0,7);
+  
+  var byClient = {};
+  var totalIncome = 0;
+  
+  db.finances.forEach(function(f){
+    if(f.type !== 'in' || !f.date || !f.date.startsWith(monthStr)) return;
+    var client = f.client || 'Не указан';
+    if(!byClient[client]) byClient[client] = {income: 0, count: 0, lastPayment: ''};
+    byClient[client].income += f.amt;
+    byClient[client].count++;
+    if(f.date > byClient[client].lastPayment) byClient[client].lastPayment = f.date;
+    totalIncome += f.amt;
+  });
+  
+  var clients = Object.keys(byClient).sort(function(a,b){return byClient[b].income - byClient[a].income});
+  
+  var h = '<h3>👥 Анализ по клиентам</h3>';
+  h += '<p class="mut">За '+['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'][now.getMonth()]+'</p>';
+  
+  h += '<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a;text-align:center">';
+  h += '<div class="mut" style="color:#fff">Всего клиентов</div>';
+  h += '<div style="font-size:28px;font-weight:bold;color:#3ecf8e;margin:8px 0">'+clients.length+'</div>';
+  h += '<div class="mut">Общий доход: '+formatCurrency(totalIncome)+'</div>';
+  h += '</div>';
+  
+  if(clients.length === 0){
+    h += '<div class="mut" style="text-align:center;padding:20px">Нет доходов от клиентов за этот месяц</div>';
+  } else {
+    h += '<div class="card"><h3>🏆 Рейтинг клиентов</h3>';
+    clients.forEach(function(c, i){
+      var data = byClient[c];
+      var pct = Math.round(data.income / totalIncome * 100);
+      h += '<div style="margin:10px 0">';
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+      h += '<div><b>#'+(i+1)+' '+esc(c)+'</b><div class="mut" style="font-size:11px">'+data.count+' платежей · последний: '+data.lastPayment+'</div></div>';
+      h += '<div style="text-align:right"><div style="font-size:16px;font-weight:bold;color:#3ecf8e">'+formatCurrency(data.income)+'</div><div class="mut" style="font-size:11px">'+pct+'%</div></div>';
+      h += '</div>';
+      h += '<div class="bar"><i style="width:'+pct+'%;background:#3ecf8e"></i></div>';
+      h += '</div>';
+    });
+    h += '</div>';
+    
+    // Топ-3 приносят X%
+    var top3Income = clients.slice(0,3).reduce(function(a,c){return a+byClient[c].income},0);
+    var top3Pct = Math.round(top3Income / totalIncome * 100);
+    h += '<div class="card" style="background:linear-gradient(135deg,#2f2a1a,#1a2035);border-color:#f59e0b">';
+    h += '<h3 style="color:#f59e0b;margin:0 0 10px 0">💡 Инсайт</h3>';
+    h += '<div style="font-size:14px">Топ-3 клиента приносят <b style="color:#f59e0b">'+top3Pct+'%</b> дохода ('+formatCurrency(top3Income)+').';
+    if(top3Pct > 70) h += ' Высокая зависимость — диверсифицируй базу!';
+    else h += ' Хорошее распределение!';
+    h += '</div></div>';
+  }
+  
+  h += '<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+// === СЦЕНАРИИ "ЧТО ЕСЛИ" ===
+function showWhatIf(){
+  var now = new Date();
+  var monthStr = now.toISOString().slice(0,7);
+  var monthIncome = 0, monthExpense = 0;
+  db.finances.forEach(function(f){
+    if(!f.date || !f.date.startsWith(monthStr)) return;
+    if(f.type === 'in') monthIncome += f.amt;
+    else monthExpense += f.amt;
+  });
+  
+  var h = '<h3>🔮 Сценарии "Что если"</h3>';
+  h += '<p class="mut">Симулятор финансовых решений</p>';
+  
+  h += '<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a">';
+  h += '<div class="mut" style="color:#fff">Текущий месяц</div>';
+  h += '<div style="display:flex;justify-content:space-between;margin-top:10px">';
+  h += '<div><div class="mut">Доход</div><div style="font-size:18px;font-weight:bold;color:#3ecf8e">'+formatCurrency(monthIncome)+'</div></div>';
+  h += '<div><div class="mut">Расход</div><div style="font-size:18px;font-weight:bold;color:#ff6b6b">'+formatCurrency(monthExpense)+'</div></div>';
+  h += '<div><div class="mut">Свободно</div><div style="font-size:18px;font-weight:bold;color:#6c8cff">'+formatCurrency(monthIncome-monthExpense)+'</div></div>';
+  h += '</div></div>';
+  
+  h += '<h3 style="margin-top:15px">Выбери сценарий:</h3>';
+  
+  // Сценарий 1: Откладывать на 20% больше
+  var save20 = Math.round(monthIncome*0.2);
+  h += '<div class="card" style="margin:8px 0">';
+  h += '<div style="font-weight:bold;margin-bottom:8px">💰 Откладывать на 20% больше</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:12px">';
+  h += '<div><div class="mut">Доход</div><div style="color:#3ecf8e;font-weight:bold">'+formatCurrency(monthIncome)+'</div></div>';
+  h += '<div><div class="mut">Расход</div><div style="color:#ff6b6b;font-weight:bold">'+formatCurrency(monthExpense+save20)+'</div></div>';
+  h += '<div><div class="mut">Свободно</div><div style="color:#6c8cff;font-weight:bold">'+formatCurrency(monthIncome-monthExpense-save20)+'</div></div>';
+  h += '</div>';
+  h += '<div class="mut" style="font-size:11px;margin-top:6px">Накопишь за год: '+formatCurrency(save20*12)+'</div>';
+  h += '</div>';
+  
+  // Сценарий 2: Сократить расходы на 15%
+  var newExp = Math.round(monthExpense*0.85);
+  var saved15 = monthExpense - newExp;
+  h += '<div class="card" style="margin:8px 0">';
+  h += '<div style="font-weight:bold;margin-bottom:8px">✂️ Сократить расходы на 15%</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:12px">';
+  h += '<div><div class="mut">Доход</div><div style="color:#3ecf8e;font-weight:bold">'+formatCurrency(monthIncome)+'</div></div>';
+  h += '<div><div class="mut">Расход</div><div style="color:#ff6b6b;font-weight:bold">'+formatCurrency(newExp)+'</div></div>';
+  h += '<div><div class="mut">Свободно</div><div style="color:#6c8cff;font-weight:bold">'+formatCurrency(monthIncome-newExp)+'</div></div>';
+  h += '</div>';
+  h += '<div class="mut" style="font-size:11px;margin-top:6px">Экономия за год: '+formatCurrency(saved15*12)+'</div>';
+  h += '</div>';
+  
+  // Сценарий 3: Увеличить доход на 30%
+  var newInc = Math.round(monthIncome*1.3);
+  var extraInc = newInc - monthIncome;
+  h += '<div class="card" style="margin:8px 0">';
+  h += '<div style="font-weight:bold;margin-bottom:8px"> Увеличить доход на 30%</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:12px">';
+  h += '<div><div class="mut">Доход</div><div style="color:#3ecf8e;font-weight:bold">'+formatCurrency(newInc)+'</div></div>';
+  h += '<div><div class="mut">Расход</div><div style="color:#ff6b6b;font-weight:bold">'+formatCurrency(monthExpense)+'</div></div>';
+  h += '<div><div class="mut">Свободно</div><div style="color:#6c8cff;font-weight:bold">'+formatCurrency(newInc-monthExpense)+'</div></div>';
+  h += '</div>';
+  h += '<div class="mut" style="font-size:11px;margin-top:6px">Доп. доход за год: '+formatCurrency(extraInc*12)+'</div>';
+  h += '</div>';
+  
+  // Сценарий 4: Ипотека
+  h += '<div class="card" style="margin:8px 0">';
+  h += '<div style="font-weight:bold;margin-bottom:8px">🏠 Взять ипотеку (50К/мес)</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:12px">';
+  h += '<div><div class="mut">Доход</div><div style="color:#3ecf8e;font-weight:bold">'+formatCurrency(monthIncome)+'</div></div>';
+  h += '<div><div class="mut">Расход</div><div style="color:#ff6b6b;font-weight:bold">'+formatCurrency(monthExpense+50000)+'</div></div>';
+  h += '<div><div class="mut">Свободно</div><div style="color:'+(monthIncome-monthExpense-50000>=0?'#6c8cff':'#ff6b6b')+';font-weight:bold">'+formatCurrency(monthIncome-monthExpense-50000)+'</div></div>';
+  h += '</div>';
+  h += '<div class="mut" style="font-size:11px;margin-top:6px">За 30 лет заплатишь: '+formatCurrency(50000*360)+'</div>';
+  h += '</div>';
+  
+  // Сценарий 5: Досрочное погашение
+  h += '<div class="card" style="margin:8px 0">';
+  h += '<div style="font-weight:bold;margin-bottom:8px">💳 Погасить кредит досрочно (+10К/мес)</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:12px">';
+  h += '<div><div class="mut">Доход</div><div style="color:#3ecf8e;font-weight:bold">'+formatCurrency(monthIncome)+'</div></div>';
+  h += '<div><div class="mut">Расход</div><div style="color:#ff6b6b;font-weight:bold">'+formatCurrency(monthExpense+10000)+'</div></div>';
+  h += '<div><div class="mut">Свободно</div><div style="color:'+(monthIncome-monthExpense-10000>=0?'#6c8cff':'#ff6b6b')+';font-weight:bold">'+formatCurrency(monthIncome-monthExpense-10000)+'</div></div>';
+  h += '</div>';
+  h += '<div class="mut" style="font-size:11px;margin-top:6px">Экономия на процентах: ~'+formatCurrency(10000*12*0.1)+'</div>';
+  h += '</div>';
+  
+  h += '<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+// === ПРОГНОЗ ДОСТИЖЕНИЯ ЦЕЛИ ===
+function showGoalForecast(){
+  if(db.pots.length === 0){
+    alert('⚠️ Сначала создай копилку!');
+    return;
+  }
+  
+  var h = '<h3>🎯 Прогноз достижения целей</h3>';
+  h += '<p class="mut">Когда ты накопишь на каждую цель?</p>';
+  
+  // Среднее накопление в месяц
+  var monthStr = new Date().toISOString().slice(0,7);
+  var monthSavings = 0;
+  db.finances.forEach(function(f){
+    if(f.type === 'out' && f.cat === 'Накопления' && f.date && f.date.startsWith(monthStr)){
+      monthSavings += f.amt;
+    }
+  });
+  
+  // Если нет данных, берём среднее за 3 месяца
+  if(monthSavings === 0){
+    var totalSavings = 0, months = 0;
+    for(var i=0; i<3; i++){
+      var d = new Date();
+      d.setMonth(d.getMonth() - i);
+      var key = d.toISOString().slice(0,7);
+      var m = 0;
+      db.finances.forEach(function(f){
+        if(f.type === 'out' && f.cat === 'Накопления' && f.date && f.date.startsWith(key)) m += f.amt;
+      });
+      if(m > 0){totalSavings += m; months++;}
+    }
+    monthSavings = months > 0 ? Math.round(totalSavings / months) : 5000;
+  }
+  
+  h += '<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a;text-align:center">';
+  h += '<div class="mut" style="color:#fff">Среднее накопление в месяц</div>';
+  h += '<div style="font-size:28px;font-weight:bold;color:#3ecf8e;margin:8px 0">'+formatCurrency(monthSavings)+'</div>';
+  h += '<button class="btn small" style="background:#1f2530" onclick="editMonthlySavings()">✏️ Изменить</button>';
+  h += '</div>';
+  
+  db.pots.forEach(function(p){
+    var remaining = p.target - p.amount;
+    var monthsNeeded = Math.ceil(remaining / monthSavings);
+    var targetDate = new Date();
+    targetDate.setMonth(targetDate.getMonth() + monthsNeeded);
+    var dateStr = targetDate.toLocaleDateString('ru-RU', {year:'numeric', month:'long'});
+    
+    var cat = POT_CATEGORIES[p.category] || POT_CATEGORIES.other;
+    var urgency = monthsNeeded <= 3 ? '#3ecf8e' : monthsNeeded <= 6 ? '#f59e0b' : '#ff6b6b';
+    
+    h += '<div class="card" style="margin:8px 0;border-left:4px solid '+cat.color+'">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+    h += '<div><div style="font-size:20px">'+cat.icon+'</div><b>'+esc(p.name)+'</b>';
+    h += '<div class="mut" style="font-size:11px">'+formatCurrency(p.amount)+' из '+formatCurrency(p.target)+'</div></div>';
+    h += '<div style="text-align:right">';
+    h += '<div style="font-size:14px;font-weight:bold;color:'+urgency+'">'+monthsNeeded+' мес.</div>';
+    h += '<div class="mut" style="font-size:10px">'+dateStr+'</div></div></div>';
+    var pct = Math.round(p.amount / p.target * 100);
+    h += '<div class="bar" style="margin-top:8px"><i style="width:'+pct+'%;background:'+cat.color+'"></i></div>';
+    h += '</div>';
+  });
+  
+  h += '<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function editMonthlySavings(){
+  var val = prompt('Среднее накопление в месяц (₽):', 5000);
+  if(val === null) return;
+  var amt = +val;
+  if(amt > 0){
+    db.monthlySavings = amt;
+    save();
+    showGoalForecast();
+  }
+}
+
 function renderSettings(){
   var h='<h2>⚙️ Настройки</h2>';
   h+='<div class="card"><h3>👤 Профиль</h3>';
@@ -3446,6 +4029,8 @@ window.onload=function(){
     if(!db.monthlyWants)db.monthlyWants=30000;
     if(!db.monthlySavings)db.monthlySavings=40000;
     if(!db.quickTemplates)db.quickTemplates=[];
+    if(!db.credits)db.credits=[];
+    if(!db.paymentCalendar)db.paymentCalendar=[];
     if(!db.hourlyRate)db.hourlyRate=2000;
     save();
     renderNav();
