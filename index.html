@@ -1064,16 +1064,16 @@ function downloadPriceList(){
 
 function showCompetencyMap(){
   var groups = {
-    '💻 Веб-разработка': SPECS.filter(s=>['Фронтенд','Бэкенд','Fullstack','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Python','Django','Flask','FastAPI','Spring','WordPress','Bitrix','Ruby','C/C++'].includes(s)),
-    '📱 Мобильная разработка': SPECS.filter(s=>['Мобильная разработка','iOS','Android','Flutter','React Native','Swift','Kotlin'].includes(s)),
-    '🤖 Боты и Автоматизация': SPECS.filter(s=>['Боты (Telegram/VK)','Автотесты','QA'].includes(s)),
-    '☁️ DevOps и Инфраструктура': SPECS.filter(s=>['DevOps','SRE','Администрирование','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch'].includes(s)),
-    '🎨 Дизайн и Креатив': SPECS.filter(s=>['Дизайн','UI/UX','Графический дизайн','3D-моделирование','Анимация','Саунд-дизайн','Видеопродакшн'].includes(s)),
-    '📊 Data Science и AI': SPECS.filter(s=>['Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','Системный анализ','Бизнес-анализ'].includes(s)),
-    '🏢 Enterprise и 1С': SPECS.filter(s=>['1С','ERP/CRM','Blockchain','Web3','AR/VR','Embedded','IoT'].includes(s)),
-    '🛡 Безопасность': SPECS.filter(s=>['Кибербезопасность','Pentest'].includes(s)),
-    '📈 Маркетинг': SPECS.filter(s=>['SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг'].includes(s)),
-    '👔 Менеджмент': SPECS.filter(s=>['Scrum/Agile','Project Management','Product Management','Техническое писательство','Локализация','Техподдержка','GameDev','Unity','Unreal Engine'].includes(s))
+    '💻 Веб-разработка': ALL_SPECS.filter(s=>['Фронтенд','Бэкенд','Fullstack','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Python','Django','Flask','FastAPI','Spring','WordPress','Bitrix','Ruby','C/C++'].includes(s)),
+    '📱 Мобильная разработка': ALL_SPECS.filter(s=>['Мобильная разработка','iOS','Android','Flutter','React Native','Swift','Kotlin'].includes(s)),
+    '🤖 Боты и Автоматизация': ALL_SPECS.filter(s=>['Боты (Telegram/VK)','Автотесты','QA'].includes(s)),
+    '☁️ DevOps и Инфраструктура': ALL_SPECS.filter(s=>['DevOps','SRE','Администрирование','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch'].includes(s)),
+    '🎨 Дизайн и Креатив': ALL_SPECS.filter(s=>['Дизайн','UI/UX','Графический дизайн','3D-моделирование','Анимация','Саунд-дизайн','Видеопродакшн'].includes(s)),
+    '📊 Data Science и AI': ALL_SPECS.filter(s=>['Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','Системный анализ','Бизнес-анализ'].includes(s)),
+    '🏢 Enterprise и 1С': ALL_SPECS.filter(s=>['1С','ERP/CRM','Blockchain','Web3','AR/VR','Embedded','IoT'].includes(s)),
+    '🛡 Безопасность': ALL_SPECS.filter(s=>['Кибербезопасность','Pentest'].includes(s)),
+    '📈 Маркетинг': ALL_SPECS.filter(s=>['SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг'].includes(s)),
+    '👔 Менеджмент': ALL_SPECS.filter(s=>['Scrum/Agile','Project Management','Product Management','Техническое писательство','Локализация','Техподдержка','GameDev','Unity','Unreal Engine'].includes(s))
   };
   
   var h='<h3>📖 Справочник компетенций</h3>';
