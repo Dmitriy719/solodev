@@ -606,11 +606,6 @@ function renderFinances(){
       h += '<div><div style="font-weight:bold;color:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+'">'+(f.type==='in'?'+ ':'- ')+formatCurrency(f.amt)+'</div>';
       h += '<div class="mut" style="font-size:11px">'+f.date+' · '+esc(f.cat)+(f.client?' · '+esc(f.client):'')+'</div></div>';
       h += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="delFin(\''+f.id+'\')">🗑</button>';
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:8px">';
-  h += '<button class="btn" style="background:#06b6d4" onclick="showCsvImport()">📥 Импорт CSV</button>';
-  h += '<button class="btn" style="background:#8b5cf6" onclick="showNetWorth()">💼 Активы/Пассивы</button>';
-  h += '<button class="btn" style="background:#f59e0b" onclick="showSubscriptions()">📋 Подписки</button>';
-  h += '</div>';
 
       h += '</div>';
     });
