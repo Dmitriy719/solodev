@@ -612,6 +612,13 @@ function renderFinances(){
   }
   h += '</div>';
   
+  
+  // === НОВЫЕ ФУНКЦИИ v6.9.5 ===
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:8px">';
+  h += '<button class="btn" style="background:#06b6d4" onclick="showCsvImport()">📥 Импорт CSV</button>';
+  h += '<button class="btn" style="background:#8b5cf6" onclick="showNetWorth()">💼 Активы/Пассивы</button>';
+  h += '<button class="btn" style="background:#f59e0b" onclick="showSubscriptions()">📋 Подписки</button>';
+  h += '</div>';
   document.getElementById('app').innerHTML = h;
 }
 
