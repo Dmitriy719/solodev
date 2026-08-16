@@ -929,6 +929,7 @@ function openDocInNewTab(html, fileName){
 var selectedServices = [];
 function renderPricing(){
   var h='<h2>💵 Прайс-лист услуг</h2>';
+  h+='<button class="btn" style="background:#3ecf8e" onclick="showCompetencyMap()">📖 Справочник компетенций (90+)</button>';
   h+='<button class="btn ai" onclick="generatePriceList()">✨ Сгенерировать прайс</button>';
   h+='<button class="btn small" style="background:#1f2530;margin-top:8px" onclick="downloadPriceList()">📥 Скачать HTML</button>';
   
@@ -1057,6 +1058,36 @@ function downloadPriceList(){
   a.download='Прайс_'+db.profile.name.replace(/\s/g,'_')+'_'+today()+'.html';
   a.click();
   alert('✅ Прайс скачан! Открой файл и нажми Ctrl+P для сохранения в PDF.');
+}
+
+
+function showCompetencyMap(){
+  var groups = {
+    '💻 Веб-разработка': SPECS.filter(s=>['Фронтенд','Бэкенд','Fullstack','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Python','Django','Flask','FastAPI','Spring','WordPress','Bitrix','Ruby','C/C++'].includes(s)),
+    '📱 Мобильная разработка': SPECS.filter(s=>['Мобильная разработка','iOS','Android','Flutter','React Native','Swift','Kotlin'].includes(s)),
+    '🤖 Боты и Автоматизация': SPECS.filter(s=>['Боты (Telegram/VK)','Автотесты','QA'].includes(s)),
+    '☁️ DevOps и Инфраструктура': SPECS.filter(s=>['DevOps','SRE','Администрирование','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch'].includes(s)),
+    '🎨 Дизайн и Креатив': SPECS.filter(s=>['Дизайн','UI/UX','Графический дизайн','3D-моделирование','Анимация','Саунд-дизайн','Видеопродакшн'].includes(s)),
+    '📊 Data Science и AI': SPECS.filter(s=>['Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','Системный анализ','Бизнес-анализ'].includes(s)),
+    '🏢 Enterprise и 1С': SPECS.filter(s=>['1С','ERP/CRM','Blockchain','Web3','AR/VR','Embedded','IoT'].includes(s)),
+    '🛡 Безопасность': SPECS.filter(s=>['Кибербезопасность','Pentest'].includes(s)),
+    '📈 Маркетинг': SPECS.filter(s=>['SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг'].includes(s)),
+    '👔 Менеджмент': SPECS.filter(s=>['Scrum/Agile','Project Management','Product Management','Техническое писательство','Локализация','Техподдержка','GameDev','Unity','Unreal Engine'].includes(s))
+  };
+  
+  var h='<h3>📖 Справочник компетенций</h3>';
+  h+='<p class="mut" style="margin-bottom:15px">Полный список из 90+ направлений, в которых мы обладаем экспертизой.</p>';
+  h+='<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:15px">';
+  
+  for(var cat in groups){
+    if(groups[cat].length===0)continue;
+    h+='<div class="card" style="margin:0"><h4 style="margin:0 0 10px 0;color:#6c8cff">'+cat+'</h4><ul style="margin:0;padding-left:20px;font-size:13px;color:#e8ecf3">';
+    groups[cat].forEach(function(s){ h+='<li style="margin:4px 0">'+s+'</li>'; });
+    h+='</ul></div>';
+  }
+  h+='</div>';
+  h+='<button class="btn" style="background:#1f2530;margin-top:15px;width:100%" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
 }
 
 function renderSettings(){
