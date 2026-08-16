@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v6.1.0</title>
+<title>SoloDev v6.2.0</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px;padding-bottom:80px}
 h1{color:#6c8cff;margin:0 0 10px 0}h2{margin:15px 0 10px 0}h3{margin:0 0 10px 0}
@@ -49,7 +49,7 @@ label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 </style>
 </head>
 <body>
-<h1>⚡ SoloDev v6.1.0</h1>
+<h1>⚡ SoloDev v6.2.0</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
@@ -665,7 +665,7 @@ function getPortfolioHTML(){
   });
   
   h+='<div style="text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #242b36;color:#8b94a7;font-size:13px">';
-  h+='Портфолио сгенерировано '+today()+' · SoloDev v6.1.0';
+  h+='Портфолио сгенерировано '+today()+' · SoloDev v6.2.0';
   h+='</div></div></body></html>';
   return h;
 }
@@ -1037,7 +1037,7 @@ function generatePriceListHTML(){
   h+='<div class="footer">';
   h+='Прайс действителен до '+new Date(Date.now()+30*24*60*60*1000).toLocaleDateString('ru-RU')+'<br>';
   h+='Точная стоимость определяется после обсуждения проекта<br>';
-  h+='Сгенерировано '+today()+' · SoloDev v6.1.0';
+  h+='Сгенерировано '+today()+' · SoloDev v6.2.0';
   h+='</div></div></body></html>';
   return h;
 }
@@ -1099,7 +1099,10 @@ function showCompetencyMap(){
     h += '</div></div>';
   }
   h += '</div>';
-  h += '<button class="btn" style="background:#1f2530;margin-top:15px;width:100%" onclick="closeModal()">Закрыть</button>';
+  h += '<div style="display:flex;gap:10px;margin-top:15px">';
+  h += '<button class="btn" style="background:#3ecf8e;flex:1" onclick="exportCompetencyMapPDF()">🖨️ Сохранить справочник в PDF</button>';
+  h += '<button class="btn" style="background:#1f2530;flex:1" onclick="closeModal()">Закрыть</button>';
+  h += '</div>';
   openModal(h);
 }
 
@@ -1165,7 +1168,7 @@ function showSkillServices(skillName){
     h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">';
     h += '<div style="flex:1;min-width:200px">';
     h += '<div style="font-weight:bold;color:#e8ecf3;margin-bottom:4px">'+esc(s.name)+'</div>';
-    h += '<div class="mut" style="font-size:11px">за '+s.unit+'</div>';
+    h += '<div class="mut" style="font-size:11px">⏱ '+esc(s.duration)+' · за '+s.unit+'</div>';
     h += '</div>';
     h += '<div style="text-align:right">';
     h += '<div style="color:#3ecf8e;font-weight:bold;font-size:16px">'+formatPrice(s.price_min)+' - '+formatPrice(s.price_max)+' ₽</div>';
@@ -1248,6 +1251,66 @@ function filterCompetencies(){
   });
 }
 
+
+
+function exportCompetencyMapPDF(){
+  var w = window.open('', '_blank');
+  var h = '<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Справочник компетенций и услуг</title>';
+  h += '<style>body{font-family:system-ui,sans-serif;color:#000;margin:0;padding:20px}';
+  h += 'h1{text-align:center;color:#2563eb;margin-bottom:5px}';
+  h += '.header-info{text-align:center;color:#666;margin-bottom:30px;font-size:14px}';
+  h += '.category{margin-bottom:25px;page-break-inside:avoid}';
+  h += '.category h2{color:#2563eb;border-bottom:2px solid #2563eb;padding-bottom:5px;font-size:18px;margin-bottom:10px}';
+  h += '.skill{margin-bottom:15px;page-break-inside:avoid}';
+  h += '.skill-name{font-weight:bold;font-size:15px;color:#111;margin-bottom:5px}';
+  h += 'table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px}';
+  h += 'th,td{border:1px solid #ddd;padding:6px;text-align:left}';
+  h += 'th{background:#f3f4f6;font-weight:bold}';
+  h += '.price{color:#059669;font-weight:bold;white-space:nowrap}';
+  h += '@media print{body{padding:10px} .no-print{display:none}}';
+  h += '</style></head><body>';
+  
+  h += '<h1>📖 Справочник компетенций и услуг</h1>';
+  h += '<div class="header-info">'+esc(db.profile.name)+' · '+esc(db.profile.spec)+' · Сгенерировано: '+today()+'</div>';
+  h += '<button class="no-print" onclick="window.print()" style="display:block;margin:0 auto 20px auto;padding:10px 20px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:16px">🖨️ Сохранить в PDF / Печать</button>';
+
+  const catMap = {
+    '💻 Веб-разработка': ['Фронтенд','Бэкенд','Fullstack','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Python','Django','Flask','FastAPI','Spring','WordPress','Bitrix','Ruby','C/C++'],
+    '📱 Мобильная разработка': ['Мобильная разработка','iOS','Android','Flutter','React Native','Swift','Kotlin'],
+    '🤖 Боты и Автоматизация': ['Боты (Telegram/VK)','Автотесты','QA'],
+    '☁️ DevOps и Инфраструктура': ['DevOps','SRE','Администрирование','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch'],
+    '🎨 Дизайн и Креатив': ['Дизайн','UI/UX','Графический дизайн','3D-моделирование','Анимация','Саунд-дизайн','Видеопродакшн'],
+    '📊 Data Science и AI': ['Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','Системный анализ','Бизнес-анализ'],
+    '🏢 Enterprise и Новые технологии': ['1С','ERP/CRM','Blockchain','Web3','AR/VR','Embedded','IoT'],
+    '🛡 Кибербезопасность': ['Кибербезопасность','Pentest'],
+    '📈 Маркетинг': ['SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг'],
+    '👔 Менеджмент и GameDev': ['Scrum/Agile','Project Management','Product Management','Техническое писательство','Локализация','Техподдержка','GameDev','Unity','Unreal Engine']
+  };
+
+  for(var catName in catMap){
+    var skills = catMap[catName];
+    h += '<div class="category"><h2>'+catName+'</h2>';
+    skills.forEach(function(skill){
+      if(db.services && db.services[skill] && db.services[skill]['Услуги']){
+        var services = db.services[skill]['Услуги'];
+        h += '<div class="skill"><div class="skill-name">🎯 ' + esc(skill) + ' <span style="font-weight:normal;color:#666;font-size:12px">('+services.length+' услуг)</span></div>';
+        h += '<table><tr><th>Услуга</th><th>Сроки</th><th>Стоимость</th></tr>';
+        services.forEach(function(s){
+          h += '<tr><td>'+esc(s.name)+'</td><td>'+esc(s.duration)+'</td><td class="price">'+formatPrice(s.price_min)+' - '+formatPrice(s.price_max)+' ₽ / '+esc(s.unit)+'</td></tr>';
+        });
+        h += '</table></div>';
+      }
+    });
+    h += '</div>';
+  }
+  
+  h += '<div style="text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #ddd;color:#666;font-size:12px">';
+  h += 'Точная стоимость и сроки определяются после обсуждения деталей проекта.<br>Документ сгенерирован в SoloDev v6.2.0';
+  h += '</div></body></html>';
+  
+  w.document.write(h);
+  w.document.close();
+}
 
 function renderSettings(){
   var h='<h2>⚙️ Настройки</h2>';
