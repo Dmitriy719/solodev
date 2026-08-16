@@ -1063,34 +1063,72 @@ function downloadPriceList(){
 
 
 function showCompetencyMap(){
-  var groups = {
-    '💻 Веб-разработка': ALL_SPECS.filter(s=>['Фронтенд','Бэкенд','Fullstack','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Python','Django','Flask','FastAPI','Spring','WordPress','Bitrix','Ruby','C/C++'].includes(s)),
-    '📱 Мобильная разработка': ALL_SPECS.filter(s=>['Мобильная разработка','iOS','Android','Flutter','React Native','Swift','Kotlin'].includes(s)),
-    '🤖 Боты и Автоматизация': ALL_SPECS.filter(s=>['Боты (Telegram/VK)','Автотесты','QA'].includes(s)),
-    '☁️ DevOps и Инфраструктура': ALL_SPECS.filter(s=>['DevOps','SRE','Администрирование','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch'].includes(s)),
-    '🎨 Дизайн и Креатив': ALL_SPECS.filter(s=>['Дизайн','UI/UX','Графический дизайн','3D-моделирование','Анимация','Саунд-дизайн','Видеопродакшн'].includes(s)),
-    '📊 Data Science и AI': ALL_SPECS.filter(s=>['Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','Системный анализ','Бизнес-анализ'].includes(s)),
-    '🏢 Enterprise и 1С': ALL_SPECS.filter(s=>['1С','ERP/CRM','Blockchain','Web3','AR/VR','Embedded','IoT'].includes(s)),
-    '🛡 Безопасность': ALL_SPECS.filter(s=>['Кибербезопасность','Pentest'].includes(s)),
-    '📈 Маркетинг': ALL_SPECS.filter(s=>['SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг'].includes(s)),
-    '👔 Менеджмент': ALL_SPECS.filter(s=>['Scrum/Agile','Project Management','Product Management','Техническое писательство','Локализация','Техподдержка','GameDev','Unity','Unreal Engine'].includes(s))
+  // Карта распределения ВСЕХ навыков из ALL_SPECS по категориям
+  const catMap = {
+    '💻 Веб-разработка': ['Фронтенд','Бэкенд','Fullstack','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Python','Django','Flask','FastAPI','Spring','WordPress','Bitrix','Ruby','C/C++'],
+    '📱 Мобильная разработка': ['Мобильная разработка','iOS','Android','Flutter','React Native','Swift','Kotlin'],
+    '🤖 Боты и Автоматизация': ['Боты (Telegram/VK)','Автотесты','QA'],
+    '☁️ DevOps и Инфраструктура': ['DevOps','SRE','Администрирование','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch'],
+    '🎨 Дизайн и Креатив': ['Дизайн','UI/UX','Графический дизайн','3D-моделирование','Анимация','Саунд-дизайн','Видеопродакшн'],
+    '📊 Data Science и AI': ['Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','Системный анализ','Бизнес-анализ'],
+    '🏢 Enterprise и Новые технологии': ['1С','ERP/CRM','Blockchain','Web3','AR/VR','Embedded','IoT'],
+    '🛡 Кибербезопасность': ['Кибербезопасность','Pentest'],
+    '📈 Маркетинг': ['SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг'],
+    '👔 Менеджмент и GameDev': ['Scrum/Agile','Project Management','Product Management','Техническое писательство','Локализация','Техподдержка','GameDev','Unity','Unreal Engine']
   };
+
+  var h = '<h3 style="margin-bottom:15px">📖 Полный справочник компетенций</h3>';
+  h += '<input id="compSearch" placeholder="🔍 Поиск навыка (например: React, Python, Дизайн)..." oninput="filterCompetencies()" style="margin-bottom:5px;position:sticky;top:0;z-index:10;background:#1f2530;border:1px solid #6c8cff">';
+  h += '<p class="mut" style="margin-bottom:15px;font-size:12px">Всего направлений: <b>'+ALL_SPECS.length+'</b>. Найдено: <span id="compCount">'+ALL_SPECS.length+'</span></p>';
+  h += '<div id="compGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:15px;max-height:60vh;overflow-y:auto;padding-right:5px">';
   
-  var h='<h3>📖 Справочник компетенций</h3>';
-  h+='<input id="compSearch" placeholder="🔍 Поиск (например: React, Python, Дизайн)..." oninput="filterCompetencies()" style="margin-bottom:15px">';
-  h+='<p class="mut" style="margin-bottom:15px">Полный список из 90+ направлений, в которых мы обладаем экспертизой.</p>';
-  h+='<div id="compGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:15px">';
-  
-  for(var cat in groups){
-    if(groups[cat].length===0)continue;
-    h+='<div class="card comp-group" style="margin:0" data-group="'+cat+'"><h4 style="margin:0 0 10px 0;color:#6c8cff">'+cat+'</h4><ul class="comp-list" style="margin:0;padding-left:20px;font-size:13px;color:#e8ecf3">';
-    groups[cat].forEach(function(s){ h+='<li class="comp-item" style="margin:4px 0">'+s+'</li>'; });
-    h+='</ul></div>';
+  for(var catName in catMap){
+    var skills = catMap[catName];
+    h += '<div class="card comp-group" style="margin:0;padding:12px" data-group="'+catName+'">';
+    h += '<h4 style="margin:0 0 10px 0;color:#6c8cff;font-size:15px;border-bottom:1px solid #242b36;padding-bottom:6px">'+catName+' <span class="mut" style="font-size:11px;font-weight:normal">('+skills.length+')</span></h4>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    skills.forEach(function(s){ 
+      h += '<span class="comp-item" style="background:#242b36;color:#e8ecf3;padding:4px 10px;border-radius:12px;font-size:12px;border:1px solid #2d3542;transition:0.2s" onmouseover="this.style.borderColor=\'#6c8cff\'" onmouseout="this.style.borderColor=\'#2d3542\'">'+s+'</span>'; 
+    });
+    h += '</div></div>';
   }
-  h+='</div>';
-  h+='<button class="btn" style="background:#1f2530;margin-top:15px;width:100%" onclick="closeModal()">Закрыть</button>';
+  h += '</div>';
+  h += '<button class="btn" style="background:#1f2530;margin-top:15px;width:100%" onclick="closeModal()">Закрыть</button>';
   openModal(h);
 }
+
+function filterCompetencies(){
+  var q = document.getElementById('compSearch').value.toLowerCase().trim();
+  var groups = document.querySelectorAll('.comp-group');
+  var totalVisible = 0;
+  
+  groups.forEach(function(group){
+    var items = group.querySelectorAll('.comp-item');
+    var groupVisible = 0;
+    var groupName = group.getAttribute('data-group').toLowerCase();
+    
+    items.forEach(function(item){
+      var text = item.textContent.toLowerCase();
+      if(text.includes(q) || groupName.includes(q)){
+        item.style.display = '';
+        groupVisible++;
+        totalVisible++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+    
+    // Скрываем всю карточку категории, если в ней нет совпадений
+    if(q.length > 0 && groupVisible === 0 && !groupName.includes(q)){
+      group.style.display = 'none';
+    } else {
+      group.style.display = '';
+    }
+  });
+  
+  document.getElementById('compCount').textContent = totalVisible;
+}
+
 
 function filterCompetencies(){
   var q = document.getElementById('compSearch').value.toLowerCase();
