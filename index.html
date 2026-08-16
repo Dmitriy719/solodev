@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v6.4.0</title>
+<title>SoloDev v6.5.0</title>
 <style>
 body{background:#0e1116;color:#e8ecf3;font-family:system-ui,sans-serif;margin:0;padding:20px;padding-bottom:80px}
 h1{color:#6c8cff;margin:0 0 10px 0}h2{margin:15px 0 10px 0}h3{margin:0 0 10px 0}
@@ -49,13 +49,13 @@ label{display:block;margin-top:10px;font-size:13px;color:#8b94a7}
 </style>
 </head>
 <body>
-<h1>⚡ SoloDev v6.4.0</h1>
+<h1>⚡ SoloDev v6.5.0</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
 <script>
 var ALL_SPECS=['Фронтенд','Бэкенд','Fullstack','Мобильная разработка','iOS','Android','Flutter','React Native','Боты (Telegram/VK)','DevOps','SRE','QA','Автотесты','Дизайн','UI/UX','Графический дизайн','Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','1С','GameDev','Unity','Unreal Engine','Администрирование','Системный анализ','Бизнес-анализ','Техподдержка','ERP/CRM','Blockchain','Web3','AR/VR','Кибербезопасность','Pentest','Embedded','IoT','Python','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Swift','Kotlin','C/C++','Ruby','Django','Flask','FastAPI','Spring','WordPress','Bitrix','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','Scrum/Agile','Project Management','Product Management','SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг','Видеопродакшн','3D-моделирование','Анимация','Саунд-дизайн','Техническое писательство','Локализация'];
-var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1}};
+var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1},goals:[],recurring:[],receivables:[]};
 var currentView='home';
 var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
@@ -555,18 +555,25 @@ function renderFinances(){
   h += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><div class="mut" style="color:#fff">Чистая прибыль</div><b style="font-size:18px;color:#3ecf8e">'+formatCurrency(netProfit)+'</b></div>';
   h += '</div>';
   
-  // Быстрые действия
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">';
+  // Быстрые действия (2 ряда)
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">';
   h += '<button class="btn" onclick="addFin()">+ Операция</button>';
-  h += '<button class="btn" style="background:#9d6cff" onclick="showCurrencyConverter()">💱 Конвертер валют</button>';
-  h += '<button class="btn" style="background:#f59e0b" onclick="showTaxSettings()">🧾 Настройки налогов</button>';
-  h += '<button class="btn" style="background:#1f2530" onclick="exportFinancesPDF()">📥 PDF-отчёт</button>';
+  h += '<button class="btn" style="background:#3ecf8e" onclick="showGoals()">🎯 Цели</button>';
+  h += '<button class="btn" style="background:#f59e0b" onclick="showReceivables()">💰 Дебиторка</button>';
+  h += '<button class="btn" style="background:#9d6cff" onclick="showRecurring()">🔄 Регулярные</button>';
+  h += '</div>';
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">';
+  h += '<button class="btn" style="background:#1f2530" onclick="showCurrencyConverter()">💱 Конвертер</button>';
+  h += '<button class="btn" style="background:#1f2530" onclick="showTaxSettings()">🧾 Налоги</button>';
+  h += '<button class="btn" style="background:#1f2530" onclick="exportFinancesPDF()">📥 PDF</button>';
+  h += '<button class="btn" style="background:#1f2530" onclick="exportFinancesCSV()">📊 CSV</button>';
   h += '</div>';
   
-  // Аналитика: график доходов по месяцам (последние 6 месяцев)
-  h += '<div class="card"><h3>📈 Доходы по месяцам (6 мес.)</h3>';
-  h += renderMonthlyChart();
-  h += '</div>';
+  // Сравнение с предыдущим периодом
+  h += renderComparison(financePeriod);
+  
+  // Кэшфлоу график
+  h += renderCashflowChart();
   
   // Расходы по категориям
   var expenseCategories = {};
@@ -840,7 +847,7 @@ function exportFinancesPDF(){
     h += '<tr><td>'+f.date+'</td><td>'+(f.type==='in'?'Доход':'Расход')+'</td><td>'+esc(f.cat)+'</td><td class="'+f.type+'">'+(f.type==='in'?'+':'-')+formatCurrency(f.amt)+'</td></tr>';
   });
   h += '</table>';
-  h += '<div style="text-align:center;margin-top:30px;color:#666;font-size:12px">Сгенерировано в SoloDev v6.4.0</div>';
+  h += '<div style="text-align:center;margin-top:30px;color:#666;font-size:12px">Сгенерировано в SoloDev v6.5.0</div>';
   h += '</body></html>';
   
   var w = window.open('','_blank');
@@ -1045,7 +1052,7 @@ function getPortfolioHTML(){
   });
   
   h+='<div style="text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #242b36;color:#8b94a7;font-size:13px">';
-  h+='Портфолио сгенерировано '+today()+' · SoloDev v6.4.0';
+  h+='Портфолио сгенерировано '+today()+' · SoloDev v6.5.0';
   h+='</div></div></body></html>';
   return h;
 }
@@ -1426,7 +1433,7 @@ function generatePriceListHTML(){
   h+='<div class="footer">';
   h+='Прайс действителен до '+new Date(Date.now()+30*24*60*60*1000).toLocaleDateString('ru-RU')+'<br>';
   h+='Точная стоимость определяется после обсуждения проекта<br>';
-  h+='Сгенерировано '+today()+' · SoloDev v6.4.0';
+  h+='Сгенерировано '+today()+' · SoloDev v6.5.0';
   h+='</div></div></body></html>';
   return h;
 }
@@ -1694,11 +1701,320 @@ function exportCompetencyMapPDF(){
   }
   
   h += '<div style="text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #ddd;color:#666;font-size:12px">';
-  h += 'Точная стоимость и сроки определяются после обсуждения деталей проекта.<br>Документ сгенерирован в SoloDev v6.4.0';
+  h += 'Точная стоимость и сроки определяются после обсуждения деталей проекта.<br>Документ сгенерирован в SoloDev v6.5.0';
   h += '</div></body></html>';
   
   w.document.write(h);
   w.document.close();
+}
+
+
+// === ФИНАНСОВЫЕ ЦЕЛИ ===
+function showGoals(){
+  var h='<h3>🎯 Финансовые цели</h3>';
+  if(db.goals.length===0){
+    h+='<div class="mut" style="text-align:center;padding:20px">Пока нет целей. Добавьте первую!</div>';
+  } else {
+    db.goals.forEach(function(g,i){
+      var current = getPeriodIncome(g.period);
+      var pct = Math.min(100, Math.round(current/g.target*100));
+      var color = pct>=100?'#3ecf8e':pct>=50?'#6c8cff':'#f59e0b';
+      h+='<div class="card" style="margin:8px 0">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+      h+='<b>'+esc(g.name)+'</b>';
+      h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="deleteGoal('+i+')">🗑</button>';
+      h+='</div>';
+      h+='<div class="mut" style="font-size:12px;margin-bottom:6px">'+{week:'Неделя',month:'Месяц',quarter:'Квартал',year:'Год'}[g.period]+' · Дедлайн: '+g.deadline+'</div>';
+      h+='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Прогресс</span><b style="color:'+color+'">'+formatCurrency(current)+' / '+formatCurrency(g.target)+' ('+pct+'%)</b></div>';
+      h+='<div class="bar"><i style="width:'+pct+'%;background:'+color+'"></i></div>';
+      if(pct>=100)h+='<div style="color:#3ecf8e;font-weight:bold;margin-top:6px">🎉 Цель достигнута!</div>';
+      h+='</div>';
+    });
+  }
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="addGoal()">+ Новая цель</button>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function getPeriodIncome(period){
+  var now=new Date();
+  var start;
+  if(period==='week'){start=new Date(now);start.setDate(now.getDate()-7);}
+  else if(period==='month'){start=new Date(now.getFullYear(),now.getMonth(),1);}
+  else if(period==='quarter'){var qm=Math.floor(now.getMonth()/3)*3;start=new Date(now.getFullYear(),qm,1);}
+  else{start=new Date(now.getFullYear(),0,1);}
+  var str=start.toISOString().slice(0,10);
+  var sum=0;
+  db.finances.forEach(function(f){if(f.type==='in'&&f.date>=str)sum+=f.amt;});
+  return sum;
+}
+
+function addGoal(){
+  var h='<h3>➕ Новая финансовая цель</h3>';
+  h+='<label>Название цели</label><input id="g_name" placeholder="Например: 500К за квартал">';
+  h+='<label>Целевая сумма (в основной валюте)</label><input id="g_target" type="number" placeholder="500000">';
+  h+='<label>Период</label><select id="g_period"><option value="week">Неделя</option><option value="month" selected>Месяц</option><option value="quarter">Квартал</option><option value="year">Год</option></select>';
+  h+='<label>Дедлайн</label><input id="g_deadline" type="date" value="'+today()+'">';
+  h+='<div style="display:flex;gap:10px;margin-top:15px">';
+  h+='<button class="btn" onclick="saveGoal()">💾 Сохранить</button>';
+  h+='<button class="btn" style="background:#1f2530" onclick="showGoals()">← Назад</button>';
+  h+='</div>';
+  openModal(h);
+}
+
+function saveGoal(){
+  var name=document.getElementById('g_name').value.trim();
+  var target=+document.getElementById('g_target').value;
+  if(!name||!target){alert('⚠️ Заполните название и сумму!');return;}
+  db.goals.push({
+    name:name,
+    target:target,
+    period:document.getElementById('g_period').value,
+    deadline:document.getElementById('g_deadline').value
+  });
+  save();showGoals();
+}
+
+function deleteGoal(i){
+  if(confirm('Удалить цель?')){db.goals.splice(i,1);save();showGoals();}
+}
+
+// === РЕГУЛЯРНЫЕ ПЛАТЕЖИ ===
+function showRecurring(){
+  var h='<h3>🔄 Регулярные платежи</h3>';
+  h+='<p class="mut">Автоматически повторяющиеся операции (подписки, аренда, хостинг)</p>';
+  if(db.recurring.length===0){
+    h+='<div class="mut" style="text-align:center;padding:20px">Нет регулярных платежей</div>';
+  } else {
+    db.recurring.forEach(function(r,i){
+      h+='<div class="card" style="margin:8px 0">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+      h+='<div><b>'+esc(r.name)+'</b><div class="mut" style="font-size:12px">'+formatCurrency(r.amt)+' · '+{monthly:'Ежемесячно',weekly:'Еженедельно',yearly:'Ежегодно'}[r.freq]+' · '+esc(r.cat)+'</div></div>';
+      h+='<div style="display:flex;gap:6px">';
+      h+='<button class="btn small" style="background:#3ecf8e" onclick="executeRecurring('+i+')">▶</button>';
+      h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="deleteRecurring('+i+')">🗑</button>';
+      h+='</div></div></div>';
+    });
+  }
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="addRecurring()">+ Новый платёж</button>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addRecurring(){
+  var h='<h3>➕ Новый регулярный платёж</h3>';
+  h+='<label>Название</label><input id="r_name" placeholder="Например: Хостинг, Figma, Аренда">';
+  h+='<label>Сумма</label><input id="r_amt" type="number" placeholder="1000">';
+  h+='<label>Тип</label><select id="r_type"><option value="out">Расход</option><option value="in">Доход</option></select>';
+  h+='<label>Частота</label><select id="r_freq"><option value="monthly">Ежемесячно</option><option value="weekly">Еженедельно</option><option value="yearly">Ежегодно</option></select>';
+  h+='<label>Категория</label><input id="r_cat" value="Подписки">';
+  h+='<div style="display:flex;gap:10px;margin-top:15px">';
+  h+='<button class="btn" onclick="saveRecurring()">💾 Сохранить</button>';
+  h+='<button class="btn" style="background:#1f2530" onclick="showRecurring()">← Назад</button>';
+  h+='</div>';
+  openModal(h);
+}
+
+function saveRecurring(){
+  var name=document.getElementById('r_name').value.trim();
+  var amt=+document.getElementById('r_amt').value;
+  if(!name||!amt){alert('⚠️ Заполните поля!');return;}
+  db.recurring.push({
+    name:name,amt:amt,
+    type:document.getElementById('r_type').value,
+    freq:document.getElementById('r_freq').value,
+    cat:document.getElementById('r_cat').value
+  });
+  save();showRecurring();
+}
+
+function executeRecurring(i){
+  var r=db.recurring[i];
+  db.finances.unshift({id:uid(),date:today(),type:r.type,amt:r.amt,cat:r.cat,note:'[авто] '+r.name});
+  save();
+  alert('✅ Операция "'+r.name+'" добавлена в историю');
+  showRecurring();
+}
+
+function deleteRecurring(i){
+  if(confirm('Удалить регулярный платёж?')){db.recurring.splice(i,1);save();showRecurring();}
+}
+
+// === ДЕБИТОРКА (КТО ДОЛЖЕН) ===
+function showReceivables(){
+  var h='<h3>💰 Дебиторка (кто должен)</h3>';
+  h+='<p class="mut">Неоплаченные счета и ожидаемые платежи</p>';
+  var total=0;
+  db.receivables.forEach(function(r){total+=r.amt;});
+  if(db.receivables.length>0){
+    h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a;text-align:center;margin-bottom:10px">';
+    h+='<div class="mut" style="color:#fff">Ожидаемый доход</div>';
+    h+='<div style="font-size:24px;font-weight:bold;color:#3ecf8e;margin-top:5px">'+formatCurrency(total)+'</div></div>';
+  }
+  if(db.receivables.length===0){
+    h+='<div class="mut" style="text-align:center;padding:20px">Нет ожидаемых платежей</div>';
+  } else {
+    db.receivables.forEach(function(r,i){
+      var overdue = r.due && r.due < today();
+      h+='<div class="card" style="margin:8px 0;'+(overdue?'border-color:#ff6b6b':'')+'">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+      h+='<div><b>'+esc(r.client)+'</b><div class="mut" style="font-size:12px">'+esc(r.desc)+(overdue?' · <span style="color:#ff6b6b">⚠️ Просрочено</span>':'')+'</div><div class="mut" style="font-size:11px">Ожидается: '+r.due+'</div></div>';
+      h+='<div style="text-align:right"><div style="font-size:18px;font-weight:bold;color:#3ecf8e">'+formatCurrency(r.amt)+'</div>';
+      h+='<div style="display:flex;gap:4px;margin-top:4px">';
+      h+='<button class="btn small" style="background:#3ecf8e;padding:4px 8px;font-size:11px" onclick="markReceived('+i+')">✓ Получено</button>';
+      h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="deleteReceivable('+i+')">🗑</button>';
+      h+='</div></div></div></div>';
+    });
+  }
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="addReceivable()">+ Ожидаемый платёж</button>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addReceivable(){
+  var clients=db.clients.map(function(c){return c.name}).filter(function(n){return n});
+  var h='<h3>➕ Ожидаемый платёж</h3>';
+  h+='<label>Клиент</label><select id="rv_client">';
+  clients.forEach(function(c){h+='<option>'+esc(c)+'</option>';});
+  h+='</select>';
+  h+='<label>Сумма</label><input id="rv_amt" type="number" placeholder="50000">';
+  h+='<label>Описание</label><input id="rv_desc" placeholder="Например: 2-й этап разработки">';
+  h+='<label>Ожидается до</label><input id="rv_due" type="date" value="'+today()+'">';
+  h+='<div style="display:flex;gap:10px;margin-top:15px">';
+  h+='<button class="btn" onclick="saveReceivable()">💾 Сохранить</button>';
+  h+='<button class="btn" style="background:#1f2530" onclick="showReceivables()">← Назад</button>';
+  h+='</div>';
+  openModal(h);
+}
+
+function saveReceivable(){
+  var amt=+document.getElementById('rv_amt').value;
+  if(!amt){alert('⚠️ Введите сумму!');return;}
+  db.receivables.push({
+    client:document.getElementById('rv_client').value,
+    amt:amt,
+    desc:document.getElementById('rv_desc').value,
+    due:document.getElementById('rv_due').value
+  });
+  save();showReceivables();
+}
+
+function markReceived(i){
+  var r=db.receivables[i];
+  db.finances.unshift({id:uid(),date:today(),type:'in',amt:r.amt,cat:'Проект',client:r.client,note:'Оплата: '+r.desc});
+  db.receivables.splice(i,1);
+  save();
+  alert('✅ Платёж получен и добавлен в историю');
+  showReceivables();
+}
+
+function deleteReceivable(i){
+  if(confirm('Удалить?')){db.receivables.splice(i,1);save();showReceivables();}
+}
+
+// === СРАВНЕНИЕ ПЕРИОДОВ ===
+function renderComparison(period){
+  var now=new Date();
+  var curStart, prevStart, prevEnd, label;
+  if(period==='month'){
+    curStart=new Date(now.getFullYear(),now.getMonth(),1);
+    prevStart=new Date(now.getFullYear(),now.getMonth()-1,1);
+    prevEnd=new Date(now.getFullYear(),now.getMonth(),0);
+    label='vs прошлый месяц';
+  } else if(period==='quarter'){
+    var qm=Math.floor(now.getMonth()/3)*3;
+    curStart=new Date(now.getFullYear(),qm,1);
+    prevStart=new Date(now.getFullYear(),qm-3,1);
+    prevEnd=new Date(now.getFullYear(),qm,0);
+    label='vs прошлый квартал';
+  } else {
+    curStart=new Date(now.getFullYear(),0,1);
+    prevStart=new Date(now.getFullYear()-1,0,1);
+    prevEnd=new Date(now.getFullYear(),0,0);
+    label='vs прошлый год';
+  }
+  var curStr=curStart.toISOString().slice(0,10);
+  var prevStr=prevStart.toISOString().slice(0,10);
+  var prevEndStr=prevEnd.toISOString().slice(0,10);
+  
+  var curInc=0,prevInc=0;
+  db.finances.forEach(function(f){
+    if(f.type!=='in')return;
+    if(f.date>=curStr)curInc+=f.amt;
+    if(f.date>=prevStr&&f.date<=prevEndStr)prevInc+=f.amt;
+  });
+  
+  var diff=curInc-prevInc;
+  var pct=prevInc>0?Math.round(diff/prevInc*100):0;
+  var color=diff>=0?'#3ecf8e':'#ff6b6b';
+  var arrow=diff>=0?'↑':'↓';
+  
+  var h='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a">';
+  h+='<h3 style="color:#fff;margin:0 0 10px 0">📊 Сравнение: '+label+'</h3>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center">';
+  h+='<div><div class="mut" style="color:#fff">Текущий</div><div style="font-size:16px;font-weight:bold;color:#3ecf8e">'+formatCurrency(curInc)+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Предыдущий</div><div style="font-size:16px;font-weight:bold;color:#6c8cff">'+formatCurrency(prevInc)+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Изменение</div><div style="font-size:16px;font-weight:bold;color:'+color+'">'+arrow+' '+Math.abs(pct)+'%</div></div>';
+  h+='</div></div>';
+  return h;
+}
+
+// === КЭШФЛОУ ГРАФИК ===
+function renderCashflowChart(){
+  var months=[];
+  var now=new Date();
+  for(var i=5;i>=0;i--){
+    var d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    var key=d.toISOString().slice(0,7);
+    var label=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'][d.getMonth()];
+    months.push({key:key,label:label,income:0,expense:0});
+  }
+  db.finances.forEach(function(f){
+    var k=f.date?f.date.slice(0,7):'';
+    var m=months.find(function(x){return x.key===k});
+    if(m){if(f.type==='in')m.income+=f.amt;else m.expense+=f.amt;}
+  });
+  var maxVal=Math.max.apply(null,months.map(function(m){return Math.max(m.income,m.expense)}))||1;
+  
+  var h='<div class="card"><h3>💸 Кэшфлоу (доходы vs расходы)</h3>';
+  h+='<div style="display:flex;gap:15px;margin-bottom:10px;font-size:12px">';
+  h+='<div><span style="display:inline-block;width:12px;height:12px;background:#3ecf8e;border-radius:2px"></span> Доходы</div>';
+  h+='<div><span style="display:inline-block;width:12px;height:12px;background:#ff6b6b;border-radius:2px"></span> Расходы</div></div>';
+  h+='<div class="chart" style="height:140px">';
+  months.forEach(function(m){
+    var hIn=(m.income/maxVal)*100;
+    var hOut=(m.expense/maxVal)*100;
+    h+='<div style="flex:1;display:flex;gap:2px;align-items:flex-end;height:100%;position:relative">';
+    h+='<div style="flex:1;background:#3ecf8e;border-radius:3px 3px 0 0;height:'+Math.max(hIn,2)+'%"></div>';
+    h+='<div style="flex:1;background:#ff6b6b;border-radius:3px 3px 0 0;height:'+Math.max(hOut,2)+'%"></div>';
+    h+='<span style="position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:#8b94a7">'+m.label+'</span>';
+    h+='</div>';
+  });
+  h+='</div></div>';
+  return h;
+}
+
+// === ЭКСПОРТ В CSV ===
+function exportFinancesCSV(){
+  var rows=[['Дата','Тип','Категория','Клиент','Сумма','Валюта','Комментарий']];
+  db.finances.forEach(function(f){
+    rows.push([
+      f.date,
+      f.type==='in'?'Доход':'Расход',
+      f.cat||'',
+      f.client||'',
+      f.original_amt||f.amt,
+      f.original_cur||db.currency,
+      (f.note||'').replace(/,/g,';')
+    ]);
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='finances_'+today()+'.csv';
+  a.click();
+  alert('✅ CSV-файл скачан. Откроется в Excel/Google Sheets.');
 }
 
 function renderSettings(){
@@ -1733,7 +2049,12 @@ function loadExternalData(){
   fetch('services.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.services=data;save();render()}).catch(function(e){console.log('Services error:',e);});
 }
 
-window.onload=function(){save();renderNav();render();loadExternalData()};
+window.onload=function(){
+  if(!db.goals)db.goals=[];
+  if(!db.recurring)db.recurring=[];
+  if(!db.receivables)db.receivables=[];
+  save();renderNav();render();loadExternalData();
+};
 </script>
 </body>
 </html>
