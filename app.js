@@ -606,6 +606,12 @@ function renderFinances(){
       h += '<div><div style="font-weight:bold;color:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+'">'+(f.type==='in'?'+ ':'- ')+formatCurrency(f.amt)+'</div>';
       h += '<div class="mut" style="font-size:11px">'+f.date+' · '+esc(f.cat)+(f.client?' · '+esc(f.client):'')+'</div></div>';
       h += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="delFin(\''+f.id+'\')">🗑</button>';
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:8px">';
+  h += '<button class="btn" style="background:#06b6d4" onclick="showCsvImport()">📥 Импорт CSV</button>';
+  h += '<button class="btn" style="background:#8b5cf6" onclick="showNetWorth()">💼 Активы/Пассивы</button>';
+  h += '<button class="btn" style="background:#f59e0b" onclick="showSubscriptions()">📋 Подписки</button>';
+  h += '</div>';
+
       h += '</div>';
     });
   }
@@ -2522,6 +2528,102 @@ var POT_CATEGORIES = {
   'other': {icon:'💎', label:'Другое', color:'#8b5cf6', desc:'Прочие цели'}
 };
 
+
+// === 1. ИМПОРТ CSV ===
+function showCsvImport(){
+  var h='<h3>📥 Импорт выписки из банка (CSV)</h3>';
+  h+='<p class="mut">Формат: Дата;Сумма;Описание (разделитель ; или ,)</p>';
+  h+='<input type="file" id="csv_file" accept=".csv" style="margin:10px 0;padding:10px;background:#1f2530;border:1px solid #6c8cff;border-radius:8px;color:#fff;width:100%">';
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="processCsvImport()">✅ Загрузить операции</button>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Отмена</button>';
+  openModal(h);
+}
+function processCsvImport(){
+  var fi=document.getElementById('csv_file');
+  if(!fi.files.length){alert('⚠️ Выберите файл!');return;}
+  var r=new FileReader();
+  r.onload=function(e){
+    var lines=e.target.result.split('\n').filter(function(l){return l.trim()!==''});
+    var imp=0;
+    var start=lines[0].toLowerCase().includes('дата')?1:0;
+    for(var i=start;i<lines.length;i++){
+      var p=lines[i].includes(';')?lines[i].split(';'):lines[i].split(',');
+      if(p.length>=2){
+        var ds=p[0].trim();
+        var amt=parseFloat(p[1].trim().replace(/\s/g,'').replace(',','.'));
+        var desc=p.length>=3?p[2].trim():'Импорт';
+        if(!isNaN(amt)&&amt!==0&&(ds.includes('-')||ds.includes('.'))){
+          if(ds.includes('.')){var d=ds.split('.');if(d.length===3)ds=d[2]+'-'+d[1]+'-'+d[0];}
+          db.finances.unshift({id:uid(),date:ds.slice(0,10),type:amt>0?'in':'out',amt:Math.abs(amt),cat:autoCategorize(desc),note:desc});
+          imp++;
+        }
+      }
+    }
+    save();alert('✅ Импортировано: '+imp);closeModal();renderFinances();
+  };
+  r.readAsText(fi.files[0]);
+}
+// === 2. АКТИВЫ И ПАССИВЫ ===
+function showNetWorth(){
+  var ta=db.assets.reduce(function(a,b){return a+b.amt},0);
+  var tl=db.liabilities.reduce(function(a,b){return a+b.amt},0);
+  var h='<h3>💼 Активы и пассивы</h3>';
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a;text-align:center">';
+  h+='<div class="mut" style="color:#fff">Чистая стоимость</div>';
+  h+='<div style="font-size:32px;font-weight:bold;color:'+(ta-tl>=0?'#3ecf8e':'#ff6b6b')+';margin:10px 0">'+formatCurrency(ta-tl)+'</div>';
+  h+='<div style="display:flex;justify-content:space-around"><div><div class="mut">Активы</div><div style="color:#3ecf8e;font-weight:bold">'+formatCurrency(ta)+'</div></div><div><div class="mut">Пассивы</div><div style="color:#ff6b6b;font-weight:bold">'+formatCurrency(tl)+'</div></div></div></div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px">';
+  h+='<button class="btn" style="background:#3ecf8e" onclick="addAssetLiability(\'asset\')">+ Актив</button>';
+  h+='<button class="btn" style="background:#ff6b6b" onclick="addAssetLiability(\'liability\')">+ Пассив</button></div>';
+  if(db.assets.length>0||db.liabilities.length>0){
+    h+='<div style="margin-top:15px;max-height:40vh;overflow:auto">';
+    db.assets.forEach(function(a,i){h+='<div class="card" style="margin:6px 0;padding:10px;border-left:3px solid #3ecf8e;display:flex;justify-content:space-between"><div><b>'+esc(a.name)+'</b></div><div style="color:#3ecf8e;font-weight:bold">'+formatCurrency(a.amt)+' <button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:2px 6px;font-size:10px" onclick="deleteAssetLiability(\'asset\','+i+')">🗑</button></div></div>';});
+    db.liabilities.forEach(function(l,i){h+='<div class="card" style="margin:6px 0;padding:10px;border-left:3px solid #ff6b6b;display:flex;justify-content:space-between"><div><b>'+esc(l.name)+'</b></div><div style="color:#ff6b6b;font-weight:bold">'+formatCurrency(l.amt)+' <button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:2px 6px;font-size:10px" onclick="deleteAssetLiability(\'liability\','+i+')">🗑</button></div></div>';});
+    h+='</div>';
+  }
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+function addAssetLiability(type){
+  var h='<h3> '+(type==='asset'?'Актив':'Пассив')+'</h3>';
+  h+='<label>Название</label><input id="al_name">';
+  h+='<label>Сумма</label><input id="al_amt" type="number">';
+  h+='<div style="display:flex;gap:10px;margin-top:15px"><button class="btn" onclick="saveAssetLiability(\''+type+'\')">💾</button><button class="btn" style="background:#1f2530" onclick="showNetWorth()">←</button></div>';
+  openModal(h);
+}
+function saveAssetLiability(type){
+  var n=document.getElementById('al_name').value.trim(),a=+document.getElementById('al_amt').value;
+  if(!n||!a){alert('⚠️ Заполни поля!');return;}
+  if(type==='asset')db.assets.push({name:n,amt:a});else db.liabilities.push({name:n,amt:a});
+  save();showNetWorth();
+}
+function deleteAssetLiability(type,i){
+  if(type==='asset')db.assets.splice(i,1);else db.liabilities.splice(i,1);
+  save();showNetWorth();
+}
+// === 3. ПОДПИСКИ ===
+function showSubscriptions(){
+  var m=0,y=0;
+  db.subscriptions.forEach(function(s){if(s.period==='year'){y+=s.amt;m+=s.amt/12;}else{m+=s.amt;y+=s.amt*12;}});
+  var h='<h3> Менеджер подписок</h3>';
+  h+='<div class="card" style="background:linear-gradient(135deg,#2f2a1a,#1a2035);border-color:#f59e0b;text-align:center"><div style="display:flex;justify-content:space-around"><div><div class="mut">В месяц</div><div style="font-size:20px;font-weight:bold;color:#f59e0b">'+formatCurrency(Math.round(m))+'</div></div><div><div class="mut">В год</div><div style="font-size:20px;font-weight:bold;color:#ff6b6b">'+formatCurrency(Math.round(y))+'</div></div></div></div>';
+  if(db.subscriptions.length===0)h+='<div class="mut" style="text-align:center;padding:20px">Нет подписок</div>';
+  else{h+='<div style="margin-top:15px;max-height:40vh;overflow:auto">';db.subscriptions.forEach(function(s,i){h+='<div class="card" style="margin:6px 0;padding:10px;display:flex;justify-content:space-between"><div><b>'+esc(s.name)+'</b><div class="mut" style="font-size:11px">'+(s.period==='month'?'Ежемесячно':'Ежегодно')+'</div></div><div style="font-weight:bold;color:#f59e0b">'+formatCurrency(s.amt)+' <button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:2px 6px;font-size:10px" onclick="deleteSubscription('+i+')">🗑</button></div></div>';});h+='</div>';}
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="addSubscription()">+ Подписка</button><button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+function addSubscription(){
+  var h='<h3> Подписка</h3><label>Название</label><input id="sub_name"><label>Сумма</label><input id="sub_amt" type="number"><label>Период</label><select id="sub_period"><option value="month">Месяц</option><option value="year">Год</option></select><div style="display:flex;gap:10px;margin-top:15px"><button class="btn" onclick="saveSubscription()">💾</button><button class="btn" style="background:#1f2530" onclick="showSubscriptions()">←</button></div>';
+  openModal(h);
+}
+function saveSubscription(){
+  var n=document.getElementById('sub_name').value.trim(),a=+document.getElementById('sub_amt').value;
+  if(!n||!a){alert('⚠️ Заполни поля!');return;}
+  db.subscriptions.push({name:n,amt:a,period:document.getElementById('sub_period').value});
+  save();showSubscriptions();
+}
+function deleteSubscription(i){if(confirm('Удалить?')){db.subscriptions.splice(i,1);save();showSubscriptions();}}
+
 function showPots(){
   var h = '<h3>💰 Копилки (целевые накопления)</h3>';
   h += '<p class="mut">Откладывай на конкретные цели — визуализируй прогресс</p>';
@@ -3989,6 +4091,9 @@ window.onload=function(){
     if(!db.monthlyNeeds)db.monthlyNeeds=80000;
     if(!db.monthlyWants)db.monthlyWants=30000;
     if(!db.monthlySavings)db.monthlySavings=40000;
+    if(!db.assets)db.assets=[];
+    if(!db.liabilities)db.liabilities=[];
+    if(!db.subscriptions)db.subscriptions=[];
     if(!db.quickTemplates)db.quickTemplates=[];
     if(!db.credits)db.credits=[];
     if(!db.paymentCalendar)db.paymentCalendar=[];
