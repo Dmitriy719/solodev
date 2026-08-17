@@ -1,6 +1,20 @@
 
 var ALL_SPECS=['Фронтенд','Бэкенд','Fullstack','Мобильная разработка','iOS','Android','Flutter','React Native','Боты (Telegram/VK)','DevOps','SRE','QA','Автотесты','Дизайн','UI/UX','Графический дизайн','Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','1С','GameDev','Unity','Unreal Engine','Администрирование','Системный анализ','Бизнес-анализ','Техподдержка','ERP/CRM','Blockchain','Web3','AR/VR','Кибербезопасность','Pentest','Embedded','IoT','Python','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Swift','Kotlin','C/C++','Ruby','Django','Flask','FastAPI','Spring','WordPress','Bitrix','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','Scrum/Agile','Project Management','Product Management','SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг','Видеопродакшн','3D-моделирование','Анимация','Саунд-дизайн','Техническое писательство','Локализация'];
 var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1},goals:[],recurring:[],receivables:[],taxReserve:0,budgets:{},pots:[],monthlyNeeds:80000,monthlyWants:30000,monthlySavings:40000,quickTemplates:[],hourlyRate:2000,credits:[],paymentCalendar:[]};
+  // Восстановление последней открытой вкладки
+  var savedView = localStorage.getItem('solodev_currentView');
+  if(savedView && ['home','dashboard','radar','projects','clients','finances','emails','pricing','productivity','settings'].includes(savedView)){
+    currentView = savedView;
+  }
+  
+  // Гарантированная инициализация новых полей продуктивности
+  if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
+  if(!db.habits) db.habits = [];
+  if(!db.diary) db.diary = [];
+  
+  // Сохраняем структуру сразу, чтобы она не терялась
+  localStorage.setItem('solodev', JSON.stringify(db));
+
 var currentView='home';
 var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
@@ -14,7 +28,12 @@ function renderNav(){
   TABS.forEach(function(t){h+='<button class="btn small '+(currentView===t.id?'active':'')+'" onclick="go(\''+t.id+'\')">'+t.icon+' '+t.label+'</button>'});
   document.getElementById('nav').innerHTML=h;
 }
-function go(id){currentView=id;renderNav();render()}
+function go(id){
+  currentView = id;
+  localStorage.setItem('solodev_currentView', id);
+  renderNav();
+  render();
+}
 function render(){
   if(currentView==='home')renderHome();
   else if(currentView==='dashboard')renderDashboard();
@@ -4617,11 +4636,13 @@ function stopPomodoro(){
 function savePomodoroSettings(){
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var goalEl = document.getElementById('pomodoro_goal');
-  if(goalEl){
+  if(goalEl && goalEl.value){
     db.pomodoro.dailyGoal = parseInt(goalEl.value) || 25;
-    save();
+    localStorage.setItem('solodev', JSON.stringify(db)); // Прямое сохранение
     alert('✅ Дневная цель сохранена: ' + db.pomodoro.dailyGoal + ' мин');
-    showPomodoro();
+    showPomodoro(); // Перерисовываем окно с новым значением
+  } else {
+    alert('⚠️ Введите число минут');
   }
 }
 
