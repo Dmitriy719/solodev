@@ -4621,7 +4621,7 @@ function savePomodoroSettings(){
     db.pomodoro.dailyGoal = parseInt(goalEl.value) || 25;
     save();
     alert('✅ Дневная цель сохранена: ' + db.pomodoro.dailyGoal + ' мин');
-    showPomodoro(); // Перерисовываем окно, чтобы показать обновление
+    showPomodoro();
   }
 }
 
@@ -4631,7 +4631,6 @@ function showHabits(){
   if(!db.habits) db.habits = [];
   var h='<h3>✅ Трекер привычек</h3>';
   h+='<p class="mut">Формируй полезные привычки с сериями 🔥</p>';
-  
   if(db.habits.length === 0){
     h+='<div class="mut" style="text-align:center;padding:20px">Нет привычек. Создай первую!</div>';
   } else {
@@ -4645,12 +4644,11 @@ function showHabits(){
         if(hab.log && hab.log[ds]){ streak++; d.setDate(d.getDate() - 1); }
         else { break; }
       }
-      
       h+='<div class="card" style="margin:8px 0">';
       h+='<div style="display:flex;justify-content:space-between;align-items:flex-start">';
-      h+='<div style="flex:1"><b style="font-size:15px">'+(typeof esc!=='undefined'?esc(hab.name):hab.name)+'</b>';
+      h+='<div style="flex:1"><b style="font-size:15px">'+hab.name+'</b>';
       h+='<div class="mut" style="font-size:11px;margin-top:4px">🔥 Серия: '+streak+' дней</div>';
-      if(hab.description) h+='<div class="mut" style="font-size:11px">'+(typeof esc!=='undefined'?esc(hab.description):hab.description)+'</div>';
+      if(hab.description) h+='<div class="mut" style="font-size:11px">'+hab.description+'</div>';
       h+='</div>';
       h+='<div style="display:flex;gap:6px">';
       h+='<button class="btn small" style="background:'+(doneToday?'#3ecf8e':'#1f2530')+';padding:6px 12px" onclick="toggleHabit('+index+')">'+(doneToday?'✅':'⬜')+'</button>';
@@ -4682,7 +4680,6 @@ function saveHabit(){
     return;
   }
   if(!db.habits) db.habits = [];
-  
   var newId = Date.now().toString(36) + Math.random().toString(36).substr(2);
   db.habits.push({
     id: newId,
@@ -4691,7 +4688,6 @@ function saveHabit(){
     log: {},
     created: new Date().toISOString().slice(0,10)
   });
-  
   save();
   alert('✅ Привычка сохранена!');
   showHabits();
@@ -4701,7 +4697,6 @@ function toggleHabit(index){
   if(!db.habits || !db.habits[index]) return;
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.habits[index].log) db.habits[index].log = {};
-  
   if(db.habits[index].log[todayStr]){
     delete db.habits[index].log[todayStr];
   } else {
@@ -4721,14 +4716,7 @@ function deleteHabit(index){
     if(currentView === 'productivity') renderProductivity();
   }
 }
- else {
-      break;
-    }
-  }
-  return streak;
-}
 
-// === ДНЕВНИК ===
 function showDiary(){
   var h='<h3>📝 Дневник</h3>';
   h+='<p class="mut">Короткие заметки в конце дня</p>';
