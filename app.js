@@ -35,6 +35,15 @@ function go(id){
   render();
 }
 function render(){
+  // Восстановление последней вкладки
+  var savedView = localStorage.getItem('solodev_currentView');
+  if(savedView) currentView = savedView;
+  
+  // Жёсткая инициализация полей продуктивности с немедленным сохранением
+  if(!db.pomodoro) { db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25}; localStorage.setItem('solodev', JSON.stringify(db)); }
+  if(!db.habits) { db.habits = []; localStorage.setItem('solodev', JSON.stringify(db)); }
+  if(!db.diary) { db.diary = []; localStorage.setItem('solodev', JSON.stringify(db)); }
+
   if(currentView==='home')renderHome();
   else if(currentView==='dashboard')renderDashboard();
   else if(currentView==='radar')renderRadar();
