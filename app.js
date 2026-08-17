@@ -2535,10 +2535,55 @@ var POT_CATEGORIES = {
 function showCsvImport(){
   var h='<h3>📥 Импорт выписки из банка (CSV)</h3>';
   h+='<p class="mut">Формат: Дата;Сумма;Описание (разделитель ; или ,)</p>';
-  h+='<input type="file" id="csv_file" accept=".csv" style="margin:10px 0;padding:10px;background:#1f2530;border:1px solid #6c8cff;border-radius:8px;color:#fff;width:100%">';
-  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="processCsvImport()">✅ Загрузить операции</button>';
+  h+='<p class="mut" style="font-size:11px">Пример: 2026-08-15;-500;Кофе в Starbucks</p>';
+  h+='<input type="file" id="csv_file" accept=".csv" onchange="previewCsvFile()" style="margin:10px 0;padding:10px;background:#1f2530;border:1px solid #6c8cff;border-radius:8px;color:#fff;width:100%">';
+  h+='<div id="csv_preview" style="margin-top:10px"></div>';
+  h+='<button class="btn" id="csv_load_btn" style="width:100%;margin-top:10px;display:none" onclick="processCsvImport()">✅ Загрузить операции</button>';
   h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Отмена</button>';
   openModal(h);
+}
+
+function previewCsvFile(){
+  var fi=document.getElementById('csv_file');
+  var preview=document.getElementById('csv_preview');
+  var loadBtn=document.getElementById('csv_load_btn');
+  if(!fi.files.length){preview.innerHTML='';loadBtn.style.display='none';return;}
+  var r=new FileReader();
+  r.onload=function(e){
+    var lines=e.target.result.split('\n').filter(function(l){return l.trim()!==''});
+    var valid=0, invalid=0;
+    var start=lines[0].toLowerCase().includes('дата')?1:0;
+    var previewHtml='<div class="card" style="background:#1a2035;padding:10px;margin-top:10px">';
+    previewHtml+='<div style="font-size:13px;font-weight:bold;margin-bottom:8px">📋 Превью файла ('+lines.length+' строк)</div>';
+    previewHtml+='<div style="max-height:200px;overflow:auto;font-size:11px;font-family:monospace">';
+    for(var i=start;i<Math.min(lines.length,start+10);i++){
+      var p=lines[i].includes(';')?lines[i].split(';'):lines[i].split(',');
+      if(p.length>=2){
+        var ds=p[0].trim();
+        var amt=parseFloat(p[1].trim().replace(/\s/g,'').replace(',','.'));
+        var desc=p.length>=3?p[2].trim():'Импорт';
+        if(!isNaN(amt)&&amt!==0&&(ds.includes('-')||ds.includes('.'))){
+          valid++;
+          var color=amt>0?'#3ecf8e':'#ff6b6b';
+          var sign=amt>0?'+':'';
+          previewHtml+='<div style="padding:3px 0;border-bottom:1px solid #242b36"><span style="color:#8b94a7">'+ds+'</span> · <span style="color:'+color+';font-weight:bold">'+sign+amt+' ₽</span> · <span>'+desc+'</span></div>';
+        } else {
+          invalid++;
+          previewHtml+='<div style="padding:3px 0;border-bottom:1px solid #242b36;color:#ff6b6b">⚠️ '+lines[i]+'</div>';
+        }
+      } else {
+        invalid++;
+      }
+    }
+    previewHtml+='</div>';
+    previewHtml+='<div style="margin-top:8px;display:flex;justify-content:space-between;font-size:12px">';
+    previewHtml+='<span style="color:#3ecf8e">✅ Готово к импорту: '+valid+'</span>';
+    if(invalid>0) previewHtml+='<span style="color:#ff6b6b">⚠️ Пропущено: '+invalid+'</span>';
+    previewHtml+='</div></div>';
+    preview.innerHTML=previewHtml;
+    if(valid>0) loadBtn.style.display='block';
+  };
+  r.readAsText(fi.files[0]);
 }
 function processCsvImport(){
   var fi=document.getElementById('csv_file');
