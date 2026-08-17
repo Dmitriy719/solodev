@@ -4464,6 +4464,11 @@ function printMonthlyReport(){
 
 // === ПРОДУКТИВНОСТЬ ===
 function renderProductivity(){
+  // Безопасная инициализация для старых версий db
+  if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
+  if(!db.habits) db.habits = [];
+  if(!db.diary) db.diary = [];
+  
   var h='<h2>⏱ Продуктивность</h2>';
   
   // Быстрые действия
