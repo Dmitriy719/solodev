@@ -4465,14 +4465,11 @@ function printMonthlyReport(){
 // === ПРОДУКТИВНОСТЬ ===
 function renderProductivity(){
   try {
-    // 1. Жёсткая инициализация (спасает старые базы данных)
     if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
     if(!db.habits) db.habits = [];
     if(!db.diary) db.diary = [];
     
     var h='<h2>⏱ Продуктивность</h2>';
-    
-    // Быстрые действия
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">';
     h+='<button class="btn" style="background:#ff6b6b" onclick="showPomodoro()">🍅 Pomodoro</button>';
     h+='<button class="btn" style="background:#3ecf8e" onclick="showHabits()">✅ Привычки</button>';
@@ -4480,7 +4477,6 @@ function renderProductivity(){
     h+='<button class="btn" style="background:#9d6cff" onclick="showFocusStats()">📊 Статистика</button>';
     h+='</div>';
     
-    // Сегодняшняя статистика
     var todayStr = new Date().toISOString().slice(0,10);
     var todaySessions = (db.pomodoro.sessions || []).filter(function(s){return s.date===todayStr});
     var todayMinutes = todaySessions.reduce(function(a,s){return a+(s.duration||0)},0);
@@ -4496,8 +4492,7 @@ function renderProductivity(){
     
     document.getElementById('app').innerHTML = h;
   } catch(e) {
-    // Если произошла ошибка, показываем её прямо на экране телефона
-    document.getElementById('app').innerHTML = '<h2>⏱ Ошибка в Продуктивности</h2><div class="card" style="border-color:red;color:red"><b>Текст ошибки:</b><br>'+e.message+'<br><br><small>Сделай скриншот или скопируй это сообщение</small></div><button class="btn" onclick="go('home')">🏠 Вернуться на Главную</button>';
+    document.getElementById('app').innerHTML = "<h2>⏱ Ошибка</h2><div class='card' style='color:red'><b>Ошибка:</b> " + e.message + "</div><br><button class='btn' onclick='go("home")'>🏠 На главную</button>";
     console.error("Productivity Error:", e);
   }
 }
