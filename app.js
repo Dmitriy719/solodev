@@ -22,6 +22,7 @@ function render(){
   else if(currentView==='projects')renderProjects();
   else if(currentView==='clients')renderClients();
   else if(currentView==='finances')renderFinances();
+  else if(currentView==='productivity')renderProductivity();
   else if(currentView==='emails')renderEmails();
   else if(currentView==='pricing')renderPricing();
   else if(currentView==='settings')renderSettings();
