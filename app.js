@@ -4464,63 +4464,45 @@ function printMonthlyReport(){
 
 // === ПРОДУКТИВНОСТЬ ===
 function renderProductivity(){
-  // Безопасная инициализация для старых версий db
-  if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
-  if(!db.habits) db.habits = [];
-  if(!db.diary) db.diary = [];
-  
-  var h='<h2>⏱ Продуктивность</h2>';
-  
-  // Быстрые действия
-  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">';
-  h+='<button class="btn" style="background:#ff6b6b" onclick="showPomodoro()">🍅 Pomodoro</button>';
-  h+='<button class="btn" style="background:#3ecf8e" onclick="showHabits()">✅ Привычки</button>';
-  h+='<button class="btn" style="background:#6c8cff" onclick="showDiary()"> Дневник</button>';
-  h+='<button class="btn" style="background:#9d6cff" onclick="showFocusStats()">📊 Статистика</button>';
-  h+='</div>';
-  
-  // Сегодняшняя статистика
-  var today = today();
-  var todaySessions = db.pomodoro.sessions.filter(function(s){return s.date===today});
-  var todayMinutes = todaySessions.reduce(function(a,s){return a+s.duration},0);
-  var todayHours = Math.round(todayMinutes / 60 * 10) / 10;
-  
-  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a">';
-  h+='<h3 style="color:#fff;margin:0 0 15px 0">📊 Сегодня</h3>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center">';
-  h+='<div><div class="mut" style="color:#fff">Сессий</div><div style="font-size:24px;font-weight:bold;color:#ff6b6b">'+todaySessions.length+'</div></div>';
-  h+='<div><div class="mut" style="color:#fff">Минут</div><div style="font-size:24px;font-weight:bold;color:#3ecf8e">'+todayMinutes+'</div></div>';
-  h+='<div><div class="mut" style="color:#fff">Часов</div><div style="font-size:24px;font-weight:bold;color:#6c8cff">'+todayHours+'</div></div>';
-  h+='</div></div>';
-  
-  // Активные привычки
-  var activeHabits = db.habits.filter(function(h){return !h.archived});
-  if(activeHabits.length > 0){
-    h+='<div class="card"><h3>🔥 Активные привычки</h3>';
-    activeHabits.forEach(function(hab){
-      var streak = calculateStreak(hab);
-      var doneToday = hab.log && hab.log[today];
-      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #242b36">';
-      h+='<div><b>'+esc(hab.name)+'</b><div class="mut" style="font-size:11px">Серия: '+streak+' дней 🔥</div></div>';
-      h+='<button class="btn small" style="background:'+(doneToday?'#3ecf8e':'#1f2530')+';padding:6px 12px" onclick="toggleHabit(\''+hab.id+'\')">'+(doneToday?'✅':'⬜')+'</button>';
-      h+='</div>';
-    });
+  try {
+    // 1. Жёсткая инициализация (спасает старые базы данных)
+    if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
+    if(!db.habits) db.habits = [];
+    if(!db.diary) db.diary = [];
+    
+    var h='<h2>⏱ Продуктивность</h2>';
+    
+    // Быстрые действия
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">';
+    h+='<button class="btn" style="background:#ff6b6b" onclick="showPomodoro()">🍅 Pomodoro</button>';
+    h+='<button class="btn" style="background:#3ecf8e" onclick="showHabits()">✅ Привычки</button>';
+    h+='<button class="btn" style="background:#6c8cff" onclick="showDiary()">📝 Дневник</button>';
+    h+='<button class="btn" style="background:#9d6cff" onclick="showFocusStats()">📊 Статистика</button>';
     h+='</div>';
+    
+    // Сегодняшняя статистика
+    var todayStr = new Date().toISOString().slice(0,10);
+    var todaySessions = (db.pomodoro.sessions || []).filter(function(s){return s.date===todayStr});
+    var todayMinutes = todaySessions.reduce(function(a,s){return a+(s.duration||0)},0);
+    var todayHours = Math.round(todayMinutes / 60 * 10) / 10;
+    
+    h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a">';
+    h+='<h3 style="color:#fff;margin:0 0 15px 0">📊 Сегодня</h3>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center">';
+    h+='<div><div class="mut" style="color:#fff">Сессий</div><div style="font-size:24px;font-weight:bold;color:#ff6b6b">'+todaySessions.length+'</div></div>';
+    h+='<div><div class="mut" style="color:#fff">Минут</div><div style="font-size:24px;font-weight:bold;color:#3ecf8e">'+todayMinutes+'</div></div>';
+    h+='<div><div class="mut" style="color:#fff">Часов</div><div style="font-size:24px;font-weight:bold;color:#6c8cff">'+todayHours+'</div></div>';
+    h+='</div></div>';
+    
+    document.getElementById('app').innerHTML = h;
+  } catch(e) {
+    // Если произошла ошибка, показываем её прямо на экране телефона
+    document.getElementById('app').innerHTML = '<h2>⏱ Ошибка в Продуктивности</h2><div class="card" style="border-color:red;color:red"><b>Текст ошибки:</b><br>'+e.message+'<br><br><small>Сделай скриншот или скопируй это сообщение</small></div><button class="btn" onclick="go('home')">🏠 Вернуться на Главную</button>';
+    console.error("Productivity Error:", e);
   }
-  
-  // Последняя запись в дневнике
-  var lastDiary = db.diary.length > 0 ? db.diary[db.diary.length-1] : null;
-  if(lastDiary){
-    h+='<div class="card"><h3>📝 Последняя запись</h3>';
-    h+='<div class="mut" style="font-size:11px;margin-bottom:6px">'+lastDiary.date+'</div>';
-    h+='<div style="font-size:13px;line-height:1.5">'+esc(lastDiary.text).substring(0,200)+(lastDiary.text.length>200?'...':'')+'</div>';
-    h+='</div>';
-  }
-  
-  document.getElementById('app').innerHTML = h;
 }
 
-// === POMODORO ТАЙМЕР ===
+
 function showPomodoro(){
   var h='<h3>🍅 Pomodoro-таймер</h3>';
   h+='<p class="mut">Фокус на работе с интервалами отдыха</p>';
