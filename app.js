@@ -3,6 +3,16 @@ var ALL_SPECS=['Фронтенд','Бэкенд','Fullstack','Мобильная
 var db={
   // Восстановление при загрузке
 profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1},goals:[],recurring:[],receivables:[],taxReserve:0,budgets:{},pots:[],monthlyNeeds:80000,monthlyWants:30000,monthlySavings:40000,quickTemplates:[],hourlyRate:2000,credits:[],paymentCalendar:[]};
+// === ГАРАНТИРОВАННАЯ НОРМАЛИЗАЦИЯ БАЗЫ ДАННЫХ ===
+if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
+if(!db.habits) db.habits = [];
+if(!db.diary) db.diary = [];
+if(!db.mood) db.mood = [];
+if(!db.dailyGoals) db.dailyGoals = [];
+if(!db.water) db.water = {intake:0, goal:8, log:{}};
+localStorage.setItem('solodev', JSON.stringify(db));
+// ================================================
+
   // Восстановление последней открытой вкладки
   var savedView = localStorage.getItem('solodev_currentView');
   if(savedView && ['home','dashboard','radar','projects','clients','finances','emails','pricing','productivity','settings'].includes(savedView)){
@@ -33,13 +43,16 @@ function renderNav(){
 function go(id){
   currentView = id;
   localStorage.setItem('solodev_currentView', id);
-  renderNav();
+  // Восстановление последней вкладки ДО отрисовки меню
+  var savedView = localStorage.getItem('solodev_currentView');
+  if(savedView) currentView = savedView;
+  
+renderNav();
   render();
 }
 function render(){
   // Восстановление последней вкладки
-  var savedView = localStorage.getItem('solodev_currentView');
-  if(savedView) currentView = savedView;
+  
   
   if(!db.habits) { db.habits = []; localStorage.setItem('solodev', JSON.stringify(db)); }
   if(!db.diary) { db.diary = []; localStorage.setItem('solodev', JSON.stringify(db)); }
@@ -4495,13 +4508,19 @@ function renderProductivity(){
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   if(!db.diary) db.diary = [];
+  if(!db.mood) db.mood = [];
+  if(!db.dailyGoals) db.dailyGoals = [];
+  if(!db.water) db.water = {intake:0, goal:8, log:{}};
   
-  var h='<h2>⏱ Продуктивность</h2>';
+  var h='<h2> Продуктивность</h2>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
   h+='<button class="btn" style="background:#ff6b6b;padding:20px;font-size:16px" onclick="showPomodoro()">🍅 Pomodoro</button>';
   h+='<button class="btn" style="background:#3ecf8e;padding:20px;font-size:16px" onclick="showHabits()">✅ Привычки</button>';
-  h+='<button class="btn" style="background:#6c8cff;padding:20px;font-size:16px" onclick="showDiary()">📝 Дневник</button>';
+  h+='<button class="btn" style="background:#6c8cff;padding:20px;font-size:16px" onclick="showDiary()"> Дневник</button>';
   h+='<button class="btn" style="background:#9d6cff;padding:20px;font-size:16px" onclick="showFocusStats()">📊 Статистика</button>';
+  h+='<button class="btn" style="background:#ffd700;padding:20px;font-size:16px;color:#000" onclick="showMoodTracker()">😊 Настроение</button>';
+  h+='<button class="btn" style="background:#ff9500;padding:20px;font-size:16px" onclick="showDailyGoals()">🎯 Цели дня</button>';
+  h+='<button class="btn" style="background:#00d4ff;padding:20px;font-size:16px;color:#000" onclick="showWaterTracker()">💧 Вода</button>';
   h+='</div>';
   
   var todayStr = new Date().toISOString().slice(0,10);
@@ -4789,6 +4808,183 @@ function showFocusStats(){
   
   h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
   openModal(h);
+}
+
+
+// === ТРЕКЕР НАСТРОЕНИЯ ===
+function showMoodTracker(){
+  if(!db.mood) db.mood = [];
+  var h='<h3>😊 Трекер настроения</h3>';
+  h+='<p class="mut">Как ты себя чувствуешь сегодня?</p>';
+  h+='<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:20px 0">';
+  var moods = [
+    {emoji:'😄', label:'Отлично', color:'#3ecf8e'},
+    {emoji:'🙂', label:'Хорошо', color:'#6c8cff'},
+    {emoji:'', label:'Нормально', color:'#ffd700'},
+    {emoji:'😔', label:'Грустно', color:'#ff9500'},
+    {emoji:'😢', label:'Плохо', color:'#ff6b6b'}
+  ];
+  moods.forEach(function(m, i){
+    h+='<button class="btn" style="background:'+m.color+';padding:15px;font-size:24px" onclick="saveMood('+i+')">'+m.emoji+'<div style="font-size:10px;margin-top:5px">'+m.label+'</div></button>';
+  });
+  h+='</div>';
+  if(db.mood.length > 0){
+    h+='<h4 style="margin-top:20px">Последние 7 дней:</h4>';
+    db.mood.slice(-7).reverse().forEach(function(m){
+      h+='<div class="card" style="margin:5px 0;padding:10px">';
+      h+='<span style="font-size:20px">'+moods[m.value].emoji+'</span> ';
+      h+='<span class="mut" style="font-size:11px">'+m.date+'</span>';
+      if(m.note) h+='<div style="font-size:12px;margin-top:5px">'+m.note+'</div>';
+      h+='</div>';
+    });
+  }
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function saveMood(value){
+  if(!db.mood) db.mood = [];
+  var note = prompt('Добавить заметку (необязательно):');
+  db.mood.push({
+    value: value,
+    date: new Date().toISOString().slice(0,10) + ' ' + new Date().toTimeString().slice(0,5),
+    note: note || ''
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Настроение сохранено!');
+  showMoodTracker();
+}
+
+// === ЦЕЛИ НА ДЕНЬ ===
+function showDailyGoals(){
+  if(!db.dailyGoals) db.dailyGoals = [];
+  var todayStr = new Date().toISOString().slice(0,10);
+  var todayGoals = db.dailyGoals.filter(function(g){return g.date===todayStr});
+  
+  var h='<h3>🎯 Цели на сегодня</h3>';
+  h+='<p class="mut">Установи 3 главные цели на день</p>';
+  h+='<input id="new_goal" placeholder="Новая цель..." style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px" onclick="addDailyGoal()">+ Добавить цель</button>';
+  
+  if(todayGoals.length === 0){
+    h+='<div class="mut" style="text-align:center">Нет целей на сегодня</div>';
+  } else {
+    todayGoals.forEach(function(goal, index){
+      var realIndex = db.dailyGoals.indexOf(goal);
+      h+='<div class="card" style="margin:8px 0">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+      h+='<div style="flex:1">';
+      h+='<input type="checkbox" '+(goal.done?'checked':'')+' onchange="toggleDailyGoal('+realIndex+')" style="margin-right:10px">';
+      h+='<span style="'+(goal.done?'text-decoration:line-through;opacity:0.6':'')+'">'+goal.text+'</span>';
+      h+='</div>';
+      h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="deleteDailyGoal('+realIndex+')">🗑</button>';
+      h+='</div></div>';
+    });
+  }
+  
+  var completed = todayGoals.filter(function(g){return g.done}).length;
+  h+='<div class="card" style="margin-top:15px;text-align:center">';
+  h+='<div class="mut">Выполнено: '+completed+' из '+todayGoals.length+'</div>';
+  if(todayGoals.length > 0){
+    var percent = Math.round(completed / todayGoals.length * 100);
+    h+='<div style="background:#1f2530;height:8px;border-radius:4px;margin-top:10px">';
+    h+='<div style="background:#3ecf8e;height:100%;border-radius:4px;width:'+percent+'%"></div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addDailyGoal(){
+  var input = document.getElementById('new_goal');
+  if(!input || !input.value.trim()){
+    alert('⚠️ Введи цель!');
+    return;
+  }
+  if(!db.dailyGoals) db.dailyGoals = [];
+  db.dailyGoals.push({
+    text: input.value.trim(),
+    date: new Date().toISOString().slice(0,10),
+    done: false,
+    created: new Date().toISOString()
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Цель добавлена!');
+  showDailyGoals();
+}
+
+function toggleDailyGoal(index){
+  if(!db.dailyGoals || !db.dailyGoals[index]) return;
+  db.dailyGoals[index].done = !db.dailyGoals[index].done;
+  localStorage.setItem('solodev', JSON.stringify(db));
+  showDailyGoals();
+}
+
+function deleteDailyGoal(index){
+  if(!db.dailyGoals || !db.dailyGoals[index]) return;
+  if(confirm('Удалить цель?')){
+    db.dailyGoals.splice(index, 1);
+    localStorage.setItem('solodev', JSON.stringify(db));
+    showDailyGoals();
+  }
+}
+
+// === ТРЕКЕР ВОДЫ ===
+function showWaterTracker(){
+  if(!db.water) db.water = {intake:0, goal:8, log:{}};
+  var todayStr = new Date().toISOString().slice(0,10);
+  if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
+  
+  var current = db.water.log[todayStr];
+  var goal = db.water.goal;
+  var percent = Math.min(100, Math.round(current / goal * 100));
+  
+  var h='<h3>💧 Трекер воды</h3>';
+  h+='<p class="mut">Цель: '+goal+' стаканов в день</p>';
+  h+='<div style="text-align:center;padding:20px">';
+  h+='<div style="font-size:48px;font-weight:bold;color:#6c8cff">'+current+'</div>';
+  h+='<div class="mut">из '+goal+' стаканов</div>';
+  h+='<div style="background:#1f2530;height:12px;border-radius:6px;margin:20px 0">';
+  h+='<div style="background:linear-gradient(90deg,#6c8cff,#3ecf8e);height:100%;border-radius:6px;width:'+percent+'%"></div>';
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">';
+  for(var i=1; i<=8; i++){
+    h+='<div style="width:30px;height:40px;background:'+(i<=current?'#6c8cff':'#1f2530')+';border-radius:4px;margin:0 auto"></div>';
+  }
+  h+='</div>';
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  h+='<button class="btn" style="background:#6c8cff;padding:15px" onclick="addWater(1)">+ 1 стакан</button>';
+  h+='<button class="btn" style="background:#3ecf8e;padding:15px" onclick="addWater(2)">+ 2 стакана</button>';
+  h+='</div>';
+  h+='<div class="card" style="margin-top:15px">';
+  h+='<label>Цель (стаканов в день)</label>';
+  h+='<input id="water_goal" type="number" value="'+goal+'" style="width:100%;padding:8px;margin:10px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<button class="btn" style="width:100%" onclick="saveWaterGoal()">💾 Сохранить цель</button>';
+  h+='</div>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addWater(amount){
+  if(!db.water) db.water = {intake:0, goal:8, log:{}};
+  var todayStr = new Date().toISOString().slice(0,10);
+  if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
+  db.water.log[todayStr] += amount;
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('💧 Выпито '+amount+' стакан'+(amount===1?'':'а')+'! Всего сегодня: '+db.water.log[todayStr]);
+  showWaterTracker();
+}
+
+function saveWaterGoal(){
+  var goalEl = document.getElementById('water_goal');
+  if(goalEl && goalEl.value){
+    db.water.goal = parseInt(goalEl.value) || 8;
+    localStorage.setItem('solodev', JSON.stringify(db));
+    alert('✅ Цель сохранена: '+db.water.goal+' стаканов');
+    showWaterTracker();
+  }
 }
 
 // === КОНЕЦ МОДУЛЯ ПРОДУКТИВНОСТИ ===
