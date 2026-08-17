@@ -1,6 +1,8 @@
 
 var ALL_SPECS=['Фронтенд','Бэкенд','Fullstack','Мобильная разработка','iOS','Android','Flutter','React Native','Боты (Telegram/VK)','DevOps','SRE','QA','Автотесты','Дизайн','UI/UX','Графический дизайн','Data Science','Machine Learning','Deep Learning','Computer Vision','NLP','1С','GameDev','Unity','Unreal Engine','Администрирование','Системный анализ','Бизнес-анализ','Техподдержка','ERP/CRM','Blockchain','Web3','AR/VR','Кибербезопасность','Pentest','Embedded','IoT','Python','JavaScript','TypeScript','React','Vue','Angular','Node.js','PHP','Laravel','Java','C#','.NET','Go','Rust','Swift','Kotlin','C/C++','Ruby','Django','Flask','FastAPI','Spring','WordPress','Bitrix','SQL','PostgreSQL','MySQL','MongoDB','Redis','Elasticsearch','Docker','Kubernetes','AWS','Azure','GCP','Yandex Cloud','Linux','Windows Server','Networking','Scrum/Agile','Project Management','Product Management','SEO','SMM','Контекстная реклама','Таргет','Email-маркетинг','Контент-маркетинг','Видеопродакшн','3D-моделирование','Анимация','Саунд-дизайн','Техническое писательство','Локализация'];
-var db={profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1},goals:[],recurring:[],receivables:[],taxReserve:0,budgets:{},pots:[],monthlyNeeds:80000,monthlyWants:30000,monthlySavings:40000,quickTemplates:[],hourlyRate:2000,credits:[],paymentCalendar:[]};
+var db={
+  // Восстановление при загрузке
+profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1},goals:[],recurring:[],receivables:[],taxReserve:0,budgets:{},pots:[],monthlyNeeds:80000,monthlyWants:30000,monthlySavings:40000,quickTemplates:[],hourlyRate:2000,credits:[],paymentCalendar:[]};
   // Восстановление последней открытой вкладки
   var savedView = localStorage.getItem('solodev_currentView');
   if(savedView && ['home','dashboard','radar','projects','clients','finances','emails','pricing','productivity','settings'].includes(savedView)){
@@ -39,8 +41,6 @@ function render(){
   var savedView = localStorage.getItem('solodev_currentView');
   if(savedView) currentView = savedView;
   
-  // Жёсткая инициализация полей продуктивности с немедленным сохранением
-  if(!db.pomodoro) { db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25}; localStorage.setItem('solodev', JSON.stringify(db)); }
   if(!db.habits) { db.habits = []; localStorage.setItem('solodev', JSON.stringify(db)); }
   if(!db.diary) { db.diary = []; localStorage.setItem('solodev', JSON.stringify(db)); }
 
@@ -4727,12 +4727,18 @@ function toggleHabit(index){
   if(!db.habits || !db.habits[index]) return;
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.habits[index].log) db.habits[index].log = {};
+  
   if(db.habits[index].log[todayStr]){
     delete db.habits[index].log[todayStr];
+    alert('⬜ Отменено на сегодня');
   } else {
     db.habits[index].log[todayStr] = true;
+    alert('✅ Отлично! Привычка выполнена сегодня! 🔥');
   }
-  save();
+  
+  // Прямое и мгновенное сохранение
+  localStorage.setItem('solodev', JSON.stringify(db));
+  
   showHabits();
   if(currentView === 'productivity') renderProductivity();
 }
