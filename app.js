@@ -4615,50 +4615,49 @@ function stopPomodoro(){
 }
 
 function savePomodoroSettings(){
-  db.pomodoro.dailyGoal = +document.getElementById('pomodoro_goal').value || 25;
-  save();
-  alert('✅ Настройки сохранены');
+  if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
+  var goalEl = document.getElementById('pomodoro_goal');
+  if(goalEl){
+    db.pomodoro.dailyGoal = parseInt(goalEl.value) || 25;
+    save();
+    alert('✅ Дневная цель сохранена: ' + db.pomodoro.dailyGoal + ' мин');
+    showPomodoro(); // Перерисовываем окно, чтобы показать обновление
+  }
 }
 
-// === ТРЕКЕР ПРИВЫЧЕК ===
+
+// === ТРЕКЕР ПРИВЫЧЕК (ИСПРАВЛЕННЫЙ) ===
 function showHabits(){
+  if(!db.habits) db.habits = [];
   var h='<h3>✅ Трекер привычек</h3>';
   h+='<p class="mut">Формируй полезные привычки с сериями 🔥</p>';
   
   if(db.habits.length === 0){
     h+='<div class="mut" style="text-align:center;padding:20px">Нет привычек. Создай первую!</div>';
   } else {
-    db.habits.forEach(function(hab){
-      var streak = calculateStreak(hab);
-      var today = today();
-      var doneToday = hab.log && hab.log[today];
-      var totalDays = hab.log ? Object.keys(hab.log).length : 0;
+    db.habits.forEach(function(hab, index){
+      var todayStr = new Date().toISOString().slice(0,10);
+      var doneToday = hab.log && hab.log[todayStr];
+      var streak = 0;
+      var d = new Date();
+      while(true){
+        var ds = d.toISOString().slice(0,10);
+        if(hab.log && hab.log[ds]){ streak++; d.setDate(d.getDate() - 1); }
+        else { break; }
+      }
       
       h+='<div class="card" style="margin:8px 0">';
       h+='<div style="display:flex;justify-content:space-between;align-items:flex-start">';
-      h+='<div style="flex:1"><b style="font-size:15px">'+esc(hab.name)+'</b>';
-      h+='<div class="mut" style="font-size:11px;margin-top:4px">🔥 Серия: '+streak+' дней · Всего: '+totalDays+' дней</div>';
-      if(hab.description) h+='<div class="mut" style="font-size:11px">'+esc(hab.description)+'</div>';
+      h+='<div style="flex:1"><b style="font-size:15px">'+(typeof esc!=='undefined'?esc(hab.name):hab.name)+'</b>';
+      h+='<div class="mut" style="font-size:11px;margin-top:4px">🔥 Серия: '+streak+' дней</div>';
+      if(hab.description) h+='<div class="mut" style="font-size:11px">'+(typeof esc!=='undefined'?esc(hab.description):hab.description)+'</div>';
       h+='</div>';
       h+='<div style="display:flex;gap:6px">';
-      h+='<button class="btn small" style="background:'+(doneToday?'#3ecf8e':'#1f2530')+';padding:6px 12px" onclick="toggleHabit(\''+hab.id+'\')">'+(doneToday?'✅':'⬜')+'</button>';
-      h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="deleteHabit(\''+hab.id+'\')">🗑</button>';
-      h+='</div></div>';
-      
-      // Мини-календарь за последние 7 дней
-      h+='<div style="display:flex;gap:4px;margin-top:8px">';
-      for(var i=6; i>=0; i--){
-        var d = new Date();
-        d.setDate(d.getDate() - i);
-        var dateStr = d.toISOString().slice(0,10);
-        var done = hab.log && hab.log[dateStr];
-        h+='<div style="flex:1;text-align:center;padding:4px;background:'+(done?'#3ecf8e':'#1f2530')+';border-radius:4px;font-size:10px">';
-        h+=d.getDate()+'</div>';
-      }
+      h+='<button class="btn small" style="background:'+(doneToday?'#3ecf8e':'#1f2530')+';padding:6px 12px" onclick="toggleHabit('+index+')">'+(doneToday?'✅':'⬜')+'</button>';
+      h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="deleteHabit('+index+')">🗑</button>';
       h+='</div></div>';
     });
   }
-  
   h+='<button class="btn" style="width:100%;margin-top:10px" onclick="addHabit()">+ Новая привычка</button>';
   h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Закрыть</button>';
   openModal(h);
@@ -4666,62 +4665,63 @@ function showHabits(){
 
 function addHabit(){
   var h='<h3>➕ Новая привычка</h3>';
-  h+='<label>Название</label><input id="habit_name" placeholder="Например: Медитация, Чтение, Спорт">';
-  h+='<label>Описание (необязательно)</label><input id="habit_desc" placeholder="Краткое описание">';
+  h+='<label>Название</label><input id="habit_name" placeholder="Например: Медитация" style="width:100%;margin-bottom:10px;padding:8px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<label>Описание</label><input id="habit_desc" placeholder="Кратко" style="width:100%;margin-bottom:10px;padding:8px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
   h+='<div style="display:flex;gap:10px;margin-top:15px">';
-  h+='<button class="btn" onclick="saveHabit()">💾 Сохранить</button>';
-  h+='<button class="btn" style="background:#1f2530" onclick="showHabits()">← Назад</button>';
+  h+='<button class="btn" style="flex:1" onclick="saveHabit()">💾 Сохранить</button>';
+  h+='<button class="btn" style="background:#1f2530;flex:1" onclick="showHabits()">← Назад</button>';
   h+='</div>';
   openModal(h);
 }
 
 function saveHabit(){
-  var name = document.getElementById('habit_name').value.trim();
-  if(!name){alert('⚠️ Введи название!');return;}
+  var nameEl = document.getElementById('habit_name');
+  var descEl = document.getElementById('habit_desc');
+  if(!nameEl || !nameEl.value.trim()){
+    alert('⚠️ Введи название привычки!');
+    return;
+  }
+  if(!db.habits) db.habits = [];
+  
+  var newId = Date.now().toString(36) + Math.random().toString(36).substr(2);
   db.habits.push({
-    id: (typeof uid!=='undefined' ? uid() : Date.now().toString(36)+Math.random().toString(36).substr(2)),
-    name: name,
-    description: document.getElementById('habit_desc').value,
+    id: newId,
+    name: nameEl.value.trim(),
+    description: descEl ? descEl.value.trim() : '',
     log: {},
-    created: today()
+    created: new Date().toISOString().slice(0,10)
   });
+  
   save();
+  alert('✅ Привычка сохранена!');
   showHabits();
 }
 
-function toggleHabit(id){
-  var habit = db.habits.find(function(h){return h.id===id});
-  if(!habit) return;
-  var today = today();
-  if(!habit.log) habit.log = {};
-  if(habit.log[today]){
-    delete habit.log[today];
+function toggleHabit(index){
+  if(!db.habits || !db.habits[index]) return;
+  var todayStr = new Date().toISOString().slice(0,10);
+  if(!db.habits[index].log) db.habits[index].log = {};
+  
+  if(db.habits[index].log[todayStr]){
+    delete db.habits[index].log[todayStr];
   } else {
-    habit.log[today] = true;
+    db.habits[index].log[todayStr] = true;
   }
   save();
   showHabits();
   if(currentView === 'productivity') renderProductivity();
 }
 
-function deleteHabit(id){
-  if(confirm('Удалить привычку?')){
-    db.habits = db.habits.filter(function(h){return h.id!==id});
+function deleteHabit(index){
+  if(!db.habits || !db.habits[index]) return;
+  if(confirm('Удалить эту привычку?')){
+    db.habits.splice(index, 1);
     save();
     showHabits();
+    if(currentView === 'productivity') renderProductivity();
   }
 }
-
-function calculateStreak(habit){
-  if(!habit.log) return 0;
-  var streak = 0;
-  var d = new Date();
-  while(true){
-    var dateStr = d.toISOString().slice(0,10);
-    if(habit.log[dateStr]){
-      streak++;
-      d.setDate(d.getDate() - 1);
-    } else {
+ else {
       break;
     }
   }
