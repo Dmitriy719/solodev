@@ -4492,8 +4492,8 @@ function renderProductivity(){
     
     document.getElementById('app').innerHTML = h;
   } catch(e) {
-    document.getElementById('app').innerHTML = "<h2>⏱ Ошибка</h2><div class='card' style='color:red'><b>Ошибка:</b> " + e.message + "</div><br><button class='btn' onclick='go("home")'>🏠 На главную</button>";
     console.error("Productivity Error:", e);
+    document.getElementById('app').innerHTML = '<h2>⏱ Ошибка</h2><p>Произошла ошибка при загрузке.</p><button class="btn" onclick="go(\'home\')">🏠 На главную</button>';
   }
 }
 
