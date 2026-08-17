@@ -603,10 +603,15 @@ function renderFinances(){
   } else {
     periodFin.sort(function(a,b){return b.date.localeCompare(a.date)}).forEach(function(f){
       h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #242b36">';
-      h += '<div><div style="font-weight:bold;color:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+'">'+(f.type==='in'?'+ ':'- ')+formatCurrency(f.amt)+'</div>';
-      h += '<div class="mut" style="font-size:11px">'+f.date+' · '+esc(f.cat)+(f.client?' · '+esc(f.client):'')+'</div></div>';
+      h += '<div style="flex:1">';
+      h += '<div style="font-weight:bold;color:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+';font-size:15px">'+(f.type==='in'?'+ ':'- ')+formatCurrency(f.amt)+'</div>';
+      h += '<div class="mut" style="font-size:11px;margin-top:2px">'+f.date+' · '+esc(f.cat);
+      if(f.client) h += ' · 👤 '+esc(f.client);
+      h += '</div>';
+      if(f.note) h += '<div class="mut" style="font-size:10px;margin-top:2px;color:#6c8cff">💬 '+esc(f.note)+'</div>';
+      if(f.original_cur && f.original_cur !== db.currency) h += '<div class="mut" style="font-size:10px;margin-top:1px">💱 '+f.original_amt+' '+f.original_cur+'</div>';
+      h += '</div>';
       h += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="delFin(\''+f.id+'\')">🗑</button>';
-
       h += '</div>';
     });
   }
@@ -618,6 +623,12 @@ function renderFinances(){
   h += '<button class="btn" style="background:#06b6d4" onclick="showCsvImport()">📥 Импорт CSV</button>';
   h += '<button class="btn" style="background:#8b5cf6" onclick="showNetWorth()">💼 Активы/Пассивы</button>';
   h += '<button class="btn" style="background:#f59e0b" onclick="showSubscriptions()">📋 Подписки</button>';
+  h += '</div>';
+  
+  // === НОВЫЕ ФУНКЦИИ v6.10.0 ===
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:8px">';
+  h += '<button class="btn" style="background:#ff6b6b" onclick="showFireCalculator()">🔥 FIRE</button>';
+  h += '<button class="btn" style="background:#10b981" onclick="showMonthlyReport()">📄 Отчёт за месяц</button>';
   h += '</div>';
   document.getElementById('app').innerHTML = h;
 }
@@ -4181,6 +4192,272 @@ function editMonthlySavings(){
     save();
     showGoalForecast();
   }
+}
+
+
+// === FIRE-КАЛЬКУЛЯТОР ===
+function showFireCalculator(){
+  var h='<h3>🔥 FIRE-калькулятор</h3>';
+  h+='<p class="mut">Рассчитай, когда выйдешь на финансовую независимость</p>';
+  
+  // Текущие данные
+  var currentSavings = db.assets.reduce(function(a,b){return a+b.amt},0) - db.liabilities.reduce(function(a,b){return a+b.amt},0);
+  var monthlyIncome = 0, monthlyExpense = 0;
+  var monthStr = new Date().toISOString().slice(0,7);
+  db.finances.forEach(function(f){
+    if(!f.date || !f.date.startsWith(monthStr)) return;
+    if(f.type==='in') monthlyIncome += f.amt;
+    else monthlyExpense += f.amt;
+  });
+  var monthlySavings = monthlyIncome - monthlyExpense;
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a">';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center">';
+  h+='<div><div class="mut" style="color:#fff">Текущие накопления</div><div style="font-size:18px;font-weight:bold;color:#3ecf8e">'+formatCurrency(currentSavings)+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Ежемесячные сбережения</div><div style="font-size:18px;font-weight:bold;color:#6c8cff">'+formatCurrency(monthlySavings)+'</div></div>';
+  h+='</div></div>';
+  
+  h+='<label>Годовые расходы (₽)</label>';
+  h+='<input id="fire_expenses" type="number" value="'+Math.round(monthlyExpense*12)+'" style="margin-bottom:8px">';
+  h+='<label>Текущие накопления (₽)</label>';
+  h+='<input id="fire_current" type="number" value="'+currentSavings+'" style="margin-bottom:8px">';
+  h+='<label>Ежемесячные сбережения (₽)</label>';
+  h+='<input id="fire_monthly" type="number" value="'+monthlySavings+'" style="margin-bottom:8px">';
+  h+='<label>Годовая доходность инвестиций (%)</label>';
+  h+='<input id="fire_return" type="number" value="8" step="0.1" style="margin-bottom:8px">';
+  
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="calculateFire()">🔥 Рассчитать FIRE</button>';
+  h+='<div id="fire_result" style="margin-top:15px"></div>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function calculateFire(){
+  var annualExpenses = +document.getElementById('fire_expenses').value;
+  var currentSavings = +document.getElementById('fire_current').value;
+  var monthlySavings = +document.getElementById('fire_monthly').value;
+  var annualReturn = +document.getElementById('fire_return').value / 100;
+  
+  // Число FIRE = годовые расходы × 25 (правило 4%)
+  var fireNumber = annualExpenses * 25;
+  
+  // Расчёт лет до FIRE
+  var years = 0;
+  var savings = currentSavings;
+  var monthlyReturn = annualReturn / 12;
+  
+  while(savings < fireNumber && years < 100){
+    for(var m=0; m<12; m++){
+      savings = savings * (1 + monthlyReturn) + monthlySavings;
+    }
+    years++;
+  }
+  
+  var fireYear = new Date().getFullYear() + years;
+  var age = years > 0 ? 'в '+fireYear+' году' : 'уже достигнут!';
+  
+  var h='<div class="card" style="background:linear-gradient(135deg,#2f1a1a,#1a2035);border-color:#ff6b6b;text-align:center">';
+  h+='<div class="mut" style="color:#fff">Число FIRE (цель)</div>';
+  h+='<div style="font-size:32px;font-weight:bold;color:#ff6b6b;margin:10px 0">'+formatCurrency(fireNumber)+'</div>';
+  h+='<div class="mut">Годовые расходы × 25 (правило 4%)</div>';
+  h+='</div>';
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2f1f,#1a2035);border-color:#3ecf8e;text-align:center">';
+  h+='<div class="mut" style="color:#fff">До финансовой свободы</div>';
+  h+='<div style="font-size:28px;font-weight:bold;color:#3ecf8e;margin:10px 0">'+years+' лет</div>';
+  h+='<div class="mut">'+age+'</div>';
+  h+='</div>';
+  
+  h+='<div class="card">';
+  h+='<h3 style="margin:0 0 10px 0">📊 Прогноз роста капитала</h3>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:12px">';
+  
+  var checkpoints = [5, 10, 15, 20, 25];
+  checkpoints.forEach(function(y){
+    var proj = currentSavings;
+    for(var i=0; i<y*12; i++){
+      proj = proj * (1 + monthlyReturn) + monthlySavings;
+    }
+    h+='<div><div class="mut">'+y+' лет</div><div style="font-weight:bold;color:#6c8cff">'+formatCurrency(Math.round(proj))+'</div></div>';
+  });
+  
+  h+='</div></div>';
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#2f2a1a,#1a2035);border-color:#f59e0b">';
+  h+='<h3 style="color:#f59e0b;margin:0 0 10px 0">💡 Как ускорить FIRE?</h3>';
+  h+='<div style="font-size:13px;line-height:1.6">';
+  h+='<b>1. Увеличь сбережения</b> — откладывай 50%+ дохода<br>';
+  h+='<b>2. Снизь расходы</b> — оптимизируй подписки и привычки<br>';
+  h+='<b>3. Инвестируй</b> — индексные фонды, недвижимость<br>';
+  h+='<b>4. Увеличь доход</b> — фриланс, бизнес, пассивный доход';
+  h+='</div></div>';
+  
+  document.getElementById('fire_result').innerHTML = h;
+}
+
+// === МЕСЯЧНЫЙ PDF-ОТЧЁТ ===
+function showMonthlyReport(){
+  var now = new Date();
+  var monthStr = now.toISOString().slice(0,7);
+  var monthName = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][now.getMonth()];
+  
+  var monthIncome = 0, monthExpense = 0;
+  var byCategory = {};
+  var transactions = [];
+  
+  db.finances.forEach(function(f){
+    if(!f.date || !f.date.startsWith(monthStr)) return;
+    if(f.type==='in'){
+      monthIncome += f.amt;
+    } else {
+      monthExpense += f.amt;
+      byCategory[f.cat] = (byCategory[f.cat] || 0) + f.amt;
+    }
+    transactions.push(f);
+  });
+  
+  var tax = calculateTax(monthIncome);
+  var netProfit = monthIncome - monthExpense - tax.amount;
+  var savingsRate = monthIncome > 0 ? Math.round((monthIncome - monthExpense) / monthIncome * 100) : 0;
+  
+  // Сравнение с прошлым месяцем
+  var prevMonth = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  var prevMonthStr = prevMonth.toISOString().slice(0,7);
+  var prevIncome = 0, prevExpense = 0;
+  db.finances.forEach(function(f){
+    if(!f.date || !f.date.startsWith(prevMonthStr)) return;
+    if(f.type==='in') prevIncome += f.amt;
+    else prevExpense += f.amt;
+  });
+  
+  var incomeGrowth = prevIncome > 0 ? Math.round((monthIncome - prevIncome) / prevIncome * 100) : 0;
+  var expenseGrowth = prevExpense > 0 ? Math.round((monthExpense - prevExpense) / prevExpense * 100) : 0;
+  
+  var h='<h3>📄 Месячный отчёт</h3>';
+  h+='<p class="mut">'+monthName+' '+now.getFullYear()+'</p>';
+  
+  // Ключевые показатели
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a">';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center">';
+  h+='<div><div class="mut" style="color:#fff">Доход</div><div style="font-size:18px;font-weight:bold;color:#3ecf8e">'+formatCurrency(monthIncome)+'</div>';
+  if(prevIncome > 0) h+='<div class="mut" style="font-size:10px">'+(incomeGrowth>=0?'↑':'↓')+' '+Math.abs(incomeGrowth)+'% vs прошлый</div>';
+  h+='</div>';
+  h+='<div><div class="mut" style="color:#fff">Расход</div><div style="font-size:18px;font-weight:bold;color:#ff6b6b">'+formatCurrency(monthExpense)+'</div>';
+  if(prevExpense > 0) h+='<div class="mut" style="font-size:10px">'+(expenseGrowth>=0?'↑':'↓')+' '+Math.abs(expenseGrowth)+'% vs прошлый</div>';
+  h+='</div>';
+  h+='<div><div class="mut" style="color:#fff">Налоги</div><div style="font-size:18px;font-weight:bold;color:#f59e0b">'+formatCurrency(tax.amount)+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Чистая прибыль</div><div style="font-size:18px;font-weight:bold;color:'+(netProfit>=0?'#3ecf8e':'#ff6b6b')+'">'+formatCurrency(netProfit)+'</div></div>';
+  h+='</div></div>';
+  
+  // Норма сбережений
+  h+='<div class="card" style="text-align:center">';
+  h+='<div class="mut">Норма сбережений</div>';
+  h+='<div style="font-size:32px;font-weight:bold;color:'+(savingsRate>=20?'#3ecf8e':savingsRate>=10?'#f59e0b':'#ff6b6b')+';margin:8px 0">'+savingsRate+'%</div>';
+  h+='<div class="mut">'+(savingsRate>=20?'Отлично!':savingsRate>=10?'Хорошо, но можно лучше':'Нужно увеличивать')+'</div>';
+  h+='</div>';
+  
+  // Расходы по категориям
+  var cats = Object.keys(byCategory).sort(function(a,b){return byCategory[b]-byCategory[a]});
+  if(cats.length > 0){
+    h+='<div class="card"><h3>📊 Расходы по категориям</h3>';
+    cats.forEach(function(cat){
+      var pct = Math.round(byCategory[cat]/monthExpense*100);
+      h+='<div style="margin:8px 0">';
+      h+='<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>'+esc(cat)+'</span><b>'+formatCurrency(byCategory[cat])+' ('+pct+'%)</b></div>';
+      h+='<div class="bar"><i style="width:'+pct+'%;background:#ff6b6b"></i></div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  
+  // Топ-5 транзакций
+  var topExpenses = transactions.filter(function(f){return f.type==='out'}).sort(function(a,b){return b.amt-a.amt}).slice(0,5);
+  if(topExpenses.length > 0){
+    h+='<div class="card"><h3> Крупнейшие расходы</h3>';
+    topExpenses.forEach(function(f,i){
+      h+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #242b36;font-size:12px">';
+      h+='<div><b>#'+(i+1)+'</b> '+esc(f.cat)+(f.note?' · '+esc(f.note):'')+'</div>';
+      h+='<div style="color:#ff6b6b;font-weight:bold">'+formatCurrency(f.amt)+'</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  
+  // Кнопки действий
+  h+='<div style="display:flex;gap:8px;margin-top:15px">';
+  h+='<button class="btn" style="background:#3ecf8e;flex:1" onclick="printMonthlyReport()">🖨 Печать / PDF</button>';
+  h+='<button class="btn" style="background:#1f2530;flex:1" onclick="closeModal()">Закрыть</button>';
+  h+='</div>';
+  
+  // Сохраняем данные для печати
+  window._monthlyReportData = {
+    month: monthName+' '+now.getFullYear(),
+    income: monthIncome,
+    expense: monthExpense,
+    tax: tax.amount,
+    netProfit: netProfit,
+    savingsRate: savingsRate,
+    categories: byCategory,
+    transactions: transactions
+  };
+  
+  openModal(h);
+}
+
+function printMonthlyReport(){
+  var data = window._monthlyReportData;
+  if(!data){alert('⚠️ Данные не загружены');return;}
+  
+  var html='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Финансовый отчёт - '+data.month+'</title>';
+  html+='<style>body{font-family:system-ui,sans-serif;color:#000;margin:0;padding:20px}';
+  html+='h1{text-align:center;color:#2563eb;margin-bottom:5px}';
+  html+='.header{text-align:center;color:#666;margin-bottom:30px}';
+  html+='.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:20px 0}';
+  html+='.stat{background:#f3f4f6;padding:15px;border-radius:8px;text-align:center}';
+  html+='.stat b{font-size:20px;display:block;margin-top:5px}';
+  html+='.stat.income b{color:#059669}';
+  html+='.stat.expense b{color:#dc2626}';
+  html+='.stat.tax b{color:#f59e0b}';
+  html+='.stat.profit b{color:#2563eb}';
+  html+='table{width:100%;border-collapse:collapse;margin:20px 0}';
+  html+='th,td{border:1px solid #ddd;padding:8px;text-align:left}';
+  html+='th{background:#2563eb;color:#fff}';
+  html+='.in{color:#059669;font-weight:bold}.out{color:#dc2626;font-weight:bold}';
+  html+='@media print{body{padding:10px}}</style></head><body>';
+  
+  html+='<h1>📊 Финансовый отчёт</h1>';
+  html+='<div class="header">'+data.month+'</div>';
+  
+  html+='<div class="stats">';
+  html+='<div class="stat income">Доход<b>'+formatCurrency(data.income)+'</b></div>';
+  html+='<div class="stat expense">Расход<b>'+formatCurrency(data.expense)+'</b></div>';
+  html+='<div class="stat tax">Налоги<b>'+formatCurrency(data.tax)+'</b></div>';
+  html+='<div class="stat profit">Чистая прибыль<b>'+formatCurrency(data.netProfit)+'</b></div>';
+  html+='</div>';
+  
+  html+='<h2>Расходы по категориям</h2>';
+  html+='<table><tr><th>Категория</th><th>Сумма</th><th>Доля</th></tr>';
+  var cats = Object.keys(data.categories).sort(function(a,b){return data.categories[b]-data.categories[a]});
+  cats.forEach(function(cat){
+    var pct = Math.round(data.categories[cat]/data.expense*100);
+    html+='<tr><td>'+esc(cat)+'</td><td>'+formatCurrency(data.categories[cat])+'</td><td>'+pct+'%</td></tr>';
+  });
+  html+='</table>';
+  
+  html+='<h2>Все операции</h2>';
+  html+='<table><tr><th>Дата</th><th>Тип</th><th>Категория</th><th>Описание</th><th>Сумма</th></tr>';
+  data.transactions.sort(function(a,b){return b.date.localeCompare(a.date)}).forEach(function(f){
+    html+='<tr><td>'+f.date+'</td><td>'+(f.type==='in'?'Доход':'Расход')+'</td><td>'+esc(f.cat)+'</td><td>'+(f.note?esc(f.note):'')+'</td><td class="'+f.type+'">'+(f.type==='in'?'+':'-')+formatCurrency(f.amt)+'</td></tr>';
+  });
+  html+='</table>';
+  
+  html+='<div style="text-align:center;margin-top:30px;color:#666;font-size:12px">Сгенерировано в SoloDev v6.10.0 · '+new Date().toLocaleString('ru-RU')+'</div>';
+  html+='</body></html>';
+  
+  var w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){w.print();}, 500);
 }
 
 function renderSettings(){
