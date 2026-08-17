@@ -888,7 +888,7 @@ function saveNewFin(){
   var inMain = inRub / (rates[db.currency] || 1);
   
   db.finances.unshift({
-    id: uid(),
+    id: (typeof uid!=='undefined' ? uid() : Date.now().toString(36)+Math.random().toString(36).substr(2)),
     date: date,
     type: type,
     amt: Math.round(inMain),
@@ -3528,7 +3528,7 @@ function saveQuickTemplate(){
 function executeQuickTemplate(i){
   var t = db.quickTemplates[i];
   db.finances.unshift({
-    id: uid(),
+    id: (typeof uid!=='undefined' ? uid() : Date.now().toString(36)+Math.random().toString(36).substr(2)),
     date: today(),
     type: t.type,
     amt: t.amt,
@@ -3746,7 +3746,7 @@ function payCredit(i){
   c.paymentsMade++;
   
   db.finances.unshift({
-    id: uid(),
+    id: (typeof uid!=='undefined' ? uid() : Date.now().toString(36)+Math.random().toString(36).substr(2)),
     date: today(),
     type: 'out',
     amt: amt,
@@ -4515,6 +4515,7 @@ function showPomodoro(){
   
   h+='<div style="display:flex;gap:8px;margin-bottom:15px">';
   h+='<button class="btn" style="background:#3ecf8e;flex:1" onclick="pausePomodoro()">⏸ Пауза</button>';
+  h+='<button class="btn" style="background:#6c8cff;flex:1" onclick="resumePomodoro()">▶ Продолжить</button>';
   h+='<button class="btn" style="background:#ff6b6b;flex:1" onclick="stopPomodoro()">⏹ Стоп</button>';
   h+='</div>';
   
@@ -4544,62 +4545,73 @@ function showPomodoro(){
 
 var pomodoroInterval = null;
 var pomodoroTimeLeft = 0;
-var pomodoroIsRunning = false;
+var pomodoroTotalTime = 0;
 
 function startPomodoro(minutes){
   if(pomodoroInterval) clearInterval(pomodoroInterval);
-  pomodoroTimeLeft = minutes * 60;
-  pomodoroIsRunning = true;
-  document.getElementById('pomodoro_status').textContent = '🔥 В работе...';
+  // Если время уже есть (была пауза), не сбрасываем его, иначе устанавливаем новое
+  if(pomodoroTimeLeft === 0){
+    pomodoroTimeLeft = minutes * 60;
+    pomodoroTotalTime = minutes * 60;
+  }
+  var statusEl = document.getElementById('pomodoro_status');
+  if(statusEl) statusEl.textContent = '🔥 В работе...';
   
   pomodoroInterval = setInterval(function(){
     pomodoroTimeLeft--;
     var mins = Math.floor(pomodoroTimeLeft / 60);
     var secs = pomodoroTimeLeft % 60;
-    document.getElementById('pomodoro_timer').textContent = mins.toString().padStart(2,'0')+':'+secs.toString().padStart(2,'0');
+    var timerEl = document.getElementById('pomodoro_timer');
+    if(timerEl) timerEl.textContent = mins.toString().padStart(2,'0')+':'+secs.toString().padStart(2,'0');
     
     if(pomodoroTimeLeft <= 0){
       clearInterval(pomodoroInterval);
-      pomodoroIsRunning = false;
-      document.getElementById('pomodoro_timer').textContent = '00:00';
-      document.getElementById('pomodoro_status').textContent = '✅ Сессия завершена!';
+      pomodoroInterval = null;
+      pomodoroTimeLeft = 0;
+      if(statusEl) statusEl.textContent = '✅ Сессия завершена!';
       
-      // Сохраняем сессию
-      db.pomodoro.sessions.push({
-        date: today(),
-        duration: minutes,
-        timestamp: new Date().toISOString()
-      });
-      db.pomodoro.totalTime = (db.pomodoro.totalTime || 0) + minutes;
+      var todayStr = new Date().toISOString().slice(0,10);
+      if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
+      db.pomodoro.sessions.push({date: todayStr, duration: pomodoroTotalTime/60, timestamp: new Date().toISOString()});
+      db.pomodoro.totalTime = (db.pomodoro.totalTime || 0) + (pomodoroTotalTime/60);
       save();
       
-      // Уведомление
       if('Notification' in window && Notification.permission === 'granted'){
-        new Notification('🍅 Pomodoro завершён!', {body: 'Отличная работа! Время отдохнуть.'});
+        new Notification('🍅 Pomodoro завершён!', {body: 'Отличная работа!'});
       } else {
-        alert('🍅 Pomodoro завершён! Отличная работа!');
+        alert('🍅 Pomodoro завершён!');
       }
-      
-      // Обновляем главную
       if(currentView === 'productivity') renderProductivity();
     }
   }, 1000);
 }
 
 function pausePomodoro(){
-  if(pomodoroIsRunning){
+  if(pomodoroInterval){
     clearInterval(pomodoroInterval);
-    pomodoroIsRunning = false;
-    document.getElementById('pomodoro_status').textContent = '⏸ Пауза';
+    pomodoroInterval = null;
+  }
+  var statusEl = document.getElementById('pomodoro_status');
+  if(statusEl) statusEl.textContent = '⏸ На паузе';
+}
+
+function resumePomodoro(){
+  if(pomodoroTimeLeft > 0){
+    startPomodoro(Math.ceil(pomodoroTimeLeft / 60));
   }
 }
 
 function stopPomodoro(){
-  if(pomodoroInterval) clearInterval(pomodoroInterval);
-  pomodoroIsRunning = false;
+  if(pomodoroInterval){
+    clearInterval(pomodoroInterval);
+    pomodoroInterval = null;
+  }
   pomodoroTimeLeft = 0;
-  document.getElementById('pomodoro_timer').textContent = '25:00';
-  document.getElementById('pomodoro_status').textContent = 'Готов к работе';
+  pomodoroTotalTime = 0;
+  var timerEl = document.getElementById('pomodoro_timer');
+  if(timerEl) timerEl.textContent = '25:00';
+  var statusEl = document.getElementById('pomodoro_status');
+  if(statusEl) statusEl.textContent = 'Готов к работе';
 }
 
 function savePomodoroSettings(){
@@ -4667,7 +4679,7 @@ function saveHabit(){
   var name = document.getElementById('habit_name').value.trim();
   if(!name){alert('⚠️ Введи название!');return;}
   db.habits.push({
-    id: uid(),
+    id: (typeof uid!=='undefined' ? uid() : Date.now().toString(36)+Math.random().toString(36).substr(2)),
     name: name,
     description: document.getElementById('habit_desc').value,
     log: {},
@@ -4748,7 +4760,7 @@ function saveDiaryEntry(){
   var text = document.getElementById('diary_text').value.trim();
   if(!text){alert('⚠️ Напиши хоть что-нибудь!');return;}
   db.diary.push({
-    id: uid(),
+    id: (typeof uid!=='undefined' ? uid() : Date.now().toString(36)+Math.random().toString(36).substr(2)),
     date: today(),
     text: text,
     timestamp: new Date().toISOString()
