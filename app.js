@@ -11,6 +11,7 @@ if(!db.mood) db.mood = [];
 if(!db.dailyGoals) db.dailyGoals = [];
 if(!db.water) db.water = {intake:0, goal:8, log:{}};
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
 localStorage.setItem('solodev', JSON.stringify(db));
 // ================================================
 
@@ -25,7 +26,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -64,6 +65,7 @@ function render(){
   else if(currentView==='emails')renderEmails();
   else if(currentView==='pricing')renderPricing();
   else if(currentView==='health')renderHealth();
+  else if(currentView==='knowledge')renderKnowledge();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -4510,6 +4512,7 @@ function renderProductivity(){
   if(!db.dailyGoals) db.dailyGoals = [];
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   if(!db.journal) db.journal = [];
   
   var h='<h2> Продуктивность</h2>';
@@ -4941,6 +4944,7 @@ function deleteDailyGoal(index){
 function showWaterTracker(){
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
   
@@ -4978,6 +4982,7 @@ function showWaterTracker(){
 function addWater(amount){
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
   db.water.log[todayStr] += amount;
@@ -5148,6 +5153,7 @@ function filterJournal(filter){
 // === ВКЛАДКА ЗДОРОВЬЕ ===
 function renderHealth(){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   
   var h='<h2>🏥 Здоровье</h2>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
@@ -5176,6 +5182,7 @@ function renderHealth(){
 
 function showSleepTracker(){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   var h='<h3>💤 Трекер сна</h3>';
   h+='<label>Часов сна</label>';
   h+='<input id="sleep_hours" type="number" step="0.5" placeholder="Например: 7.5" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
@@ -5200,6 +5207,7 @@ function saveSleep(){
     return;
   }
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   var todayStr = new Date().toISOString().slice(0,10);
   
   // Удаляем старую запись за сегодня, если она есть, чтобы перезаписать
@@ -5241,6 +5249,7 @@ function saveWorkout(){
     return;
   }
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   
   db.health.workouts.push({
     date: new Date().toISOString().slice(0,10),
@@ -5258,6 +5267,7 @@ function saveWorkout(){
 
 function showHealthStats(){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   
   // Статистика за последние 7 дней
   var now = new Date();
@@ -5293,6 +5303,7 @@ function showHealthStats(){
 function showWaterHealth(){
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   var todayWater = db.health.water.filter(function(w){return w.date===todayStr}).reduce(function(a,b){return a+b.amount},0);
   
   var h='<h3>💧 Трекер воды</h3>';
@@ -5314,6 +5325,7 @@ function showWaterHealth(){
 
 function addWaterHealth(amount){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   db.health.water.push({
     date: new Date().toISOString().slice(0,10),
     amount: amount,
@@ -5344,6 +5356,7 @@ function saveWeight(){
     return;
   }
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   db.health.weight.push({
     date: new Date().toISOString().slice(0,10),
     value: val,
@@ -5359,6 +5372,7 @@ function saveWeight(){
 function showSupplements(){
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   var todaySupps = db.health.supplements.filter(function(s){return s.date===todayStr});
   var doneCount = todaySupps.filter(function(s){return s.done}).length;
   
@@ -5384,6 +5398,7 @@ function showSupplements(){
 
 function toggleSupp(name){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   var todayStr = new Date().toISOString().slice(0,10);
   var existingIdx = db.health.supplements.findIndex(function(s){return s.date===todayStr && s.name===name});
   
@@ -5474,6 +5489,202 @@ function exportData(){
 
 
 // === КОНЕЦ УПРАВЛЕНИЯ ДАННЫМИ ===
+
+
+// === ВКЛАДКА БАЗА ЗНАНИЙ ===
+function renderKnowledge(){
+  if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  var h='<h2>📚 База знаний</h2>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
+  h+='<button class="btn" style="background:#9d6cff;padding:20px;font-size:16px" onclick="showBooks()">📖 Книги ('+db.knowledge.books.length+')</button>';
+  h+='<button class="btn" style="background:#6c8cff;padding:20px;font-size:16px" onclick="showCourses()">🎓 Курсы ('+db.knowledge.courses.length+')</button>';
+  h+='<button class="btn" style="background:#3ecf8e;padding:20px;font-size:16px" onclick="showLinks()">🔗 Ссылки ('+db.knowledge.links.length+')</button>';
+  h+='<button class="btn" style="background:#ff9500;padding:20px;font-size:16px" onclick="showSnippets()">💻 Сниппеты ('+db.knowledge.snippets.length+')</button>';
+  h+='</div>';
+  
+  h+='<div class="card"><h3> Статистика</h3>';
+  h+='<div style="display:flex;justify-content:space-around;text-align:center">';
+  h+='<div><div class="mut">Книг</div><div style="font-size:20px;font-weight:bold;color:#9d6cff">'+db.knowledge.books.length+'</div></div>';
+  h+='<div><div class="mut">Курсов</div><div style="font-size:20px;font-weight:bold;color:#6c8cff">'+db.knowledge.courses.length+'</div></div>';
+  h+='<div><div class="mut">Ссылок</div><div style="font-size:20px;font-weight:bold;color:#3ecf8e">'+db.knowledge.links.length+'</div></div>';
+  h+='<div><div class="mut">Кода</div><div style="font-size:20px;font-weight:bold;color:#ff9500">'+db.knowledge.snippets.length+'</div></div>';
+  h+='</div></div>';
+  
+  document.getElementById('app').innerHTML = h;
+}
+
+// --- КНИГИ ---
+function showBooks(){
+  var h='<h3>📖 Мои книги</h3>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#9d6cff" onclick="addBook()">+ Добавить книгу</button>';
+  if(db.knowledge.books.length===0) h+='<div class="mut" style="text-align:center">Список пуст</div>';
+  db.knowledge.books.forEach(function(b, i){
+    var statusColor = b.status==='read'?'#3ecf8e':(b.status==='reading'?'#6c8cff':'#8b94a7');
+    h+='<div class="card" style="margin:8px 0;border-left:4px solid '+statusColor+'">';
+    h+='<b>'+b.title+'</b><br><span class="mut">'+b.author+'</span>';
+    h+='<div style="margin-top:5px;font-size:12px;color:'+statusColor+'">'+(b.status==='read'?'✅ Прочитана':(b.status==='reading'?'📖 Читаю сейчас':'📋 В планах'))+'</div>';
+    if(b.notes) h+='<div class="mut" style="font-size:11px;margin-top:5px">'+b.notes+'</div>';
+    h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:5px" onclick="deleteBook('+i+')">Удалить</button>';
+    h+='</div>';
+  });
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addBook(){
+  var h='<h3>➕ Новая книга</h3>';
+  h+='<input id="book_title" placeholder="Название" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff">';
+  h+='<input id="book_author" placeholder="Автор" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff">';
+  h+='<select id="book_status" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff">';
+  h+='<option value="planned"> В планах</option><option value="reading">📖 Читаю сейчас</option><option value="read">✅ Прочитана</option>';
+  h+='</select>';
+  h+='<textarea id="book_notes" placeholder="Заметки/цитаты" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff;min-height:60px"></textarea>';
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="saveBook()">💾 Сохранить</button>';
+  openModal(h);
+}
+
+function saveBook(){
+  var t=document.getElementById('book_title').value.trim();
+  if(!t){alert('Введи название!');return;}
+  db.knowledge.books.push({title:t, author:document.getElementById('book_author').value.trim(), status:document.getElementById('book_status').value, notes:document.getElementById('book_notes').value.trim()});
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Книга добавлена!');
+  showBooks();
+}
+
+function deleteBook(i){
+  if(confirm('Удалить книгу?')){db.knowledge.books.splice(i,1);localStorage.setItem('solodev', JSON.stringify(db));showBooks();}
+}
+
+// --- КУРСЫ ---
+function showCourses(){
+  var h='<h3>🎓 Мои курсы</h3>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#6c8cff" onclick="addCourse()">+ Добавить курс</button>';
+  if(db.knowledge.courses.length===0) h+='<div class="mut" style="text-align:center">Список пуст</div>';
+  db.knowledge.courses.forEach(function(c, i){
+    h+='<div class="card" style="margin:8px 0">';
+    h+='<b>'+c.title+'</b><br><span class="mut">'+c.platform+'</span>';
+    h+='<div style="background:#1f2530;height:6px;border-radius:3px;margin:8px 0"><div style="background:#6c8cff;height:100%;width:'+c.progress+'%;border-radius:3px"></div></div>';
+    h+='<div class="mut" style="font-size:11px">Прогресс: '+c.progress+'%</div>';
+    h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:5px" onclick="deleteCourse('+i+')">Удалить</button>';
+    h+='</div>';
+  });
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addCourse(){
+  var h='<h3>➕ Новый курс</h3>';
+  h+='<input id="course_title" placeholder="Название курса" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<input id="course_platform" placeholder="Платформа (Udemy, YouTube...)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<label style="color:#fff">Прогресс: <span id="prog_val">0</span>%</label>';
+  h+='<input id="course_progress" type="range" min="0" max="100" value="0" oninput="document.getElementById(\'prog_val\').textContent=this.value" style="width:100%;margin:10px 0">';
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="saveCourse()">💾 Сохранить</button>';
+  openModal(h);
+}
+
+function saveCourse(){
+  var t=document.getElementById('course_title').value.trim();
+  if(!t){alert('Введи название!');return;}
+  db.knowledge.courses.push({title:t, platform:document.getElementById('course_platform').value.trim(), progress:parseInt(document.getElementById('course_progress').value)});
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Курс добавлен!');
+  showCourses();
+}
+
+function deleteCourse(i){
+  if(confirm('Удалить курс?')){db.knowledge.courses.splice(i,1);localStorage.setItem('solodev', JSON.stringify(db));showCourses();}
+}
+
+// --- ССЫЛКИ ---
+function showLinks(){
+  var h='<h3>🔗 Полезные ссылки</h3>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#3ecf8e" onclick="addLink()">+ Добавить ссылку</button>';
+  if(db.knowledge.links.length===0) h+='<div class="mut" style="text-align:center">Список пуст</div>';
+  db.knowledge.links.forEach(function(l, i){
+    h+='<div class="card" style="margin:8px 0">';
+    h+='<b>'+l.title+'</b><br>';
+    h+='<a href="'+l.url+'" target="_blank" style="color:#3ecf8e;font-size:12px;word-break:break-all">'+l.url+'</a>';
+    if(l.desc) h+='<div class="mut" style="font-size:11px;margin-top:5px">'+l.desc+'</div>';
+    h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:5px" onclick="deleteLink('+i+')">Удалить</button>';
+    h+='</div>';
+  });
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addLink(){
+  var h='<h3>➕ Новая ссылка</h3>';
+  h+='<input id="link_title" placeholder="Название" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<input id="link_url" placeholder="https://..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<input id="link_desc" placeholder="Описание (необязательно)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="saveLink()">💾 Сохранить</button>';
+  openModal(h);
+}
+
+function saveLink(){
+  var t=document.getElementById('link_title').value.trim();
+  var u=document.getElementById('link_url').value.trim();
+  if(!t||!u){alert('Введи название и URL!');return;}
+  db.knowledge.links.push({title:t, url:u, desc:document.getElementById('link_desc').value.trim()});
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Ссылка добавлена!');
+  showLinks();
+}
+
+function deleteLink(i){
+  if(confirm('Удалить ссылку?')){db.knowledge.links.splice(i,1);localStorage.setItem('solodev', JSON.stringify(db));showLinks();}
+}
+
+// --- СНИППЕТЫ ---
+function showSnippets(){
+  var h='<h3> Сниппеты кода</h3>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#ff9500" onclick="addSnippet()">+ Добавить сниппет</button>';
+  if(db.knowledge.snippets.length===0) h+='<div class="mut" style="text-align:center">Список пуст</div>';
+  db.knowledge.snippets.forEach(function(s, i){
+    h+='<div class="card" style="margin:8px 0">';
+    h+='<b>'+s.title+'</b> <span class="mut" style="font-size:11px">('+s.lang+')</span>';
+    h+='<pre style="background:#1f2530;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto;margin:5px 0;color:#3ecf8e">'+s.code+'</pre>';
+    h+='<button class="btn small" style="background:#1f2530;margin-right:5px" onclick="copySnippet('+i+')">📋 Копировать</button>';
+    h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b" onclick="deleteSnippet('+i+')">Удалить</button>';
+    h+='</div>';
+  });
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addSnippet(){
+  var h='<h3>➕ Новый сниппет</h3>';
+  h+='<input id="snip_title" placeholder="Название (напр. Fetch API)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  h+='<input id="snip_lang" placeholder="Язык (JS, Python...)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  h+='<textarea id="snip_code" placeholder="Вставь код сюда..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#3ecf8e;font-family:monospace;min-height:100px"></textarea>';
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="saveSnippet()">💾 Сохранить</button>';
+  openModal(h);
+}
+
+function saveSnippet(){
+  var t=document.getElementById('snip_title').value.trim();
+  var c=document.getElementById('snip_code').value.trim();
+  if(!t||!c){alert('Введи название и код!');return;}
+  db.knowledge.snippets.push({title:t, lang:document.getElementById('snip_lang').value.trim(), code:c});
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Сниппет сохранён!');
+  showSnippets();
+}
+
+function copySnippet(i){
+  var code = db.knowledge.snippets[i].code;
+  navigator.clipboard.writeText(code).then(function(){
+    alert('📋 Скопировано в буфер обмена!');
+  }).catch(function(){
+    alert('❌ Не удалось скопировать');
+  });
+}
+
+function deleteSnippet(i){
+  if(confirm('Удалить сниппет?')){db.knowledge.snippets.splice(i,1);localStorage.setItem('solodev', JSON.stringify(db));showSnippets();}
+}
+// === КОНЕЦ ВКЛАДКИ БАЗА ЗНАНИЙ ===
 
 // === КОНЕЦ ВКЛАДКИ ЗДОРОВЬЕ ===
 
