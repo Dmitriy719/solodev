@@ -5399,30 +5399,52 @@ function toggleSupp(name){
 
 
 // === УПРАВЛЕНИЕ ДАННЫМИ (ЭКСПОРТ / ИМПОРТ) ===
+
+
 function importData(){
+  alert('📂 Выбор файла для импорта...');
   var input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
   input.onchange = function(e){
+    alert('📄 Файл выбран: ' + (e.target.files[0] ? e.target.files[0].name : 'нет'));
     var file = e.target.files[0];
-    if(!file) return;
+    if(!file){
+      alert('❌ Файл не выбран');
+      return;
+    }
     var reader = new FileReader();
     reader.onload = function(event){
       try {
+        alert('📖 Чтение файла...');
         var importedDb = JSON.parse(event.target.result);
-        if(importedDb && typeof importedDb === 'object' && (importedDb.profile || importedDb.projects)){
-          if(confirm('⚠️ Внимание! Это ЗАМЕНИТ все текущие данные на данные из файла. Продолжить?')){
+        alert('✅ Файл прочитан. Тип: ' + typeof importedDb);
+        alert('📋 Ключи в файле: ' + Object.keys(importedDb).join(', '));
+        
+        // Проверяем, что это объект и есть хотя бы profile или projects
+        var isValid = importedDb && typeof importedDb === 'object' && (importedDb.profile || importedDb.projects || importedDb.clients);
+        
+        if(isValid){
+          var confirmMsg = '⚠️ Внимание!\n\nЭто ЗАМЕНИТ все текущие данные на данные из файла.\n\nПродолжить?';
+          if(confirm(confirmMsg)){
+            alert('🔄 Замена данных...');
             db = importedDb;
             localStorage.setItem('solodev', JSON.stringify(db));
-            alert('✅ Данные успешно импортированы! Страница будет перезагружена.');
+            alert('✅ Данные успешно импортированы!\n\nСейчас страница будет перезагружена.');
             location.reload();
+          } else {
+            alert('❌ Импорт отменён пользователем');
           }
         } else {
-          alert('❌ Неверный формат файла. Это не резервная копия SoloDev.');
+          alert('❌ Неверный формат файла.\n\nЭто не резервная копия SoloDev.\nНайдено ключей: ' + Object.keys(importedDb || {}).length);
         }
       } catch(err){
         alert('❌ Ошибка чтения файла: ' + err.message);
+        console.error('Import error:', err);
       }
+    };
+    reader.onerror = function(){
+      alert('❌ Ошибка чтения файла (FileReader error)');
     };
     reader.readAsText(file);
   };
@@ -5824,30 +5846,52 @@ function renderSettings(){
   h+='<div class="card"><h3> Сброс</h3><button class="btn" style="background:#ff6b6b" onclick="hardReset()">🗑 Сбросить всё</button></div>';
   document.getElementById('app').innerHTML=h;
 }
+
+
 function importData(){
+  alert('📂 Выбор файла для импорта...');
   var input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
   input.onchange = function(e){
+    alert('📄 Файл выбран: ' + (e.target.files[0] ? e.target.files[0].name : 'нет'));
     var file = e.target.files[0];
-    if(!file) return;
+    if(!file){
+      alert('❌ Файл не выбран');
+      return;
+    }
     var reader = new FileReader();
     reader.onload = function(event){
       try {
+        alert('📖 Чтение файла...');
         var importedDb = JSON.parse(event.target.result);
-        if(importedDb && typeof importedDb === 'object' && (importedDb.profile || importedDb.projects)){
-          if(confirm('⚠️ Внимание! Это ЗАМЕНИТ все текущие данные на данные из файла. Продолжить?')){
+        alert('✅ Файл прочитан. Тип: ' + typeof importedDb);
+        alert('📋 Ключи в файле: ' + Object.keys(importedDb).join(', '));
+        
+        // Проверяем, что это объект и есть хотя бы profile или projects
+        var isValid = importedDb && typeof importedDb === 'object' && (importedDb.profile || importedDb.projects || importedDb.clients);
+        
+        if(isValid){
+          var confirmMsg = '⚠️ Внимание!\n\nЭто ЗАМЕНИТ все текущие данные на данные из файла.\n\nПродолжить?';
+          if(confirm(confirmMsg)){
+            alert('🔄 Замена данных...');
             db = importedDb;
             localStorage.setItem('solodev', JSON.stringify(db));
-            alert('✅ Данные успешно импортированы! Страница будет перезагружена.');
+            alert('✅ Данные успешно импортированы!\n\nСейчас страница будет перезагружена.');
             location.reload();
+          } else {
+            alert('❌ Импорт отменён пользователем');
           }
         } else {
-          alert('❌ Неверный формат файла. Это не резервная копия SoloDev.');
+          alert('❌ Неверный формат файла.\n\nЭто не резервная копия SoloDev.\nНайдено ключей: ' + Object.keys(importedDb || {}).length);
         }
       } catch(err){
         alert('❌ Ошибка чтения файла: ' + err.message);
+        console.error('Import error:', err);
       }
+    };
+    reader.onerror = function(){
+      alert('❌ Ошибка чтения файла (FileReader error)');
     };
     reader.readAsText(file);
   };
