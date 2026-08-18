@@ -5430,8 +5430,10 @@ function importData(){
             alert('🔄 Замена данных...');
             db = importedDb;
             localStorage.setItem('solodev', JSON.stringify(db));
-            alert('✅ Данные успешно импортированы!\n\nСейчас страница будет перезагружена.');
-            location.reload();
+            alert('✅ Данные успешно импортированы!\n\nСтраница перезагрузится через 2 секунды...');
+            setTimeout(function(){
+              location.reload();
+            }, 2000);
           } else {
             alert('❌ Импорт отменён пользователем');
           }
@@ -5877,8 +5879,10 @@ function importData(){
             alert('🔄 Замена данных...');
             db = importedDb;
             localStorage.setItem('solodev', JSON.stringify(db));
-            alert('✅ Данные успешно импортированы!\n\nСейчас страница будет перезагружена.');
-            location.reload();
+            alert('✅ Данные успешно импортированы!\n\nСтраница перезагрузится через 2 секунды...');
+            setTimeout(function(){
+              location.reload();
+            }, 2000);
           } else {
             alert('❌ Импорт отменён пользователем');
           }
