@@ -5045,7 +5045,7 @@ function showJournal(){
     
     Object.keys(grouped).sort().reverse().forEach(function(dateKey){
       var entries = grouped[dateKey] || [];
-      if(entries.length === 0) continue;
+      if(entries.length === 0) return;
       var dateObj = new Date(dateKey);
       var dateLabel = dateKey;
       var today = new Date().toISOString().slice(0,10);
