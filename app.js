@@ -5397,6 +5397,60 @@ function toggleSupp(name){
   if(currentView === 'health') renderHealth();
 }
 
+
+// === УПРАВЛЕНИЕ ДАННЫМИ (ЭКСПОРТ / ИМПОРТ) ===
+function importData(){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(event){
+      try {
+        var importedDb = JSON.parse(event.target.result);
+        if(importedDb && typeof importedDb === 'object' && (importedDb.profile || importedDb.projects)){
+          if(confirm('⚠️ Внимание! Это ЗАМЕНИТ все текущие данные на данные из файла. Продолжить?')){
+            db = importedDb;
+            localStorage.setItem('solodev', JSON.stringify(db));
+            alert('✅ Данные успешно импортированы! Страница будет перезагружена.');
+            location.reload();
+          }
+        } else {
+          alert('❌ Неверный формат файла. Это не резервная копия SoloDev.');
+        }
+      } catch(err){
+        alert('❌ Ошибка чтения файла: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function exportData(){
+  try {
+    var dataStr = JSON.stringify(db, null, 2);
+    var blob = new Blob([dataStr], {type: "application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var date = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = 'solodev_backup_' + date + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    alert('✅ Данные успешно экспортированы! Файл скачан.');
+  } catch(e) {
+    alert('❌ Ошибка экспорта: ' + e.message);
+  }
+}
+
+
+// === КОНЕЦ УПРАВЛЕНИЯ ДАННЫМИ ===
+
 // === КОНЕЦ ВКЛАДКИ ЗДОРОВЬЕ ===
 
 // === КОНЕЦ МОДУЛЯ ПРОДУКТИВНОСТИ ===
@@ -5761,10 +5815,45 @@ function renderSettings(){
     h+='<label class="spec-check"><input type="checkbox" '+(checked?'checked':'')+' onchange="toggleSpec(\''+sp.replace(/'/g,"\\'")+'\')" style="width:auto"><span>'+sp+'</span></label>';
   });
   h+='</div></div>';
-  h+='<div class="card"><h3>📥 Экспорт данных</h3><button class="btn" onclick="exportData()">📥 Скачать JSON бэкап</button></div>';
+  h+='<div class="card"><h3>💾 Управление данными</h3>';
+  h+='<p class="mut" style="margin-bottom:10px">Скачайте резервную копию или восстановите данные из файла</p>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">';
+  h+='<button class="btn" style="background:#3ecf8e;padding:12px;font-size:14px" onclick="exportData()">📥 Экспорт</button>';
+  h+='<button class="btn" style="background:#6c8cff;padding:12px;font-size:14px" onclick="importData()">📤 Импорт</button>';
+  h+='</div></div>';
   h+='<div class="card"><h3> Сброс</h3><button class="btn" style="background:#ff6b6b" onclick="hardReset()">🗑 Сбросить всё</button></div>';
   document.getElementById('app').innerHTML=h;
 }
+function importData(){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(event){
+      try {
+        var importedDb = JSON.parse(event.target.result);
+        if(importedDb && typeof importedDb === 'object' && (importedDb.profile || importedDb.projects)){
+          if(confirm('⚠️ Внимание! Это ЗАМЕНИТ все текущие данные на данные из файла. Продолжить?')){
+            db = importedDb;
+            localStorage.setItem('solodev', JSON.stringify(db));
+            alert('✅ Данные успешно импортированы! Страница будет перезагружена.');
+            location.reload();
+          }
+        } else {
+          alert('❌ Неверный формат файла. Это не резервная копия SoloDev.');
+        }
+      } catch(err){
+        alert('❌ Ошибка чтения файла: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
 function exportData(){var blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='solodev_backup_'+today()+'.json';a.click()}
 function hardReset(){if(confirm('Удалить все данные?')){localStorage.removeItem('solodev');location.reload()}}
 
@@ -5816,3 +5905,5 @@ renderNav();
     console.error('SoloDev error:', e);
   }
 };
+
+function showBackupMenu(){ var h='<h3>💾 Резервное копирование</h3>'; h+='<button class="btn" style="width:100%;margin:10px 0;background:#3ecf8e" onclick="exportData()">📥 Экспорт данных</button>'; h+='<button class="btn" style="width:100%;margin:10px 0;background:#6c8cff" onclick="importData()">📤 Импорт данных</button>'; h+='<button class="btn" style="width:100%;background:#1f2530" onclick="closeModal()">Закрыть</button>'; openModal(h); }
