@@ -10,7 +10,7 @@ if(!db.diary) db.diary = [];
 if(!db.mood) db.mood = [];
 if(!db.dailyGoals) db.dailyGoals = [];
 if(!db.water) db.water = {intake:0, goal:8, log:{}};
-  if(!db.health) db.health = {sleep:[], workouts:[]};
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
 localStorage.setItem('solodev', JSON.stringify(db));
 // ================================================
 
@@ -4509,7 +4509,7 @@ function renderProductivity(){
   if(!db.mood) db.mood = [];
   if(!db.dailyGoals) db.dailyGoals = [];
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
-  if(!db.health) db.health = {sleep:[], workouts:[]};
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.journal) db.journal = [];
   
   var h='<h2> Продуктивность</h2>';
@@ -4940,7 +4940,7 @@ function deleteDailyGoal(index){
 // === ТРЕКЕР ВОДЫ ===
 function showWaterTracker(){
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
-  if(!db.health) db.health = {sleep:[], workouts:[]};
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
   
@@ -4977,7 +4977,7 @@ function showWaterTracker(){
 
 function addWater(amount){
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
-  if(!db.health) db.health = {sleep:[], workouts:[]};
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
   db.water.log[todayStr] += amount;
@@ -5147,13 +5147,16 @@ function filterJournal(filter){
 
 // === ВКЛАДКА ЗДОРОВЬЕ ===
 function renderHealth(){
-  if(!db.health) db.health = {sleep:[], workouts:[]};
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   
   var h='<h2>🏥 Здоровье</h2>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
-  h+='<button class="btn" style="background:#6c8cff;padding:25px;font-size:18px" onclick="showSleepTracker()">💤 Сон</button>';
-  h+='<button class="btn" style="background:#3ecf8e;padding:25px;font-size:18px" onclick="showWorkoutTracker()">🏋️ Активность</button>';
-  h+='<button class="btn" style="background:#9d6cff;padding:25px;font-size:18px;grid-column:span 2" onclick="showHealthStats()">📊 Статистика за неделю</button>';
+  h+='<button class="btn" style="background:#6c8cff;padding:20px;font-size:16px" onclick="showSleepTracker()">💤 Сон</button>';
+  h+='<button class="btn" style="background:#3ecf8e;padding:20px;font-size:16px" onclick="showWorkoutTracker()">🏋️ Активность</button>';
+  h+='<button class="btn" style="background:#00d4ff;padding:20px;font-size:16px;color:#000" onclick="showWaterHealth()">💧 Вода</button>';
+  h+='<button class="btn" style="background:#ff9500;padding:20px;font-size:16px" onclick="showWeightTracker()">⚖️ Вес</button>';
+  h+='<button class="btn" style="background:#ffd700;padding:20px;font-size:16px;color:#000;grid-column:span 2" onclick="showSupplements()">💊 Витамины</button>';
+  h+='<button class="btn" style="background:#9d6cff;padding:20px;font-size:16px;grid-column:span 2" onclick="showHealthStats()">📊 Статистика</button>';
   h+='</div>';
   
   // Краткая сводка за сегодня
@@ -5172,7 +5175,7 @@ function renderHealth(){
 }
 
 function showSleepTracker(){
-  if(!db.health) db.health = {sleep:[], workouts:[]};
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   var h='<h3>💤 Трекер сна</h3>';
   h+='<label>Часов сна</label>';
   h+='<input id="sleep_hours" type="number" step="0.5" placeholder="Например: 7.5" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
@@ -5196,7 +5199,7 @@ function saveSleep(){
     alert('⚠️ Введи корректное количество часов (0-24)');
     return;
   }
-  if(!db.health) db.health = {sleep:[], workouts:[]};
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   var todayStr = new Date().toISOString().slice(0,10);
   
   // Удаляем старую запись за сегодня, если она есть, чтобы перезаписать
@@ -5237,7 +5240,7 @@ function saveWorkout(){
     alert('⚠️ Введи длительность в минутах');
     return;
   }
-  if(!db.health) db.health = {sleep:[], workouts:[]};
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   
   db.health.workouts.push({
     date: new Date().toISOString().slice(0,10),
@@ -5254,7 +5257,7 @@ function saveWorkout(){
 }
 
 function showHealthStats(){
-  if(!db.health) db.health = {sleep:[], workouts:[]};
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   
   // Статистика за последние 7 дней
   var now = new Date();
@@ -5286,6 +5289,114 @@ function showHealthStats(){
   h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
   openModal(h);
 }
+
+function showWaterHealth(){
+  var todayStr = new Date().toISOString().slice(0,10);
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  var todayWater = db.health.water.filter(function(w){return w.date===todayStr}).reduce(function(a,b){return a+b.amount},0);
+  
+  var h='<h3>💧 Трекер воды</h3>';
+  h+='<div style="text-align:center;padding:20px">';
+  h+='<div style="font-size:48px;font-weight:bold;color:#00d4ff">'+todayWater+'</div>';
+  h+='<div class="mut">стаканов сегодня (цель: 8)</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0">';
+  for(var i=1; i<=8; i++){
+    h+='<div style="width:30px;height:40px;background:'+(i<=todayWater?'#00d4ff':'#1f2530')+';border-radius:4px;margin:0 auto"></div>';
+  }
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  h+='<button class="btn" style="background:#00d4ff;color:#000" onclick="addWaterHealth(1)">+ 1 стакан</button>';
+  h+='<button class="btn" style="background:#3ecf8e" onclick="addWaterHealth(2)">+ 2 стакана</button>';
+  h+='</div></div>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function addWaterHealth(amount){
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  db.health.water.push({
+    date: new Date().toISOString().slice(0,10),
+    amount: amount,
+    timestamp: new Date().toISOString()
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('💧 Выпито '+amount+' стакан'+(amount===1?'':'а')+'!');
+  showWaterHealth();
+  if(currentView === 'health') renderHealth();
+}
+
+function showWeightTracker(){
+  var h='<h3>⚖️ Дневник веса</h3>';
+  h+='<label>Вес (кг)</label>';
+  h+='<input id="weight_val" type="number" step="0.1" placeholder="Например: 75.5" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  h+='<label>Заметка (необязательно)</label>';
+  h+='<input id="weight_note" placeholder="Утром, после тренировки..." style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="saveWeight()">💾 Сохранить</button>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function saveWeight(){
+  var val = parseFloat(document.getElementById('weight_val').value);
+  var note = document.getElementById('weight_note').value.trim();
+  if(!val || val < 20 || val > 300){
+    alert('⚠️ Введи корректный вес (20-300 кг)');
+    return;
+  }
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  db.health.weight.push({
+    date: new Date().toISOString().slice(0,10),
+    value: val,
+    note: note,
+    timestamp: new Date().toISOString()
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Вес записан!');
+  closeModal();
+  if(currentView === 'health') renderHealth();
+}
+
+function showSupplements(){
+  var todayStr = new Date().toISOString().slice(0,10);
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  var todaySupps = db.health.supplements.filter(function(s){return s.date===todayStr});
+  var doneCount = todaySupps.filter(function(s){return s.done}).length;
+  
+  var h='<h3>💊 Витамины и здоровье</h3>';
+  h+='<p class="mut">Отмечай, что принял сегодня</p>';
+  
+  var defaultSupps = ['Витамин D', 'Омега-3', 'Магний', 'Зарядка 10 мин'];
+  defaultSupps.forEach(function(name, idx){
+    var existing = todaySupps.find(function(s){return s.name===name});
+    var isDone = existing ? existing.done : false;
+    h+='<div class="card" style="margin:8px 0;padding:12px;display:flex;justify-content:space-between;align-items:center">';
+    h+='<span style="font-size:15px">'+name+'</span>';
+    h+='<button class="btn small" style="background:'+(isDone?'#3ecf8e':'#1f2530')+';padding:8px 15px" onclick="toggleSupp(\''+name+'\')">'+(isDone?'✅ Принято':'⬜ Отметить')+'</button>';
+    h+='</div>';
+  });
+  
+  h+='<div class="card" style="margin-top:15px;text-align:center">';
+  h+='<div class="mut">Выполнено: '+doneCount+' из '+defaultSupps.length+'</div>';
+  h+='</div>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function toggleSupp(name){
+  if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
+  var todayStr = new Date().toISOString().slice(0,10);
+  var existingIdx = db.health.supplements.findIndex(function(s){return s.date===todayStr && s.name===name});
+  
+  if(existingIdx !== -1){
+    db.health.supplements[existingIdx].done = !db.health.supplements[existingIdx].done;
+  } else {
+    db.health.supplements.push({date: todayStr, name: name, done: true, timestamp: new Date().toISOString()});
+  }
+  localStorage.setItem('solodev', JSON.stringify(db));
+  showSupplements();
+  if(currentView === 'health') renderHealth();
+}
+
 // === КОНЕЦ ВКЛАДКИ ЗДОРОВЬЕ ===
 
 // === КОНЕЦ МОДУЛЯ ПРОДУКТИВНОСТИ ===
