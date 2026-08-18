@@ -10,6 +10,7 @@ if(!db.diary) db.diary = [];
 if(!db.mood) db.mood = [];
 if(!db.dailyGoals) db.dailyGoals = [];
 if(!db.water) db.water = {intake:0, goal:8, log:{}};
+  if(!db.health) db.health = {sleep:[], workouts:[]};
 localStorage.setItem('solodev', JSON.stringify(db));
 // ================================================
 
@@ -24,7 +25,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -62,6 +63,7 @@ function render(){
   else if(currentView==='productivity')renderProductivity();
   else if(currentView==='emails')renderEmails();
   else if(currentView==='pricing')renderPricing();
+  else if(currentView==='health')renderHealth();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -4507,6 +4509,7 @@ function renderProductivity(){
   if(!db.mood) db.mood = [];
   if(!db.dailyGoals) db.dailyGoals = [];
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
+  if(!db.health) db.health = {sleep:[], workouts:[]};
   if(!db.journal) db.journal = [];
   
   var h='<h2> Продуктивность</h2>';
@@ -4937,6 +4940,7 @@ function deleteDailyGoal(index){
 // === ТРЕКЕР ВОДЫ ===
 function showWaterTracker(){
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
+  if(!db.health) db.health = {sleep:[], workouts:[]};
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
   
@@ -4973,6 +4977,7 @@ function showWaterTracker(){
 
 function addWater(amount){
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
+  if(!db.health) db.health = {sleep:[], workouts:[]};
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
   db.water.log[todayStr] += amount;
@@ -5138,6 +5143,150 @@ function filterJournal(filter){
   // Здесь можно добавить перерисовку с фильтром
   alert('📊 Фильтр: '+filter);
 }
+
+
+// === ВКЛАДКА ЗДОРОВЬЕ ===
+function renderHealth(){
+  if(!db.health) db.health = {sleep:[], workouts:[]};
+  
+  var h='<h2>🏥 Здоровье</h2>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
+  h+='<button class="btn" style="background:#6c8cff;padding:25px;font-size:18px" onclick="showSleepTracker()">💤 Сон</button>';
+  h+='<button class="btn" style="background:#3ecf8e;padding:25px;font-size:18px" onclick="showWorkoutTracker()">🏋️ Активность</button>';
+  h+='<button class="btn" style="background:#9d6cff;padding:25px;font-size:18px;grid-column:span 2" onclick="showHealthStats()">📊 Статистика за неделю</button>';
+  h+='</div>';
+  
+  // Краткая сводка за сегодня
+  var todayStr = new Date().toISOString().slice(0,10);
+  var todaySleep = db.health.sleep.filter(function(s){return s.date===todayStr});
+  var todayWorkout = db.health.workouts.filter(function(w){return w.date===todayStr});
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#102a20);border-color:#3ecf8e">';
+  h+='<h3 style="color:#fff;margin:0 0 10px 0">📍 Сегодня</h3>';
+  h+='<div style="display:flex;justify-content:space-around;text-align:center">';
+  h+='<div><div class="mut" style="color:#fff">Сон</div><div style="font-size:20px;font-weight:bold;color:#6c8cff">'+(todaySleep.length>0?todaySleep[0].hours+' ч':'—')+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Тренировки</div><div style="font-size:20px;font-weight:bold;color:#3ecf8e">'+todayWorkout.length+' раз</div></div>';
+  h+='</div></div>';
+  
+  document.getElementById('app').innerHTML = h;
+}
+
+function showSleepTracker(){
+  if(!db.health) db.health = {sleep:[], workouts:[]};
+  var h='<h3>💤 Трекер сна</h3>';
+  h+='<label>Часов сна</label>';
+  h+='<input id="sleep_hours" type="number" step="0.5" placeholder="Например: 7.5" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<label>Качество сна (1-5)</label>';
+  h+='<select id="sleep_quality" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<option value="5">5 - Отлично, выспался</option>';
+  h+='<option value="4">4 - Хорошо</option>';
+  h+='<option value="3">3 - Нормально</option>';
+  h+='<option value="2">2 - Плохо</option>';
+  h+='<option value="1">1 - Ужасно</option>';
+  h+='</select>';
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="saveSleep()">💾 Сохранить</button>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function saveSleep(){
+  var hours = parseFloat(document.getElementById('sleep_hours').value);
+  var quality = parseInt(document.getElementById('sleep_quality').value);
+  if(!hours || hours < 0 || hours > 24){
+    alert('⚠️ Введи корректное количество часов (0-24)');
+    return;
+  }
+  if(!db.health) db.health = {sleep:[], workouts:[]};
+  var todayStr = new Date().toISOString().slice(0,10);
+  
+  // Удаляем старую запись за сегодня, если она есть, чтобы перезаписать
+  db.health.sleep = db.health.sleep.filter(function(s){return s.date!==todayStr});
+  db.health.sleep.push({date: todayStr, hours: hours, quality: quality, timestamp: new Date().toISOString()});
+  
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Сон записан!');
+  closeModal();
+  if(currentView === 'health') renderHealth();
+}
+
+function showWorkoutTracker(){
+  var h='<h3>🏋️ Активность</h3>';
+  h+='<label>Тип активности</label>';
+  h+='<select id="workout_type" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<option value="Тренировка в зале">Тренировка в зале</option>';
+  h+='<option value="Бег/Кардио">Бег / Кардио</option>';
+  h+='<option value="Зарядка/Растяжка">Зарядка / Растяжка</option>';
+  h+='<option value="Прогулка">Прогулка</option>';
+  h+='<option value="Другое">Другое</option>';
+  h+='</select>';
+  h+='<label>Длительность (минут)</label>';
+  h+='<input id="workout_duration" type="number" placeholder="Например: 45" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<label>Заметка (необязательно)</label>';
+  h+='<input id="workout_note" placeholder="Что делал?" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<button class="btn" style="width:100%;margin-top:10px" onclick="saveWorkout()">💾 Сохранить</button>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:8px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function saveWorkout(){
+  var type = document.getElementById('workout_type').value;
+  var duration = parseInt(document.getElementById('workout_duration').value);
+  var note = document.getElementById('workout_note').value.trim();
+  
+  if(!duration || duration <= 0){
+    alert('⚠️ Введи длительность в минутах');
+    return;
+  }
+  if(!db.health) db.health = {sleep:[], workouts:[]};
+  
+  db.health.workouts.push({
+    date: new Date().toISOString().slice(0,10),
+    type: type,
+    duration: duration,
+    note: note,
+    timestamp: new Date().toISOString()
+  });
+  
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Активность записана!');
+  closeModal();
+  if(currentView === 'health') renderHealth();
+}
+
+function showHealthStats(){
+  if(!db.health) db.health = {sleep:[], workouts:[]};
+  
+  // Статистика за последние 7 дней
+  var now = new Date();
+  var weekAgo = new Date(now - 7*86400000).toISOString().slice(0,10);
+  
+  var weekSleep = db.health.sleep.filter(function(s){return s.date >= weekAgo});
+  var weekWorkouts = db.health.workouts.filter(function(w){return w.date >= weekAgo});
+  
+  var avgSleep = weekSleep.length > 0 ? (weekSleep.reduce(function(a,b){return a+b.hours},0) / weekSleep.length).toFixed(1) : 0;
+  var avgQuality = weekSleep.length > 0 ? (weekSleep.reduce(function(a,b){return a+b.quality},0) / weekSleep.length).toFixed(1) : 0;
+  var totalWorkoutMins = weekWorkouts.reduce(function(a,b){return a+b.duration},0);
+  
+  var h='<h3>📊 Статистика за неделю</h3>';
+  h+='<div class="card" style="margin:10px 0">';
+  h+='<h4 style="margin:0 0 10px 0;color:#6c8cff">💤 Сон</h4>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  h+='<div><div class="mut">Среднее время</div><div style="font-size:20px;font-weight:bold">'+avgSleep+' ч</div></div>';
+  h+='<div><div class="mut">Среднее качество</div><div style="font-size:20px;font-weight:bold">'+avgQuality+' / 5</div></div>';
+  h+='<div><div class="mut">Дней с записью</div><div style="font-size:20px;font-weight:bold">'+weekSleep.length+'</div></div>';
+  h+='</div></div>';
+  
+  h+='<div class="card" style="margin:10px 0">';
+  h+='<h4 style="margin:0 0 10px 0;color:#3ecf8e">🏋️ Активность</h4>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  h+='<div><div class="mut">Всего тренировок</div><div style="font-size:20px;font-weight:bold">'+weekWorkouts.length+'</div></div>';
+  h+='<div><div class="mut">Всего минут</div><div style="font-size:20px;font-weight:bold">'+totalWorkoutMins+' мин</div></div>';
+  h+='</div></div>';
+  
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+// === КОНЕЦ ВКЛАДКИ ЗДОРОВЬЕ ===
 
 // === КОНЕЦ МОДУЛЯ ПРОДУКТИВНОСТИ ===
 
