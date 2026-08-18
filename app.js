@@ -4511,16 +4511,18 @@ function renderProductivity(){
   if(!db.mood) db.mood = [];
   if(!db.dailyGoals) db.dailyGoals = [];
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
+  if(!db.journal) db.journal = [];
   
   var h='<h2> Продуктивность</h2>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
-  h+='<button class="btn" style="background:#ff6b6b;padding:20px;font-size:16px" onclick="showPomodoro()">🍅 Pomodoro</button>';
+  h+='<button class="btn" style="background:#ff6b6b;padding:20px;font-size:16px" onclick="showPomodoro()"> Pomodoro</button>';
   h+='<button class="btn" style="background:#3ecf8e;padding:20px;font-size:16px" onclick="showHabits()">✅ Привычки</button>';
   h+='<button class="btn" style="background:#6c8cff;padding:20px;font-size:16px" onclick="showDiary()"> Дневник</button>';
   h+='<button class="btn" style="background:#9d6cff;padding:20px;font-size:16px" onclick="showFocusStats()">📊 Статистика</button>';
   h+='<button class="btn" style="background:#ffd700;padding:20px;font-size:16px;color:#000" onclick="showMoodTracker()">😊 Настроение</button>';
   h+='<button class="btn" style="background:#ff9500;padding:20px;font-size:16px" onclick="showDailyGoals()">🎯 Цели дня</button>';
-  h+='<button class="btn" style="background:#00d4ff;padding:20px;font-size:16px;color:#000" onclick="showWaterTracker()">💧 Вода</button>';
+  h+='<button class="btn" style="background:#00d4ff;padding:20px;font-size:16px;color:#000" onclick="showWaterTracker()"> Вода</button>';
+  h+='<button class="btn" style="background:linear-gradient(135deg,#6c8cff,#9d6cff);padding:20px;font-size:16px" onclick="showJournal()">📋 Журнал</button>';
   h+='</div>';
   
   var todayStr = new Date().toISOString().slice(0,10);
@@ -4714,6 +4716,7 @@ function toggleHabit(index){
   } else {
     db.habits[index].log[todayStr] = true;
     alert('✅ Отлично! Привычка выполнена сегодня! 🔥');
+    addToJournal('habit', {habitName: db.habits[index].name});
   }
   localStorage.setItem('solodev', JSON.stringify(db));
   showHabits();
@@ -4985,6 +4988,152 @@ function saveWaterGoal(){
     alert('✅ Цель сохранена: '+db.water.goal+' стаканов');
     showWaterTracker();
   }
+}
+
+
+// === ЖУРНАЛ ПРОДУКТИВНОСТИ (ОБЩАЯ ЛЕНТА СОБЫТИЙ) ===
+function addToJournal(type, data){
+  if(!db.journal) db.journal = [];
+  db.journal.push({
+    type: type,
+    data: data,
+    timestamp: new Date().toISOString(),
+    date: new Date().toISOString().slice(0,10)
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+}
+
+function showJournal(){
+  if(!db.journal) db.journal = [];
+  
+  var h='<h3>📋 Журнал продуктивности</h3>';
+  h+='<p class="mut">Все события в одном месте</p>';
+  
+  // Фильтры
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin:15px 0">';
+  var filters = [
+    {id:'today', label:'Сегодня'},
+    {id:'week', label:'Неделя'},
+    {id:'month', label:'Месяц'},
+    {id:'year', label:'Год'},
+    {id:'all', label:'Всё'}
+  ];
+  filters.forEach(function(f){
+    h+='<button class="btn small" style="background:#6c8cff;padding:6px 12px" onclick="filterJournal(\''+f.id+'\')">'+f.label+'</button>';
+  });
+  h+='</div>';
+  
+  // Получаем отфильтрованные записи
+  var filtered = getFilteredJournal('all');
+  
+  if(filtered.length === 0){
+    h+='<div class="mut" style="text-align:center;padding:20px">Пока нет записей</div>';
+  } else {
+    var grouped = {};
+    filtered.forEach(function(entry){
+      var dateKey = entry.date;
+      if(!grouped[dateKey]) grouped[dateKey] = [];
+      grouped[dateKey].push(entry);
+    });
+    
+    Object.keys(grouped).sort().reverse().forEach(function(dateKey){
+      var entries = grouped[dateKey];
+      var dateObj = new Date(dateKey);
+      var dateLabel = dateKey;
+      var today = new Date().toISOString().slice(0,10);
+      var yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+      
+      if(dateKey === today) dateLabel = 'Сегодня';
+      else if(dateKey === yesterday) dateLabel = 'Вчера';
+      else dateLabel = dateKey.split('-').reverse().join('.');
+      
+      h+='<div style="margin:15px 0">';
+      h+='<h4 style="color:#6c8cff;margin:0 0 10px 0;border-bottom:1px solid #2a3040;padding-bottom:5px">'+dateLabel+'</h4>';
+      
+      entries.forEach(function(entry){
+        var icon = '';
+        var text = '';
+        var color = '';
+        
+        switch(entry.type){
+          case 'habit':
+            icon = '✅';
+            text = 'Выполнена привычка: <b>'+entry.data.habitName+'</b>';
+            color = '#3ecf8e';
+            break;
+          case 'pomodoro':
+            icon = '';
+            text = 'Pomodoro сессия: '+entry.data.duration+' мин';
+            color = '#ff6b6b';
+            break;
+          case 'diary':
+            icon = '📝';
+            text = 'Запись в дневнике: '+entry.data.text.substring(0,50)+(entry.data.text.length>50?'...':'');
+            color = '#6c8cff';
+            break;
+          case 'mood':
+            var moods = ['😄','🙂','','😔','😢'];
+            icon = moods[entry.data.value] || '';
+            text = 'Настроение: '+entry.data.label+(entry.data.note?'. Заметка: '+entry.data.note:'');
+            color = '#ffd700';
+            break;
+          case 'goal':
+            icon = '🎯';
+            text = 'Цель: <b>'+entry.data.goalText+'</b> '+(entry.data.completed?'(выполнена!)':'');
+            color = '#ff9500';
+            break;
+          case 'water':
+            icon = '💧';
+            text = 'Вода: +'+entry.data.amount+' стакан'+(entry.data.amount===1?'':'а');
+            color = '#00d4ff';
+            break;
+        }
+        
+        h+='<div class="card" style="margin:8px 0;padding:10px;border-left:3px solid '+color+'">';
+        h+='<div style="display:flex;align-items:flex-start;gap:10px">';
+        h+='<div style="font-size:20px">'+icon+'</div>';
+        h+='<div style="flex:1">';
+        h+='<div style="font-size:13px">'+text+'</div>';
+        h+='<div class="mut" style="font-size:11px;margin-top:4px">'+entry.timestamp.slice(11,16)+'</div>';
+        h+='</div></div></div>';
+      });
+      h+='</div>';
+    });
+  }
+  
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:10px" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function getFilteredJournal(filter){
+  if(!db.journal) return [];
+  var now = new Date();
+  var today = now.toISOString().slice(0,10);
+  
+  return db.journal.filter(function(entry){
+    var entryDate = entry.date;
+    switch(filter){
+      case 'today': return entryDate === today;
+      case 'week':
+        var weekAgo = new Date(now - 7*86400000).toISOString().slice(0,10);
+        return entryDate >= weekAgo;
+      case 'month':
+        var monthAgo = new Date(now - 30*86400000).toISOString().slice(0,10);
+        return entryDate >= monthAgo;
+      case 'year':
+        var yearAgo = new Date(now - 365*86400000).toISOString().slice(0,10);
+        return entryDate >= yearAgo;
+      default: return true;
+    }
+  }).sort(function(a,b){
+    return new Date(b.timestamp) - new Date(a.timestamp);
+  });
+}
+
+function filterJournal(filter){
+  showJournal();
+  // Здесь можно добавить перерисовку с фильтром
+  alert('📊 Фильтр: '+filter);
 }
 
 // === КОНЕЦ МОДУЛЯ ПРОДУКТИВНОСТИ ===
