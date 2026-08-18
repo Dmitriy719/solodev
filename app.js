@@ -41,12 +41,7 @@ function go(id){
   localStorage.setItem('solodev_currentView', id);
   
   
-// === ЕДИНОЕ ВОССТАНОВЛЕНИЕ ВКЛАДКИ ===
-  var savedView = localStorage.getItem('solodev_currentView');
-  if(savedView && ['home','dashboard','radar','projects','clients','finances','emails','pricing','productivity','settings'].includes(savedView)){
-    currentView = savedView;
-  }
-  // ======================================
+
   
 renderNav();
   render();
@@ -5546,7 +5541,14 @@ window.onload=function(){
     if(!db.paymentCalendar)db.paymentCalendar=[];
     if(!db.hourlyRate)db.hourlyRate=2000;
     save();
-    renderNav();
+    
+// === ГАРАНТИРОВАННОЕ ВОССТАНОВЛЕНИЕ ВКЛАДКИ ПРИ ЗАГРУЗКЕ ===
+var savedView = localStorage.getItem('solodev_currentView');
+if(savedView && ['home','dashboard','radar','projects','clients','finances','emails','pricing','productivity','settings'].includes(savedView)){
+  currentView = savedView;
+}
+// ============================================================
+renderNav();
     render();
     loadExternalData();
   } catch(e) {
