@@ -5494,7 +5494,8 @@ function exportData(){
 // === ВКЛАДКА БАЗА ЗНАНИЙ ===
 function renderKnowledge(){
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
-  var h='<h2>📚 База знаний</h2>';
+  var h='<h2> База знаний</h2>';
+  h+='<input id="knowledge_search" placeholder="🔍 Поиск по книгам, курсам, ссылкам и коду..." style="width:100%;padding:12px;margin-bottom:15px;background:#1f2530;border:2px solid #9d6cff;border-radius:8px;color:#fff;font-size:15px" oninput="searchKnowledge(this.value)">';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
   h+='<button class="btn" style="background:#9d6cff;padding:20px;font-size:16px" onclick="showBooks()">📖 Книги ('+db.knowledge.books.length+')</button>';
   h+='<button class="btn" style="background:#6c8cff;padding:20px;font-size:16px" onclick="showCourses()">🎓 Курсы ('+db.knowledge.courses.length+')</button>';
@@ -5684,6 +5685,125 @@ function copySnippet(i){
 function deleteSnippet(i){
   if(confirm('Удалить сниппет?')){db.knowledge.snippets.splice(i,1);localStorage.setItem('solodev', JSON.stringify(db));showSnippets();}
 }
+
+// === ПОИСК ПО БАЗЕ ЗНАНИЙ ===
+function searchKnowledge(query){
+  if(!query || query.trim().length < 2){
+    renderKnowledge();
+    return;
+  }
+  query = query.toLowerCase().trim();
+  var results = {books:[], courses:[], links:[], snippets:[]};
+  
+  // Ищем в книгах
+  db.knowledge.books.forEach(function(b, i){
+    if(b.title.toLowerCase().includes(query) || b.author.toLowerCase().includes(query) || (b.notes && b.notes.toLowerCase().includes(query))){
+      results.books.push({item:b, index:i, type:'book'});
+    }
+  });
+  
+  // Ищем в курсах
+  db.knowledge.courses.forEach(function(c, i){
+    if(c.title.toLowerCase().includes(query) || c.platform.toLowerCase().includes(query)){
+      results.courses.push({item:c, index:i, type:'course'});
+    }
+  });
+  
+  // Ищем в ссылках
+  db.knowledge.links.forEach(function(l, i){
+    if(l.title.toLowerCase().includes(query) || l.url.toLowerCase().includes(query) || (l.desc && l.desc.toLowerCase().includes(query))){
+      results.links.push({item:l, index:i, type:'link'});
+    }
+  });
+  
+  // Ищем в сниппетах
+  db.knowledge.snippets.forEach(function(s, i){
+    if(s.title.toLowerCase().includes(query) || s.lang.toLowerCase().includes(query) || s.code.toLowerCase().includes(query)){
+      results.snippets.push({item:s, index:i, type:'snippet'});
+    }
+  });
+  
+  // Показываем результаты
+  showSearchResults(results, query);
+}
+
+function showSearchResults(results, query){
+  var total = results.books.length + results.courses.length + results.links.length + results.snippets.length;
+  var h='<h3>🔍 Результаты поиска</h3>';
+  h+='<p class="mut">Найдено: <b style="color:#9d6cff">'+total+'</b> по запросу "'+query+'"</p>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-bottom:15px" onclick="renderKnowledge()">← Назад к базе знаний</button>';
+  
+  if(total === 0){
+    h+='<div class="card" style="text-align:center;padding:30px">';
+    h+='<div style="font-size:48px;margin-bottom:10px">😕</div>';
+    h+='<div class="mut">Ничего не найдено</div>';
+    h+='<button class="btn" style="margin-top:15px;background:#9d6cff" onclick="renderKnowledge()">Добавить новое</button>';
+    h+='</div>';
+  } else {
+    // Книги
+    if(results.books.length > 0){
+      h+='<h4 style="color:#9d6cff;margin:15px 0 10px 0">📖 Книги ('+results.books.length+')</h4>';
+      results.books.forEach(function(r){
+        var b = r.item;
+        var statusColor = b.status==='read'?'#3ecf8e':(b.status==='reading'?'#6c8cff':'#8b94a7');
+        h+='<div class="card" style="margin:8px 0;border-left:4px solid '+statusColor+'">';
+        h+='<b>'+highlightText(b.title, query)+'</b><br><span class="mut">'+highlightText(b.author, query)+'</span>';
+        h+='<div style="margin-top:5px;font-size:12px;color:'+statusColor+'">'+(b.status==='read'?'✅ Прочитана':(b.status==='reading'?'📖 Читаю':'📋 В планах'))+'</div>';
+        h+='</div>';
+      });
+    }
+    
+    // Курсы
+    if(results.courses.length > 0){
+      h+='<h4 style="color:#6c8cff;margin:15px 0 10px 0">🎓 Курсы ('+results.courses.length+')</h4>';
+      results.courses.forEach(function(r){
+        var c = r.item;
+        h+='<div class="card" style="margin:8px 0">';
+        h+='<b>'+highlightText(c.title, query)+'</b><br><span class="mut">'+highlightText(c.platform, query)+'</span>';
+        h+='<div style="background:#1f2530;height:6px;border-radius:3px;margin:8px 0"><div style="background:#6c8cff;height:100%;width:'+c.progress+'%;border-radius:3px"></div></div>';
+        h+='<div class="mut" style="font-size:11px">Прогресс: '+c.progress+'%</div>';
+        h+='</div>';
+      });
+    }
+    
+    // Ссылки
+    if(results.links.length > 0){
+      h+='<h4 style="color:#3ecf8e;margin:15px 0 10px 0">🔗 Ссылки ('+results.links.length+')</h4>';
+      results.links.forEach(function(r){
+        var l = r.item;
+        h+='<div class="card" style="margin:8px 0">';
+        h+='<b>'+highlightText(l.title, query)+'</b><br>';
+        h+='<a href="'+l.url+'" target="_blank" style="color:#3ecf8e;font-size:12px;word-break:break-all">'+highlightText(l.url, query)+'</a>';
+        if(l.desc) h+='<div class="mut" style="font-size:11px;margin-top:5px">'+highlightText(l.desc, query)+'</div>';
+        h+='</div>';
+      });
+    }
+    
+    // Сниппеты
+    if(results.snippets.length > 0){
+      h+='<h4 style="color:#ff9500;margin:15px 0 10px 0">💻 Сниппеты ('+results.snippets.length+')</h4>';
+      results.snippets.forEach(function(r){
+        var s = r.item;
+        h+='<div class="card" style="margin:8px 0">';
+        h+='<b>'+highlightText(s.title, query)+'</b> <span class="mut" style="font-size:11px">('+highlightText(s.lang, query)+')</span>';
+        h+='<pre style="background:#1f2530;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto;margin:5px 0;color:#3ecf8e">'+highlightText(s.code, query)+'</pre>';
+        h+='<button class="btn small" style="background:#1f2530" onclick="copySnippet('+r.index+')">📋 Копировать</button>';
+        h+='</div>';
+      });
+    }
+  }
+  
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:15px" onclick="renderKnowledge()">Закрыть</button>';
+  openModal(h);
+}
+
+function highlightText(text, query){
+  if(!text) return '';
+  var regex = new RegExp('('+query+')', 'gi');
+  return text.replace(regex, '<mark style="background:#ff9500;color:#000;padding:0 3px;border-radius:2px">$1</mark>');
+}
+// === КОНЕЦ ПОИСКА ===
+
 // === КОНЕЦ ВКЛАДКИ БАЗА ЗНАНИЙ ===
 
 // === КОНЕЦ ВКЛАДКИ ЗДОРОВЬЕ ===
