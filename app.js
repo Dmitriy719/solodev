@@ -13,11 +13,7 @@ if(!db.water) db.water = {intake:0, goal:8, log:{}};
 localStorage.setItem('solodev', JSON.stringify(db));
 // ================================================
 
-  // Восстановление последней открытой вкладки
-  var savedView = localStorage.getItem('solodev_currentView');
-  if(savedView && ['home','dashboard','radar','projects','clients','finances','emails','pricing','productivity','settings'].includes(savedView)){
-    currentView = savedView;
-  }
+  
   
   // Гарантированная инициализация новых полей продуктивности
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
@@ -43,9 +39,14 @@ function renderNav(){
 function go(id){
   currentView = id;
   localStorage.setItem('solodev_currentView', id);
-  // Восстановление последней вкладки ДО отрисовки меню
+  
+  
+// === ЕДИНОЕ ВОССТАНОВЛЕНИЕ ВКЛАДКИ ===
   var savedView = localStorage.getItem('solodev_currentView');
-  if(savedView) currentView = savedView;
+  if(savedView && ['home','dashboard','radar','projects','clients','finances','emails','pricing','productivity','settings'].includes(savedView)){
+    currentView = savedView;
+  }
+  // ======================================
   
 renderNav();
   render();
@@ -4591,6 +4592,7 @@ function startPomodoro(minutes){
       var todayStr = new Date().toISOString().slice(0,10);
       db.pomodoro.sessions.push({date: todayStr, duration: pomodoroTotalTime/60, timestamp: new Date().toISOString()});
       db.pomodoro.totalTime = (db.pomodoro.totalTime || 0) + (pomodoroTotalTime/60);
+      addToJournal('pomodoro', {duration: Math.round(pomodoroTotalTime/60)});
       localStorage.setItem('solodev', JSON.stringify(db));
       if(statusEl) statusEl.textContent = '✅ Сессия завершена!';
       alert('🍅 Pomodoro завершён! Отличная работа!');
@@ -4765,6 +4767,7 @@ function saveDiaryEntry(){
     date: new Date().toISOString().slice(0,10) + ' ' + new Date().toTimeString().slice(0,5),
     text: textEl.value.trim()
   });
+  addToJournal('diary', {text: textEl.value.trim()});
   localStorage.setItem('solodev', JSON.stringify(db));
   alert('✅ Запись сохранена!');
   showDiary();
@@ -4853,6 +4856,8 @@ function saveMood(value){
     date: new Date().toISOString().slice(0,10) + ' ' + new Date().toTimeString().slice(0,5),
     note: note || ''
   });
+  var moodsArr = ['😄 Отлично', '🙂 Хорошо', ' Нормально', '😔 Грустно', '😢 Плохо'];
+  addToJournal('mood', {value: value, label: moodsArr[value], note: note});
   localStorage.setItem('solodev', JSON.stringify(db));
   alert('✅ Настроение сохранено!');
   showMoodTracker();
@@ -4912,6 +4917,7 @@ function addDailyGoal(){
     done: false,
     created: new Date().toISOString()
   });
+  addToJournal('goal', {goalText: input.value.trim(), completed: false});
   localStorage.setItem('solodev', JSON.stringify(db));
   alert('✅ Цель добавлена!');
   showDailyGoals();
@@ -4975,6 +4981,7 @@ function addWater(amount){
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
   db.water.log[todayStr] += amount;
+  addToJournal('water', {amount: amount});
   localStorage.setItem('solodev', JSON.stringify(db));
   alert('💧 Выпито '+amount+' стакан'+(amount===1?'':'а')+'! Всего сегодня: '+db.water.log[todayStr]);
   showWaterTracker();
@@ -5037,7 +5044,8 @@ function showJournal(){
     });
     
     Object.keys(grouped).sort().reverse().forEach(function(dateKey){
-      var entries = grouped[dateKey];
+      var entries = grouped[dateKey] || [];
+      if(entries.length === 0) continue;
       var dateObj = new Date(dateKey);
       var dateLabel = dateKey;
       var today = new Date().toISOString().slice(0,10);
