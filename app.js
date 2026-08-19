@@ -5938,8 +5938,7 @@ function saveDeal(){
   localStorage.setItem('solodev', JSON.stringify(db));
   
   // Железобетонное подтверждение сохранения
-  alert('✅ Сделка сохранена!
-Всего сделок в базе: ' + db.deals.length);
+  alert('✅ Сделка сохранена! Всего сделок в базе: ' + db.deals.length);
   closeModal();
   renderCRM();
 }
