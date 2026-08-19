@@ -5,6 +5,7 @@ var db={
 profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1},goals:[],recurring:[],receivables:[],taxReserve:0,budgets:{},pots:[],monthlyNeeds:80000,monthlyWants:30000,monthlySavings:40000,quickTemplates:[],hourlyRate:2000,credits:[],paymentCalendar:[]};
 // === ГАРАНТИРОВАННАЯ НОРМАЛИЗАЦИЯ БАЗЫ ДАННЫХ ===
 if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
 if(!db.habits) db.habits = [];
 if(!db.diary) db.diary = [];
@@ -21,6 +22,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   
   // Гарантированная инициализация новых полей продуктивности
   if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   if(!db.diary) db.diary = [];
@@ -29,7 +31,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -70,6 +72,7 @@ function render(){
   else if(currentView==='health')renderHealth();
   else if(currentView==='knowledge')renderKnowledge();
   else if(currentView==='crm')renderCRM();
+  else if(currentView==='investments')renderInvestments();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -4510,6 +4513,7 @@ function printMonthlyReport(){
 // === ПРОДУКТИВНОСТЬ ===
 function renderProductivity(){
   if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   if(!db.diary) db.diary = [];
@@ -4556,6 +4560,7 @@ var pomodoroTotalTime = 0;
 
 function showPomodoro(){
   if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var h='<h3>🍅 Pomodoro-таймер</h3>';
   h+='<div style="text-align:center;padding:20px">';
@@ -4597,6 +4602,7 @@ function startPomodoro(minutes){
       clearInterval(pomodoroInterval);
       pomodoroInterval = null;
       if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
       var todayStr = new Date().toISOString().slice(0,10);
       db.pomodoro.sessions.push({date: todayStr, duration: pomodoroTotalTime/60, timestamp: new Date().toISOString()});
@@ -4641,6 +4647,7 @@ function stopPomodoro(){
 
 function savePomodoroSettings(){
   if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var goalEl = document.getElementById('pomodoro_goal');
   if(goalEl && goalEl.value){
@@ -4786,6 +4793,7 @@ function saveDiaryEntry(){
 // === СТАТИСТИКА ===
 function showFocusStats(){
   if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   
@@ -5960,6 +5968,123 @@ function deleteDeal(id){
     renderCRM();
   }
 }
+
+// === ВКЛАДКА ИНВЕСТИЦИИ ===
+function renderInvestments(){
+  if(!db.investments) db.investments = [];
+  var h='<h2>📈 Инвестиции</h2>';
+
+  var totalInvested = 0;
+  var totalCurrent = 0;
+  db.investments.forEach(function(inv){
+    totalInvested += (parseFloat(inv.buyPrice)||0) * (parseFloat(inv.quantity)||0);
+    totalCurrent += (parseFloat(inv.currentPrice)||0) * (parseFloat(inv.quantity)||0);
+  });
+  var profit = totalCurrent - totalInvested;
+  var profitPercent = totalInvested > 0 ? ((profit / totalInvested) * 100).toFixed(2) : 0;
+  var profitColor = profit >= 0 ? '#3ecf8e' : '#ff6b6b';
+  var profitSign = profit >= 0 ? '+' : '';
+
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#102a20);border-color:#3ecf8e;margin-bottom:15px">';
+  h+='<div style="display:flex;justify-content:space-around;text-align:center">';
+  h+='<div><div class="mut" style="color:#fff">Вложено</div><div style="font-size:18px;font-weight:bold;color:#6c8cff">₽'+totalInvested.toLocaleString()+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Сейчас</div><div style="font-size:18px;font-weight:bold;color:#fff">₽'+totalCurrent.toLocaleString()+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Прибыль</div><div style="font-size:18px;font-weight:bold;color:'+profitColor+'">'+profitSign+'₽'+profit.toLocaleString()+' ('+profitSign+profitPercent+'%)</div></div>';
+  h+='</div></div>';
+
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#3ecf8e" onclick="showAddInvestment()">+ Добавить актив</button>';
+
+  var types = [
+    {id:'stocks', name:'📊 Акции', color:'#6c8cff'},
+    {id:'crypto', name:'₿ Крипто', color:'#ff9500'},
+    {id:'bonds', name:'📜 Облигации', color:'#9d6cff'},
+    {id:'deposit', name:' Депозиты', color:'#3ecf8e'},
+    {id:'realty', name:'🏠 Недвижимость', color:'#ffd700'},
+    {id:'other', name:'📦 Другое', color:'#8b94a7'}
+  ];
+
+  types.forEach(function(type){
+    var typeItems = db.investments.filter(function(i){return i.type===type.id;});
+    if(typeItems.length > 0){
+      h+='<h4 style="color:'+type.color+';margin:15px 0 10px 0">'+type.name+' ('+typeItems.length+')</h4>';
+      typeItems.forEach(function(inv){
+        var invested = (parseFloat(inv.buyPrice)||0) * (parseFloat(inv.quantity)||0);
+        var current = (parseFloat(inv.currentPrice)||0) * (parseFloat(inv.quantity)||0);
+        var p = current - invested;
+        var pColor = p >= 0 ? '#3ecf8e' : '#ff6b6b';
+        var pSign = p >= 0 ? '+' : '';
+        h+='<div class="card" style="margin:8px 0;border-left:4px solid '+type.color+'">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+        h+='<div style="flex:1"><b style="font-size:15px">'+inv.name+'</b>';
+        if(inv.notes) h+='<div class="mut" style="font-size:11px;margin-top:3px">'+inv.notes+'</div>';
+        h+='<div class="mut" style="font-size:11px;margin-top:3px">Куплено: '+inv.date+' | '+inv.quantity+' шт. по ₽'+inv.buyPrice+'</div>';
+        h+='</div>';
+        h+='<div style="text-align:right;min-width:100px">';
+        h+='<div style="font-size:11px;color:#8b94a7">Сейчас: ₽'+inv.currentPrice+'</div>';
+        h+='<div style="font-size:14px;font-weight:bold;color:'+pColor+'">'+pSign+'₽'+p.toLocaleString()+'</div>';
+        h+='<div style="font-size:11px;color:'+pColor+'">'+pSign+((invested>0)?((p/invested)*100).toFixed(1):'0')+'%</div>';
+        h+='</div></div>';
+        h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:8px;width:100%" onclick="deleteInvestment(\''+inv.id+'\')">🗑 Удалить</button>';
+        h+='</div>';
+      });
+    }
+  });
+
+  if(db.investments.length === 0){
+    h+='<div class="mut" style="text-align:center;padding:30px">Пока нет инвестиций. Добавьте первый актив!</div>';
+  }
+
+  document.getElementById('app').innerHTML = h;
+}
+
+function showAddInvestment(){
+  var h='<h3>➕ Новый актив</h3>';
+  h+='<input id="inv_name" placeholder="Название (Sberbank, BTC...)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<select id="inv_type" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<option value="stocks">📊 Акции</option>';
+  h+='<option value="crypto">₿ Крипто</option>';
+  h+='<option value="bonds">📜 Облигации</option>';
+  h+='<option value="deposit">🏦 Депозит</option>';
+  h+='<option value="realty"> Недвижимость</option>';
+  h+='<option value="other">📦 Другое</option>';
+  h+='</select>';
+  h+='<input id="inv_quantity" type="number" step="0.0001" placeholder="Количество" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<input id="inv_buy_price" type="number" step="0.01" placeholder="Цена покупки (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<input id="inv_current_price" type="number" step="0.01" placeholder="Текущая цена (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<input id="inv_notes" placeholder="Заметки (необязательно)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="saveInvestment()">💾 Сохранить</button>';
+  openModal(h);
+}
+
+function saveInvestment(){
+  var name = document.getElementById('inv_name').value.trim();
+  if(!name){alert('Введи название актива!');return;}
+  if(!db.investments) db.investments = [];
+  db.investments.push({
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+    name: name,
+    type: document.getElementById('inv_type').value,
+    quantity: parseFloat(document.getElementById('inv_quantity').value) || 0,
+    buyPrice: parseFloat(document.getElementById('inv_buy_price').value) || 0,
+    currentPrice: parseFloat(document.getElementById('inv_current_price').value) || 0,
+    notes: document.getElementById('inv_notes').value.trim(),
+    date: new Date().toISOString().slice(0,10)
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('Актив добавлен! Всего: ' + db.investments.length);
+  closeModal();
+  renderInvestments();
+}
+
+function deleteInvestment(id){
+  if(confirm('Удалить этот актив?')){
+    db.investments = db.investments.filter(function(i){return i.id!==id;});
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderInvestments();
+  }
+}
+// === КОНЕЦ ВКЛАДКИ ИНВЕСТИЦИИ ===
+
 // === КОНЕЦ ВКЛАДКИ CRM ===
 
 // === КОНЕЦ ВКЛАДКИ БАЗА ЗНАНИЙ ===
@@ -6042,6 +6167,7 @@ function startPomodoro(minutes){
       
       var todayStr = new Date().toISOString().slice(0,10);
       if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
       db.pomodoro.sessions.push({date: todayStr, duration: pomodoroTotalTime/60, timestamp: new Date().toISOString()});
       db.pomodoro.totalTime = (db.pomodoro.totalTime || 0) + (pomodoroTotalTime/60);
@@ -6087,6 +6213,7 @@ function stopPomodoro(){
 
 function savePomodoroSettings(){
   if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var goalEl = document.getElementById('pomodoro_goal');
   if(goalEl && goalEl.value){
@@ -6419,6 +6546,7 @@ window.onload=function(){
     if(!db.monthlyWants)db.monthlyWants=30000;
     if(!db.monthlySavings)db.monthlySavings=40000;
     if(!db.deals) db.deals = [];
+  if(!db.investments) db.investments = [];
   if(!db.pomodoro)db.pomodoro={sessions:[],totalTime:0,dailyGoal:25};
     if(!db.habits)db.habits=[];
     if(!db.diary)db.diary=[];
