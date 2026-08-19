@@ -12,6 +12,7 @@ if(!db.dailyGoals) db.dailyGoals = [];
 if(!db.water) db.water = {intake:0, goal:8, log:{}};
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
 localStorage.setItem('solodev', JSON.stringify(db));
 // ================================================
 
@@ -26,7 +27,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -66,6 +67,7 @@ function render(){
   else if(currentView==='pricing')renderPricing();
   else if(currentView==='health')renderHealth();
   else if(currentView==='knowledge')renderKnowledge();
+  else if(currentView==='crm')renderCRM();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -4513,6 +4515,7 @@ function renderProductivity(){
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   if(!db.journal) db.journal = [];
   
   var h='<h2> Продуктивность</h2>';
@@ -4945,6 +4948,7 @@ function showWaterTracker(){
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
   
@@ -4983,6 +4987,7 @@ function addWater(amount){
   if(!db.water) db.water = {intake:0, goal:8, log:{}};
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.water.log[todayStr]) db.water.log[todayStr] = 0;
   db.water.log[todayStr] += amount;
@@ -5154,6 +5159,7 @@ function filterJournal(filter){
 function renderHealth(){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   
   var h='<h2>🏥 Здоровье</h2>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
@@ -5183,6 +5189,7 @@ function renderHealth(){
 function showSleepTracker(){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   var h='<h3>💤 Трекер сна</h3>';
   h+='<label>Часов сна</label>';
   h+='<input id="sleep_hours" type="number" step="0.5" placeholder="Например: 7.5" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
@@ -5208,6 +5215,7 @@ function saveSleep(){
   }
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   var todayStr = new Date().toISOString().slice(0,10);
   
   // Удаляем старую запись за сегодня, если она есть, чтобы перезаписать
@@ -5250,6 +5258,7 @@ function saveWorkout(){
   }
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   
   db.health.workouts.push({
     date: new Date().toISOString().slice(0,10),
@@ -5268,6 +5277,7 @@ function saveWorkout(){
 function showHealthStats(){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   
   // Статистика за последние 7 дней
   var now = new Date();
@@ -5304,6 +5314,7 @@ function showWaterHealth(){
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   var todayWater = db.health.water.filter(function(w){return w.date===todayStr}).reduce(function(a,b){return a+b.amount},0);
   
   var h='<h3>💧 Трекер воды</h3>';
@@ -5326,6 +5337,7 @@ function showWaterHealth(){
 function addWaterHealth(amount){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   db.health.water.push({
     date: new Date().toISOString().slice(0,10),
     amount: amount,
@@ -5357,6 +5369,7 @@ function saveWeight(){
   }
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   db.health.weight.push({
     date: new Date().toISOString().slice(0,10),
     value: val,
@@ -5373,6 +5386,7 @@ function showSupplements(){
   var todayStr = new Date().toISOString().slice(0,10);
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   var todaySupps = db.health.supplements.filter(function(s){return s.date===todayStr});
   var doneCount = todaySupps.filter(function(s){return s.done}).length;
   
@@ -5399,6 +5413,7 @@ function showSupplements(){
 function toggleSupp(name){
   if(!db.health) db.health = {sleep:[], workouts:[], water:[], weight:[], supplements:[]};
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   var todayStr = new Date().toISOString().slice(0,10);
   var existingIdx = db.health.supplements.findIndex(function(s){return s.date===todayStr && s.name===name});
   
@@ -5494,6 +5509,7 @@ function exportData(){
 // === ВКЛАДКА БАЗА ЗНАНИЙ ===
 function renderKnowledge(){
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
+  if(!db.deals) db.deals = [];
   var h='<h2> База знаний</h2>';
   h+='<input id="knowledge_search" placeholder="🔍 Поиск по книгам, курсам, ссылкам и коду..." style="width:100%;padding:12px;margin-bottom:15px;background:#1f2530;border:2px solid #9d6cff;border-radius:8px;color:#fff;font-size:15px" oninput="handleSearchInput(this.value)">';
   h+='<div id="search_results"></div>';
@@ -5832,6 +5848,108 @@ function highlightText(text, query){
   return text.replace(regex, '<mark style="background:#ff9500;color:#000;padding:0 3px;border-radius:2px">$1</mark>');
 }
 // === КОНЕЦ ПОИСКА ===
+
+
+// === ВКЛАДКА CRM (ВОРОНКА СДЕЛОК) ===
+function renderCRM(){
+  if(!db.deals) db.deals = [];
+  var h='<h2>🤝 CRM: Воронка сделок</h2>';
+  
+  // Статистика
+  var totalPotential = db.deals.filter(function(d){return d.stage!=='completed';}).reduce(function(sum,d){return sum+(parseFloat(d.amount)||0);},0);
+  var totalCompleted = db.deals.filter(function(d){return d.stage==='completed';}).reduce(function(sum,d){return sum+(parseFloat(d.amount)||0);},0);
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#9d6cff;margin-bottom:15px">';
+  h+='<div style="display:flex;justify-content:space-around;text-align:center">';
+  h+='<div><div class="mut" style="color:#fff">В работе</div><div style="font-size:20px;font-weight:bold;color:#ff9500">$'+totalPotential+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Завершено</div><div style="font-size:20px;font-weight:bold;color:#3ecf8e">$'+totalCompleted+'</div></div>';
+  h+='</div></div>';
+  
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#6c8cff" onclick="showAddDeal()">+ Новая сделка</button>';
+  
+  var stages = [
+    {id:'new', name:'🆕 Новый лид', color:'#8b94a7'},
+    {id:'negotiation', name:'💬 Переговоры', color:'#ffd700'},
+    {id:'in_progress', name:'💻 В работе', color:'#6c8cff'},
+    {id:'completed', name:'✅ Завершено', color:'#3ecf8e'}
+  ];
+  
+  stages.forEach(function(stage){
+    var stageDeals = db.deals.filter(function(d){return d.stage===stage.id;});
+    if(stageDeals.length > 0){
+      h+='<h4 style="color:'+stage.color+';margin:15px 0 10px 0">'+stage.name+' ('+stageDeals.length+')</h4>';
+      stageDeals.forEach(function(d){
+        h+='<div class="card" style="margin:8px 0;border-left:4px solid '+stage.color+'">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+        h+='<div style="flex:1"><b style="font-size:15px">'+d.title+'</b><br><span class="mut">'+(d.client||'Без клиента')+'</span>';
+        if(d.notes) h+='<div class="mut" style="font-size:11px;margin-top:4px">'+d.notes+'</div>';
+        h+='</div>';
+        h+='<div style="text-align:right;min-width:80px"><div style="font-size:18px;font-weight:bold;color:#3ecf8e">$'+d.amount+'</div>';
+        h+='<select class="btn small" style="margin-top:5px;padding:4px;font-size:11px;background:#1f2530;color:#fff;border:1px solid #2a3040;width:100%" onchange="changeDealStage(\''+d.id+'\', this.value)">';
+        stages.forEach(function(s){
+          h+='<option value="'+s.id+'" '+(d.stage===s.id?'selected':'')+'>'+s.name+'</option>';
+        });
+        h+='</select></div></div>';
+        h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:8px;width:100%" onclick="deleteDeal(\''+d.id+'\')">🗑 Удалить сделку</button>';
+        h+='</div>';
+      });
+    }
+  });
+  
+  if(db.deals.length === 0){
+    h+='<div class="mut" style="text-align:center;padding:30px">Пока нет сделок. Добавьте первую!</div>';
+  }
+  
+  document.getElementById('app').innerHTML = h;
+}
+
+function showAddDeal(){
+  var h='<h3>➕ Новая сделка</h3>';
+  h+='<input id="deal_title" placeholder="Название проекта / услуги" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<input id="deal_client" placeholder="Имя клиента или компании" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<input id="deal_amount" type="number" placeholder="Сумма ($ или ₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<textarea id="deal_notes" placeholder="Заметки, ТЗ, ссылки..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;min-height:60px"></textarea>';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="saveDeal()">💾 Сохранить</button>';
+  openModal(h);
+}
+
+function saveDeal(){
+  var title = document.getElementById('deal_title').value.trim();
+  if(!title){alert('⚠️ Введи название сделки!');return;}
+  if(!db.deals) db.deals = [];
+  db.deals.push({
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+    title: title,
+    client: document.getElementById('deal_client').value.trim(),
+    amount: document.getElementById('deal_amount').value || 0,
+    notes: document.getElementById('deal_notes').value.trim(),
+    stage: 'new',
+    date: new Date().toISOString().slice(0,10)
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Сделка добавлена!');
+  closeModal();
+  renderCRM();
+}
+
+function changeDealStage(id, newStage){
+  if(!db.deals) return;
+  var deal = db.deals.find(function(d){return d.id===id;});
+  if(deal){
+    deal.stage = newStage;
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderCRM();
+  }
+}
+
+function deleteDeal(id){
+  if(confirm('Удалить эту сделку?')){
+    db.deals = db.deals.filter(function(d){return d.id!==id;});
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderCRM();
+  }
+}
+// === КОНЕЦ ВКЛАДКИ CRM ===
 
 // === КОНЕЦ ВКЛАДКИ БАЗА ЗНАНИЙ ===
 
