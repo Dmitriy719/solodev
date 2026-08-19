@@ -4,7 +4,8 @@ var db={
   // Восстановление при загрузке
 profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['Фронтенд','Бэкенд','Боты (Telegram/VK)'],phone:'+79001234567',email:'dev@example.com'},clients:[{id:'1',name:'Алексей',company:'TechStart',budget:45000,status:'В работе'}],projects:[{id:'1',name:'Интернет-магазин',client:'Алексей',budget:45000,stage:1,deadline:'2026-09-01',estimatedHours:40,tasks:[{id:'1',text:'Сверстать главную',done:false}]}],finances:[{id:'1',date:'2026-08-14',type:'in',amt:30000,cat:'Проект'},{id:'2',date:'2026-08-13',type:'in',amt:15000,cat:'Проект'},{id:'3',date:'2026-08-12',type:'in',amt:20000,cat:'Проект'},{id:'4',date:'2026-08-11',type:'in',amt:10000,cat:'Проект'}],leads:[],pains:[],sources:[],templates:[],showAllTemplates:false,autoLeads:[],currentSearchSpec:null,hhSearchStatus:'',emailTemplates:[],services:{},currency:'RUB',taxJurisdiction:'russia',taxSystem:'npd',exchangeRates:{USD:92.50,EUR:100.20,CNY:12.80,BYN:28.50,KZT:0.19,RUB:1},goals:[],recurring:[],receivables:[],taxReserve:0,budgets:{},pots:[],monthlyNeeds:80000,monthlyWants:30000,monthlySavings:40000,quickTemplates:[],hourlyRate:2000,credits:[],paymentCalendar:[]};
 // === ГАРАНТИРОВАННАЯ НОРМАЛИЗАЦИЯ БАЗЫ ДАННЫХ ===
-if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
+if(!db.deals) db.deals = [];
+  if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
 if(!db.habits) db.habits = [];
 if(!db.diary) db.diary = [];
 if(!db.mood) db.mood = [];
@@ -19,6 +20,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   
   
   // Гарантированная инициализация новых полей продуктивности
+  if(!db.deals) db.deals = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   if(!db.diary) db.diary = [];
@@ -4507,6 +4509,7 @@ function printMonthlyReport(){
 
 // === ПРОДУКТИВНОСТЬ ===
 function renderProductivity(){
+  if(!db.deals) db.deals = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   if(!db.diary) db.diary = [];
@@ -4552,6 +4555,7 @@ var pomodoroTimeLeft = 0;
 var pomodoroTotalTime = 0;
 
 function showPomodoro(){
+  if(!db.deals) db.deals = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var h='<h3>🍅 Pomodoro-таймер</h3>';
   h+='<div style="text-align:center;padding:20px">';
@@ -4592,7 +4596,8 @@ function startPomodoro(minutes){
     if(pomodoroTimeLeft <= 0){
       clearInterval(pomodoroInterval);
       pomodoroInterval = null;
-      if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
+      if(!db.deals) db.deals = [];
+  if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
       var todayStr = new Date().toISOString().slice(0,10);
       db.pomodoro.sessions.push({date: todayStr, duration: pomodoroTotalTime/60, timestamp: new Date().toISOString()});
       db.pomodoro.totalTime = (db.pomodoro.totalTime || 0) + (pomodoroTotalTime/60);
@@ -4635,6 +4640,7 @@ function stopPomodoro(){
 }
 
 function savePomodoroSettings(){
+  if(!db.deals) db.deals = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var goalEl = document.getElementById('pomodoro_goal');
   if(goalEl && goalEl.value){
@@ -4779,6 +4785,7 @@ function saveDiaryEntry(){
 
 // === СТАТИСТИКА ===
 function showFocusStats(){
+  if(!db.deals) db.deals = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   
@@ -5907,7 +5914,7 @@ function showAddDeal(){
   var h='<h3>➕ Новая сделка</h3>';
   h+='<input id="deal_title" placeholder="Название проекта / услуги" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
   h+='<input id="deal_client" placeholder="Имя клиента или компании" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
-  h+='<input id="deal_amount" type="number" placeholder="Сумма ($ или ₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<input id="deal_amount" type="number" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
   h+='<textarea id="deal_notes" placeholder="Заметки, ТЗ, ссылки..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;min-height:60px"></textarea>';
   h+='<button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="saveDeal()">💾 Сохранить</button>';
   openModal(h);
@@ -6030,7 +6037,8 @@ function startPomodoro(minutes){
       if(statusEl) statusEl.textContent = '✅ Сессия завершена!';
       
       var todayStr = new Date().toISOString().slice(0,10);
-      if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
+      if(!db.deals) db.deals = [];
+  if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
       db.pomodoro.sessions.push({date: todayStr, duration: pomodoroTotalTime/60, timestamp: new Date().toISOString()});
       db.pomodoro.totalTime = (db.pomodoro.totalTime || 0) + (pomodoroTotalTime/60);
       save();
@@ -6074,6 +6082,7 @@ function stopPomodoro(){
 }
 
 function savePomodoroSettings(){
+  if(!db.deals) db.deals = [];
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var goalEl = document.getElementById('pomodoro_goal');
   if(goalEl && goalEl.value){
@@ -6405,7 +6414,8 @@ window.onload=function(){
     if(!db.monthlyNeeds)db.monthlyNeeds=80000;
     if(!db.monthlyWants)db.monthlyWants=30000;
     if(!db.monthlySavings)db.monthlySavings=40000;
-    if(!db.pomodoro)db.pomodoro={sessions:[],totalTime:0,dailyGoal:25};
+    if(!db.deals) db.deals = [];
+  if(!db.pomodoro)db.pomodoro={sessions:[],totalTime:0,dailyGoal:25};
     if(!db.habits)db.habits=[];
     if(!db.diary)db.diary=[];
     if(!db.assets)db.assets=[];
