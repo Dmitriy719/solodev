@@ -31,7 +31,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -73,6 +73,7 @@ function render(){
   else if(currentView==='knowledge')renderKnowledge();
   else if(currentView==='crm')renderCRM();
   else if(currentView==='investments')renderInvestments();
+  else if(currentView==='documents')renderDocuments();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -6083,6 +6084,142 @@ function deleteInvestment(id){
     renderInvestments();
   }
 }
+
+// === ВКЛАДКА ГЕНЕРАТОР ДОКУМЕНТОВ ===
+function renderDocuments(){
+  var h='<h2>🧾 Генератор документов</h2>';
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px">';
+  h+='<h3 style="color:#fff;margin:0">Быстрое создание счетов и актов</h3>';
+  h+='<p class="mut" style="margin:10px 0 0 0;color:#fff">Выбери клиента, заполни данные и скопируй готовый документ</p>';
+  h+='</div>';
+  
+  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#ff9500" onclick="showInvoiceGenerator()">📄 Создать счёт</button>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#6c8cff" onclick="showActGenerator()">📋 Создать акт выполненных работ</button>';
+  
+  h+='<div class="card"><h3>📌 Инструкция</h3>';
+  h+='<p class="mut" style="margin:0">1. Выбери тип документа<br>2. Выбери клиента из списка<br>3. Заполни сумму и описание<br>4. Нажми "Сгенерировать"<br>5. Скопируй текст и отправь клиенту</p>';
+  h+='</div>';
+  
+  document.getElementById('app').innerHTML = h;
+}
+
+function showInvoiceGenerator(){
+  var h='<h3>📄 Генератор счёта</h3>';
+  
+  h+='<label style="color:#fff;font-size:12px">Клиент:</label>';
+  h+='<select id="doc_client" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  if(!db.clients || db.clients.length === 0){
+    h+='<option value="">Нет клиентов</option>';
+  } else {
+    db.clients.forEach(function(c){
+      h+='<option value="'+c.name+'">'+c.name+(c.company?' ('+c.company+')':'')+'</option>';
+    });
+  }
+  h+='</select>';
+  
+  h+='<input id="doc_number" placeholder="Номер счёта (например: 001)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  h+='<input id="doc_date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  h+='<input id="doc_amount" type="number" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  h+='<textarea id="doc_description" placeholder="Описание услуг (например: Разработка сайта)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff;min-height:60px"></textarea>';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#ff9500" onclick="generateInvoice()">📄 Сгенерировать счёт</button>';
+  openModal(h);
+}
+
+function generateInvoice(){
+  var client = document.getElementById('doc_client').value;
+  var number = document.getElementById('doc_number').value.trim() || '001';
+  var date = document.getElementById('doc_date').value;
+  var amount = document.getElementById('doc_amount').value;
+  var description = document.getElementById('doc_description').value.trim();
+  
+  if(!client){alert('Выбери клиента!');return;}
+  if(!amount){alert('Введи сумму!');return;}
+  
+  var doc = 'СЧЁТ №'+number+' от '+date+'\n\n';
+  doc += 'Исполнитель: '+db.profile.name+'\n';
+  doc += 'Специализация: '+db.profile.spec+'\n';
+  doc += 'Телефон: '+db.profile.phone+'\n';
+  doc += 'Email: '+db.profile.email+'\n\n';
+  doc += 'Заказчик: '+client+'\n\n';
+  doc += '─────────────────────────────\n';
+  doc += 'Описание услуг:\n';
+  doc += description+'\n\n';
+  doc += 'Сумма: '+parseInt(amount).toLocaleString()+' ₽\n';
+  doc += '─────────────────────────────\n\n';
+  doc += 'Оплата в течение 3 рабочих дней\n';
+  doc += 'Спасибо за сотрудничество!';
+  
+  showDocumentResult(doc, 'Счёт №'+number);
+}
+
+function showActGenerator(){
+  var h='<h3>📋 Генератор акта</h3>';
+  
+  h+='<label style="color:#fff;font-size:12px">Клиент:</label>';
+  h+='<select id="act_client" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  if(!db.clients || db.clients.length === 0){
+    h+='<option value="">Нет клиентов</option>';
+  } else {
+    db.clients.forEach(function(c){
+      h+='<option value="'+c.name+'">'+c.name+(c.company?' ('+c.company+')':'')+'</option>';
+    });
+  }
+  h+='</select>';
+  
+  h+='<input id="act_number" placeholder="Номер акта (например: 001)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<input id="act_date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<input id="act_amount" type="number" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<textarea id="act_description" placeholder="Выполненные работы" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;min-height:60px"></textarea>';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#6c8cff" onclick="generateAct()"> Сгенерировать акт</button>';
+  openModal(h);
+}
+
+function generateAct(){
+  var client = document.getElementById('act_client').value;
+  var number = document.getElementById('act_number').value.trim() || '001';
+  var date = document.getElementById('act_date').value;
+  var amount = document.getElementById('act_amount').value;
+  var description = document.getElementById('act_description').value.trim();
+  
+  if(!client){alert('Выбери клиента!');return;}
+  if(!amount){alert('Введи сумму!');return;}
+  
+  var doc = 'АКТ ВЫПОЛНЕННЫХ РАБОТ №'+number+'\n';
+  doc += 'от '+date+'\n\n';
+  doc += 'Исполнитель: '+db.profile.name+'\n';
+  doc += 'Заказчик: '+client+'\n\n';
+  doc += '─────────────────────────────\n';
+  doc += 'Выполненные работы:\n';
+  doc += description+'\n\n';
+  doc += 'Стоимость работ: '+parseInt(amount).toLocaleString()+' ₽\n';
+  doc += '─────────────────────────────\n\n';
+  doc += 'Работы выполнены в полном объёме.\n';
+  doc += 'Претензий по качеству и срокам нет.\n\n';
+  doc += 'Исполнитель: _______________ / '+db.profile.name+'\n\n';
+  doc += 'Заказчик: _______________ / '+client;
+  
+  showDocumentResult(doc, 'Акт №'+number);
+}
+
+function showDocumentResult(doc, title){
+  var h='<h3>✅ '+title+' готов</h3>';
+  h+='<textarea id="doc_result" readonly style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff;font-family:monospace;font-size:12px;min-height:200px">'+doc+'</textarea>';
+  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#3ecf8e" onclick="copyDocument()">📋 Копировать текст</button>';
+  h+='<button class="btn" style="width:100%;background:#1f2530" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function copyDocument(){
+  var text = document.getElementById('doc_result').value;
+  navigator.clipboard.writeText(text).then(function(){
+    alert('✅ Документ скопирован! Теперь вставь его в мессенджер или почту.');
+  }).catch(function(){
+    alert('❌ Не удалось скопировать. Выдели текст вручную.');
+  });
+}
+// === КОНЕЦ ВКЛАДКИ ГЕНЕРАТОРА ДОКУМЕНТОВ ===
+
 // === КОНЕЦ ВКЛАДКИ ИНВЕСТИЦИИ ===
 
 // === КОНЕЦ ВКЛАДКИ CRM ===
