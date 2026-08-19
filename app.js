@@ -5861,26 +5861,25 @@ function highlightText(text, query){
 function renderCRM(){
   if(!db.deals) db.deals = [];
   var h='<h2>🤝 CRM: Воронка сделок</h2>';
-  
-  // Статистика
+
   var totalPotential = db.deals.filter(function(d){return d.stage!=='completed';}).reduce(function(sum,d){return sum+(parseFloat(d.amount)||0);},0);
   var totalCompleted = db.deals.filter(function(d){return d.stage==='completed';}).reduce(function(sum,d){return sum+(parseFloat(d.amount)||0);},0);
-  
+
   h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#9d6cff;margin-bottom:15px">';
   h+='<div style="display:flex;justify-content:space-around;text-align:center">';
-  h+='<div><div class="mut" style="color:#fff">В работе</div><div style="font-size:20px;font-weight:bold;color:#ff9500">$'+totalPotential+'</div></div>';
-  h+='<div><div class="mut" style="color:#fff">Завершено</div><div style="font-size:20px;font-weight:bold;color:#3ecf8e">$'+totalCompleted+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">В работе</div><div style="font-size:20px;font-weight:bold;color:#ff9500">₽'+totalPotential+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Завершено</div><div style="font-size:20px;font-weight:bold;color:#3ecf8e">₽'+totalCompleted+'</div></div>';
   h+='</div></div>';
-  
+
   h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#6c8cff" onclick="showAddDeal()">+ Новая сделка</button>';
-  
+
   var stages = [
     {id:'new', name:'🆕 Новый лид', color:'#8b94a7'},
     {id:'negotiation', name:'💬 Переговоры', color:'#ffd700'},
     {id:'in_progress', name:'💻 В работе', color:'#6c8cff'},
     {id:'completed', name:'✅ Завершено', color:'#3ecf8e'}
   ];
-  
+
   stages.forEach(function(stage){
     var stageDeals = db.deals.filter(function(d){return d.stage===stage.id;});
     if(stageDeals.length > 0){
@@ -5891,7 +5890,7 @@ function renderCRM(){
         h+='<div style="flex:1"><b style="font-size:15px">'+d.title+'</b><br><span class="mut">'+(d.client||'Без клиента')+'</span>';
         if(d.notes) h+='<div class="mut" style="font-size:11px;margin-top:4px">'+d.notes+'</div>';
         h+='</div>';
-        h+='<div style="text-align:right;min-width:80px"><div style="font-size:18px;font-weight:bold;color:#3ecf8e">$'+d.amount+'</div>';
+        h+='<div style="text-align:right;min-width:80px"><div style="font-size:18px;font-weight:bold;color:#3ecf8e">₽'+d.amount+'</div>';
         h+='<select class="btn small" style="margin-top:5px;padding:4px;font-size:11px;background:#1f2530;color:#fff;border:1px solid #2a3040;width:100%" onchange="changeDealStage(\''+d.id+'\', this.value)">';
         stages.forEach(function(s){
           h+='<option value="'+s.id+'" '+(d.stage===s.id?'selected':'')+'>'+s.name+'</option>';
@@ -5902,11 +5901,11 @@ function renderCRM(){
       });
     }
   });
-  
+
   if(db.deals.length === 0){
     h+='<div class="mut" style="text-align:center;padding:30px">Пока нет сделок. Добавьте первую!</div>';
   }
-  
+
   document.getElementById('app').innerHTML = h;
 }
 
@@ -5924,17 +5923,23 @@ function saveDeal(){
   var title = document.getElementById('deal_title').value.trim();
   if(!title){alert('⚠️ Введи название сделки!');return;}
   if(!db.deals) db.deals = [];
-  db.deals.push({
+
+  var newDeal = {
     id: Date.now().toString(36) + Math.random().toString(36).substr(2),
     title: title,
     client: document.getElementById('deal_client').value.trim(),
-    amount: document.getElementById('deal_amount').value || 0,
+    amount: parseFloat(document.getElementById('deal_amount').value) || 0,
     notes: document.getElementById('deal_notes').value.trim(),
     stage: 'new',
     date: new Date().toISOString().slice(0,10)
-  });
+  };
+
+  db.deals.push(newDeal);
   localStorage.setItem('solodev', JSON.stringify(db));
-  alert('✅ Сделка добавлена!');
+  
+  // Железобетонное подтверждение сохранения
+  alert('✅ Сделка сохранена!
+Всего сделок в базе: ' + db.deals.length);
   closeModal();
   renderCRM();
 }
