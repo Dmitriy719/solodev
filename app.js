@@ -5496,6 +5496,7 @@ function renderKnowledge(){
   if(!db.knowledge) db.knowledge = {books:[], courses:[], links:[], snippets:[]};
   var h='<h2> База знаний</h2>';
   h+='<input id="knowledge_search" placeholder="🔍 Поиск по книгам, курсам, ссылкам и коду..." style="width:100%;padding:12px;margin-bottom:15px;background:#1f2530;border:2px solid #9d6cff;border-radius:8px;color:#fff;font-size:15px" oninput="handleSearchInput(this.value)">';
+  h+='<div id="search_results"></div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
   h+='<button class="btn" style="background:#9d6cff;padding:20px;font-size:16px" onclick="showBooks()">📖 Книги ('+db.knowledge.books.length+')</button>';
   h+='<button class="btn" style="background:#6c8cff;padding:20px;font-size:16px" onclick="showCourses()">🎓 Курсы ('+db.knowledge.courses.length+')</button>';
@@ -5802,10 +5803,11 @@ function showSearchResults(results, query){
     }
   }
   
-  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:15px" onclick="renderKnowledge()">← Очистить поиск</button>';
+  h+='<button class="btn" style="background:#1f2530;width:100%;margin-top:15px" onclick="clearSearch()">← Очистить поиск</button>';
   
-  // Рендерим прямо в app, а не в модалку, чтобы сохранить фокус ввода!
-  document.getElementById('app').innerHTML = h;
+  // Рендерим ТОЛЬКО в контейнер результатов, не трогая input!
+  var resDiv = document.getElementById('search_results');
+  if(resDiv) resDiv.innerHTML = h;
   
   // Возвращаем фокус на поле поиска и ставим курсор в конец
   setTimeout(function(){
@@ -5815,6 +5817,13 @@ function showSearchResults(results, query){
       input.setSelectionRange(input.value.length, input.value.length);
     }
   }, 50);
+}
+
+function clearSearch() {
+  var input = document.getElementById('knowledge_search');
+  if(input) input.value = '';
+  var resDiv = document.getElementById('search_results');
+  if(resDiv) resDiv.innerHTML = '';
 }
 
 function highlightText(text, query){
