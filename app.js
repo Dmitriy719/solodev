@@ -7,6 +7,7 @@ profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['�
 if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
 if(!db.habits) db.habits = [];
@@ -26,6 +27,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
@@ -35,7 +37,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -81,6 +83,7 @@ function render(){
   else if(currentView==='analytics')renderAnalytics();
   else if(currentView==='devtools')renderDevTools();
   else if(currentView==='timetracker')renderTimeTracker();
+  else if(currentView==='subscriptions')renderSubscriptions();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -4523,6 +4526,7 @@ function renderProductivity(){
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
@@ -4572,6 +4576,7 @@ function showPomodoro(){
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var h='<h3>🍅 Pomodoro-таймер</h3>';
@@ -4616,6 +4621,7 @@ function startPomodoro(minutes){
       if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
       var todayStr = new Date().toISOString().slice(0,10);
@@ -4663,6 +4669,7 @@ function savePomodoroSettings(){
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var goalEl = document.getElementById('pomodoro_goal');
@@ -4807,6 +4814,7 @@ function saveDiaryEntry(){
 // === ВКЛАДКА ТАЙМ-ТРЕКЕР (ПОЛНЫЙ МОДУЛЬ) ===
 function renderTimeTracker(){
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   var h='<h2> Тайм-трекер</h2>';
   h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px">';
@@ -4928,6 +4936,7 @@ function startTimer(){
   var project = document.getElementById('timer_project').value;
   var task = document.getElementById('timer_task').value.trim();
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   db.timeEntries.push({
     id: Date.now().toString(36) + Math.random().toString(36).substr(2),
     project: project, client: project, task: task,
@@ -4999,6 +5008,151 @@ function deleteTimeEntry(id){
     renderTimeTracker();
   }
 }
+
+// === ВКЛАДКА ПОДПИСКИ ===
+function renderSubscriptions(){
+  if(!db.subscriptions) db.subscriptions = [];
+  var h='<h2>🔄 Подписки и регулярные расходы</h2>';
+  
+  // Статистика
+  var monthlyTotal = 0, yearlyTotal = 0;
+  var urgentSubs = [];
+  var today = new Date();
+  var todayStr = today.toISOString().slice(0,10);
+  
+  db.subscriptions.forEach(function(s){
+    var amount = parseFloat(s.amount) || 0;
+    if(s.billingCycle === 'yearly'){
+      monthlyTotal += amount / 12;
+      yearlyTotal += amount;
+    } else {
+      monthlyTotal += amount;
+      yearlyTotal += amount * 12;
+    }
+    if(s.nextBillingDate){
+      var daysUntil = Math.ceil((new Date(s.nextBillingDate) - today) / (1000*60*60*24));
+      if(daysUntil >= 0 && daysUntil <= 3){
+        urgentSubs.push({name: s.name, days: daysUntil, amount: amount});
+      }
+    }
+  });
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px">';
+  h+='<div style="display:flex;justify-content:space-around;text-align:center">';
+  h+='<div><div class="mut" style="color:#fff">В месяц</div><div style="font-size:20px;font-weight:bold;color:#ff9500">₽'+Math.round(monthlyTotal).toLocaleString()+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">В год</div><div style="font-size:20px;font-weight:bold;color:#6c8cff">₽'+Math.round(yearlyTotal).toLocaleString()+'</div></div>';
+  h+='</div></div>';
+  
+  // Предупреждения
+  if(urgentSubs.length > 0){
+    h+='<div class="card" style="border:2px solid #ff6b6b;margin-bottom:15px;background:#2a1015">';
+    h+='<h3 style="color:#ff6b6b;margin:0 0 10px 0">⚠️ Скоро списание</h3>';
+    urgentSubs.forEach(function(s){
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;margin:5px 0;background:#1f2530;border-radius:6px">';
+      h+='<div><b style="color:#fff">'+s.name+'</b><br><span class="mut" style="font-size:11px">Через '+s.days+' дн.</span></div>';
+      h+='<div style="font-size:16px;font-weight:bold;color:#ff6b6b">₽'+s.amount.toLocaleString()+'</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  }
+  
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#9d6cff" onclick="showAddSubscription()">+ Добавить подписку</button>';
+  
+  // Группировка по категориям
+  var categories = [
+    {id:'dev', name:'💻 Разработка', color:'#6c8cff'},
+    {id:'tools', name:' Инструменты', color:'#9d6cff'},
+    {id:'entertainment', name:'🎬 Развлечения', color:'#ff9500'},
+    {id:'other', name:' Другое', color:'#8b94a7'}
+  ];
+  
+  categories.forEach(function(cat){
+    var catSubs = db.subscriptions.filter(function(s){return s.category===cat.id;});
+    if(catSubs.length > 0){
+      var catMonthly = catSubs.reduce(function(sum,s){
+        var amt = parseFloat(s.amount)||0;
+        return sum + (s.billingCycle==='yearly' ? amt/12 : amt);
+      }, 0);
+      
+      h+='<h4 style="color:'+cat.color+';margin:15px 0 10px 0">'+cat.name+' <span class="mut" style="font-size:12px">(₽'+Math.round(catMonthly)+'/мес)</span></h4>';
+      catSubs.forEach(function(s){
+        var daysUntil = s.nextBillingDate ? Math.ceil((new Date(s.nextBillingDate) - today) / (1000*60*60*24)) : null;
+        var statusColor = daysUntil !== null ? (daysUntil <= 3 ? '#ff6b6b' : (daysUntil <= 7 ? '#ffd700' : '#3ecf8e')) : '#8b94a7';
+        var statusText = daysUntil !== null ? (daysUntil === 0 ? 'Сегодня!' : 'Через '+daysUntil+' дн.') : 'Нет даты';
+        
+        h+='<div class="card" style="margin:8px 0;border-left:4px solid '+cat.color+'">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+        h+='<div style="flex:1"><b style="font-size:15px">'+s.name+'</b>';
+        if(s.notes) h+='<div class="mut" style="font-size:11px;margin-top:3px">'+s.notes+'</div>';
+        h+='<div class="mut" style="font-size:11px;margin-top:3px">'+(s.billingCycle==='yearly'?'Раз в год':'Раз в месяц')+' | След.: '+formatDate(s.nextBillingDate||'')+'</div>';
+        h+='</div>';
+        h+='<div style="text-align:right;min-width:100px">';
+        h+='<div style="font-size:18px;font-weight:bold;color:#ff9500">₽'+s.amount.toLocaleString()+'</div>';
+        h+='<div style="font-size:11px;color:'+statusColor+';margin-top:3px">'+statusText+'</div>';
+        h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:5px;padding:3px 8px;font-size:10px" onclick="deleteSubscription(\''+s.id+'\')">🗑</button>';
+        h+='</div></div></div>';
+      });
+    }
+  });
+  
+  if(db.subscriptions.length === 0){
+    h+='<div class="mut" style="text-align:center;padding:30px">Пока нет подписок. Добавьте первую!</div>';
+  }
+  
+  document.getElementById('app').innerHTML = h;
+}
+
+function showAddSubscription(){
+  var h='<h3>➕ Новая подписка</h3>';
+  h+='<input id="sub_name" placeholder="Название (GitHub Pro, Netflix...)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff">';
+  h+='<select id="sub_category" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff">';
+  h+='<option value="dev">💻 Разработка</option>';
+  h+='<option value="tools">🛠 Инструменты</option>';
+  h+='<option value="entertainment">🎬 Развлечения</option>';
+  h+='<option value="other">📦 Другое</option>';
+  h+='</select>';
+  h+='<input id="sub_amount" type="number" step="0.01" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff">';
+  h+='<select id="sub_cycle" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff">';
+  h+='<option value="monthly">Раз в месяц</option>';
+  h+='<option value="yearly">Раз в год</option>';
+  h+='</select>';
+  h+='<input id="sub_date" type="date" placeholder="Дата следующего списания" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff">';
+  h+='<input id="sub_notes" placeholder="Заметки (необязательно)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff">';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#9d6cff" onclick="saveSubscription()">💾 Сохранить</button>';
+  openModal(h);
+}
+
+function saveSubscription(){
+  var name = document.getElementById('sub_name').value.trim();
+  if(!name){alert('Введи название подписки!');return;}
+  var amount = parseFloat(document.getElementById('sub_amount').value);
+  if(!amount || amount <= 0){alert('Введи корректную сумму!');return;}
+  if(!db.subscriptions) db.subscriptions = [];
+  db.subscriptions.push({
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+    name: name,
+    category: document.getElementById('sub_category').value,
+    amount: amount,
+    billingCycle: document.getElementById('sub_cycle').value,
+    nextBillingDate: document.getElementById('sub_date').value,
+    notes: document.getElementById('sub_notes').value.trim(),
+    created: new Date().toISOString().slice(0,10)
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+  alert('✅ Подписка добавлена! Всего: ' + db.subscriptions.length);
+  closeModal();
+  renderSubscriptions();
+}
+
+function deleteSubscription(id){
+  if(confirm('Удалить эту подписку?')){
+    db.subscriptions = db.subscriptions.filter(function(s){return s.id!==id;});
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderSubscriptions();
+  }
+}
+// === КОНЕЦ ВКЛАДКИ ПОДПИСКИ ===
+
 // === КОНЕЦ ВКЛАДКИ ТАЙМ-ТРЕКЕР ===
 
 // === КОНЕЦ ВКЛАДКИ DEV TOOLS ===
@@ -5093,6 +5247,7 @@ function startPomodoro(minutes){
       if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
       db.pomodoro.sessions.push({date: todayStr, duration: pomodoroTotalTime/60, timestamp: new Date().toISOString()});
@@ -5141,6 +5296,7 @@ function savePomodoroSettings(){
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var goalEl = document.getElementById('pomodoro_goal');
@@ -5476,6 +5632,7 @@ window.onload=function(){
     if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
   if(!db.timeEntries) db.timeEntries = [];
+  if(!db.subscriptions) db.subscriptions = [];
   if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro)db.pomodoro={sessions:[],totalTime:0,dailyGoal:25};
     if(!db.habits)db.habits=[];
