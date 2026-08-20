@@ -4873,7 +4873,7 @@ function renderTimeTracker(){
         h+='<div class="mut" style="font-size:11px;margin-top:5px">'+formatTime(e.startTime)+' - '+formatTime(e.endTime)+'</div>';
         h+='</div>';
         h+='<div style="text-align:right;min-width:80px">';
-        h+='<div style="font-size:15px;font-weight:bold;color:#3ecf8e">'+e.hours.toFixed(2)+' ч</div>';
+        h+='<div style="font-size:15px;font-weight:bold;color:#3ecf8e">'+e.hours.toFixed(4)+' ч</div>';
         h+='<div style="font-size:12px;color:#6c8cff">₽'+Math.round(e.hours*db.hourlyRate).toLocaleString()+'</div>';
         h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:5px;padding:3px 8px;font-size:10px" onclick="deleteTimeEntry(\''+e.id+'\')">🗑</button>';
         h+='</div></div></div>';
@@ -4947,7 +4947,7 @@ function stopTimer(){
     var diffMs = end - start;
     var hours = diffMs / (1000 * 60 * 60);
     activeEntry.endTime = end.toISOString();
-    activeEntry.hours = Math.round(hours * 100) / 100;
+    activeEntry.hours = Math.round(hours * 10000) / 10000;
     localStorage.setItem('solodev', JSON.stringify(db));
     if(window.activeTimerInterval) clearInterval(window.activeTimerInterval);
     alert('✅ Запись сохранена! Время: ' + activeEntry.hours.toFixed(2) + ' ч. Заработок: ₽' + Math.round(activeEntry.hours * db.hourlyRate).toLocaleString());
