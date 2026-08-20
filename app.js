@@ -31,7 +31,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -75,6 +75,7 @@ function render(){
   else if(currentView==='investments')renderInvestments();
   else if(currentView==='documents')renderDocuments();
   else if(currentView==='analytics')renderAnalytics();
+  else if(currentView==='devtools')renderDevTools();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -6316,6 +6317,186 @@ function renderAnalytics(){
 
   document.getElementById('app').innerHTML = h;
 }
+
+// === ВКЛАДКА DEV TOOLS ===
+function renderDevTools(){
+  var h='<h2>🛠 Dev Tools</h2>';
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px">';
+  h+='<h3 style="color:#fff;margin:0">Инструменты разработчика</h3>';
+  h+='<p class="mut" style="margin:10px 0 0 0;color:#fff">Быстрые утилиты для повседневных задач</p>';
+  h+='</div>';
+  
+  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#6c8cff" onclick="showJSONFormatter()"> JSON Форматтер</button>';
+  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#9d6cff" onclick="showBase64Tool()">🔐 Base64 Кодировщик</button>';
+  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#3ecf8e" onclick="showPasswordGenerator()">🔑 Генератор паролей</button>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#ff9500" onclick="showColorConverter()">🎨 Конвертер цветов</button>';
+  
+  document.getElementById('app').innerHTML = h;
+}
+
+// === JSON ФОРМАТТЕР ===
+function showJSONFormatter(){
+  var h='<h3>📋 JSON Форматтер</h3>';
+  h+='<textarea id="json_input" placeholder="Вставь JSON сюда..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;font-family:monospace;font-size:12px;min-height:120px"></textarea>';
+  h+='<button class="btn" style="width:100%;margin:5px 0;background:#6c8cff" onclick="formatJSON()">✨ Форматировать</button>';
+  h+='<button class="btn" style="width:100%;margin:5px 0;background:#1f2530" onclick="minifyJSON()">📦 Минифицировать</button>';
+  h+='<textarea id="json_output" readonly placeholder="Результат..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#3ecf8e;font-family:monospace;font-size:12px;min-height:120px"></textarea>';
+  h+='<button class="btn" style="width:100%;background:#3ecf8e" onclick="copyDevToolResult(\'json_output\')">📋 Копировать</button>';
+  openModal(h);
+}
+
+function formatJSON(){
+  try {
+    var input = document.getElementById('json_input').value;
+    var obj = JSON.parse(input);
+    document.getElementById('json_output').value = JSON.stringify(obj, null, 2);
+  } catch(e){
+    document.getElementById('json_output').value = '❌ Ошибка: ' + e.message;
+  }
+}
+
+function minifyJSON(){
+  try {
+    var input = document.getElementById('json_input').value;
+    var obj = JSON.parse(input);
+    document.getElementById('json_output').value = JSON.stringify(obj);
+  } catch(e){
+    document.getElementById('json_output').value = '❌ Ошибка: ' + e.message;
+  }
+}
+
+// === BASE64 ===
+function showBase64Tool(){
+  var h='<h3>🔐 Base64 Кодировщик</h3>';
+  h+='<textarea id="base64_input" placeholder="Введи текст..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff;font-family:monospace;font-size:12px;min-height:100px"></textarea>';
+  h+='<button class="btn" style="width:100%;margin:5px 0;background:#9d6cff" onclick="encodeBase64()">🔒 Кодировать</button>';
+  h+='<button class="btn" style="width:100%;margin:5px 0;background:#6c8cff" onclick="decodeBase64()">🔓 Декодировать</button>';
+  h+='<textarea id="base64_output" readonly placeholder="Результат..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#3ecf8e;font-family:monospace;font-size:12px;min-height:100px"></textarea>';
+  h+='<button class="btn" style="width:100%;background:#3ecf8e" onclick="copyDevToolResult(\'base64_output\')">📋 Копировать</button>';
+  openModal(h);
+}
+
+function encodeBase64(){
+  try {
+    var input = document.getElementById('base64_input').value;
+    document.getElementById('base64_output').value = btoa(unescape(encodeURIComponent(input)));
+  } catch(e){
+    document.getElementById('base64_output').value = '❌ Ошибка: ' + e.message;
+  }
+}
+
+function decodeBase64(){
+  try {
+    var input = document.getElementById('base64_input').value;
+    document.getElementById('base64_output').value = decodeURIComponent(escape(atob(input)));
+  } catch(e){
+    document.getElementById('base64_output').value = '❌ Ошибка: Неверный Base64';
+  }
+}
+
+// === ГЕНЕРАТОР ПАРОЛЕЙ ===
+function showPasswordGenerator(){
+  var h='<h3>🔑 Генератор паролей</h3>';
+  h+='<label style="color:#fff;font-size:12px">Длина: <span id="pass_len_val">16</span></label>';
+  h+='<input id="pass_length" type="range" min="8" max="32" value="16" oninput="document.getElementById(\'pass_len_val\').textContent=this.value" style="width:100%;margin:10px 0">';
+  h+='<div style="margin:10px 0">';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" id="pass_upper" checked style="margin-right:5px"> Заглавные буквы (A-Z)</label>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" id="pass_lower" checked style="margin-right:5px"> Строчные буквы (a-z)</label>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" id="pass_numbers" checked style="margin-right:5px"> Цифры (0-9)</label>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" id="pass_symbols" checked style="margin-right:5px"> Символы (!@#$...)</label>';
+  h+='</div>';
+  h+='<button class="btn" style="width:100%;margin:10px 0;background:#3ecf8e" onclick="generatePassword()"> Сгенерировать</button>';
+  h+='<input id="pass_result" readonly style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#3ecf8e;font-family:monospace;font-size:14px;text-align:center">';
+  h+='<button class="btn" style="width:100%;background:#3ecf8e" onclick="copyDevToolResult(\'pass_result\')">📋 Копировать</button>';
+  openModal(h);
+}
+
+function generatePassword(){
+  var length = parseInt(document.getElementById('pass_length').value);
+  var useUpper = document.getElementById('pass_upper').checked;
+  var useLower = document.getElementById('pass_lower').checked;
+  var useNumbers = document.getElementById('pass_numbers').checked;
+  var useSymbols = document.getElementById('pass_symbols').checked;
+  
+  var chars = '';
+  if(useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if(useLower) chars += 'abcdefghijklmnopqrstuvwxyz';
+  if(useNumbers) chars += '0123456789';
+  if(useSymbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+  
+  if(chars === ''){
+    document.getElementById('pass_result').value = 'Выбери хотя бы один тип символов!';
+    return;
+  }
+  
+  var password = '';
+  for(var i = 0; i < length; i++){
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  document.getElementById('pass_result').value = password;
+}
+
+// === КОНВЕРТЕР ЦВЕТОВ ===
+function showColorConverter(){
+  var h='<h3>🎨 Конвертер цветов</h3>';
+  h+='<label style="color:#fff;font-size:12px">HEX цвет:</label>';
+  h+='<input id="color_hex" placeholder="#ff9500" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff;font-family:monospace">';
+  h+='<input id="color_picker" type="color" value="#ff9500" oninput="document.getElementById(\'color_hex\').value=this.value;convertColor()" style="width:100%;height:50px;margin:10px 0;border:none;border-radius:6px;cursor:pointer">';
+  h+='<button class="btn" style="width:100%;margin:10px 0;background:#ff9500" onclick="convertColor()">🔄 Конвертировать</button>';
+  h+='<div id="color_result" style="padding:15px;margin:10px 0;background:#1f2530;border-radius:6px;text-align:center">';
+  h+='<div style="width:100%;height:80px;background:#ff9500;border-radius:6px;margin-bottom:10px"></div>';
+  h+='<div style="color:#fff;font-size:14px">HEX: <b id="color_hex_val">#ff9500</b></div>';
+  h+='<div style="color:#fff;font-size:14px">RGB: <b id="color_rgb_val">rgb(255, 149, 0)</b></div>';
+  h+='</div>';
+  h+='<button class="btn" style="width:100%;background:#3ecf8e" onclick="copyColorValues()">📋 Копировать значения</button>';
+  openModal(h);
+}
+
+function convertColor(){
+  var hex = document.getElementById('color_hex').value.trim();
+  if(!hex.startsWith('#')) hex = '#' + hex;
+  
+  if(/^#[0-9A-F]{6}$/i.test(hex)){
+    var r = parseInt(hex.slice(1,3), 16);
+    var g = parseInt(hex.slice(3,5), 16);
+    var b = parseInt(hex.slice(5,7), 16);
+    
+    document.getElementById('color_hex_val').textContent = hex.toUpperCase();
+    document.getElementById('color_rgb_val').textContent = 'rgb('+r+', '+g+', '+b+')';
+    document.querySelector('#color_result div:first-child').style.background = hex;
+    document.getElementById('color_picker').value = hex;
+  } else {
+    document.getElementById('color_hex_val').textContent = 'Неверный HEX';
+    document.getElementById('color_rgb_val').textContent = '-';
+  }
+}
+
+function copyColorValues(){
+  var hex = document.getElementById('color_hex_val').textContent;
+  var rgb = document.getElementById('color_rgb_val').textContent;
+  var text = 'HEX: ' + hex + '\nRGB: ' + rgb;
+  navigator.clipboard.writeText(text).then(function(){
+    alert('✅ Скопировано!');
+  }).catch(function(){
+    alert('❌ Ошибка копирования');
+  });
+}
+
+function copyDevToolResult(elementId){
+  var text = document.getElementById(elementId).value;
+  if(!text || text.startsWith('')){
+    alert('Нечего копировать!');
+    return;
+  }
+  navigator.clipboard.writeText(text).then(function(){
+    alert('✅ Скопировано в буфер обмена!');
+  }).catch(function(){
+    alert('❌ Ошибка копирования');
+  });
+}
+// === КОНЕЦ ВКЛАДКИ DEV TOOLS ===
+
 // === КОНЕЦ ВКЛАДКИ АНАЛИТИКА ===
 
 // === КОНЕЦ ВКЛАДКИ ГЕНЕРАТОРА ДОКУМЕНТОВ ===
