@@ -6525,7 +6525,7 @@ function renderTimeTracker(){
   // Настройка ставки
   h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px">';
   h+='<div style="display:flex;justify-content:space-between;align-items:center">';
-  h+='<div><div class="mut" style="color:#fff">Почасовая ставка</div><div style="font-size:24px;font-weight:bold;color:#ff9500">₽'+db.hourlyRate+'</div></div>';
+  h+='<div><div class="mut" style="color:#fff">Почасовая ставка</div><div style="font-size:24px;font-weight:bold;color:#ff9500">₽'+db.hourlyRate+'/час</div></div>';
   h+='<button class="btn small" style="background:#ff9500;color:#000" onclick="changeHourlyRate()">Изменить</button>';
   h+='</div></div>';
   
@@ -6533,14 +6533,15 @@ function renderTimeTracker(){
   var activeEntry = db.timeEntries.find(function(e){return !e.endTime;});
   if(activeEntry){
     h+='<div class="card" style="border:2px solid #3ecf8e;margin-bottom:15px;background:#102015">';
-    h+='<h3 style="color:#3ecf8e;margin:0 0 10px 0">⏱ Сейчас работает</h3>';
+    h+='<h3 style="color:#3ecf8e;margin:0 0 10px 0"> Сейчас работает</h3>';
     h+='<div style="font-size:16px;margin-bottom:5px"><b>'+activeEntry.project+'</b></div>';
-    h+='<div class="mut" style="margin-bottom:15px">'+(activeEntry.client||'Без клиента')+'</div>';
-    h+='<div style="font-size:32px;font-weight:bold;color:#3ecf8e;text-align:center;margin:10px 0" id="active_timer">00:00:00</div>';
-    h+='<button class="btn" style="width:100%;background:#ff6b6b" onclick="stopTimer()">⏹ Остановить</button>';
+    if(activeEntry.task) h+='<div class="mut" style="margin-bottom:10px;font-size:13px">'+activeEntry.task+'</div>';
+    h+='<div style="font-size:36px;font-weight:bold;color:#3ecf8e;text-align:center;margin:15px 0" id="active_timer">00:00:00</div>';
+    h+='<div style="text-align:center;margin-bottom:15px"><span class="mut">Заработано: </span><span style="color:#3ecf8e;font-weight:bold" id="active_earnings">₽0</span></div>';
+    h+='<button class="btn" style="width:100%;background:#ff6b6b;font-size:16px;padding:15px" onclick="stopTimer()">⏹ Остановить и сохранить</button>';
     h+='</div>';
   } else {
-    h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#3ecf8e" onclick="showStartTimer()">▶ Запустить таймер</button>';
+    h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#3ecf8e;font-size:16px;padding:15px" onclick="showStartTimer()">▶ Запустить таймер</button>';
   }
   
   // Статистика
@@ -6548,59 +6549,104 @@ function renderTimeTracker(){
   var weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay());
   var weekStartStr = weekStart.toISOString().slice(0,10);
+  var monthStart = today.slice(0,7);
   
   var todayHours = 0, weekHours = 0, monthHours = 0;
   var todayEarnings = 0, weekEarnings = 0, monthEarnings = 0;
   
   db.timeEntries.forEach(function(e){
-    if(e.endTime){
-      var hours = e.hours || 0;
-      var earnings = hours * db.hourlyRate;
+    if(e.endTime && e.hours){
+      var earnings = e.hours * db.hourlyRate;
       if(e.date === today){
-        todayHours += hours;
+        todayHours += e.hours;
         todayEarnings += earnings;
       }
       if(e.date >= weekStartStr){
-        weekHours += hours;
+        weekHours += e.hours;
         weekEarnings += earnings;
       }
-      if(e.date.startsWith(today.slice(0,7))){
-        monthHours += hours;
+      if(e.date.startsWith(monthStart)){
+        monthHours += e.hours;
         monthEarnings += earnings;
       }
     }
   });
   
-  h+='<div class="card"><h3>📊 Статистика</h3>';
+  h+='<div class="card"><h3> Статистика заработка</h3>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center">';
-  h+='<div><div class="mut">Сегодня</div><div style="font-size:16px;font-weight:bold;color:#6c8cff">'+todayHours.toFixed(1)+' ч</div><div style="font-size:12px;color:#3ecf8e">₽'+todayEarnings.toLocaleString()+'</div></div>';
-  h+='<div><div class="mut">Неделя</div><div style="font-size:16px;font-weight:bold;color:#9d6cff">'+weekHours.toFixed(1)+' ч</div><div style="font-size:12px;color:#3ecf8e">₽'+weekEarnings.toLocaleString()+'</div></div>';
-  h+='<div><div class="mut">Месяц</div><div style="font-size:16px;font-weight:bold;color:#ff9500">'+monthHours.toFixed(1)+' ч</div><div style="font-size:12px;color:#3ecf8e">₽'+monthEarnings.toLocaleString()+'</div></div>';
+  h+='<div style="padding:10px;background:#1f2530;border-radius:8px"><div class="mut" style="font-size:11px">Сегодня</div><div style="font-size:18px;font-weight:bold;color:#6c8cff;margin:5px 0">'+todayHours.toFixed(2)+' ч</div><div style="font-size:13px;color:#3ecf8e">₽'+Math.round(todayEarnings).toLocaleString()+'</div></div>';
+  h+='<div style="padding:10px;background:#1f2530;border-radius:8px"><div class="mut" style="font-size:11px">Неделя</div><div style="font-size:18px;font-weight:bold;color:#9d6cff;margin:5px 0">'+weekHours.toFixed(2)+' ч</div><div style="font-size:13px;color:#3ecf8e">₽'+Math.round(weekEarnings).toLocaleString()+'</div></div>';
+  h+='<div style="padding:10px;background:#1f2530;border-radius:8px"><div class="mut" style="font-size:11px">Месяц</div><div style="font-size:18px;font-weight:bold;color:#ff9500;margin:5px 0">'+monthHours.toFixed(2)+' ч</div><div style="font-size:13px;color:#3ecf8e">₽'+Math.round(monthEarnings).toLocaleString()+'</div></div>';
   h+='</div></div>';
   
-  // Последние записи
-  var recentEntries = db.timeEntries.filter(function(e){return e.endTime;}).sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,10);
+  // Группировка записей по дням
+  var entriesByDate = {};
+  db.timeEntries.filter(function(e){return e.endTime;}).sort(function(a,b){return b.date.localeCompare(a.date);}).forEach(function(e){
+    if(!entriesByDate[e.date]) entriesByDate[e.date] = [];
+    entriesByDate[e.date].push(e);
+  });
   
-  if(recentEntries.length > 0){
-    h+='<div class="card" style="margin-top:15px"><h3>📝 Последние записи</h3>';
-    recentEntries.forEach(function(e){
-      h+='<div style="padding:10px;border-bottom:1px solid #2a3040">';
-      h+='<div style="display:flex;justify-content:space-between">';
-      h+='<div><b>'+e.project+'</b><br><span class="mut" style="font-size:11px">'+e.date+' | '+(e.client||'Без клиента')+'</span></div>';
-      h+='<div style="text-align:right"><div style="font-size:16px;font-weight:bold;color:#3ecf8e">'+e.hours.toFixed(1)+' ч</div><div style="font-size:12px;color:#6c8cff">₽'+(e.hours*db.hourlyRate).toLocaleString()+'</div></div>';
-      h+='</div></div>';
+  var dates = Object.keys(entriesByDate).slice(0,7);
+  
+  if(dates.length > 0){
+    h+='<div style="margin-top:15px"><h3> История записей</h3>';
+    dates.forEach(function(date){
+      var dayEntries = entriesByDate[date];
+      var dayTotalHours = dayEntries.reduce(function(sum,e){return sum+(e.hours||0);},0);
+      var dayTotalEarnings = dayTotalHours * db.hourlyRate;
+      
+      h+='<div class="card" style="margin-bottom:10px">';
+      h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #2a3040">';
+      h+='<div style="font-weight:bold;color:#fff">'+formatDate(date)+'</div>';
+      h+='<div style="text-align:right"><div style="font-size:14px;font-weight:bold;color:#6c8cff">'+dayTotalHours.toFixed(2)+' ч</div><div style="font-size:12px;color:#3ecf8e">₽'+Math.round(dayTotalEarnings).toLocaleString()+'</div></div>';
+      h+='</div>';
+      
+      dayEntries.forEach(function(e){
+        h+='<div style="padding:8px;margin:5px 0;background:#1f2530;border-radius:6px;border-left:3px solid #6c8cff">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+        h+='<div style="flex:1">';
+        h+='<div style="font-size:14px;font-weight:bold;color:#fff">'+e.project+'</div>';
+        if(e.task) h+='<div class="mut" style="font-size:12px;margin-top:3px">'+e.task+'</div>';
+        h+='<div class="mut" style="font-size:11px;margin-top:5px">'+formatTime(e.startTime)+' - '+formatTime(e.endTime)+'</div>';
+        h+='</div>';
+        h+='<div style="text-align:right;min-width:80px">';
+        h+='<div style="font-size:15px;font-weight:bold;color:#3ecf8e">'+e.hours.toFixed(2)+' ч</div>';
+        h+='<div style="font-size:12px;color:#6c8cff">₽'+Math.round(e.hours*db.hourlyRate).toLocaleString()+'</div>';
+        h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:5px;padding:3px 8px;font-size:10px" onclick="deleteTimeEntry(\''+e.id+'\')">🗑</button>';
+        h+='</div></div></div>';
+      });
+      h+='</div>';
     });
     h+='</div>';
+  } else {
+    h+='<div class="mut" style="text-align:center;padding:30px;margin-top:15px">Пока нет записей. Запусти таймер!</div>';
   }
   
   document.getElementById('app').innerHTML = h;
   
   // Запускаем обновление таймера
   if(activeEntry){
+    if(window.activeTimerInterval) clearInterval(window.activeTimerInterval);
     window.activeTimerInterval = setInterval(function(){
       updateActiveTimer(activeEntry);
     }, 1000);
+    updateActiveTimer(activeEntry);
   }
+}
+
+function formatDate(dateStr){
+  var date = new Date(dateStr);
+  var months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  var days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+  return days[date.getDay()]+', '+date.getDate()+' '+months[date.getMonth()];
+}
+
+function formatTime(isoStr){
+  if(!isoStr) return '';
+  var date = new Date(isoStr);
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  return (hours<10?'0':'')+hours+':'+(minutes<10?'0':'')+minutes;
 }
 
 function showStartTimer(){
@@ -6616,7 +6662,7 @@ function showStartTimer(){
   }
   h+='</select>';
   h+='<input id="timer_task" placeholder="Задача (например: Верстка главной)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
-  h+='<button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="startTimer()">▶ Запустить</button>';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e;font-size:16px;padding:15px" onclick="startTimer()">▶ Запустить</button>';
   openModal(h);
 }
 
@@ -6625,7 +6671,7 @@ function startTimer(){
   var task = document.getElementById('timer_task').value.trim();
   if(!db.timeEntries) db.timeEntries = [];
   db.timeEntries.push({
-    id: Date.now().toString(36),
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2),
     project: project,
     client: project,
     task: task,
@@ -6647,9 +6693,12 @@ function stopTimer(){
     var diffMs = end - start;
     var hours = diffMs / (1000 * 60 * 60);
     activeEntry.endTime = end.toISOString();
-    activeEntry.hours = hours;
+    activeEntry.hours = Math.round(hours * 100) / 100;
     localStorage.setItem('solodev', JSON.stringify(db));
     if(window.activeTimerInterval) clearInterval(window.activeTimerInterval);
+    alert('✅ Запись сохранена!
+Время: '+activeEntry.hours.toFixed(2)+' ч
+Заработок: ₽'+Math.round(activeEntry.hours * db.hourlyRate).toLocaleString());
     renderTimeTracker();
   }
 }
@@ -6664,12 +6713,19 @@ function updateActiveTimer(entry){
   var timeStr = (hours<10?'0':'')+hours+':'+(minutes<10?'0':'')+minutes+':'+(seconds<10?'0':'')+seconds;
   var timerEl = document.getElementById('active_timer');
   if(timerEl) timerEl.textContent = timeStr;
+  
+  var earningsEl = document.getElementById('active_earnings');
+  if(earningsEl){
+    var currentHours = diffMs / (1000 * 60 * 60);
+    var currentEarnings = currentHours * db.hourlyRate;
+    earningsEl.textContent = '₽'+Math.round(currentEarnings).toLocaleString();
+  }
 }
 
 function changeHourlyRate(){
   var h='<h3>💰 Почасовая ставка</h3>';
-  h+='<input id="new_rate" type="number" value="'+db.hourlyRate+'" placeholder="Ставка в ₽" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
-  h+='<button class="btn" style="width:100%;margin-top:10px;background:#ff9500" onclick="saveHourlyRate()">💾 Сохранить</button>';
+  h+='<input id="new_rate" type="number" value="'+db.hourlyRate+'" placeholder="Ставка в ₽" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff;font-size:16px">';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#ff9500;font-size:16px;padding:15px" onclick="saveHourlyRate()">💾 Сохранить</button>';
   openModal(h);
 }
 
@@ -6678,8 +6734,16 @@ function saveHourlyRate(){
   if(rate > 0){
     db.hourlyRate = rate;
     localStorage.setItem('solodev', JSON.stringify(db));
-    alert('✅ Ставка обновлена: ₽'+rate);
+    alert('✅ Ставка обновлена: ₽'+rate+'/час');
     closeModal();
+    renderTimeTracker();
+  }
+}
+
+function deleteTimeEntry(id){
+  if(confirm('Удалить эту запись?')){
+    db.timeEntries = db.timeEntries.filter(function(e){return e.id!==id;});
+    localStorage.setItem('solodev', JSON.stringify(db));
     renderTimeTracker();
   }
 }
