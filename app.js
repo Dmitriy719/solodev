@@ -4896,7 +4896,7 @@ function formatDate(dateStr){
   var date = new Date(dateStr);
   var months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   var days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
-  return days[date.getDay()]+', '+date.getDate()+' '+months[date.getMonth()];
+  return days[date.getDay()]+', '+date.getDate()+' '+months[date.getMonth()]+' '+date.getFullYear()+' г.';
 }
 
 function formatTime(isoStr){
