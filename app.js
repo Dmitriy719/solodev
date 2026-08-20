@@ -6,6 +6,8 @@ profile:{name:'Дмитрий',spec:'Fullstack разработчик',specs:['�
 // === ГАРАНТИРОВАННАЯ НОРМАЛИЗАЦИЯ БАЗЫ ДАННЫХ ===
 if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
 if(!db.habits) db.habits = [];
 if(!db.diary) db.diary = [];
@@ -23,6 +25,8 @@ localStorage.setItem('solodev', JSON.stringify(db));
   // Гарантированная инициализация новых полей продуктивности
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   if(!db.diary) db.diary = [];
@@ -31,7 +35,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -76,6 +80,7 @@ function render(){
   else if(currentView==='documents')renderDocuments();
   else if(currentView==='analytics')renderAnalytics();
   else if(currentView==='devtools')renderDevTools();
+  else if(currentView==='timetracker')renderTimeTracker();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -4517,6 +4522,8 @@ function printMonthlyReport(){
 function renderProductivity(){
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   if(!db.diary) db.diary = [];
@@ -4564,6 +4571,8 @@ var pomodoroTotalTime = 0;
 function showPomodoro(){
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var h='<h3>🍅 Pomodoro-таймер</h3>';
   h+='<div style="text-align:center;padding:20px">';
@@ -4606,6 +4615,8 @@ function startPomodoro(minutes){
       pomodoroInterval = null;
       if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
       var todayStr = new Date().toISOString().slice(0,10);
       db.pomodoro.sessions.push({date: todayStr, duration: pomodoroTotalTime/60, timestamp: new Date().toISOString()});
@@ -4651,6 +4662,8 @@ function stopPomodoro(){
 function savePomodoroSettings(){
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var goalEl = document.getElementById('pomodoro_goal');
   if(goalEl && goalEl.value){
@@ -4797,6 +4810,8 @@ function saveDiaryEntry(){
 function showFocusStats(){
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   if(!db.habits) db.habits = [];
   
@@ -5975,6 +5990,8 @@ function deleteDeal(id){
 // === ВКЛАДКА ИНВЕСТИЦИИ ===
 function renderInvestments(){
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   var h='<h2>📈 Инвестиции</h2>';
 
   var totalInvested = 0;
@@ -6063,6 +6080,8 @@ function saveInvestment(){
   var name = document.getElementById('inv_name').value.trim();
   if(!name){alert('Введи название актива!');return;}
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   db.investments.push({
     id: Date.now().toString(36) + Math.random().toString(36).substr(2),
     name: name,
@@ -6495,6 +6514,177 @@ function copyDevToolResult(elementId){
     alert('❌ Ошибка копирования');
   });
 }
+
+// === ВКЛАДКА ТАЙМ-ТРЕКЕР ===
+function renderTimeTracker(){
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
+  
+  var h='<h2>⏱ Тайм-трекер</h2>';
+  
+  // Настройка ставки
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+  h+='<div><div class="mut" style="color:#fff">Почасовая ставка</div><div style="font-size:24px;font-weight:bold;color:#ff9500">₽'+db.hourlyRate+'</div></div>';
+  h+='<button class="btn small" style="background:#ff9500;color:#000" onclick="changeHourlyRate()">Изменить</button>';
+  h+='</div></div>';
+  
+  // Активный таймер
+  var activeEntry = db.timeEntries.find(function(e){return !e.endTime;});
+  if(activeEntry){
+    h+='<div class="card" style="border:2px solid #3ecf8e;margin-bottom:15px;background:#102015">';
+    h+='<h3 style="color:#3ecf8e;margin:0 0 10px 0">⏱ Сейчас работает</h3>';
+    h+='<div style="font-size:16px;margin-bottom:5px"><b>'+activeEntry.project+'</b></div>';
+    h+='<div class="mut" style="margin-bottom:15px">'+(activeEntry.client||'Без клиента')+'</div>';
+    h+='<div style="font-size:32px;font-weight:bold;color:#3ecf8e;text-align:center;margin:10px 0" id="active_timer">00:00:00</div>';
+    h+='<button class="btn" style="width:100%;background:#ff6b6b" onclick="stopTimer()">⏹ Остановить</button>';
+    h+='</div>';
+  } else {
+    h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#3ecf8e" onclick="showStartTimer()">▶ Запустить таймер</button>';
+  }
+  
+  // Статистика
+  var today = new Date().toISOString().slice(0,10);
+  var weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  var weekStartStr = weekStart.toISOString().slice(0,10);
+  
+  var todayHours = 0, weekHours = 0, monthHours = 0;
+  var todayEarnings = 0, weekEarnings = 0, monthEarnings = 0;
+  
+  db.timeEntries.forEach(function(e){
+    if(e.endTime){
+      var hours = e.hours || 0;
+      var earnings = hours * db.hourlyRate;
+      if(e.date === today){
+        todayHours += hours;
+        todayEarnings += earnings;
+      }
+      if(e.date >= weekStartStr){
+        weekHours += hours;
+        weekEarnings += earnings;
+      }
+      if(e.date.startsWith(today.slice(0,7))){
+        monthHours += hours;
+        monthEarnings += earnings;
+      }
+    }
+  });
+  
+  h+='<div class="card"><h3>📊 Статистика</h3>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center">';
+  h+='<div><div class="mut">Сегодня</div><div style="font-size:16px;font-weight:bold;color:#6c8cff">'+todayHours.toFixed(1)+' ч</div><div style="font-size:12px;color:#3ecf8e">₽'+todayEarnings.toLocaleString()+'</div></div>';
+  h+='<div><div class="mut">Неделя</div><div style="font-size:16px;font-weight:bold;color:#9d6cff">'+weekHours.toFixed(1)+' ч</div><div style="font-size:12px;color:#3ecf8e">₽'+weekEarnings.toLocaleString()+'</div></div>';
+  h+='<div><div class="mut">Месяц</div><div style="font-size:16px;font-weight:bold;color:#ff9500">'+monthHours.toFixed(1)+' ч</div><div style="font-size:12px;color:#3ecf8e">₽'+monthEarnings.toLocaleString()+'</div></div>';
+  h+='</div></div>';
+  
+  // Последние записи
+  var recentEntries = db.timeEntries.filter(function(e){return e.endTime;}).sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,10);
+  
+  if(recentEntries.length > 0){
+    h+='<div class="card" style="margin-top:15px"><h3>📝 Последние записи</h3>';
+    recentEntries.forEach(function(e){
+      h+='<div style="padding:10px;border-bottom:1px solid #2a3040">';
+      h+='<div style="display:flex;justify-content:space-between">';
+      h+='<div><b>'+e.project+'</b><br><span class="mut" style="font-size:11px">'+e.date+' | '+(e.client||'Без клиента')+'</span></div>';
+      h+='<div style="text-align:right"><div style="font-size:16px;font-weight:bold;color:#3ecf8e">'+e.hours.toFixed(1)+' ч</div><div style="font-size:12px;color:#6c8cff">₽'+(e.hours*db.hourlyRate).toLocaleString()+'</div></div>';
+      h+='</div></div>';
+    });
+    h+='</div>';
+  }
+  
+  document.getElementById('app').innerHTML = h;
+  
+  // Запускаем обновление таймера
+  if(activeEntry){
+    window.activeTimerInterval = setInterval(function(){
+      updateActiveTimer(activeEntry);
+    }, 1000);
+  }
+}
+
+function showStartTimer(){
+  var h='<h3>▶ Запустить таймер</h3>';
+  h+='<label style="color:#fff;font-size:12px">Проект/Клиент:</label>';
+  h+='<select id="timer_project" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  if(!db.clients || db.clients.length === 0){
+    h+='<option value="Общая работа">Общая работа</option>';
+  } else {
+    db.clients.forEach(function(c){
+      h+='<option value="'+c.name+'">'+c.name+(c.company?' ('+c.company+')':'')+'</option>';
+    });
+  }
+  h+='</select>';
+  h+='<input id="timer_task" placeholder="Задача (например: Верстка главной)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="startTimer()">▶ Запустить</button>';
+  openModal(h);
+}
+
+function startTimer(){
+  var project = document.getElementById('timer_project').value;
+  var task = document.getElementById('timer_task').value.trim();
+  if(!db.timeEntries) db.timeEntries = [];
+  db.timeEntries.push({
+    id: Date.now().toString(36),
+    project: project,
+    client: project,
+    task: task,
+    date: new Date().toISOString().slice(0,10),
+    startTime: new Date().toISOString(),
+    endTime: null,
+    hours: 0
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+  closeModal();
+  renderTimeTracker();
+}
+
+function stopTimer(){
+  var activeEntry = db.timeEntries.find(function(e){return !e.endTime;});
+  if(activeEntry){
+    var end = new Date();
+    var start = new Date(activeEntry.startTime);
+    var diffMs = end - start;
+    var hours = diffMs / (1000 * 60 * 60);
+    activeEntry.endTime = end.toISOString();
+    activeEntry.hours = hours;
+    localStorage.setItem('solodev', JSON.stringify(db));
+    if(window.activeTimerInterval) clearInterval(window.activeTimerInterval);
+    renderTimeTracker();
+  }
+}
+
+function updateActiveTimer(entry){
+  var start = new Date(entry.startTime);
+  var now = new Date();
+  var diffMs = now - start;
+  var hours = Math.floor(diffMs / (1000 * 60 * 60));
+  var minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+  var timeStr = (hours<10?'0':'')+hours+':'+(minutes<10?'0':'')+minutes+':'+(seconds<10?'0':'')+seconds;
+  var timerEl = document.getElementById('active_timer');
+  if(timerEl) timerEl.textContent = timeStr;
+}
+
+function changeHourlyRate(){
+  var h='<h3>💰 Почасовая ставка</h3>';
+  h+='<input id="new_rate" type="number" value="'+db.hourlyRate+'" placeholder="Ставка в ₽" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#ff9500" onclick="saveHourlyRate()">💾 Сохранить</button>';
+  openModal(h);
+}
+
+function saveHourlyRate(){
+  var rate = parseInt(document.getElementById('new_rate').value);
+  if(rate > 0){
+    db.hourlyRate = rate;
+    localStorage.setItem('solodev', JSON.stringify(db));
+    alert('✅ Ставка обновлена: ₽'+rate);
+    closeModal();
+    renderTimeTracker();
+  }
+}
+// === КОНЕЦ ВКЛАДКИ ТАЙМ-ТРЕКЕР ===
+
 // === КОНЕЦ ВКЛАДКИ DEV TOOLS ===
 
 // === КОНЕЦ ВКЛАДКИ АНАЛИТИКА ===
@@ -6586,6 +6776,8 @@ function startPomodoro(minutes){
       var todayStr = new Date().toISOString().slice(0,10);
       if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
       db.pomodoro.sessions.push({date: todayStr, duration: pomodoroTotalTime/60, timestamp: new Date().toISOString()});
       db.pomodoro.totalTime = (db.pomodoro.totalTime || 0) + (pomodoroTotalTime/60);
@@ -6632,6 +6824,8 @@ function stopPomodoro(){
 function savePomodoroSettings(){
   if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro) db.pomodoro = {sessions:[], totalTime:0, dailyGoal:25};
   var goalEl = document.getElementById('pomodoro_goal');
   if(goalEl && goalEl.value){
@@ -6965,6 +7159,8 @@ window.onload=function(){
     if(!db.monthlySavings)db.monthlySavings=40000;
     if(!db.deals) db.deals = [];
   if(!db.investments) db.investments = [];
+  if(!db.timeEntries) db.timeEntries = [];
+  if(!db.hourlyRate) db.hourlyRate = 2000;
   if(!db.pomodoro)db.pomodoro={sessions:[],totalTime:0,dailyGoal:25};
     if(!db.habits)db.habits=[];
     if(!db.diary)db.diary=[];
