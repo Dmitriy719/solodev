@@ -6170,7 +6170,7 @@ function applySmartEstimate(){
 
 
 // === ДОБАВЛЕННЫЕ ФУНКЦИИ ПРОДУКТИВНОСТИ ===
-function showDailyGoals() { alert("✅ НОВЫЙ КОД ЗАГРУЖЕН! Функция вызвана.");
+function showDailyGoals() {
     if(!db.dailyGoals) db.dailyGoals = [];
     var h = '<h3>🎯 Ежедневные цели</h3><div id="daily_goals_list"></div>';
     h += '<input id="new_daily_goal" placeholder="Новая цель" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
