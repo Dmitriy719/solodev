@@ -6485,38 +6485,102 @@ function getBurnoutRecommendations(data) {
 function renderBurnout() {
     var data = calculateBurnoutIndex();
     var recs = getBurnoutRecommendations(data);
+    var today = new Date();
+    
+    // Подсчёт количества дней с данными за последнюю неделю
+    var daysWithData = 0;
+    for (var i = 0; i < 7; i++) {
+        var d = new Date(today.getTime() - i * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        var hasPomodoro = db.pomodoro.sessions.some(s => s.date === d);
+        var hasMood = db.mood.some(m => m.date === d);
+        if (hasPomodoro || hasMood) daysWithData++;
+    }
+    var hasEnoughData = daysWithData >= 3;
+    
+    // История индекса за 7 дней
+    var history = [];
+    for (var i = 6; i >= 0; i--) {
+        var d = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+        var dateStr = d.toISOString().slice(0, 10);
+        var dayName = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][d.getDay()];
+        var daySessions = db.pomodoro.sessions.filter(s => s.date === dateStr);
+        var dayMoods = db.mood.filter(m => m.date === dateStr);
+        var dayHours = daySessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60;
+        var dayMood = dayMoods.length > 0 ? dayMoods.reduce((sum, m) => sum + m.level, 0) / dayMoods.length : null;
+        var dayIndex = 100;
+        if (dayHours > 8) dayIndex -= Math.min(40, (dayHours - 8) * 5);
+        if (dayMood !== null && dayMood < 3) dayIndex -= (3 - dayMood) * 10;
+        if (dayMood === null && dayHours === 0) dayIndex = null;
+        history.push({day: dayName, index: dayIndex, hours: dayHours});
+    }
     
     var h = '<h2>🧠 Детектор выгорания</h2>';
     
-    // Цвет индекса
-    var indexColor = data.index >= 70 ? '#3ecf8e' : (data.index >= 40 ? '#ffd700' : '#ff6b6b');
-    var indexLabel = data.index >= 70 ? 'Отлично' : (data.index >= 40 ? 'Внимание' : 'Критично');
+    // Баннер с подсказкой
+    if (!hasEnoughData) {
+        h += '<div class="card" style="background:linear-gradient(135deg,#1f2530,#2a1040);border-color:#6c8cff;margin-bottom:15px">';
+        h += '<div style="display:flex;align-items:center;gap:10px">';
+        h += '<div style="font-size:24px">️</div>';
+        h += '<div style="flex:1"><b style="color:#6c8cff">Нужно больше данных</b><div class="mut" style="font-size:12px;margin-top:4px">Для точного анализа используй Pomodoro и трекер настроения хотя бы 3 дня. Сейчас собрано данных за ' + daysWithData + ' дн. из 7.</div></div>';
+        h += '</div></div>';
+    }
     
     // Круговой индикатор
+    var indexColor = hasEnoughData ? (data.index >= 70 ? '#3ecf8e' : (data.index >= 40 ? '#ffd700' : '#ff6b6b')) : '#6c8cff';
+    var indexLabel = hasEnoughData ? (data.index >= 70 ? 'Отлично' : (data.index >= 40 ? 'Внимание' : 'Критично')) : 'Мало данных';
+    
     h += '<div class="card" style="text-align:center;padding:30px;background:linear-gradient(135deg,#1a2035,#2a1040)">';
     h += '<div style="position:relative;width:150px;height:150px;margin:0 auto">';
     h += '<svg width="150" height="150" style="transform:rotate(-90deg)">';
     h += '<circle cx="75" cy="75" r="65" fill="none" stroke="#1f2530" stroke-width="10"></circle>';
-    h += '<circle cx="75" cy="75" r="65" fill="none" stroke="' + indexColor + '" stroke-width="10" stroke-dasharray="' + (data.index * 4.08) + ' 408" stroke-linecap="round"></circle>';
+    var dash = hasEnoughData ? (data.index * 4.08) : 0;
+    h += '<circle cx="75" cy="75" r="65" fill="none" stroke="' + indexColor + '" stroke-width="10" stroke-dasharray="' + dash + ' 408" stroke-linecap="round"></circle>';
     h += '</svg>';
     h += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">';
-    h += '<div style="font-size:36px;font-weight:bold;color:' + indexColor + '">' + data.index + '%</div>';
+    h += '<div style="font-size:36px;font-weight:bold;color:' + indexColor + '">' + (hasEnoughData ? data.index + '%' : '—') + '</div>';
     h += '<div style="font-size:12px;color:#fff">' + indexLabel + '</div>';
     h += '</div></div>';
     h += '<div style="margin-top:15px;font-size:14px;color:#fff">Индекс энергии за последние 7 дней</div>';
     h += '</div>';
     
-    // Статистика
-    h += '<div class="card"><h3> Статистика за неделю</h3>';
+    // График истории (SVG)
+    h += '<div class="card"><h3>📈 Динамика за неделю</h3>';
+    h += '<svg width="100%" height="120" viewBox="0 0 320 120" style="margin:10px 0">';
+    var barWidth = 30, gap = 12, startX = 20;
+    history.forEach(function(item, i) {
+        var x = startX + i * (barWidth + gap);
+        var barHeight = item.index !== null ? (item.index / 100) * 90 : 4;
+        var y = 100 - barHeight;
+        var color = item.index === null ? '#1f2530' : (item.index >= 70 ? '#3ecf8e' : (item.index >= 40 ? '#ffd700' : '#ff6b6b'));
+        h += '<rect x="' + x + '" y="' + y + '" width="' + barWidth + '" height="' + barHeight + '" fill="' + color + '" rx="3"></rect>';
+        h += '<text x="' + (x + barWidth/2) + '" y="115" text-anchor="middle" fill="#fff" font-size="10">' + item.day + '</text>';
+        if (item.index !== null) {
+            h += '<text x="' + (x + barWidth/2) + '" y="' + (y - 4) + '" text-anchor="middle" fill="#fff" font-size="9">' + item.index + '%</text>';
+        }
+    });
+    h += '</svg>';
+    h += '<div class="mut" style="font-size:11px;text-align:center">Серые столбцы = нет данных за день</div>';
+    h += '</div>';
+    
+    // Статистика за неделю
+    h += '<div class="card"><h3>📊 Статистика за неделю</h3>';
     h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
-    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Часов работы</div><b style="font-size:18px;color:#6c8cff">' + data.totalHours + ' ч</b><div class="mut" style="font-size:11px">' + data.avgHoursPerDay + ' ч/день</div></div>';
-    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Среднее настроение</div><b style="font-size:18px;color:#ffd700">' + data.avgMood + '/5</b><div class="mut" style="font-size:11px">' + data.weekSessions + ' сессий</div></div>';
-    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Вода сегодня</div><b style="font-size:18px;color:#6c8cff">' + data.waterPercent + '%</b><div class="mut" style="font-size:11px">от нормы</div></div>';
-    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Привычки сегодня</div><b style="font-size:18px;color:#3ecf8e">' + data.habitPercent + '%</b><div class="mut" style="font-size:11px">выполнено</div></div>';
+    var hoursText = data.totalHours > 0 ? data.totalHours + ' ч' : 'Нет данных';
+    var hoursAvg = data.totalHours > 0 ? data.avgHoursPerDay + ' ч/день' : '—';
+    var moodText = data.weekSessions > 0 || (db.mood && db.mood.filter(m => m.date >= new Date(today.getTime() - 7*24*60*60*1000).toISOString().slice(0,10)).length > 0) ? data.avgMood + '/5' : 'Нет данных';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Часов работы</div><b style="font-size:18px;color:#6c8cff">' + hoursText + '</b><div class="mut" style="font-size:11px">' + hoursAvg + '</div></div>';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Среднее настроение</div><b style="font-size:18px;color:#ffd700">' + moodText + '</b><div class="mut" style="font-size:11px">' + data.weekSessions + ' сессий</div></div>';
+    var waterText = data.waterPercent > 0 ? data.waterPercent + '%' : 'Нет данных';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Вода сегодня</div><b style="font-size:18px;color:#6c8cff">' + waterText + '</b><div class="mut" style="font-size:11px">от нормы</div></div>';
+    var habitText = data.habitPercent > 0 && data.habitPercent < 100 ? data.habitPercent + '%' : (data.habitPercent === 100 && (db.habits || []).length > 0 ? '100%' : 'Нет данных');
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Привычки сегодня</div><b style="font-size:18px;color:#3ecf8e">' + habitText + '</b><div class="mut" style="font-size:11px">выполнено</div></div>';
     h += '</div></div>';
     
     // Рекомендации
     h += '<div class="card"><h3>💡 Рекомендации</h3>';
+    if (!hasEnoughData) {
+        h += '<div style="padding:10px;margin:8px 0;background:#1f2530;border-left:3px solid #6c8cff;border-radius:4px;font-size:13px;color:#fff">📝 Начни использовать Pomodoro-таймер и отмечай настроение каждый день. Через 3 дня рекомендации станут точными.</div>';
+    }
     recs.forEach(function(rec) {
         var bgColor = rec.type === 'success' ? '#102015' : (rec.type === 'danger' ? '#201015' : '#1f2530');
         var borderColor = rec.type === 'success' ? '#3ecf8e' : (rec.type === 'danger' ? '#ff6b6b' : '#ffd700');
