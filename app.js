@@ -6168,3 +6168,113 @@ function applySmartEstimate(){
 
 // === КОНЕЦ ВКЛАДКИ КАЛЬКУЛЯТОР ===
 
+
+// === ДОБАВЛЕННЫЕ ФУНКЦИИ ПРОДУКТИВНОСТИ ===
+function showDailyGoals() {
+    if(!db.dailyGoals) db.dailyGoals = [];
+    var h = '<h3>🎯 Ежедневные цели</h3><div id="daily_goals_list"></div>';
+    h += '<input id="new_daily_goal" placeholder="Новая цель" style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+    h += '<button class="btn" style="width:100%;background:#3ecf8e" onclick="addDailyGoal()">Добавить</button>';
+    openModal(h);
+    renderDailyGoalsList();
+}
+function renderDailyGoalsList() {
+    var list = document.getElementById('daily_goals_list'); if(!list) return;
+    if(!db.dailyGoals || db.dailyGoals.length === 0) { list.innerHTML = '<div class="mut">Нет целей</div>'; return; }
+    var html = '';
+    db.dailyGoals.forEach(function(g, i) {
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;margin:5px 0;background:#1f2530;border-radius:6px">';
+        html += '<span style="flex:1">'+(g.done?'<s>':'')+g.text+(g.done?'</s>':'')+'</span>';
+        html += '<button class="btn small" style="background:'+(g.done?'#3ecf8e':'#6c8cff')+'" onclick="toggleDailyGoal('+i+')">'+(g.done?'↩':'✅')+'</button>';
+        html += '<button class="btn small" style="background:#ff6b6b" onclick="deleteDailyGoal('+i+')">🗑</button></div>';
+    });
+    list.innerHTML = html;
+}
+function addDailyGoal() {
+    var text = document.getElementById('new_daily_goal').value.trim(); if(!text) return;
+    if(!db.dailyGoals) db.dailyGoals = [];
+    db.dailyGoals.push({text: text, done: false});
+    localStorage.setItem('solodev', JSON.stringify(db));
+    document.getElementById('new_daily_goal').value = '';
+    renderDailyGoalsList();
+}
+function toggleDailyGoal(index) {
+    if(!db.dailyGoals || !db.dailyGoals[index]) return;
+    db.dailyGoals[index].done = !db.dailyGoals[index].done;
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderDailyGoalsList();
+}
+function deleteDailyGoal(index) {
+    if(!db.dailyGoals || !db.dailyGoals[index]) return;
+    db.dailyGoals.splice(index, 1);
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderDailyGoalsList();
+}
+
+function showJournal() {
+    if(!db.journal) db.journal = [];
+    var h = '<h3>📜 Журнал событий</h3><div style="max-height:400px;overflow-y:auto">';
+    if(db.journal.length === 0) h += '<div class="mut">Журнал пуст</div>';
+    else {
+        db.journal.slice().reverse().forEach(function(entry) {
+            var icon = entry.type === 'pomodoro' ? '🍅' : (entry.type === 'habit' ? '✅' : '📝');
+            var detail = entry.type === 'pomodoro' ? (entry.data.duration + ' мин') : (entry.data.habitName || entry.data.text || '');
+            h += '<div style="padding:8px;margin:5px 0;background:#1f2530;border-radius:6px;border-left:3px solid #ffd700">';
+            h += '<div style="font-size:12px;color:#ffd700">'+icon+' '+entry.date+' '+entry.time+'</div>';
+            h += '<div style="font-size:13px;color:#fff">'+detail+'</div></div>';
+        });
+    }
+    h += '</div><button class="btn" style="width:100%;margin-top:10px;background:#1f2530" onclick="closeModal()">Закрыть</button>';
+    openModal(h);
+}
+
+function showMoodTracker() {
+    var h = '<h3>😊 Трекер настроения</h3><div style="display:flex;justify-content:space-around;margin:15px 0">';
+    h += '<button class="btn" style="flex:1;margin:0 5px;background:#ff6b6b" onclick="logMood(1)">😡</button>';
+    h += '<button class="btn" style="flex:1;margin:0 5px;background:#ff9500" onclick="logMood(2)">😕</button>';
+    h += '<button class="btn" style="flex:1;margin:0 5px;background:#ffd700;color:#000" onclick="logMood(3)">😐</button>';
+    h += '<button class="btn" style="flex:1;margin:0 5px;background:#3ecf8e" onclick="logMood(4)">🙂</button>';
+    h += '<button class="btn" style="flex:1;margin:0 5px;background:#6c8cff" onclick="logMood(5)">😄</button></div>';
+    h += '<div id="mood_history" style="max-height:200px;overflow-y:auto"></div>';
+    h += '<button class="btn" style="width:100%;margin-top:10px;background:#1f2530" onclick="closeModal()">Закрыть</button>';
+    openModal(h);
+    renderMoodHistory();
+}
+function logMood(level) {
+    if(!db.mood) db.mood = [];
+    db.mood.push({level: level, date: new Date().toISOString().slice(0,10), time: new Date().toTimeString().slice(0,5)});
+    if(db.mood.length > 100) db.mood = db.mood.slice(-100);
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderMoodHistory();
+}
+function renderMoodHistory() {
+    var el = document.getElementById('mood_history'); if(!el || !db.mood) return;
+    var emojis = ['', '😡', '😕', '😐', '🙂', '😄'];
+    var html = '';
+    db.mood.slice().reverse().slice(0, 10).forEach(function(m) {
+        html += '<div style="padding:5px;border-bottom:1px solid #242b36">'+emojis[m.level]+' '+m.date+' '+m.time+'</div>';
+    });
+    el.innerHTML = html || '<div class="mut">Нет записей</div>';
+}
+
+function showWaterTracker() {
+    if(!db.water) db.water = {intake: 0, goal: 8, log: {}};
+    var h = '<h3>💧 Трекер воды</h3><div style="text-align:center;margin:20px 0">';
+    h += '<div style="font-size:48px;font-weight:bold;color:#6c8cff">'+db.water.intake+' / '+db.water.goal+' ст.</div>';
+    h += '<div style="display:flex;gap:10px;justify-content:center;margin-top:15px">';
+    h += '<button class="btn" style="background:#6c8cff" onclick="addWater(1)">+1 стакан</button>';
+    h += '<button class="btn" style="background:#1f2530" onclick="addWater(-1)">-1 стакан</button></div></div>';
+    h += '<button class="btn" style="width:100%;background:#1f2530" onclick="closeModal()">Закрыть</button>';
+    openModal(h);
+}
+function addWater(amount) {
+    if(!db.water) db.water = {intake: 0, goal: 8, log: {}};
+    db.water.intake = Math.max(0, db.water.intake + amount);
+    var today = new Date().toISOString().slice(0,10);
+    if(!db.water.log[today]) db.water.log[today] = 0;
+    db.water.log[today] = Math.max(0, (db.water.log[today] || 0) + amount);
+    localStorage.setItem('solodev', JSON.stringify(db));
+    showWaterTracker();
+    if(currentView === 'productivity') renderProductivity();
+}
+// === КОНЕЦ ДОБАВЛЕННЫХ ФУНКЦИЙ ===
