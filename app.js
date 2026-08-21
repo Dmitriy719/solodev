@@ -37,7 +37,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -84,6 +84,7 @@ function render(){
   else if(currentView==='devtools')renderDevTools();
   else if(currentView==='timetracker')renderTimeTracker();
   else if(currentView==='subscriptions')renderSubscriptions();
+  else if(currentView==='calculator')renderCalculator();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -5873,3 +5874,195 @@ function addToJournal(type, data) {
     localStorage.setItem('solodev', JSON.stringify(db));
 }
 // === КОНЕЦ УТИЛИТЫ ЖУРНАЛА ===
+
+// === ВКЛАДКА КАЛЬКУЛЯТОР СТОИМОСТИ ПРОЕКТА ===
+function renderCalculator(){
+  if(!db.estimates) db.estimates = [];
+  var rate = db.hourlyRate || 2000;
+  var h='<h2>🧮 Калькулятор стоимости проекта</h2>';
+  
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+  h+='<div><div class="mut" style="color:#fff">Текущая ставка</div><div style="font-size:24px;font-weight:bold;color:#ff9500">₽'+rate+'/час</div></div>';
+  h+='<button class="btn small" style="background:#ff9500;color:#000" onclick="go(\'timetracker\')">Изменить</button>';
+  h+='</div></div>';
+
+  h+='<div class="card">';
+  h+='<h3>➕ Добавить задачу</h3>';
+  h+='<input id="est_task_name" placeholder="Название задачи (напр. Верстка главной)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<div style="display:flex;gap:10px">';
+  h+='<input id="est_task_hours" type="number" step="0.5" placeholder="Часы" style="flex:1;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<select id="est_task_complexity" style="flex:1;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<option value="1">🟢 Простая (x1.0)</option>';
+  h+='<option value="1.5">🟡 Средняя (x1.5)</option>';
+  h+='<option value="2">🔴 Сложная (x2.0)</option>';
+  h+='</select></div>';
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#6c8cff" onclick="addEstimateTask()">Добавить задачу</button>';
+  h+='</div>';
+
+  h+='<div class="card" id="est_preview">';
+  h+='<h3>📋 Текущий расчёт</h3>';
+  h+='<div id="est_tasks_list"></div>';
+  h+='<div style="margin-top:15px;border-top:1px solid #2a3040;padding-top:10px">';
+  h+='<label style="color:#fff;font-size:12px">Риск-буфер:</label>';
+  h+='<select id="est_buffer" onchange="updateEstimatePreview()" style="width:100%;padding:8px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  h+='<option value="0">0% (Без буфера)</option>';
+  h+='<option value="10" selected>10% (Минимальный риск)</option>';
+  h+='<option value="20">20% (Стандарт)</option>';
+  h+='<option value="30">30% (Высокий риск / Новый клиент)</option>';
+  h+='</select>';
+  h+='<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:14px"><span>Итого часов:</span><b id="est_total_hours">0 ч</b></div>';
+  h+='<div style="display:flex;justify-content:space-between;margin-top:5px;font-size:14px"><span>Стоимость без буфера:</span><b id="est_base_cost">₽0</b></div>';
+  h+='<div style="display:flex;justify-content:space-between;margin-top:5px;font-size:18px;font-weight:bold;color:#3ecf8e"><span>ИТОГО К ОПЛАТЕ:</span><b id="est_total_cost">₽0</b></div>';
+  h+='</div>';
+  h+='<div style="display:flex;gap:10px;margin-top:15px">';
+  h+='<button class="btn" style="flex:1;background:#3ecf8e" onclick="generateEstimateProposal()">📄 Сгенерировать КП</button>';
+  h+='<button class="btn" style="flex:1;background:#9d6cff" onclick="saveEstimateToHistory()">💾 Сохранить</button>';
+  h+='</div></div>';
+
+  h+='<h3 style="margin-top:20px">📜 История расчётов</h3>';
+  if(db.estimates && db.estimates.length > 0){
+    db.estimates.slice().reverse().forEach(function(est, idx){
+      var realIdx = db.estimates.length - 1 - idx;
+      h+='<div class="card" style="margin-bottom:10px;border-left:4px solid #9d6cff">';
+      h+='<div style="display:flex;justify-content:space-between"><b>'+(est.projectName || 'Без названия')+'</b><span style="color:#3ecf8e;font-weight:bold">₽'+est.totalCost.toLocaleString()+'</span></div>';
+      h+='<div class="mut" style="font-size:11px;margin-top:5px">'+est.date+' | '+est.totalHours+' ч | Буфер: '+est.bufferPercent+'%</div>';
+      h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:8px;width:100%" onclick="deleteEstimate('+realIdx+')">🗑 Удалить</button>';
+      h+='</div>';
+    });
+  } else {
+    h+='<div class="mut" style="text-align:center;padding:20px">История пуста</div>';
+  }
+  document.getElementById('app').innerHTML = h;
+  if(!window.estTasks) window.estTasks = [];
+  updateEstimatePreview();
+}
+
+function addEstimateTask(){
+  var name = document.getElementById('est_task_name').value.trim();
+  var hours = parseFloat(document.getElementById('est_task_hours').value);
+  var complexity = parseFloat(document.getElementById('est_task_complexity').value);
+  if(!name || !hours || hours <= 0){ alert('Заполни название и часы!'); return; }
+  if(!window.estTasks) window.estTasks = [];
+  window.estTasks.push({ name: name, hours: hours, complexity: complexity });
+  document.getElementById('est_task_name').value = '';
+  document.getElementById('est_task_hours').value = '';
+  updateEstimatePreview();
+}
+
+function removeEstimateTask(index){
+  window.estTasks.splice(index, 1);
+  updateEstimatePreview();
+}
+
+function updateEstimatePreview(){
+  if(!window.estTasks) window.estTasks = [];
+  var rate = db.hourlyRate || 2000;
+  var bufferEl = document.getElementById('est_buffer');
+  var bufferPercent = bufferEl ? parseInt(bufferEl.value) : 10;
+  var listHtml = '', totalHours = 0, baseCost = 0;
+
+  window.estTasks.forEach(function(task, idx){
+    var effectiveHours = task.hours * task.complexity;
+    totalHours += effectiveHours;
+    var taskCost = effectiveHours * rate;
+    baseCost += taskCost;
+    var compText = task.complexity === 1 ? '🟢' : (task.complexity === 1.5 ? '🟡' : '🔴');
+    listHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;margin:5px 0;background:#1f2530;border-radius:6px">';
+    listHtml += '<div style="flex:1"><div style="font-size:14px;font-weight:bold">'+compText+' '+task.name+'</div><div class="mut" style="font-size:11px">'+task.hours+' ч × '+task.complexity+' = '+effectiveHours.toFixed(1)+' эфф. ч</div></div>';
+    listHtml += '<div style="text-align:right;margin-right:10px"><div style="color:#3ecf8e;font-weight:bold">₽'+Math.round(taskCost).toLocaleString()+'</div></div>';
+    listHtml += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:2px 6px" onclick="removeEstimateTask('+idx+')">✕</button>';
+    listHtml += '</div>';
+  });
+
+  if(window.estTasks.length === 0) listHtml = '<div class="mut" style="text-align:center;padding:10px">Задачи не добавлены</div>';
+  var listEl = document.getElementById('est_tasks_list');
+  if(listEl) listEl.innerHTML = listHtml;
+
+  var totalCost = baseCost * (1 + bufferPercent / 100);
+  var hoursEl = document.getElementById('est_total_hours');
+  if(hoursEl) hoursEl.textContent = totalHours.toFixed(1) + ' ч';
+  var baseEl = document.getElementById('est_base_cost');
+  if(baseEl) baseEl.textContent = '₽' + Math.round(baseCost).toLocaleString();
+  var totalEl = document.getElementById('est_total_cost');
+  if(totalEl) totalEl.textContent = '₽' + Math.round(totalCost).toLocaleString();
+}
+
+function generateEstimateProposal(){
+  if(!window.estTasks || window.estTasks.length === 0){ alert('Добавь хотя бы одну задачу!'); return; }
+  var rate = db.hourlyRate || 2000;
+  var bufferPercent = parseInt(document.getElementById('est_buffer').value);
+  var totalHours = 0, baseCost = 0, tasksText = '';
+  
+  window.estTasks.forEach(function(task){
+    var effHours = task.hours * task.complexity;
+    totalHours += effHours;
+    baseCost += effHours * rate;
+    tasksText += '- ' + task.name + ' (' + task.hours + ' ч, сложность x' + task.complexity + ')\n';
+  });
+  
+  var totalCost = Math.round(baseCost * (1 + bufferPercent / 100));
+  var profileName = (db.profile && db.profile.name) ? db.profile.name : 'Исполнитель';
+  
+  var proposal = 'КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ\n\n';
+  proposal += 'Здравствуйте!\n\n';
+  proposal += 'Направляю оценку стоимости и сроков по вашему проекту.\n\n';
+  proposal += '📋 Состав работ:\n' + tasksText + '\n';
+  proposal += '⏱ Общие трудозатраты: ' + totalHours.toFixed(1) + ' часов\n';
+  proposal += '💰 Стоимость работ: ' + Math.round(baseCost).toLocaleString() + ' ₽\n';
+  if(bufferPercent > 0) proposal += '🛡 Риск-буфер (' + bufferPercent + '%): включён в итоговую сумму\n';
+  proposal += '✅ ИТОГО К ОПЛАТЕ: ' + totalCost.toLocaleString() + ' ₽\n\n';
+  proposal += 'Срок выполнения: обсуждается индивидуально после утверждения ТЗ.\n';
+  proposal += 'Готов ответить на любые вопросы!\n\n';
+  proposal += 'С уважением,\n' + profileName;
+
+  var h = '<h3>📄 Коммерческое предложение</h3>';
+  h += '<textarea id="proposal_text" readonly style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff;font-family:monospace;font-size:13px;min-height:250px">' + proposal + '</textarea>';
+  h += '<button class="btn" style="width:100%;margin-bottom:10px;background:#3ecf8e" onclick="copyProposal()">📋 Копировать текст</button>';
+  h += '<button class="btn" style="width:100%;background:#1f2530" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+
+function copyProposal(){
+  var text = document.getElementById('proposal_text').value;
+  navigator.clipboard.writeText(text).then(function(){ alert('✅ КП скопировано в буфер обмена!'); }).catch(function(){ alert('❌ Не удалось скопировать'); });
+}
+
+function saveEstimateToHistory(){
+  if(!window.estTasks || window.estTasks.length === 0){ alert('Нечего сохранять!'); return; }
+  var rate = db.hourlyRate || 2000;
+  var bufferPercent = parseInt(document.getElementById('est_buffer').value);
+  var totalHours = 0, baseCost = 0;
+  
+  window.estTasks.forEach(function(task){
+    totalHours += (task.hours * task.complexity);
+    baseCost += (task.hours * task.complexity) * rate;
+  });
+  var totalCost = Math.round(baseCost * (1 + bufferPercent / 100));
+  
+  if(!db.estimates) db.estimates = [];
+  db.estimates.push({
+    id: Date.now().toString(36),
+    projectName: window.estTasks[0].name + (window.estTasks.length > 1 ? ' и др.' : ''),
+    tasks: JSON.parse(JSON.stringify(window.estTasks)),
+    totalHours: totalHours.toFixed(1),
+    baseCost: baseCost,
+    bufferPercent: bufferPercent,
+    totalCost: totalCost,
+    date: new Date().toISOString().slice(0, 10)
+  });
+  localStorage.setItem('solodev', JSON.stringify(db));
+  window.estTasks = [];
+  alert('✅ Расчёт сохранён в историю!');
+  renderCalculator();
+}
+
+function deleteEstimate(index){
+  if(confirm('Удалить этот расчёт из истории?')){
+    db.estimates.splice(index, 1);
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderCalculator();
+  }
+}
+// === КОНЕЦ ВКЛАДКИ КАЛЬКУЛЯТОР ===
+
