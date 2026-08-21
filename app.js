@@ -85,6 +85,7 @@ function render(){
   else if(currentView==='timetracker')renderTimeTracker();
   else if(currentView==='subscriptions')renderSubscriptions();
   else if(currentView==='calculator')renderCalculator();
+  else if(currentView==='burnout')renderBurnout();
   else if(currentView==='settings')renderSettings();
 }
 
@@ -6382,3 +6383,147 @@ function addWater(amount) {
     if(currentView === 'productivity') renderProductivity();
 }
 // === КОНЕЦ ДОБАВЛЕННЫХ ФУНКЦИЙ ===
+
+
+// === ДЕТЕКТОР ВЫГОРАНИЯ ===
+function calculateBurnoutIndex() {
+    var today = new Date();
+    var weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    
+    // 1. Анализ часов работы (Pomodoro)
+    var weekSessions = db.pomodoro.sessions.filter(s => s.date >= weekAgo);
+    var totalMinutes = weekSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+    var totalHours = totalMinutes / 60;
+    var avgHoursPerDay = totalHours / 7;
+    
+    // 2. Анализ настроения
+    var weekMoods = db.mood.filter(m => m.date >= weekAgo);
+    var avgMood = weekMoods.length > 0 ? weekMoods.reduce((sum, m) => sum + m.level, 0) / weekMoods.length : 3;
+    
+    // 3. Анализ воды
+    var todayWater = db.water.log[today.toISOString().slice(0, 10)] || 0;
+    var waterGoal = db.water.goal || 8;
+    var waterPercent = Math.min(100, (todayWater / waterGoal) * 100);
+    
+    // 4. Анализ привычек
+    var habitsDone = 0, habitsTotal = 0;
+    var todayStr = today.toISOString().slice(0, 10);
+    if (db.habits) {
+        db.habits.forEach(function(hab) {
+            habitsTotal++;
+            if (hab.log && hab.log[todayStr]) habitsDone++;
+        });
+    }
+    var habitPercent = habitsTotal > 0 ? (habitsDone / habitsTotal) * 100 : 100;
+    
+    // Расчёт индекса энергии (базовый балл: 100)
+    var index = 100;
+    
+    // Штраф за переработку (норма: 8 часов в день)
+    if (avgHoursPerDay > 8) {
+        index -= Math.min(40, (avgHoursPerDay - 8) * 5);
+    }
+    
+    // Штраф за низкое настроение (норма: 3+)
+    if (avgMood < 3) {
+        index -= (3 - avgMood) * 10;
+    }
+    
+    // Штраф за недостаток воды
+    if (waterPercent < 50) {
+        index -= 10;
+    }
+    
+    // Штраф за невыполненные привычки
+    if (habitPercent < 50) {
+        index -= 15;
+    }
+    
+    index = Math.max(0, Math.min(100, Math.round(index)));
+    
+    return {
+        index: index,
+        totalHours: totalHours.toFixed(1),
+        avgHoursPerDay: avgHoursPerDay.toFixed(1),
+        avgMood: avgMood.toFixed(1),
+        waterPercent: Math.round(waterPercent),
+        habitPercent: Math.round(habitPercent),
+        weekSessions: weekSessions.length
+    };
+}
+
+function getBurnoutRecommendations(data) {
+    var recs = [];
+    
+    if (data.avgHoursPerDay > 8) {
+        recs.push({type: 'warning', text: '⚠️ Ты работаешь ' + data.avgHoursPerDay + ' часов в день (норма: 8). Сделай перерыв или распредели нагрузку.'});
+    }
+    
+    if (data.avgMood < 3) {
+        recs.push({type: 'danger', text: '🔴 Настроение ниже нормы (' + data.avgMood + '/5). Это сигнал о возможном выгорании. Подумай об отдыхе.'});
+    }
+    
+    if (data.waterPercent < 50) {
+        recs.push({type: 'warning', text: '💧 Ты пьёшь мало воды (' + data.waterPercent + '% от нормы). Обезвоживание снижает концентрацию.'});
+    }
+    
+    if (data.habitPercent < 50) {
+        recs.push({type: 'info', text: '🎯 Привычки выполняются на ' + data.habitPercent + '%. Стабильные рутины помогают бороться со стрессом.'});
+    }
+    
+    if (data.index >= 70) {
+        recs.push({type: 'success', text: '✅ Отличный баланс! Продолжай в том же духе.'});
+    } else if (data.index >= 40) {
+        recs.push({type: 'warning', text: '⚠️ Есть признаки усталости. Рекомендую сделать лёгкий день.'});
+    } else {
+        recs.push({type: 'danger', text: '🚨 Критический уровень! Настоятельно рекомендую взять выходной.'});
+    }
+    
+    return recs;
+}
+
+function renderBurnout() {
+    var data = calculateBurnoutIndex();
+    var recs = getBurnoutRecommendations(data);
+    
+    var h = '<h2>🧠 Детектор выгорания</h2>';
+    
+    // Цвет индекса
+    var indexColor = data.index >= 70 ? '#3ecf8e' : (data.index >= 40 ? '#ffd700' : '#ff6b6b');
+    var indexLabel = data.index >= 70 ? 'Отлично' : (data.index >= 40 ? 'Внимание' : 'Критично');
+    
+    // Круговой индикатор
+    h += '<div class="card" style="text-align:center;padding:30px;background:linear-gradient(135deg,#1a2035,#2a1040)">';
+    h += '<div style="position:relative;width:150px;height:150px;margin:0 auto">';
+    h += '<svg width="150" height="150" style="transform:rotate(-90deg)">';
+    h += '<circle cx="75" cy="75" r="65" fill="none" stroke="#1f2530" stroke-width="10"></circle>';
+    h += '<circle cx="75" cy="75" r="65" fill="none" stroke="' + indexColor + '" stroke-width="10" stroke-dasharray="' + (data.index * 4.08) + ' 408" stroke-linecap="round"></circle>';
+    h += '</svg>';
+    h += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">';
+    h += '<div style="font-size:36px;font-weight:bold;color:' + indexColor + '">' + data.index + '%</div>';
+    h += '<div style="font-size:12px;color:#fff">' + indexLabel + '</div>';
+    h += '</div></div>';
+    h += '<div style="margin-top:15px;font-size:14px;color:#fff">Индекс энергии за последние 7 дней</div>';
+    h += '</div>';
+    
+    // Статистика
+    h += '<div class="card"><h3> Статистика за неделю</h3>';
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Часов работы</div><b style="font-size:18px;color:#6c8cff">' + data.totalHours + ' ч</b><div class="mut" style="font-size:11px">' + data.avgHoursPerDay + ' ч/день</div></div>';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Среднее настроение</div><b style="font-size:18px;color:#ffd700">' + data.avgMood + '/5</b><div class="mut" style="font-size:11px">' + data.weekSessions + ' сессий</div></div>';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Вода сегодня</div><b style="font-size:18px;color:#6c8cff">' + data.waterPercent + '%</b><div class="mut" style="font-size:11px">от нормы</div></div>';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Привычки сегодня</div><b style="font-size:18px;color:#3ecf8e">' + data.habitPercent + '%</b><div class="mut" style="font-size:11px">выполнено</div></div>';
+    h += '</div></div>';
+    
+    // Рекомендации
+    h += '<div class="card"><h3>💡 Рекомендации</h3>';
+    recs.forEach(function(rec) {
+        var bgColor = rec.type === 'success' ? '#102015' : (rec.type === 'danger' ? '#201015' : '#1f2530');
+        var borderColor = rec.type === 'success' ? '#3ecf8e' : (rec.type === 'danger' ? '#ff6b6b' : '#ffd700');
+        h += '<div style="padding:10px;margin:8px 0;background:' + bgColor + ';border-left:3px solid ' + borderColor + ';border-radius:4px;font-size:13px;color:#fff">' + rec.text + '</div>';
+    });
+    h += '</div>';
+    
+    document.getElementById('app').innerHTML = h;
+}
+// === КОНЕЦ ДЕТЕКТОРА ВЫГОРАНИЯ ===
