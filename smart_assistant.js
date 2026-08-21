@@ -6,7 +6,7 @@ function showSmartAssistant(){
     Object.keys(TASK_CATALOG).forEach(function(key){var t=TASK_CATALOG[key];h+='<option value="'+key+'">'+t.name+' (~'+t.base+' ч)</option>';});
     h+='</select>';
     h+='<label style="color:#ffd700;font-size:12px;font-weight:bold;margin-top:10px;display:block">2. Сложность?</label><select id="sa_difficulty" style="width:100%;padding:8px;margin:5px 0;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="1">🟢 Стандартная</option><option value="1.4" selected>🟡 Есть нюансы</option><option value="1.8">🔴 Сложная</option></select>';
-    h+='<label style="color:#ffd700;font-size:12px;font-weight:bold;margin-top:10px;display:block">3. Знакома технология?</label><select id="sa_familiarity" style="width:100%;padding:8px;margin:5px 0;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="1">✅ Делал много раз</option><option value="1.25" selected>🤔 Делал похожее</option><option value="1.5">🆕 Новая для меня</option></select>';
+    h+='<label style="color:#ffd700;font-size:12px;font-weight:bold;margin-top:10px;display:block">3. Знакома технология?</label><select id="sa_familiarity" style="width:100%;padding:8px;margin:5px 0;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="1">✅ Делал много раз</option><option value="1.25" selected>🤔 Делал похожее</option><option value="1.5"> Новая для меня</option></select>';
     h+='<label style="color:#ffd700;font-size:12px;font-weight:bold;margin-top:10px;display:block">4. Какое ТЗ?</label><select id="sa_spec" style="width:100%;padding:8px;margin:5px 0;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="1">📋 Чёткое ТЗ</option><option value="1.2" selected>📝 Примерное</option><option value="1.5">❓ ТЗ нет</option></select>';
     h+='<button class="btn" style="width:100%;margin-top:15px;background:#ffd700;color:#000;font-weight:bold" onclick="calculateSmartEstimate()">🧮 Рассчитать</button><div id="sa_result" style="display:none;margin-top:15px"></div>';
     openModal(h);
@@ -33,7 +33,7 @@ function calculateSmartEstimate(){
     if(familiarity>=1.25)bufferExplanation+='• Могут всплыть нюансы\n';
     bufferExplanation+='• Резерв гарантирует сдачу в срок без доплат.';
     var clientText='В оценку заложен резерв '+bufferPercent+'% на случай уточнений по ТЗ и технических нюансов. Это стандартная практика, защищающая от срыва сроков и гарантирующая результат без внезапных доплат. Если всё пройдёт гладко — резерв не будет использован.';
-    var resultHtml='<div style="padding:15px;background:#102015;border:1px solid #3ecf8e;border-radius:6px"><div style="font-weight:bold;color:#3ecf8e;margin-bottom:10px">✅ Расчёт:</div><div style="font-size:13px;color:#fff;margin-bottom:5px">📋 '+taskName+'</div><div style="font-size:13px;color:#fff;margin-bottom:5px">⏱ База: <b>'+baseHours+' ч</b></div><div style="font-size:13px;color:#fff;margin-bottom:5px">⚙️ Множители: ×'+difficulty+' ×'+familiarity+' ×'+spec+'</div><div style="font-size:15px;color:#fff;margin-bottom:10px;padding:8px;background:#1f2530;border-radius:4px">📊 Итого: <b style="color:#3ecf8e">'+estimatedHours+' ч</b></div><div style="font-size:13px;color:#fff;margin-bottom:5px">💰 Без буфера: <b>'+baseCost.toLocaleString()+' ₽</b></div><div style="font-size:13px;color:#fff;margin-bottom:5px">🛡 Буфер '+bufferPercent+'%: <b>+'+bufferAmount.toLocaleString()+' ₽</b></div><div style="font-size:16px;color:#3ecf8e;font-weight:bold;margin-bottom:10px">✅ ИТОГО: '+totalCost.toLocaleString()+' ₽</div><div style="font-size:11px;color:#ffd700;margin-bottom:5px;font-weight:bold">💡 Для тебя:</div><div style="font-size:11px;color:#fff;margin-bottom:10px;white-space:pre-wrap">'+bufferExplanation+'</div><div style="font-size:11px;color:#6c8cff;margin-bottom:5px;font-weight:bold">💬 Клиенту:</div><textarea id="sa_client_text" readonly style="width:100%;padding:8px;background:#1f2530;border:1px solid #6c8cff;border-radius:4px;color:#fff;font-size:11px;min-height:60px">'+clientText+'</textarea><button class="btn small" style="width:100%;margin-top:5px;background:#6c8cff" onclick="copySmartAssistantText()">📋 Копировать</button><button class="btn small" style="width:100%;margin-top:5px;background:#3ecf8e" onclick="applySmartEstimate()">✅ В калькулятор</button></div>';
+    var resultHtml='<div style="padding:15px;background:#102015;border:1px solid #3ecf8e;border-radius:6px"><div style="font-weight:bold;color:#3ecf8e;margin-bottom:10px">✅ Расчёт:</div><div style="font-size:13px;color:#fff;margin-bottom:5px">📋 '+taskName+'</div><div style="font-size:13px;color:#fff;margin-bottom:5px"> База: <b>'+baseHours+' ч</b></div><div style="font-size:13px;color:#fff;margin-bottom:5px">️ Множители: ×'+difficulty+' ×'+familiarity+' ×'+spec+'</div><div style="font-size:15px;color:#fff;margin-bottom:10px;padding:8px;background:#1f2530;border-radius:4px"> Итого: <b style="color:#3ecf8e">'+estimatedHours+' ч</b></div><div style="font-size:13px;color:#fff;margin-bottom:5px">💰 Без буфера: <b>'+baseCost.toLocaleString()+' ₽</b></div><div style="font-size:13px;color:#fff;margin-bottom:5px"> Буфер '+bufferPercent+'%: <b>+'+bufferAmount.toLocaleString()+' ₽</b></div><div style="font-size:16px;color:#3ecf8e;font-weight:bold;margin-bottom:10px">✅ ИТОГО: '+totalCost.toLocaleString()+' ₽</div><div style="font-size:11px;color:#ffd700;margin-bottom:5px;font-weight:bold">💡 Для тебя:</div><div style="font-size:11px;color:#fff;margin-bottom:10px;white-space:pre-wrap">'+bufferExplanation+'</div><div style="font-size:11px;color:#6c8cff;margin-bottom:5px;font-weight:bold">💬 Клиенту:</div><textarea id="sa_client_text" readonly style="width:100%;padding:8px;background:#1f2530;border:1px solid #6c8cff;border-radius:4px;color:#fff;font-size:11px;min-height:60px">'+clientText+'</textarea><button class="btn small" style="width:100%;margin-top:5px;background:#6c8cff" onclick="copySmartAssistantText()">📋 Копировать</button><button class="btn small" style="width:100%;margin-top:5px;background:#3ecf8e" onclick="applySmartEstimate()">✅ В калькулятор</button></div>';
     document.getElementById('sa_result').innerHTML=resultHtml;
     document.getElementById('sa_result').style.display='block';
     window.sa_temp={name:taskName,hours:estimatedHours,complexity:difficulty,buffer:bufferPercent};
@@ -45,49 +45,60 @@ function copySmartAssistantText(){
 }
 
 function applySmartEstimate(){
-    if(!window.sa_temp)return;
-    closeModal();
-    setTimeout(function(){
-        var nameEl=document.getElementById('est_task_name');
-        var hoursEl=document.getElementById('est_task_hours');
-        var compSelect=document.getElementById('est_task_complexity');
-        var bufSelect=document.getElementById('est_buffer');
-        if(nameEl&&hoursEl&&compSelect&&bufSelect){
-            nameEl.value=window.sa_temp.name;
-            hoursEl.value=window.sa_temp.hours;
-            for(var i=0;i<compSelect.options.length;i++){
-                if(parseFloat(compSelect.options[i].value)===window.sa_temp.complexity){
-                    compSelect.selectedIndex=i;break;
-                }
+    if(!window.sa_temp) return;
+    
+    // 1. Находим элементы калькулятора
+    var nameEl=document.getElementById('est_task_name');
+    var hoursEl=document.getElementById('est_task_hours');
+    var compSelect=document.getElementById('est_task_complexity');
+    var bufSelect=document.getElementById('est_buffer');
+    
+    // 2. Если калькулятор открыт — применяем значения
+    if(nameEl && hoursEl && compSelect && bufSelect){
+        nameEl.value = window.sa_temp.name;
+        hoursEl.value = window.sa_temp.hours;
+        
+        for(var i=0; i<compSelect.options.length; i++){
+            if(parseFloat(compSelect.options[i].value) === window.sa_temp.complexity){
+                compSelect.selectedIndex = i; break;
             }
-            for(var i=0;i<bufSelect.options.length;i++){
-                if(parseInt(bufSelect.options[i].value)===window.sa_temp.buffer){
-                    bufSelect.selectedIndex=i;break;
-                }
-            }
-            if(typeof addEstimateTask==='function')addEstimateTask();
-            updateEstimatePreview();
         }
-    },300);
+        for(var i=0; i<bufSelect.options.length; i++){
+            if(parseInt(bufSelect.options[i].value) === window.sa_temp.buffer){
+                bufSelect.selectedIndex = i; break;
+            }
+        }
+        
+        // 3. Сначала добавляем задачу и обновляем превью
+        if(typeof addEstimateTask === 'function') addEstimateTask();
+        if(typeof updateEstimatePreview === 'function') updateEstimatePreview();
+        
+        // 4. И только потом закрываем модальное окно
+        closeModal();
+    } else {
+        alert('⚠️ Сначала открой вкладку Калькулятор, чтобы перенести данные!');
+    }
 }
 
-if(typeof renderCalculator==='function'){
-    var originalRenderCalc=renderCalculator;
-    renderCalculator=function(){
+// Внедрение кнопки (защищено от дубликатов через ID)
+if(typeof renderCalculator === 'function'){
+    var originalRenderCalc = renderCalculator;
+    renderCalculator = function(){
         originalRenderCalc();
         setTimeout(function(){
-            var existingBtn=document.querySelector('.smart-assistant-btn');
-            if(!existingBtn){
-                var header=document.querySelector('#app h2');
-                if(header&&header.textContent.includes('Калькулятор')){
-                    var btn=document.createElement('button');
-                    btn.className='btn smart-assistant-btn';
-                    btn.style.cssText='width:100%;margin-bottom:15px;background:#ffd700;color:#000;font-weight:bold';
-                    btn.textContent='🤖 Умный помощник оценки';
-                    btn.onclick=showSmartAssistant;
-                    header.parentNode.insertBefore(btn,header.nextSibling);
+            // Если кнопки с таким ID ещё нет — добавляем
+            if(!document.getElementById('sa_inject_btn')){
+                var header = document.querySelector('#app h2');
+                if(header && header.textContent.includes('Калькулятор')){
+                    var btn = document.createElement('button');
+                    btn.id = 'sa_inject_btn'; // Уникальный ID предотвращает дубли
+                    btn.className = 'btn smart-assistant-btn';
+                    btn.style.cssText = 'width:100%;margin-bottom:15px;background:#ffd700;color:#000;font-weight:bold';
+                    btn.textContent = '🤖 Умный помощник оценки';
+                    btn.onclick = showSmartAssistant;
+                    header.parentNode.insertBefore(btn, header.nextSibling);
                 }
             }
-        },200);
+        }, 100);
     };
 }
