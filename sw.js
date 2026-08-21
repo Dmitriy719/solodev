@@ -1,50 +1,29 @@
-var CACHE_NAME = 'solodev-v6.33.3';
-var urlsToCache = [
-  '/',
-  '/solodev/',
-  '/index.html',
-  '/app.min.js',
-  '/smart_assistant.js',
-  '/style.css',
-  '/manifest.webmanifest'
-];
+// Service Worker временно отключён для очистки кэша
+// Новая версия: v6.33.3
+var CACHE_NAME = 'solodev-v6.33.3-CLEAR';
 
 self.addEventListener('install', function(event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(function(cache) {
-        console.log('Cache opened:', CACHE_NAME);
-        return cache.addAll(urlsToCache);
-      })
-  );
+  // Пропускаем активацию сразу
   self.skipWaiting();
 });
 
 self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
+  // НЕ кэшируем — просто проксируем запросы
+  event.respondWith(fetch(event.request));
 });
 
 self.addEventListener('activate', function(event) {
-  var cacheWhitelist = [CACHE_NAME];
+  // Удаляем ВСЕ старые кэши
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
       return Promise.all(
         cacheNames.map(function(cacheName) {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
+          console.log('Deleting cache:', cacheName);
+          return caches.delete(cacheName);
         })
       );
+    }).then(function() {
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
