@@ -88,12 +88,60 @@ function render(){
   else if(currentView==='settings')renderSettings();
 }
 
-function renderHome(){
-  var inc=0;db.finances.forEach(function(f){if(f.type==='in')inc+=f.amt});
-  var h='<div class="card" style="background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff"><h2 style="margin:0">Привет, '+esc(db.profile.name)+'! 👋</h2><p style="margin:5px 0 0 0;opacity:0.9">'+esc(db.profile.spec)+'</p></div>';
-  h+='<div class="grid"><div class="card"><span class="stat">Доход</span><b style="font-size:20px;color:#3ecf8e">'+inc.toLocaleString()+' ₽</b></div><div class="card"><span class="stat">Клиентов</span><b style="font-size:20px">'+db.clients.length+'</b></div><div class="card"><span class="stat">Проектов</span><b style="font-size:20px">'+db.projects.length+'</b></div><div class="card"><span class="stat">Финансов</span><b style="font-size:20px">'+db.finances.length+'</b></div></div>';
-  h+='<div class="card"><div class="mut">📚 База шаблонов</div><div class="big-number">'+db.templates.length+'</div><div class="mut">🔍 Источников поиска</div><div class="big-number">'+db.sources.length+'</div><div class="mut">🤖 Авто-лидов</div><div class="big-number">'+db.autoLeads.length+'</div></div>';
-  document.getElementById('app').innerHTML=h;
+function renderHome() {
+    var today = new Date().toISOString().slice(0, 10);
+    var h = '<div class="card" style="background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff"><h2 style="margin:0">Привет, ' + esc(db.profile.name) + '! 👋</h2><p style="margin:5px 0 0 0;opacity:0.9">' + esc(db.profile.spec) + '</p></div>';
+    
+    var monthInc = 0, monthExp = 0;
+    var currentMonth = today.slice(0, 7);
+    db.finances.forEach(function(f) {
+        if (f.date && f.date.startsWith(currentMonth)) {
+            if (f.type === 'in') monthInc += (f.amt || 0);
+            else monthExp += (f.amt || 0);
+        }
+    });
+    
+    h += '<div class="grid">';
+    h += '<div class="card"><span class="stat">Доход (мес)</span><b style="font-size:18px;color:#3ecf8e">' + monthInc.toLocaleString() + ' ₽</b></div>';
+    h += '<div class="card"><span class="stat">Расход (мес)</span><b style="font-size:18px;color:#ff6b6b">' + monthExp.toLocaleString() + ' ₽</b></div>';
+    h += '<div class="card"><span class="stat">Баланс</span><b style="font-size:18px;color:#ffd700">' + (monthInc - monthExp).toLocaleString() + ' ₽</b></div>';
+    var todayPomodoro = db.pomodoro.sessions.filter(s => s.date === today).reduce((sum, s) => sum + (s.duration || 0), 0);
+    h += '<div class="card"><span class="stat">Фокус сегодня</span><b style="font-size:18px;color:#6c8cff">' + todayPomodoro + ' мин</b></div>';
+    h += '</div>';
+
+    var habitsDone = 0, habitsTotal = 0;
+    if (db.habits) {
+        db.habits.forEach(function(hab) {
+            habitsTotal++;
+            if (hab.log && hab.log[today]) habitsDone++;
+        });
+    }
+    var habitPercent = habitsTotal > 0 ? Math.round(habitsDone / habitsTotal * 100) : 0;
+    h += '<div class="card"><h3>🔥 Привычки сегодня</h3>';
+    h += '<div style="display:flex;justify-content:space-between;margin-bottom:10px"><span>Выполнено: <b>' + habitsDone + '/' + habitsTotal + '</b></span><span>' + habitPercent + '%</span></div>';
+    h += '<div style="background:#1f2530;border-radius:6px;height:8px;overflow:hidden"><div style="background:#3ecf8e;height:100%;width:' + habitPercent + '%"></div></div>';
+    h += '<button class="btn small" style="width:100%;margin-top:10px;background:#6c8cff" onclick="go(\'productivity\')">Открыть продуктивность</button></div>';
+
+    var activeProjects = db.projects.filter(p => p.stage === 1 || p.stage === 2);
+    if (activeProjects.length > 0) {
+        h += '<div class="card"><h3>🚀 Активные проекты</h3>';
+        activeProjects.slice(0, 3).forEach(function(p) {
+            h += '<div style="padding:8px;margin:5px 0;background:#1f2530;border-radius:6px;border-left:3px solid #6c8cff">';
+            h += '<div style="font-weight:bold">' + esc(p.name) + '</div>';
+            h += '<div class="mut" style="font-size:11px">' + (p.client || 'Без клиента') + (p.deadline ? ' · Дедлайн: ' + p.deadline : '') + '</div></div>';
+        });
+        h += '</div>';
+    }
+
+    h += '<div class="card"><h3>⚡ Быстрые действия</h3>';
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+    h += '<button class="btn" style="background:#3ecf8e" onclick="go(\'timetracker\')">⏱ Таймер</button>';
+    h += '<button class="btn" style="background:#ff9500;color:#000" onclick="go(\'finances\')">💰 Доход</button>';
+    h += '<button class="btn" style="background:#9d6cff" onclick="go(\'projects\')">📁 Проект</button>';
+    h += '<button class="btn" style="background:#6c8cff" onclick="go(\'calculator\')">🧮 Оценка</button>';
+    h += '</div></div>';
+
+    document.getElementById('app').innerHTML = h;
 }
 
 function renderDashboard(){
