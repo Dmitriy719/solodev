@@ -5908,7 +5908,8 @@ function renderCalculator(){
   h+='<label style="color:#fff;font-size:12px">Риск-буфер:</label>';
   h+='<select id="est_buffer" onchange="updateEstimatePreview()" style="width:100%;padding:8px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
   h+='<option value="0">0% (Без буфера)</option>';
-  h+='<option value="10" selected>10% (Минимальный риск)</option>';
+  h+='<option value="10">10% (Минимальный риск)</option>';
+  h+='<option value="15" selected>15% (Средний риск)</option>';
   h+='<option value="20">20% (Стандарт)</option>';
   h+='<option value="30">30% (Высокий риск / Новый клиент)</option>';
   h+='</select>';
