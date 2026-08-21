@@ -5880,6 +5880,7 @@ function renderCalculator(){
   if(!db.estimates) db.estimates = [];
   var rate = db.hourlyRate || 2000;
   var h='<h2>🧮 Калькулятор стоимости проекта</h2>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#ffd700;color:#000;font-weight:bold" onclick="showSmartAssistant()">🤖 Умный помощник оценки</button>';
   
   h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px">';
   h+='<div style="display:flex;justify-content:space-between;align-items:center">';
@@ -6064,5 +6065,106 @@ function deleteEstimate(index){
     renderCalculator();
   }
 }
+
+function showSmartAssistant(){
+  var h='<h3>🤖 Умный помощник оценки</h3>';
+  h+='<p class="mut" style="font-size:12px;margin-bottom:10px">Ответь на вопросы, и я помогу подобрать точные значения и подготовлю объяснение для клиента.</p>';
+  
+  h+='<label style="color:#fff;font-size:12px">Название задачи:</label>';
+  h+='<input id="sa_task_name" placeholder="Например: Интеграция платёжной системы" style="width:100%;padding:8px;margin:5px 0;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff">';
+  
+  h+='<label style="color:#fff;font-size:12px">Базовое время (часы в идеальных условиях):</label>';
+  h+='<input id="sa_base_hours" type="number" step="0.5" placeholder="Сколько часов займёт, если всё пойдёт гладко?" style="width:100%;padding:8px;margin:5px 0;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff">';
+  
+  h+='<div style="margin:10px 0;padding:10px;background:#1f2530;border-radius:6px">';
+  h+='<div style="font-weight:bold;color:#ffd700;margin-bottom:5px">⚙️ Факторы сложности:</div>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" class="sa_complex" value="0.25" style="margin-right:5px"> Нестандартная логика / сложные алгоритмы</label>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" class="sa_complex" value="0.25" style="margin-right:5px"> Работа с чужим / legacy кодом</label>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" class="sa_complex" value="0.25" style="margin-right:5px"> Новая для меня технология / стек</label>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" class="sa_complex" value="0.25" style="margin-right:5px"> Жёсткие дедлайны / высокая нагрузка</label>';
+  h+='</div>';
+  
+  h+='<div style="margin:10px 0;padding:10px;background:#1f2530;border-radius:6px">';
+  h+='<div style="font-weight:bold;color:#ff9500;margin-bottom:5px">⚠️ Факторы риска:</div>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" class="sa_risk" value="10" style="margin-right:5px"> ТЗ размытое или может меняться</label>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" class="sa_risk" value="10" style="margin-right:5px"> Клиент новый / ранее не работали</label>';
+  h+='<label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" class="sa_risk" value="10" style="margin-right:5px"> Зависимость от третьих лиц (ждём дизайн, API и т.д.)</label>';
+  h+='</div>';
+  
+  h+='<button class="btn" style="width:100%;margin-top:10px;background:#ffd700;color:#000;font-weight:bold" onclick="calculateSmartEstimate()">🧮 Рассчитать и показать объяснение</button>';
+  
+  h+='<div id="sa_result" style="display:none;margin-top:15px;padding:15px;background:#102015;border:1px solid #3ecf8e;border-radius:6px">';
+  h+='<div style="font-weight:bold;color:#3ecf8e;margin-bottom:10px">✅ Рекомендация помощника:</div>';
+  h+='<div style="font-size:13px;color:#fff;margin-bottom:5px">• Множитель сложности: <b id="sa_rec_complex">x1.0</b></div>';
+  h+='<div style="font-size:13px;color:#fff;margin-bottom:10px">• Риск-буфер: <b id="sa_rec_buffer">0%</b></div>';
+  h+='<div style="font-size:12px;color:#ffd700;margin-bottom:5px;font-weight:bold">💬 Что сказать клиенту про риск-буфер:</div>';
+  h+='<textarea id="sa_client_text" readonly style="width:100%;padding:8px;background:#1f2530;border:1px solid #6c8cff;border-radius:4px;color:#fff;font-size:12px;min-height:90px"></textarea>';
+  h+='<button class="btn small" style="width:100%;margin-top:5px;background:#6c8cff" onclick="copySmartAssistantText()">📋 Копировать объяснение</button>';
+  h+='<button class="btn small" style="width:100%;margin-top:5px;background:#3ecf8e" onclick="applySmartEstimate()">✅ Применить эти значения к задаче</button>';
+  h+='</div>';
+  openModal(h);
+}
+
+function calculateSmartEstimate(){
+  var baseHours = parseFloat(document.getElementById('sa_base_hours').value) || 0;
+  if(baseHours <= 0){ alert('Введи базовое время в часах!'); return; }
+  
+  var complexityMultiplier = 1.0;
+  document.querySelectorAll('.sa_complex:checked').forEach(function(cb){ complexityMultiplier += parseFloat(cb.value); });
+  if(complexityMultiplier > 2.0) complexityMultiplier = 2.0;
+  
+  var riskBuffer = 0;
+  document.querySelectorAll('.sa_risk:checked').forEach(function(cb){ riskBuffer += parseInt(cb.value); });
+  if(riskBuffer > 30) riskBuffer = 30;
+  
+  document.getElementById('sa_rec_complex').textContent = 'x' + complexityMultiplier;
+  document.getElementById('sa_rec_buffer').textContent = riskBuffer + '%';
+  
+  var clientText = 'В данную оценку заложен риск-буфер в размере ' + riskBuffer + '%. ';
+  if(riskBuffer === 0){
+    clientText += 'Проект максимально прозрачен, ТЗ утверждено, риски минимальны, поэтому дополнительная страховка по времени и бюджету не требуется.';
+  } else if(riskBuffer === 10){
+    clientText += 'Этот небольшой резерв покрывает стандартные итерации правок и незначительные технические уточнения, гарантируя сдачу проекта в срок без потери качества.';
+  } else if(riskBuffer === 20){
+    clientText += 'Этот резерв необходим для покрытия возможных изменений в ТЗ, дополнительных итераций согласования и непредвиденных технических нюансов, что гарантирует стабильный результат и соблюдение дедлайнов.';
+  } else {
+    clientText += 'Учитывая новизну взаимодействия, возможные изменения требований и внешние зависимости, этот резерв критически важен. Он гарантирует, что проект будет доведён до конца надлежащего качества, даже если процесс потребует дополнительных итераций.';
+  }
+  
+  document.getElementById('sa_client_text').value = clientText;
+  document.getElementById('sa_result').style.display = 'block';
+  
+  window.sa_temp = {
+    name: document.getElementById('sa_task_name').value.trim() || 'Новая задача',
+    hours: baseHours,
+    complexity: complexityMultiplier,
+    buffer: riskBuffer
+  };
+}
+
+function copySmartAssistantText(){
+  var text = document.getElementById('sa_client_text').value;
+  navigator.clipboard.writeText(text).then(function(){ alert('✅ Объяснение скопировано! Можешь вставить его в чат с клиентом.'); });
+}
+
+function applySmartEstimate(){
+  if(!window.sa_temp) return;
+  document.getElementById('est_task_name').value = window.sa_temp.name;
+  document.getElementById('est_task_hours').value = window.sa_temp.hours;
+  
+  var compSelect = document.getElementById('est_task_complexity');
+  for(var i=0; i<compSelect.options.length; i++){
+    if(parseFloat(compSelect.options[i].value) === window.sa_temp.complexity){ compSelect.selectedIndex = i; break; }
+  }
+  
+  var bufSelect = document.getElementById('est_buffer');
+  for(var i=0; i<bufSelect.options.length; i++){
+    if(parseInt(bufSelect.options[i].value) === window.sa_temp.buffer){ bufSelect.selectedIndex = i; break; }
+  }
+  
+  closeModal();
+  addEstimateTask();
+}
+
 // === КОНЕЦ ВКЛАДКИ КАЛЬКУЛЯТОР ===
 
