@@ -5662,3 +5662,195 @@ renderNav();
 };
 
 function showBackupMenu(){ var h='<h3>💾 Резервное копирование</h3>'; h+='<button class="btn" style="width:100%;margin:10px 0;background:#3ecf8e" onclick="exportData()">📥 Экспорт данных</button>'; h+='<button class="btn" style="width:100%;margin:10px 0;background:#6c8cff" onclick="importData()">📤 Импорт данных</button>'; h+='<button class="btn" style="width:100%;background:#1f2530" onclick="closeModal()">Закрыть</button>'; openModal(h); }
+
+
+// === ВОССТАНОВЛЕННЫЕ ФУНКЦИИ ===
+
+function renderHealth(){
+  if(!db.health) db.health = {sleep:7, water:0, steps:0};
+  var h='<h2>🏥 Здоровье</h2>';
+  h+='<div class="card"><h3>💧 Вода</h3><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:24px;font-weight:bold;color:#6c8cff">'+db.health.water+' / 8</div><div><button class="btn small" onclick="updateHealth(\'water\', -1)">-</button> <button class="btn small" onclick="updateHealth(\'water\', 1)">+</button></div></div></div>';
+  h+='<div class="card"><h3>😴 Сон</h3><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:24px;font-weight:bold;color:#9d6cff">'+db.health.sleep+' ч</div><div><button class="btn small" onclick="updateHealth(\'sleep\', -0.5)">-</button> <button class="btn small" onclick="updateHealth(\'sleep\', 0.5)">+</button></div></div></div>';
+  h+='<div class="card"><h3>🚶 Активность</h3><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:24px;font-weight:bold;color:#3ecf8e">'+db.health.steps+' шагов</div><div><button class="btn small" onclick="updateHealth(\'steps\', -1000)">-</button> <button class="btn small" onclick="updateHealth(\'steps\', 1000)">+</button></div></div></div>';
+  document.getElementById('app').innerHTML = h;
+}
+function updateHealth(key, val){ db.health[key] = Math.max(0, (db.health[key]||0) + val); localStorage.setItem('solodev', JSON.stringify(db)); renderHealth(); }
+
+function renderKnowledge(){
+  if(!db.knowledge) db.knowledge = [];
+  var h='<h2>📚 База знаний</h2>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#6c8cff" onclick="showAddKnowledge()">+ Добавить</button>';
+  h+='<input type="text" id="knowledge_search" placeholder="🔍 Поиск..." oninput="filterKnowledge(this.value)" style="width:100%;padding:10px;margin-bottom:15px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  h+='<div id="knowledge_list"></div>';
+  document.getElementById('app').innerHTML = h;
+  renderKnowledgeList(db.knowledge);
+}
+function renderKnowledgeList(items){
+  var h=''; items.forEach(function(k){ h+='<div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between"><b>'+k.title+'</b><button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b" onclick="deleteKnowledge(\''+k.id+'\')">🗑</button></div><div class="mut" style="font-size:12px;margin-top:5px">'+k.type+' | '+k.date+'</div>'+(k.content?'<div style="margin-top:8px;font-size:13px">'+k.content+'</div>':'')+'</div>'; });
+  document.getElementById('knowledge_list').innerHTML = h || '<div class="mut" style="text-align:center">Ничего не найдено</div>';
+}
+function filterKnowledge(q){ var filtered = db.knowledge.filter(function(k){ return k.title.toLowerCase().includes(q.toLowerCase()) || (k.content&&k.content.toLowerCase().includes(q.toLowerCase())); }); renderKnowledgeList(filtered); }
+function showAddKnowledge(){ var h='<h3>➕ Новое в базу знаний</h3><input id="k_title" placeholder="Название" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><select id="k_type" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><option value="Книга">📖 Книга</option><option value="Курс">🎓 Курс</option><option value="Ссылка">🔗 Ссылка</option><option value="Сниппет">💻 Сниппет</option></select><textarea id="k_content" placeholder="Описание" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;min-height:80px"></textarea><button class="btn" style="width:100%;margin-top:10px;background:#6c8cff" onclick="saveKnowledge()">💾 Сохранить</button>'; openModal(h); }
+function saveKnowledge(){ var title=document.getElementById('k_title').value.trim(); if(!title){alert('Введи название!');return;} if(!db.knowledge) db.knowledge=[]; db.knowledge.push({id:Date.now().toString(36), title:title, type:document.getElementById('k_type').value, content:document.getElementById('k_content').value.trim(), date:new Date().toISOString().slice(0,10)}); localStorage.setItem('solodev', JSON.stringify(db)); closeModal(); renderKnowledge(); }
+function deleteKnowledge(id){ if(confirm('Удалить?')){ db.knowledge=db.knowledge.filter(function(k){return k.id!==id;}); localStorage.setItem('solodev', JSON.stringify(db)); renderKnowledge(); } }
+
+function renderCRM(){
+  if(!db.deals) db.deals = [];
+  var h='<h2>🤝 CRM</h2><button class="btn" style="width:100%;margin-bottom:15px;background:#3ecf8e" onclick="showAddDeal()">+ Новая сделка</button>';
+  var stages = {new:'Новые', negotiation:'Переговоры', in_progress:'В работе', completed:'Завершено'};
+  var stageColors = {new:'#8b94a7', negotiation:'#ffd700', in_progress:'#6c8cff', completed:'#3ecf8e'};
+  Object.keys(stages).forEach(function(stage){
+    var deals = db.deals.filter(function(d){return d.stage===stage;});
+    var sum = deals.reduce(function(s,d){return s+(parseFloat(d.amount)||0);},0);
+    h+='<div class="card" style="border-left:4px solid '+stageColors[stage]+'"><h4 style="margin:0 0 10px 0;color:'+stageColors[stage]+'">'+stages[stage]+' ('+deals.length+') <span style="font-size:12px;color:#fff">₽'+sum.toLocaleString()+'</span></h4>';
+    deals.forEach(function(d){
+      h+='<div style="padding:8px;margin:5px 0;background:#1f2530;border-radius:4px"><div style="display:flex;justify-content:space-between"><b>'+d.name+'</b><span style="color:#3ecf8e">₽'+(parseFloat(d.amount)||0).toLocaleString()+'</span></div><div class="mut" style="font-size:11px">'+d.client+'</div><div style="margin-top:5px;display:flex;gap:5px">';
+      if(stage!=='completed') h+='<button class="btn small" style="background:#3ecf8e;padding:2px 6px;font-size:10px" onclick="moveDeal(\''+d.id+'\',\'next\')">➡️</button>';
+      h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:2px 6px;font-size:10px" onclick="deleteDeal(\''+d.id+'\')">🗑</button></div></div>';
+    });
+    h+='</div>';
+  });
+  document.getElementById('app').innerHTML = h;
+}
+function showAddDeal(){ var h='<h3>➕ Новая сделка</h3><input id="deal_name" placeholder="Название" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><input id="deal_client" placeholder="Клиент" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><input id="deal_amount" type="number" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="saveDeal()">💾 Сохранить</button>'; openModal(h); }
+function saveDeal(){ var name=document.getElementById('deal_name').value.trim(); if(!name){alert('Введи название!');return;} if(!db.deals) db.deals=[]; db.deals.push({id:Date.now().toString(36), name:name, client:document.getElementById('deal_client').value.trim(), amount:parseFloat(document.getElementById('deal_amount').value)||0, stage:'new', date:new Date().toISOString().slice(0,10)}); localStorage.setItem('solodev', JSON.stringify(db)); alert('✅ Сделка сохранена! Всего: ' + db.deals.length); closeModal(); renderCRM(); }
+function moveDeal(id, dir){ var stages=['new','negotiation','in_progress','completed']; var deal=db.deals.find(function(d){return d.id===id;}); if(deal){ var idx=stages.indexOf(deal.stage); if(dir==='next' && idx<stages.length-1) deal.stage=stages[idx+1]; localStorage.setItem('solodev', JSON.stringify(db)); renderCRM(); } }
+function deleteDeal(id){ if(confirm('Удалить сделку?')){ db.deals=db.deals.filter(function(d){return d.id!==id;}); localStorage.setItem('solodev', JSON.stringify(db)); renderCRM(); } }
+
+function renderInvestments(){
+  if(!db.investments) db.investments = [];
+  var h='<h2>📈 Инвестиции</h2>';
+  var totalInvested = 0, totalCurrent = 0;
+  db.investments.forEach(function(inv){ totalInvested += (parseFloat(inv.buyPrice)||0)*(parseFloat(inv.quantity)||0); totalCurrent += (parseFloat(inv.currentPrice)||0)*(parseFloat(inv.quantity)||0); });
+  var profit = totalCurrent - totalInvested;
+  var profitPercent = totalInvested > 0 ? ((profit / totalInvested) * 100).toFixed(2) : 0;
+  var profitColor = profit >= 0 ? '#3ecf8e' : '#ff6b6b';
+  var profitSign = profit >= 0 ? '+' : '';
+  h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#102a20);border-color:#3ecf8e;margin-bottom:15px"><div style="display:flex;justify-content:space-around;text-align:center"><div><div class="mut" style="color:#fff">Вложено</div><div style="font-size:18px;font-weight:bold;color:#6c8cff">₽'+totalInvested.toLocaleString()+'</div></div><div><div class="mut" style="color:#fff">Сейчас</div><div style="font-size:18px;font-weight:bold;color:#fff">₽'+totalCurrent.toLocaleString()+'</div></div><div><div class="mut" style="color:#fff">Прибыль</div><div style="font-size:18px;font-weight:bold;color:'+profitColor+'">'+profitSign+'₽'+profit.toLocaleString()+' ('+profitSign+profitPercent+'%)</div></div></div></div>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#3ecf8e" onclick="showAddInvestment()">+ Добавить актив</button>';
+  var types = [{id:'stocks', name:'📊 Акции', color:'#6c8cff'},{id:'crypto', name:'₿ Крипто', color:'#ff9500'},{id:'bonds', name:'📜 Облигации', color:'#9d6cff'},{id:'deposit', name:'🏦 Депозиты', color:'#3ecf8e'},{id:'realty', name:'🏠 Недвижимость', color:'#ffd700'},{id:'other', name:'📦 Другое', color:'#8b94a7'}];
+  types.forEach(function(type){
+    var typeItems = db.investments.filter(function(i){return i.type===type.id;});
+    if(typeItems.length > 0){
+      h+='<h4 style="color:'+type.color+';margin:15px 0 10px 0">'+type.name+' ('+typeItems.length+')</h4>';
+      typeItems.forEach(function(inv){
+        var invested = (parseFloat(inv.buyPrice)||0)*(parseFloat(inv.quantity)||0);
+        var current = (parseFloat(inv.currentPrice)||0)*(parseFloat(inv.quantity)||0);
+        var p = current - invested;
+        var pColor = p >= 0 ? '#3ecf8e' : '#ff6b6b';
+        var pSign = p >= 0 ? '+' : '';
+        h+='<div class="card" style="margin:8px 0;border-left:4px solid '+type.color+'"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="flex:1"><b style="font-size:15px">'+inv.name+'</b>'+(inv.notes?'<div class="mut" style="font-size:11px;margin-top:3px">'+inv.notes+'</div>':'')+'<div class="mut" style="font-size:11px;margin-top:3px">Куплено: '+inv.date+' | '+inv.quantity+' шт. по ₽'+inv.buyPrice+'</div></div><div style="text-align:right;min-width:100px"><div style="font-size:11px;color:#8b94a7">Сейчас: ₽'+inv.currentPrice+'</div><div style="font-size:14px;font-weight:bold;color:'+pColor+'">'+pSign+'₽'+p.toLocaleString()+'</div><div style="font-size:11px;color:'+pColor+'">'+pSign+((invested>0)?((p/invested)*100).toFixed(1):'0')+'%</div></div></div><button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-top:8px;width:100%" onclick="deleteInvestment(\''+inv.id+'\')">🗑 Удалить</button></div>';
+      });
+    }
+  });
+  if(db.investments.length === 0) h+='<div class="mut" style="text-align:center;padding:30px">Пока нет инвестиций. Добавьте первый актив!</div>';
+  document.getElementById('app').innerHTML = h;
+}
+function showAddInvestment(){ var h='<h3>➕ Новый актив</h3><input id="inv_name" placeholder="Название (Sberbank, BTC...)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><select id="inv_type" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><option value="stocks">📊 Акции</option><option value="crypto">₿ Крипто</option><option value="bonds">📜 Облигации</option><option value="deposit">🏦 Депозит</option><option value="realty">🏠 Недвижимость</option><option value="other">📦 Другое</option></select><input id="inv_quantity" type="number" step="0.0001" placeholder="Количество" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><input id="inv_buy_price" type="number" step="0.01" placeholder="Цена покупки (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><input id="inv_current_price" type="number" step="0.01" placeholder="Текущая цена (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><input id="inv_notes" placeholder="Заметки" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="saveInvestment()">💾 Сохранить</button>'; openModal(h); }
+function saveInvestment(){ var name=document.getElementById('inv_name').value.trim(); if(!name){alert('Введи название!');return;} if(!db.investments) db.investments=[]; db.investments.push({id:Date.now().toString(36)+Math.random().toString(36).substr(2), name:name, type:document.getElementById('inv_type').value, quantity:parseFloat(document.getElementById('inv_quantity').value)||0, buyPrice:parseFloat(document.getElementById('inv_buy_price').value)||0, currentPrice:parseFloat(document.getElementById('inv_current_price').value)||0, notes:document.getElementById('inv_notes').value.trim(), date:new Date().toISOString().slice(0,10)}); localStorage.setItem('solodev', JSON.stringify(db)); alert('Актив добавлен! Всего: ' + db.investments.length); closeModal(); renderInvestments(); }
+function deleteInvestment(id){ if(confirm('Удалить этот актив?')){ db.investments=db.investments.filter(function(i){return i.id!==id;}); localStorage.setItem('solodev', JSON.stringify(db)); renderInvestments(); } }
+
+function renderDocuments(){
+  var h='<h2>🧾 Генератор документов</h2><div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px"><h3 style="color:#fff;margin:0">Быстрое создание счетов и актов</h3><p class="mut" style="margin:10px 0 0 0;color:#fff">Выбери клиента, заполни данные и скопируй готовый документ</p></div>';
+  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#ff9500" onclick="showInvoiceGenerator()">📄 Создать счёт</button>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#6c8cff" onclick="showActGenerator()">📋 Создать акт выполненных работ</button>';
+  document.getElementById('app').innerHTML = h;
+}
+function showInvoiceGenerator(){
+  var h='<h3>📄 Генератор счёта</h3><label style="color:#fff;font-size:12px">Клиент:</label><select id="doc_client" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
+  if(!db.clients || db.clients.length === 0) h+='<option value="">Нет клиентов</option>';
+  else db.clients.forEach(function(c){ h+='<option value="'+c.name+'">'+c.name+(c.company?' ('+c.company+')':'')+'</option>'; });
+  h+='</select><input id="doc_number" placeholder="Номер счёта (001)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff"><input id="doc_date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff"><input id="doc_amount" type="number" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff"><textarea id="doc_description" placeholder="Описание услуг" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff;min-height:60px"></textarea><button class="btn" style="width:100%;margin-top:10px;background:#ff9500" onclick="generateInvoice()">📄 Сгенерировать счёт</button>';
+  openModal(h);
+}
+function generateInvoice(){
+  var client=document.getElementById('doc_client').value, number=document.getElementById('doc_number').value.trim()||'001', date=document.getElementById('doc_date').value, amount=document.getElementById('doc_amount').value, description=document.getElementById('doc_description').value.trim();
+  if(!client){alert('Выбери клиента!');return;} if(!amount){alert('Введи сумму!');return;}
+  var doc='СЧЁТ №'+number+' от '+date+'\n\nИсполнитель: '+db.profile.name+'\nСпециализация: '+db.profile.spec+'\nТелефон: '+db.profile.phone+'\nEmail: '+db.profile.email+'\n\nЗаказчик: '+client+'\n\n─────────────────────────────\nОписание услуг:\n'+description+'\n\nСумма: '+parseInt(amount).toLocaleString()+' ₽\n─────────────────────────────\n\nОплата в течение 3 рабочих дней\nСпасибо за сотрудничество!';
+  showDocumentResult(doc, 'Счёт №'+number);
+}
+function showActGenerator(){
+  var h='<h3>📋 Генератор акта</h3><label style="color:#fff;font-size:12px">Клиент:</label><select id="act_client" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+  if(!db.clients || db.clients.length === 0) h+='<option value="">Нет клиентов</option>';
+  else db.clients.forEach(function(c){ h+='<option value="'+c.name+'">'+c.name+(c.company?' ('+c.company+')':'')+'</option>'; });
+  h+='</select><input id="act_number" placeholder="Номер акта (001)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><input id="act_date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><input id="act_amount" type="number" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><textarea id="act_description" placeholder="Выполненные работы" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;min-height:60px"></textarea><button class="btn" style="width:100%;margin-top:10px;background:#6c8cff" onclick="generateAct()">📋 Сгенерировать акт</button>';
+  openModal(h);
+}
+function generateAct(){
+  var client=document.getElementById('act_client').value, number=document.getElementById('act_number').value.trim()||'001', date=document.getElementById('act_date').value, amount=document.getElementById('act_amount').value, description=document.getElementById('act_description').value.trim();
+  if(!client){alert('Выбери клиента!');return;} if(!amount){alert('Введи сумму!');return;}
+  var doc='АКТ ВЫПОЛНЕННЫХ РАБОТ №'+number+'\nот '+date+'\n\nИсполнитель: '+db.profile.name+'\nЗаказчик: '+client+'\n\n─────────────────────────────\nВыполненные работы:\n'+description+'\n\nСтоимость работ: '+parseInt(amount).toLocaleString()+' ₽\n─────────────────────────────\n\nРаботы выполнены в полном объёме.\nПретензий по качеству и срокам нет.\n\nИсполнитель: _______________ / '+db.profile.name+'\n\nЗаказчик: _______________ / '+client;
+  showDocumentResult(doc, 'Акт №'+number);
+}
+function showDocumentResult(doc, title){
+  var h='<h3>✅ '+title+' готов</h3><textarea id="doc_result" readonly style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff;font-family:monospace;font-size:12px;min-height:200px">'+doc+'</textarea><button class="btn" style="width:100%;margin-bottom:10px;background:#3ecf8e" onclick="copyDocument()">📋 Копировать текст</button><button class="btn" style="width:100%;background:#1f2530" onclick="closeModal()">Закрыть</button>';
+  openModal(h);
+}
+function copyDocument(){
+  var text=document.getElementById('doc_result').value;
+  navigator.clipboard.writeText(text).then(function(){ alert('✅ Документ скопирован!'); }).catch(function(){ alert('❌ Не удалось скопировать. Выдели текст вручную.'); });
+}
+
+function renderAnalytics(){
+  var h='<h2>📊 Аналитика</h2>';
+  var totalIn=0, totalOut=0;
+  if(db.finances){ db.finances.forEach(function(f){ if(f.type==='in'||f.type==='income') totalIn+=parseFloat(f.amt||f.amount||0); else totalOut+=parseFloat(f.amt||f.amount||0); }); }
+  var finTotal=totalIn+totalOut;
+  var inPct=finTotal>0?(totalIn/finTotal*100).toFixed(1):0;
+  var outPct=finTotal>0?(totalOut/finTotal*100).toFixed(1):0;
+  h+='<div class="card"><h3>💰 Финансы</h3><div style="display:flex;height:24px;border-radius:12px;overflow:hidden;margin:15px 0"><div style="width:'+inPct+'%;background:#3ecf8e;display:flex;align-items:center;justify-content:center;color:#000;font-size:11px;font-weight:bold">'+(inPct>10?inPct+'%':'')+'</div><div style="width:'+outPct+'%;background:#ff6b6b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:bold">'+(outPct>10?outPct+'%':'')+'</div></div><div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#3ecf8e">● Доход: ₽'+totalIn.toLocaleString()+'</span><span style="color:#ff6b6b">● Расход: ₽'+totalOut.toLocaleString()+'</span></div></div>';
+  var stages={new:0,negotiation:0,in_progress:0,completed:0};
+  var stageNames={new:'Новый',negotiation:'Переговоры',in_progress:'В работе',completed:'Завершено'};
+  var stageColors={new:'#8b94a7',negotiation:'#ffd700',in_progress:'#6c8cff',completed:'#3ecf8e'};
+  if(db.deals){ db.deals.forEach(function(d){ if(stages[d.stage]!==undefined) stages[d.stage]++; }); }
+  var maxDeals=Math.max(...Object.values(stages),1);
+  h+='<div class="card"><h3>🤝 Воронка CRM</h3><div style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;margin:15px 0;padding-bottom:25px;position:relative">';
+  Object.keys(stages).forEach(function(key){
+    var count=stages[key], heightPct=(count/maxDeals)*100;
+    h+='<div style="display:flex;flex-direction:column;align-items:center;width:20%"><div style="font-size:12px;font-weight:bold;margin-bottom:5px;color:#fff">'+count+'</div><div style="width:100%;background:'+stageColors[key]+';height:'+heightPct+'%;border-radius:4px 4px 0 0;min-height:4px"></div><div style="font-size:10px;color:#8b94a7;margin-top:5px;position:absolute;bottom:0;transform:rotate(-45deg);transform-origin:left top;width:60px;text-align:left">'+stageNames[key]+'</div></div>';
+  });
+  h+='</div></div>';
+  var invTypes={stocks:0,crypto:0,bonds:0,deposit:0,realty:0,other:0};
+  var invNames={stocks:'Акции',crypto:'Крипто',bonds:'Облигации',deposit:'Депозиты',realty:'Недвижимость',other:'Другое'};
+  var invColors={stocks:'#6c8cff',crypto:'#ff9500',bonds:'#9d6cff',deposit:'#3ecf8e',realty:'#ffd700',other:'#8b94a7'};
+  var totalInvVal=0;
+  if(db.investments){ db.investments.forEach(function(inv){ var val=(parseFloat(inv.currentPrice)||0)*(parseFloat(inv.quantity)||0); invTypes[inv.type]=(invTypes[inv.type]||0)+val; totalInvVal+=val; }); }
+  h+='<div class="card"><h3>📈 Портфель инвестиций</h3>';
+  if(totalInvVal>0){
+    var gradientParts=[], currentPct=0, legendHtml='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:15px;justify-content:center">';
+    Object.keys(invTypes).forEach(function(key){
+      if(invTypes[key]>0){
+        var pct=(invTypes[key]/totalInvVal)*100;
+        gradientParts.push(invColors[key]+' '+currentPct+'% '+(currentPct+pct)+'%');
+        currentPct+=pct;
+        legendHtml+='<div style="display:flex;align-items:center;font-size:11px;color:#fff"><div style="width:10px;height:10px;border-radius:50%;background:'+invColors[key]+';margin-right:5px"></div>'+invNames[key]+': '+pct.toFixed(1)+'%</div>';
+      }
+    });
+    legendHtml+='</div>';
+    var gradientStr=gradientParts.length>0?gradientParts.join(', '):'#8b94a7 0% 100%';
+    h+='<div style="display:flex;flex-direction:column;align-items:center;margin:15px 0"><div style="width:140px;height:140px;border-radius:50%;background:conic-gradient('+gradientStr+');position:relative;display:flex;align-items:center;justify-content:center"><div style="width:90px;height:90px;background:#151b26;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column"><div style="font-size:11px;color:#8b94a7">Всего</div><div style="font-size:16px;font-weight:bold;color:#fff">₽'+(totalInvVal/1000).toFixed(1)+'к</div></div></div>'+legendHtml+'</div>';
+  } else { h+='<div class="mut" style="text-align:center;padding:20px">Нет данных об инвестициях</div>'; }
+  h+='</div>';
+  document.getElementById('app').innerHTML = h;
+}
+
+function renderDevTools(){
+  var h='<h2>🛠 Dev Tools</h2><div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px"><h3 style="color:#fff;margin:0">Инструменты разработчика</h3><p class="mut" style="margin:10px 0 0 0;color:#fff">Быстрые утилиты для повседневных задач</p></div>';
+  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#6c8cff" onclick="showJSONFormatter()">📋 JSON Форматтер</button>';
+  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#9d6cff" onclick="showBase64Tool()">🔐 Base64 Кодировщик</button>';
+  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#3ecf8e" onclick="showPasswordGenerator()">🔑 Генератор паролей</button>';
+  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#ff9500" onclick="showColorConverter()">🎨 Конвертер цветов</button>';
+  document.getElementById('app').innerHTML = h;
+}
+function showJSONFormatter(){ var h='<h3>📋 JSON Форматтер</h3><textarea id="json_input" placeholder="Вставь JSON сюда..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;font-family:monospace;font-size:12px;min-height:120px"></textarea><button class="btn" style="width:100%;margin:5px 0;background:#6c8cff" onclick="formatJSON()">✨ Форматировать</button><button class="btn" style="width:100%;margin:5px 0;background:#1f2530" onclick="minifyJSON()">📦 Минифицировать</button><textarea id="json_output" readonly placeholder="Результат..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#3ecf8e;font-family:monospace;font-size:12px;min-height:120px"></textarea><button class="btn" style="width:100%;background:#3ecf8e" onclick="copyDevToolResult(\'json_output\')">📋 Копировать</button>'; openModal(h); }
+function formatJSON(){ try{ var input=document.getElementById('json_input').value; var obj=JSON.parse(input); document.getElementById('json_output').value=JSON.stringify(obj,null,2); }catch(e){ document.getElementById('json_output').value='❌ Ошибка: '+e.message; } }
+function minifyJSON(){ try{ var input=document.getElementById('json_input').value; var obj=JSON.parse(input); document.getElementById('json_output').value=JSON.stringify(obj); }catch(e){ document.getElementById('json_output').value='❌ Ошибка: '+e.message; } }
+function showBase64Tool(){ var h='<h3>🔐 Base64 Кодировщик</h3><textarea id="base64_input" placeholder="Введи текст..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #9d6cff;border-radius:6px;color:#fff;font-family:monospace;font-size:12px;min-height:100px"></textarea><button class="btn" style="width:100%;margin:5px 0;background:#9d6cff" onclick="encodeBase64()">🔒 Кодировать</button><button class="btn" style="width:100%;margin:5px 0;background:#6c8cff" onclick="decodeBase64()">🔓 Декодировать</button><textarea id="base64_output" readonly placeholder="Результат..." style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#3ecf8e;font-family:monospace;font-size:12px;min-height:100px"></textarea><button class="btn" style="width:100%;background:#3ecf8e" onclick="copyDevToolResult(\'base64_output\')">📋 Копировать</button>'; openModal(h); }
+function encodeBase64(){ try{ var input=document.getElementById('base64_input').value; document.getElementById('base64_output').value=btoa(unescape(encodeURIComponent(input))); }catch(e){ document.getElementById('base64_output').value='❌ Ошибка: '+e.message; } }
+function decodeBase64(){ try{ var input=document.getElementById('base64_input').value; document.getElementById('base64_output').value=decodeURIComponent(escape(atob(input))); }catch(e){ document.getElementById('base64_output').value='❌ Ошибка: Неверный Base64'; } }
+function showPasswordGenerator(){ var h='<h3>🔑 Генератор паролей</h3><label style="color:#fff;font-size:12px">Длина: <span id="pass_len_val">16</span></label><input id="pass_length" type="range" min="8" max="32" value="16" oninput="document.getElementById(\'pass_len_val\').textContent=this.value" style="width:100%;margin:10px 0"><div style="margin:10px 0"><label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" id="pass_upper" checked style="margin-right:5px"> Заглавные (A-Z)</label><label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" id="pass_lower" checked style="margin-right:5px"> Строчные (a-z)</label><label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" id="pass_numbers" checked style="margin-right:5px"> Цифры (0-9)</label><label style="color:#fff;font-size:12px;display:block;margin:5px 0"><input type="checkbox" id="pass_symbols" checked style="margin-right:5px"> Символы (!@#...)</label></div><button class="btn" style="width:100%;margin:10px 0;background:#3ecf8e" onclick="generatePassword()">🔑 Сгенерировать</button><input id="pass_result" readonly style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#3ecf8e;font-family:monospace;font-size:14px;text-align:center"><button class="btn" style="width:100%;background:#3ecf8e" onclick="copyDevToolResult(\'pass_result\')">📋 Копировать</button>'; openModal(h); }
+function generatePassword(){ var length=parseInt(document.getElementById('pass_length').value), useUpper=document.getElementById('pass_upper').checked, useLower=document.getElementById('pass_lower').checked, useNumbers=document.getElementById('pass_numbers').checked, useSymbols=document.getElementById('pass_symbols').checked; var chars=''; if(useUpper) chars+='ABCDEFGHIJKLMNOPQRSTUVWXYZ'; if(useLower) chars+='abcdefghijklmnopqrstuvwxyz'; if(useNumbers) chars+='0123456789'; if(useSymbols) chars+='!@#$%^&*()_+-=[]{}|;:,.<>?'; if(chars===''){ document.getElementById('pass_result').value='Выбери тип символов!'; return; } var password=''; for(var i=0;i<length;i++){ password+=chars.charAt(Math.floor(Math.random()*chars.length)); } document.getElementById('pass_result').value=password; }
+function showColorConverter(){ var h='<h3>🎨 Конвертер цветов</h3><label style="color:#fff;font-size:12px">HEX цвет:</label><input id="color_hex" placeholder="#ff9500" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff;font-family:monospace"><input id="color_picker" type="color" value="#ff9500" oninput="document.getElementById(\'color_hex\').value=this.value;convertColor()" style="width:100%;height:50px;margin:10px 0;border:none;border-radius:6px;cursor:pointer"><button class="btn" style="width:100%;margin:10px 0;background:#ff9500" onclick="convertColor()">🔄 Конвертировать</button><div id="color_result" style="padding:15px;margin:10px 0;background:#1f2530;border-radius:6px;text-align:center"><div style="width:100%;height:80px;background:#ff9500;border-radius:6px;margin-bottom:10px"></div><div style="color:#fff;font-size:14px">HEX: <b id="color_hex_val">#ff9500</b></div><div style="color:#fff;font-size:14px">RGB: <b id="color_rgb_val">rgb(255, 149, 0)</b></div></div><button class="btn" style="width:100%;background:#3ecf8e" onclick="copyColorValues()">📋 Копировать значения</button>'; openModal(h); }
+function convertColor(){ var hex=document.getElementById('color_hex').value.trim(); if(!hex.startsWith('#')) hex='#'+hex; if(/^#[0-9A-F]{6}$/i.test(hex)){ var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16); document.getElementById('color_hex_val').textContent=hex.toUpperCase(); document.getElementById('color_rgb_val').textContent='rgb('+r+', '+g+', '+b+')'; document.querySelector('#color_result div:first-child').style.background=hex; document.getElementById('color_picker').value=hex; } else { document.getElementById('color_hex_val').textContent='Неверный HEX'; document.getElementById('color_rgb_val').textContent='-'; } }
+function copyColorValues(){ var hex=document.getElementById('color_hex_val').textContent, rgb=document.getElementById('color_rgb_val').textContent; navigator.clipboard.writeText('HEX: '+hex+'\nRGB: '+rgb).then(function(){ alert('✅ Скопировано!'); }).catch(function(){ alert('❌ Ошибка'); }); }
+function copyDevToolResult(elementId){ var text=document.getElementById(elementId).value; if(!text||text.startsWith('❌')){ alert('Нечего копировать!'); return; } navigator.clipboard.writeText(text).then(function(){ alert('✅ Скопировано!'); }).catch(function(){ alert('❌ Ошибка'); }); }
