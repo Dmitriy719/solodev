@@ -5880,7 +5880,6 @@ function renderCalculator(){
   if(!db.estimates) db.estimates = [];
   var rate = db.hourlyRate || 2000;
   var h='<h2>🧮 Калькулятор стоимости проекта</h2>';
-  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#ffd700;color:#000;font-weight:bold" onclick="showSmartAssistant()">🤖 Умный помощник оценки</button>';
   
   h+='<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px">';
   h+='<div style="display:flex;justify-content:space-between;align-items:center">';
