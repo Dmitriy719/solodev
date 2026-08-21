@@ -332,34 +332,90 @@ function leadToClient(type,idx){var list=type==='auto'?db.autoLeads:db.leads;var
 function leadOutreach(type,idx){var list=type==='auto'?db.autoLeads:db.leads;var l=list[idx];if(!l)return;var txt='Здравствуйте!\n\nМеня зовут '+db.profile.name+', я '+db.profile.spec+'.\n\nУвидел вашу вакансию: "'+l.title+'".\n\nБуду рад обсудить детали.\n\nС уважением,\n'+db.profile.name;navigator.clipboard.writeText(txt).then(function(){alert('✉️ Письмо скопировано!')})}
 function delLead(idx){db.autoLeads.splice(idx,1);save();renderRadar()}
 
-function renderProjects(){
-  var completed=db.projects.filter(function(p){return p.stage===3}).length;
-  var h='<h2>📁 Проекты</h2><button class="btn" onclick="addProject()">+ Проект</button>';
-  h+='<button class="btn" style="background:#9d6cff" onclick="showDocAssistant()"> Умный помощник документов</button>';
-  if(completed>0){h+='<button class="btn ai" onclick="generatePortfolio()">✨ Сгенерировать портфолио ('+completed+' проектов)</button>';
-  h+='<button class="btn small" style="background:#1f2530;margin-top:8px" onclick="previewPortfolio()">👁 Предпросмотр</button>';
-  h+='<button class="btn small" style="background:#1f2530;margin-top:8px" onclick="downloadPortfolio()">📥 Скачать HTML</button>';
-  h+='<button class="btn small" style="background:#9d6cff;margin-top:8px" onclick="showDocAssistant()">🤖 Умный помощник</button>';}
-  db.projects.forEach(function(p){
-    var doneTasks=p.tasks?p.tasks.filter(function(t){return t.done}).length:0;var totalTasks=p.tasks?p.tasks.length:0;var progress=totalTasks?Math.round(doneTasks/totalTasks*100):0;
-    var roi=p.estimatedHours&&p.estimatedHours>0?Math.round(p.budget/p.estimatedHours):0;
-    h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>'+esc(p.name)+'</b><span style="padding:4px 12px;background:#6c8cff;border-radius:12px;font-size:12px">'+['Идея','В работе','Тестирование','Завершён'][p.stage]+'</span></div>';
-    h+='<div class="mut">'+esc(p.client||'—')+' · '+p.budget.toLocaleString()+' ₽</div>';
-    if(p.description)h+='<div style="margin-top:8px;font-size:13px;color:#e8ecf3">'+esc(p.description)+'</div>';
-    if(p.tech_stack){var techs=p.tech_stack.split(',').map(function(t){return '<span class="portfolio-tech">'+esc(t.trim())+'</span>'}).join('');h+='<div style="margin-top:6px">'+techs+'</div>';}
-    if(p.deadline)h+='<div class="mut"> Дедлайн: '+p.deadline+'</div>';
-    if(roi)h+='<div style="color:#3ecf8e;font-size:13px">🧮 ROI: '+roi+' ₽/час</div>';
-    h+='<div class="bar"><i style="width:'+progress+'%"></i></div>';
-    h+='<div class="mut">Задачи: '+doneTasks+'/'+totalTasks+' ('+progress+'%)</div>';
-    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">';
-    if(p.stage<3)h+='<button class="btn small" onclick="nextStage(\''+p.id+'\')">Этап →</button>';
-    h+='<button class="btn small" style="background:#1f2530" onclick="showTasks(\''+p.id+'\')">📋 Задачи</button>';
-    h+='<button class="btn small" style="background:#1f2530" onclick="showROI(\''+p.id+'\')">🧮 ROI</button>';
-    h+='<button class="btn small" style="background:#1f2530" onclick="showReport(\''+p.id+'\')">📊 Отчёт</button>';
-    h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b" onclick="delProject(\''+p.id+'\')">🗑</button>';
-    h+='</div></div>';
-  });
-  document.getElementById('app').innerHTML=h;
+function renderProjects() {
+    if (!window.projectFilter) window.projectFilter = 'all';
+    var today = new Date().toISOString().slice(0, 10);
+    
+    var h = '<h2>📁 Проекты</h2>';
+    h += '<div style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap">';
+    h += '<button class="btn small" style="background:' + (window.projectFilter === 'all' ? '#6c8cff' : '#1f2530') + '" onclick="window.projectFilter=\'all\';renderProjects()">Все</button>';
+    h += '<button class="btn small" style="background:' + (window.projectFilter === 'active' ? '#6c8cff' : '#1f2530') + '" onclick="window.projectFilter=\'active\';renderProjects()">Активные</button>';
+    h += '<button class="btn small" style="background:' + (window.projectFilter === 'completed' ? '#6c8cff' : '#1f2530') + '" onclick="window.projectFilter=\'completed\';renderProjects()">Завершённые</button>';
+    h += '<button class="btn small" style="background:' + (window.projectFilter === 'overdue' ? '#ff6b6b' : '#1f2530') + '" onclick="window.projectFilter=\'overdue\';renderProjects()">Просроченные</button>';
+    h += '</div>';
+    
+    h += '<div style="display:flex;gap:10px;margin-bottom:15px">';
+    h += '<button class="btn" style="flex:1;background:#3ecf8e" onclick="addProject()">+ Новый проект</button>';
+    h += '<button class="btn" style="flex:1;background:#9d6cff" onclick="showDocAssistant()">🤖 Помощник</button>';
+    h += '</div>';
+
+    var filtered = db.projects.filter(function(p) {
+        if (window.projectFilter === 'active') return p.stage < 3;
+        if (window.projectFilter === 'completed') return p.stage === 3;
+        if (window.projectFilter === 'overdue') return p.deadline && p.deadline < today && p.stage < 3;
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        h += '<div class="card" style="text-align:center;padding:30px"><div class="mut">Проекты не найдены</div></div>';
+    } else {
+        filtered.forEach(function(p) {
+            var isOverdue = p.deadline && p.deadline < today && p.stage < 3;
+            var doneTasks = p.tasks ? p.tasks.filter(function(t) { return t.done; }).length : 0;
+            var totalTasks = p.tasks ? p.tasks.length : 0;
+            var progress = totalTasks ? Math.round((doneTasks / totalTasks) * 100) : 0;
+            var roi = (p.estimatedHours && p.estimatedHours > 0) ? Math.round(p.budget / p.estimatedHours) : 0;
+            var stageNames = ['💡 Идея', '🚀 В работе', '🧪 Тестирование', '✅ Завершён'];
+            var stageColors = ['#ffd700', '#6c8cff', '#ff9500', '#3ecf8e'];
+            
+            h += '<div class="card" style="border-left: 4px solid ' + (isOverdue ? '#ff6b6b' : stageColors[p.stage]) + '">';
+            h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">';
+            h += '<b style="font-size:16px">' + esc(p.name) + (isOverdue ? ' <span style="color:#ff6b6b;font-size:12px">⚠️ Просрочен</span>' : '') + '</b>';
+            h += '<span style="padding:4px 10px;background:' + stageColors[p.stage] + ';color:#000;border-radius:12px;font-size:11px;font-weight:bold">' + stageNames[p.stage] + '</span>';
+            h += '</div>';
+            
+            h += '<div class="mut" style="font-size:13px;margin-bottom:8px">👤 ' + esc(p.client || 'Без клиента') + ' · 💰 ' + (p.budget || 0).toLocaleString() + ' ₽';
+            if (roi) h += ' · 🧮 ' + roi + ' ₽/час';
+            h += '</div>';
+            
+            if (p.description) {
+                var desc = p.description.length > 100 ? p.description.substring(0, 100) + '...' : p.description;
+                h += '<div style="font-size:13px;color:#e8ecf3;margin-bottom:8px">' + esc(desc) + '</div>';
+            }
+            
+            if (p.tech_stack) {
+                var techs = p.tech_stack.split(',').map(function(t) { return '<span style="padding:2px 8px;background:#1f2530;border-radius:4px;font-size:11px;color:#6c8cff;margin-right:4px">' + esc(t.trim()) + '</span>'; }).join('');
+                h += '<div style="margin-bottom:8px">' + techs + '</div>';
+            }
+            
+            if (p.deadline) {
+                h += '<div class="mut" style="font-size:12px;margin-bottom:8px">📅 Дедлайн: <b style="color:' + (isOverdue ? '#ff6b6b' : '#fff') + '">' + p.deadline + '</b></div>';
+            }
+            
+            h += '<div style="margin:10px 0">';
+            h += '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Прогресс задач</span><span>' + doneTasks + '/' + totalTasks + ' (' + progress + '%)</span></div>';
+            h += '<div class="bar" style="height:6px"><i style="width:' + progress + '%;background:' + stageColors[p.stage] + '"></i></div>';
+            h += '</div>';
+            
+            h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">';
+            if (p.stage < 3) h += '<button class="btn small" style="background:#3ecf8e" onclick="nextStage(\'' + p.id + '\')">Этап →</button>';
+            h += '<button class="btn small" style="background:#1f2530" onclick="showTasks(\'' + p.id + '\')">📋 Задачи</button>';
+            h += '<button class="btn small" style="background:#1f2530" onclick="showReport(\'' + p.id + '\')">📊 Отчёт</button>';
+            h += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-left:auto" onclick="delProject(\'' + p.id + '\')">🗑</button>';
+            h += '</div></div>';
+        });
+    }
+    
+    var completedCount = db.projects.filter(function(p){return p.stage===3}).length;
+    if (completedCount > 0) {
+        h += '<div class="card" style="margin-top:15px;background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#9d6cff">';
+        h += '<h3 style="margin-top:0">✨ Портфолио (' + completedCount + ' проектов)</h3>';
+        h += '<button class="btn small" style="background:#9d6cff;width:100%;margin-bottom:8px" onclick="generatePortfolio()">Сгенерировать</button>';
+        h += '<div style="display:flex;gap:8px"><button class="btn small" style="background:#1f2530;flex:1" onclick="previewPortfolio()">👁 Просмотр</button><button class="btn small" style="background:#1f2530;flex:1" onclick="downloadPortfolio()">📥 Скачать</button></div>';
+        h += '</div>';
+    }
+    
+    document.getElementById('app').innerHTML = h;
 }
 function addProject(){
   var h='<h3>➕ Новый проект</h3>';
