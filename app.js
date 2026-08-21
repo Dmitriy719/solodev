@@ -5854,3 +5854,22 @@ function showColorConverter(){ var h='<h3>🎨 Конвертер цветов</
 function convertColor(){ var hex=document.getElementById('color_hex').value.trim(); if(!hex.startsWith('#')) hex='#'+hex; if(/^#[0-9A-F]{6}$/i.test(hex)){ var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16); document.getElementById('color_hex_val').textContent=hex.toUpperCase(); document.getElementById('color_rgb_val').textContent='rgb('+r+', '+g+', '+b+')'; document.querySelector('#color_result div:first-child').style.background=hex; document.getElementById('color_picker').value=hex; } else { document.getElementById('color_hex_val').textContent='Неверный HEX'; document.getElementById('color_rgb_val').textContent='-'; } }
 function copyColorValues(){ var hex=document.getElementById('color_hex_val').textContent, rgb=document.getElementById('color_rgb_val').textContent; navigator.clipboard.writeText('HEX: '+hex+'\nRGB: '+rgb).then(function(){ alert('✅ Скопировано!'); }).catch(function(){ alert('❌ Ошибка'); }); }
 function copyDevToolResult(elementId){ var text=document.getElementById(elementId).value; if(!text||text.startsWith('❌')){ alert('Нечего копировать!'); return; } navigator.clipboard.writeText(text).then(function(){ alert('✅ Скопировано!'); }).catch(function(){ alert('❌ Ошибка'); }); }
+
+// === УТИЛИТА: ЖУРНАЛ СОБЫТИЙ ===
+function addToJournal(type, data) {
+    if (!db.journal) db.journal = [];
+    db.journal.push({
+        id: Date.now().toString(36),
+        type: type,
+        data: data,
+        date: new Date().toISOString().slice(0, 10),
+        time: new Date().toTimeString().slice(0, 5),
+        timestamp: new Date().toISOString()
+    });
+    // Ограничиваем журнал последними 100 записями, чтобы не переполнять localStorage
+    if (db.journal.length > 100) {
+        db.journal = db.journal.slice(-100);
+    }
+    localStorage.setItem('solodev', JSON.stringify(db));
+}
+// === КОНЕЦ УТИЛИТЫ ЖУРНАЛА ===
