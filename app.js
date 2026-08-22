@@ -37,7 +37,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'tax',icon:'',label:'Налоги'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -85,6 +85,7 @@ function render(){
   else if(currentView==='timetracker')renderTimeTracker();
   else if(currentView==='subscriptions')renderSubscriptions();
   else if(currentView==='calculator')renderCalculator();
+  else if(currentView==='tax')renderTaxTracker();
   else if(currentView==='kpi')renderKPI();
   else if(currentView==='burnout')renderBurnout();
   else if(currentView==='settings')renderSettings();
@@ -6685,3 +6686,194 @@ function renderKPI() {
     document.getElementById('app').innerHTML = h;
 }
 // === КОНЕЦ МОДУЛЯ KPI ===
+
+
+// === МОДУЛЬ ТРЕКЕРА НАЛОГОВ ===
+function getTaxRate(system) {
+    var rates = { usn6: 0.06, usn15: 0.15, npd: 0.06, osno: 0.13 };
+    return rates[system] || 0.06;
+}
+
+function getTaxSystemName(system) {
+    var names = { usn6: 'УСН 6%', usn15: 'УСН 15%', npd: 'НПД (самозанятость)', osno: 'ОСНО (НДФЛ)' };
+    return names[system] || 'Неизвестно';
+}
+
+function calculateQuarterTax(year, quarter) {
+    // Кварталы: 1 (янв-мар), 2 (апр-июн), 3 (июл-сен), 4 (окт-дек)
+    var months = { 1: [0,1,2], 2: [3,4,5], 3: [6,7,8], 4: [9,10,11] };
+    var monthList = months[quarter];
+    
+    var income = 0, expenses = 0;
+    db.finances.forEach(function(f) {
+        if (!f.date) return;
+        var d = new Date(f.date);
+        if (d.getFullYear() === year && monthList.indexOf(d.getMonth()) !== -1) {
+            if (f.type === 'in') income += (f.amt || 0);
+            else expenses += (f.amt || 0);
+        }
+    });
+    
+    var system = db.taxSystem || 'usn6';
+    var tax = 0;
+    if (system === 'usn6') {
+        tax = income * 0.06;
+    } else if (system === 'usn15') {
+        tax = Math.max((income - expenses) * 0.15, income * 0.01);
+    } else if (system === 'npd') {
+        tax = income * 0.06;
+    } else if (system === 'osno') {
+        tax = income * 0.13;
+    }
+    
+    return { income: income, expenses: expenses, tax: Math.round(tax) };
+}
+
+function getQuarterDeadlines(year) {
+    return [
+        { quarter: 1, deadline: year + '-04-25', label: '1 кв (янв-мар)' },
+        { quarter: 2, deadline: year + '-07-25', label: '2 кв (апр-июн)' },
+        { quarter: 3, deadline: year + '-10-25', label: '3 кв (июл-сен)' },
+        { quarter: 4, deadline: (year + 1) + '-04-30', label: '4 кв (окт-дек)' }
+    ];
+}
+
+function changeTaxSystem(system) {
+    db.taxSystem = system;
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderTaxTracker();
+}
+
+function addTaxPayment(amount, quarter, year) {
+    if (!db.taxPayments) db.taxPayments = [];
+    db.taxPayments.push({
+        date: new Date().toISOString().slice(0, 10),
+        amount: parseFloat(amount),
+        quarter: quarter,
+        year: year,
+        paid: true
+    });
+    if (db.taxReserve) db.taxReserve -= parseFloat(amount);
+    if (db.taxReserve < 0) db.taxReserve = 0;
+    localStorage.setItem('solodev', JSON.stringify(db));
+    renderTaxTracker();
+}
+
+function renderTaxTracker() {
+    var today = new Date();
+    var currentYear = today.getFullYear();
+    var currentMonth = today.getMonth(); // 0-11
+    var currentQuarter = Math.floor(currentMonth / 3) + 1;
+    var todayStr = today.toISOString().slice(0, 10);
+    
+    // Расчёт по текущему кварталу
+    var currentQ = calculateQuarterTax(currentYear, currentQuarter);
+    var taxRate = getTaxRate(db.taxSystem);
+    var neededReserve = currentQ.tax;
+    var currentReserve = db.taxReserve || 0;
+    var reservePercent = neededReserve > 0 ? Math.round((currentReserve / neededReserve) * 100) : 0;
+    if (reservePercent > 100) reservePercent = 100;
+    
+    // Дедлайны
+    var deadlines = getQuarterDeadlines(currentYear);
+    
+    var h = '<h2>💸 Трекер налогов</h2>';
+    
+    // Выбор системы налогообложения
+    h += '<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ffd700">';
+    h += '<h3 style="margin-top:0">⚙️ Система налогообложения</h3>';
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    ['usn6','usn15','npd','osno'].forEach(function(sys) {
+        var isActive = db.taxSystem === sys;
+        h += '<button class="btn" style="background:' + (isActive ? '#ffd700' : '#1f2530') + ';color:' + (isActive ? '#000' : '#fff') + '" onclick="changeTaxSystem(\'' + sys + '\')">' + getTaxSystemName(sys) + '</button>';
+    });
+    h += '</div></div>';
+    
+    // Текущий квартал - главный блок
+    var reserveColor = reservePercent >= 100 ? '#3ecf8e' : (reservePercent >= 50 ? '#ffd700' : '#ff6b6b');
+    h += '<div class="card" style="background:linear-gradient(135deg,#102015,#1a3025);border-color:' + reserveColor + '">';
+    h += '<h3 style="margin-top:0">📊 Текущий квартал (' + currentQuarter + '/4)</h3>';
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Доход за квартал</div><b style="font-size:18px;color:#3ecf8e">' + currentQ.income.toLocaleString() + ' ₽</b></div>';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Налог к уплате</div><b style="font-size:18px;color:#ff6b6b">' + currentQ.tax.toLocaleString() + ' ₽</b></div>';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">В резерве</div><b style="font-size:18px;color:#ffd700">' + Math.round(currentReserve).toLocaleString() + ' ₽</b></div>';
+    h += '<div style="padding:10px;background:#1f2530;border-radius:6px"><div class="mut" style="font-size:11px">Готовность</div><b style="font-size:18px;color:' + reserveColor + '">' + reservePercent + '%</b></div>';
+    h += '</div>';
+    
+    // Прогресс-бар резерва
+    h += '<div style="margin-bottom:10px">';
+    h += '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span class="mut">Прогресс накопления</span><span style="color:' + reserveColor + '">' + Math.round(currentReserve).toLocaleString() + ' / ' + currentQ.tax.toLocaleString() + ' ₽</span></div>';
+    h += '<div class="bar" style="height:10px;background:#1f2530"><i style="width:' + reservePercent + '%;background:' + reserveColor + '"></i></div>';
+    h += '</div>';
+    
+    // Кнопка пополнения резерва
+    h += '<div style="display:flex;gap:8px">';
+    h += '<button class="btn" style="flex:1;background:#3ecf8e" onclick="promptAddReserve()">+ Пополнить резерв</button>';
+    h += '<button class="btn" style="flex:1;background:#6c8cff" onclick="promptPayTax(' + currentQuarter + ',' + currentYear + ')">Оплатить налог</button>';
+    h += '</div></div>';
+    
+    // Дедлайны по кварталам
+    h += '<div class="card"><h3>📅 Календарь платежей ' + currentYear + '</h3>';
+    deadlines.forEach(function(d) {
+        var isPast = d.deadline < todayStr;
+        var isCurrent = d.quarter === currentQuarter;
+        var borderColor = isPast ? '#ff6b6b' : (isCurrent ? '#ffd700' : '#3ecf8e');
+        var status = isPast ? '✅ Пройден' : (isCurrent ? '🔥 Текущий' : '⏳ Впереди');
+        
+        var qData = calculateQuarterTax(currentYear, d.quarter);
+        var paidAmount = 0;
+        if (db.taxPayments) {
+            db.taxPayments.forEach(function(p) {
+                if (p.year === currentYear && p.quarter === d.quarter) paidAmount += (p.amount || 0);
+            });
+        }
+        
+        h += '<div style="padding:10px;margin:8px 0;background:#1f2530;border-left:3px solid ' + borderColor + ';border-radius:4px">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+        h += '<b>' + d.label + '</b>';
+        h += '<span style="padding:3px 8px;background:' + borderColor + ';color:#000;border-radius:10px;font-size:10px;font-weight:bold">' + status + '</span>';
+        h += '</div>';
+        h += '<div style="display:flex;justify-content:space-between;font-size:12px">';
+        h += '<span class="mut">Дедлайн: <b style="color:#fff">' + d.deadline + '</b></span>';
+        h += '<span class="mut">Налог: <b style="color:#ff6b6b">' + qData.tax.toLocaleString() + ' ₽</b></span>';
+        h += '</div>';
+        if (paidAmount > 0) {
+            h += '<div style="font-size:11px;color:#3ecf8e;margin-top:4px">✅ Оплачено: ' + paidAmount.toLocaleString() + ' ₽</div>';
+        }
+        h += '</div>';
+    });
+    h += '</div>';
+    
+    // Рекомендации
+    h += '<div class="card"><h3>💡 Рекомендации</h3>';
+    if (reservePercent < 50) {
+        h += '<div style="padding:10px;margin:8px 0;background:#201015;border-left:3px solid #ff6b6b;border-radius:4px;font-size:13px;color:#fff">🚨 В резерве менее 50% от нужной суммы! Срочно отложи деньги, чтобы не остаться в минусе при оплате налога.</div>';
+    } else if (reservePercent < 100) {
+        h += '<div style="padding:10px;margin:8px 0;background:#1f2530;border-left:3px solid #ffd700;border-radius:4px;font-size:13px;color:#fff">⚠️ Резерв заполнен на ' + reservePercent + '%. Продолжай откладывать с каждого дохода.</div>';
+    } else {
+        h += '<div style="padding:10px;margin:8px 0;background:#102015;border-left:3px solid #3ecf8e;border-radius:4px;font-size:13px;color:#fff">✅ Отлично! Резерв полностью готов к оплате налога.</div>';
+    }
+    h += '<div class="mut" style="font-size:11px;margin-top:10px">Совет: откладывай ' + Math.round(taxRate * 100) + '% с каждого дохода сразу при получении.</div>';
+    h += '</div>';
+    
+    document.getElementById('app').innerHTML = h;
+}
+
+function promptAddReserve() {
+    var amount = prompt('Сколько отложить в налоговый резерв (₽)?');
+    if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
+        if (!db.taxReserve) db.taxReserve = 0;
+        db.taxReserve += parseFloat(amount);
+        localStorage.setItem('solodev', JSON.stringify(db));
+        renderTaxTracker();
+    }
+}
+
+function promptPayTax(quarter, year) {
+    var currentQ = calculateQuarterTax(year, quarter);
+    var amount = prompt('Сумма оплаты налога за ' + quarter + ' квартал ' + year + ' (рекомендуется: ' + currentQ.tax + ' ₽):');
+    if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
+        addTaxPayment(parseFloat(amount), quarter, year);
+    }
+}
+// === КОНЕЦ МОДУЛЯ НАЛОГОВ ===
