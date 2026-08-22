@@ -7279,71 +7279,94 @@ function translateTechTerm() {
 // === 3. ГЕНЕРАТОР НАЗВАНИЙ ===
 function showProjectNameGenerator() {
     var h = '<h3>💡 Генератор названий проектов</h3>';
+    h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Язык:</label>';
+    h += '<select id="png_language" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="ru">🇷🇺 Русский</option><option value="zh">🇨🇳 Китайский</option><option value="en">🇬🇧 Английский</option></select>';
     h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Категория:</label>';
-    h += '<select id="png_category" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff">';
-    h += '<option value="tech">Технологии</option>';
-    h += '<option value="business">Бизнес</option>';
-    h += '<option value="creative">Креатив</option>';
-    h += '<option value="eco">Экология</option>';
-    h += '</select>';
-    
+    h += '<select id="png_category" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="tech">Технологии</option><option value="business">Бизнес</option><option value="creative">Креатив</option><option value="eco">Экология</option></select>';
     h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Стиль:</label>';
-    h += '<select id="png_style" style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff">';
-    h += '<option value="modern">Современный</option>';
-    h += '<option value="classic">Классический</option>';
-    h += '<option value="playful">Игривый</option>';
-    h += '</select>';
-    
-    h += '<button class="btn" style="width:100%;background:#ffd700;color:#000" onclick="generateProjectNames()">✨ Сгенерировать 5 вариантов</button>';
+    h += '<select id="png_style" style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="modern">Современный</option><option value="classic">Классический</option><option value="playful">Игривый</option></select>';
+    h += '<button class="btn" style="width:100%;background:#ffd700;color:#000" onclick="generateProjectNames()">✨ Сгенерировать 10 вариантов</button>';
     h += '<div id="png_result" style="display:none;margin-top:15px"></div>';
-    
     openModal(h);
 }
 
 function generateProjectNames() {
-    var category = document.getElementById('png_category').value;
-    var style = document.getElementById('png_style').value;
+    var lang = document.getElementById("png_language").value;
+    var category = document.getElementById("png_category").value;
+    var style = document.getElementById("png_style").value;
     
-    var names = {
-        tech: {
-            modern: ['CodeFlow', 'DevPulse', 'TechNest', 'ByteWave', 'LogicLab'],
-            classic: ['TechSolutions', 'DigitalWorks', 'CodeMasters', 'SystemPro', 'DataCore'],
-            playful: ['BugBusters', 'CodeNinjas', 'PixelPunks', 'HackHeroes', 'ByteBuddies']
+    var bases = {
+        ru: {
+            tech: ["Код", "Техно", "Дата", "Веб", "Сеть", "Систем", "Ядро", "Поток", "Импульс", "Лаб", "Хаб", "Линк", "Синх", "Стек", "Узел", "Бит", "Алго", "Пиксель", "Квант", "Кибер"],
+            business: ["Рост", "Прибыль", "Масштаб", "Венчур", "Бизнес", "Успех", "Рынок", "Сделка", "Фонд", "Актив", "Ценность", "Прайм", "Элит", "Апекс", "Пик", "Подъем", "Буст", "Капитал", "Империя", "Визион"],
+            creative: ["Арт", "Дизайн", "Креатив", "Визуал", "Вдохновение", "Создание", "Мастерская", "Холст", "Палитра", "Кисть", "Цвет", "Форма", "Стиль", "Эстетика", "Гармония", "Ритм", "Мечта", "Муза", "Искра", "Сияние"],
+            eco: ["Зеленый", "Эко", "Природа", "Земля", "Устойчивый", "Чистый", "Свежий", "Жизнь", "Цветение", "Рост", "Возрождение", "Восстановление", "Баланс", "Гармония", "Цикл", "Круг", "Корень", "Лист", "Лес", "Океан"]
         },
-        business: {
-            modern: ['GrowthHub', 'ProfitPath', 'ScaleUp', 'VentureLab', 'BizBoost'],
-            classic: ['BusinessPro', 'SuccessPartners', 'GrowthConsulting', 'ProfitAdvisors', 'BusinessSolutions'],
-            playful: ['MoneyMakers', 'ProfitPirates', 'BizWizards', 'CashCrew', 'DealDynamo']
+        zh: {
+            tech: ["智", "科", "数", "网", "云", "芯", "流", "脉", "创", "联", "极", "元", "星", "光", "电", "算", "码", "量", "神", "幻"],
+            business: ["盛", "达", "丰", "盈", "鼎", "泰", "瑞", "宏", "博", "信", "诚", "金", "宝", "源", "汇", "通", "兴", "旺", "昌", "隆"],
+            creative: ["艺", "创", "美", "视", "灵感", "造", "工坊", "彩", "形", "风", "韵", "律", "梦", "光", "耀", "鲜", "纯", "新", "独", "雅"],
+            eco: ["绿", "生态", "自然", "地", "源", "清", "新", "生", "茂", "长", "荣", "复", "衡", "和", "环", "圆", "根", "叶", "林", "海"]
         },
-        creative: {
-            modern: ['ArtFlow', 'DesignLab', 'CreativePulse', 'VisualWave', 'InspireHub'],
-            classic: ['CreativeWorks', 'DesignStudio', 'ArtMasters', 'VisualSolutions', 'CreativePro'],
-            playful: ['PixelParty', 'ColorCrew', 'ArtAttack', 'DesignDynamo', 'CreativeChaos']
-        },
-        eco: {
-            modern: ['GreenTech', 'EcoFlow', 'NatureLab', 'SustainHub', 'EarthPulse'],
-            classic: ['EcoSolutions', 'GreenWorks', 'NaturePartners', 'SustainablePro', 'EarthCare'],
-            playful: ['GreenGang', 'EcoWarriors', 'NatureNinjas', 'PlanetPals', 'EarthHeroes']
+        en: {
+            tech: ["Code", "Dev", "Tech", "Byte", "Logic", "Data", "Cloud", "Net", "Web", "App", "Sys", "Core", "Flow", "Pulse", "Nest", "Wave", "Lab", "Hub", "Link", "Sync"],
+            business: ["Growth", "Profit", "Scale", "Venture", "Biz", "Success", "Market", "Trade", "Deal", "Fund", "Asset", "Value", "Prime", "Elite", "Apex", "Peak", "Rise", "Boost", "Thrive", "Prosper"],
+            creative: ["Art", "Design", "Creative", "Visual", "Inspire", "Create", "Make", "Craft", "Studio", "Canvas", "Palette", "Brush", "Color", "Shape", "Form", "Style", "Aesthetic", "Harmony", "Rhythm", "Flow"],
+            eco: ["Green", "Eco", "Nature", "Earth", "Sustain", "Pure", "Clean", "Fresh", "Vital", "Bloom", "Grow", "Thrive", "Flourish", "Renew", "Restore", "Balance", "Harmony", "Cycle", "Loop", "Circle"]
         }
     };
     
-    var selectedNames = names[category][style];
+    var suffixes = {
+        ru: {
+            modern: ["Поток", "Импульс", "Гнездо", "Волна", "Лаб", "Хаб", "Линк", "Синх", "Стек", "Узел", "Сетка", "Меш", "Бит", "Алго", "Искра", "Свет", "Подъем", "Буст", "Ядро", "База"],
+            classic: ["Решения", "Проекты", "Мастерская", "Профи", "Системы", "Группа", "Партнеры", "Советники", "Консалтинг", "Услуги", "Глобал", "Международный", "Объединенные", "Ассоциация", "Предприятие", "Корпорация", "Индустрия", "Холдинг", "Венчур", "Технологии"],
+            playful: ["Истребители", "Ниндзя", "Панки", "Герои", "Друзья", "Воины", "Отряд", "Команда", "Банда", "Сила", "Стая", "Племя", "Клан", "Лига", "Гильдия", "Орден", "Братство", "Союз", "Альянс", "Фратрия"]
+        },
+        zh: {
+            modern: ["科技", "网络", "云", "数据", "智能", "创新", "引擎", "动力", "空间", "矩阵", "互联", "未来", "先锋", "极速", "核心", "维度", "生态", "链", "节点", "平台"],
+            classic: ["集团", "公司", "企业", "控股", "实业", "发展", "投资", "管理", "咨询", "服务", "国际", "联合", "环球", "世纪", "东方", "中华", "华夏", "天下", "四海", "九州"],
+            playful: ["工作室", "小队", "联盟", "部落", "家族", "先锋", "创客", "达人", "玩家", "极客", "奇兵", "妙手", "天团", "梦之队", "精英", "王牌", "特攻", "游侠", "隐士", "行者"]
+        },
+        en: {
+            modern: ["Flow", "Pulse", "Nest", "Wave", "Lab", "Hub", "Link", "Sync", "Stack", "Node", "Grid", "Mesh", "Bit", "Algo", "Spark", "Glow", "Rise", "Boost", "Core", "Base"],
+            classic: ["Solutions", "Works", "Masters", "Pro", "Systems", "Group", "Partners", "Advisors", "Consulting", "Services", "Global", "International", "United", "Associates", "Enterprises", "Corporation", "Industries", "Holdings", "Ventures", "Technologies"],
+            playful: ["Busters", "Ninjas", "Punks", "Heroes", "Buddies", "Warriors", "Squad", "Crew", "Gang", "Team", "Force", "Band", "Pack", "Tribe", "Clan", "League", "Guild", "Order", "Brotherhood", "Fellowship"]
+        }
+    };
     
-    var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #ffd700">';
-    resultHtml += '<div style="font-weight:bold;color:#ffd700;margin-bottom:10px">✨ Варианты названий:</div>';
-    selectedNames.forEach(function(name, i) {
-        resultHtml += '<div style="padding:10px;margin:5px 0;background:#0f1520;border-radius:4px;display:flex;justify-content:space-between;align-items:center">';
-        resultHtml += '<span style="font-size:14px;font-weight:bold;color:#fff">' + (i+1) + '. ' + name + '</span>';
-        resultHtml += '<button class="btn small" style="background:#6c8cff" onclick="navigator.clipboard.writeText(\'' + name + '\').then(function(){alert(\'✅ Скопировано: ' + name + '\')})">📋</button>';
-        resultHtml += '</div>';
+    var prefixes = {
+        ru: ["Нео", "Ультра", "Супер", "Мега", "Гипер", "Макс", "Про", "Плюс", "Прайм", "Элит", "Апекс", "Зен", "Нова", "Вихрь", "Квант", "Кибер", "Диджитал", "Смарт", "Рапид", "Свифт"],
+        zh: ["新", "超", "极", "大", "天", "星", "云", "智", "创", "宏", "瑞", "金", "龙", "凤", "神", "海", "宇", "环", "太", "元"],
+        en: ["Neo", "Ultra", "Super", "Mega", "Hyper", "Max", "Pro", "Plus", "Prime", "Elite", "Apex", "Zen", "Nova", "Vortex", "Quantum", "Cyber", "Digital", "Smart", "Rapid", "Swift"]
+    };
+
+    var selectedBases = bases[lang][category];
+    var selectedSuffixes = suffixes[lang][style];
+    var selectedPrefixes = prefixes[lang];
+    
+    var generatedNames = [];
+    var attempts = 0;
+    while (generatedNames.length < 10 && attempts < 500) {
+        attempts++;
+        var base = selectedBases[Math.floor(Math.random() * selectedBases.length)];
+        var suffix = selectedSuffixes[Math.floor(Math.random() * selectedSuffixes.length)];
+        var usePrefix = Math.random() > 0.6;
+        var prefix = usePrefix ? selectedPrefixes[Math.floor(Math.random() * selectedPrefixes.length)] : "";
+        var name = prefix + base + suffix;
+        if (generatedNames.indexOf(name) === -1) generatedNames.push(name);
+    }
+    
+    var langNames = { ru: "Русский", zh: "Китайский", en: "Английский" };
+    var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #ffd700"><div style="font-weight:bold;color:#ffd700;margin-bottom:10px">✨ 10 уникальных названий (' + langNames[lang] + '):</div>';
+    generatedNames.forEach(function(name, i) {
+        resultHtml += '<div style="padding:10px;margin:5px 0;background:#0f1520;border-radius:4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:bold;color:#fff">' + (i+1) + '. ' + name + '</span>';
+        resultHtml += '<button class="btn small" style="background:#6c8cff" onclick="navigator.clipboard.writeText(\'' + name + '\').then(function(){alert(\'✅ Скопировано: ' + name + '\')})">📋</button></div>';
     });
-    resultHtml += '</div>';
-    
-    document.getElementById('png_result').innerHTML = resultHtml;
-    document.getElementById('png_result').style.display = 'block';
+    resultHtml += '<button class="btn" style="width:100%;margin-top:10px;background:#ffd700;color:#000" onclick="generateProjectNames()">🔄 Ещё 10 вариантов</button></div>';
+    document.getElementById("png_result").innerHTML = resultHtml;
+    document.getElementById("png_result").style.display = "block";
 }
 
-// === 4. КАЛЬКУЛЯТОР "ЦЕЛЬ → РАБОТА" ===
 function showWorkCalculator() {
     var h = '<h3>🧮 Сколько работать для цели?</h3>';
     h += '<label style="color:#ff6b6b;font-size:12px;font-weight:bold">Целевая сумма (₽):</label>';
@@ -7595,6 +7618,8 @@ function translateTechTerm() {
 
 function showProjectNameGenerator() {
     var h = '<h3>💡 Генератор названий проектов</h3>';
+    h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Язык:</label>';
+    h += '<select id="png_language" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="ru">🇷🇺 Русский</option><option value="zh">🇨🇳 Китайский</option><option value="en">🇬🇧 Английский</option></select>';
     h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Категория:</label>';
     h += '<select id="png_category" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="tech">Технологии</option><option value="business">Бизнес</option><option value="creative">Креатив</option><option value="eco">Экология</option></select>';
     h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Стиль:</label>';
@@ -7605,22 +7630,59 @@ function showProjectNameGenerator() {
 }
 
 function generateProjectNames() {
-    var category = document.getElementById('png_category').value;
-    var style = document.getElementById('png_style').value;
+    var lang = document.getElementById("png_language").value;
+    var category = document.getElementById("png_category").value;
+    var style = document.getElementById("png_style").value;
+    
     var bases = {
-        tech: ['Code','Dev','Tech','Byte','Logic','Data','Cloud','Net','Web','App','Sys','Core','Flow','Pulse','Nest','Wave','Lab','Hub','Link','Sync','Stack','Node','Grid','Mesh','Bit','Algo','Pixel','Quantum','Neural','Cyber'],
-        business: ['Growth','Profit','Scale','Venture','Biz','Success','Market','Trade','Deal','Fund','Asset','Value','Prime','Elite','Apex','Peak','Rise','Boost','Thrive','Prosper','Gain','Yield','Return','Capital','Wealth','Fortune','Empire','Dynasty','Legacy','Vision'],
-        creative: ['Art','Design','Creative','Visual','Inspire','Create','Make','Craft','Studio','Canvas','Palette','Brush','Color','Shape','Form','Style','Aesthetic','Harmony','Rhythm','Flow','Dream','Muse','Spark','Glow','Shine','Radiant','Vivid','Bold','Fresh','Pure'],
-        eco: ['Green','Eco','Nature','Earth','Sustain','Pure','Clean','Fresh','Vital','Bloom','Grow','Thrive','Flourish','Renew','Restore','Balance','Harmony','Cycle','Loop','Circle','Root','Leaf','Branch','Forest','Ocean','Sky','Sun','Rain','Seed','Wild']
+        ru: {
+            tech: ["Код", "Техно", "Дата", "Веб", "Сеть", "Систем", "Ядро", "Поток", "Импульс", "Лаб", "Хаб", "Линк", "Синх", "Стек", "Узел", "Бит", "Алго", "Пиксель", "Квант", "Кибер"],
+            business: ["Рост", "Прибыль", "Масштаб", "Венчур", "Бизнес", "Успех", "Рынок", "Сделка", "Фонд", "Актив", "Ценность", "Прайм", "Элит", "Апекс", "Пик", "Подъем", "Буст", "Капитал", "Империя", "Визион"],
+            creative: ["Арт", "Дизайн", "Креатив", "Визуал", "Вдохновение", "Создание", "Мастерская", "Холст", "Палитра", "Кисть", "Цвет", "Форма", "Стиль", "Эстетика", "Гармония", "Ритм", "Мечта", "Муза", "Искра", "Сияние"],
+            eco: ["Зеленый", "Эко", "Природа", "Земля", "Устойчивый", "Чистый", "Свежий", "Жизнь", "Цветение", "Рост", "Возрождение", "Восстановление", "Баланс", "Гармония", "Цикл", "Круг", "Корень", "Лист", "Лес", "Океан"]
+        },
+        zh: {
+            tech: ["智", "科", "数", "网", "云", "芯", "流", "脉", "创", "联", "极", "元", "星", "光", "电", "算", "码", "量", "神", "幻"],
+            business: ["盛", "达", "丰", "盈", "鼎", "泰", "瑞", "宏", "博", "信", "诚", "金", "宝", "源", "汇", "通", "兴", "旺", "昌", "隆"],
+            creative: ["艺", "创", "美", "视", "灵感", "造", "工坊", "彩", "形", "风", "韵", "律", "梦", "光", "耀", "鲜", "纯", "新", "独", "雅"],
+            eco: ["绿", "生态", "自然", "地", "源", "清", "新", "生", "茂", "长", "荣", "复", "衡", "和", "环", "圆", "根", "叶", "林", "海"]
+        },
+        en: {
+            tech: ["Code", "Dev", "Tech", "Byte", "Logic", "Data", "Cloud", "Net", "Web", "App", "Sys", "Core", "Flow", "Pulse", "Nest", "Wave", "Lab", "Hub", "Link", "Sync"],
+            business: ["Growth", "Profit", "Scale", "Venture", "Biz", "Success", "Market", "Trade", "Deal", "Fund", "Asset", "Value", "Prime", "Elite", "Apex", "Peak", "Rise", "Boost", "Thrive", "Prosper"],
+            creative: ["Art", "Design", "Creative", "Visual", "Inspire", "Create", "Make", "Craft", "Studio", "Canvas", "Palette", "Brush", "Color", "Shape", "Form", "Style", "Aesthetic", "Harmony", "Rhythm", "Flow"],
+            eco: ["Green", "Eco", "Nature", "Earth", "Sustain", "Pure", "Clean", "Fresh", "Vital", "Bloom", "Grow", "Thrive", "Flourish", "Renew", "Restore", "Balance", "Harmony", "Cycle", "Loop", "Circle"]
+        }
     };
+    
     var suffixes = {
-        modern: ['Flow','Pulse','Nest','Wave','Lab','Hub','Link','Sync','Stack','Node','Grid','Mesh','Bit','Algo','Spark','Glow','Rise','Boost','Core','Base'],
-        classic: ['Solutions','Works','Masters','Pro','Systems','Group','Partners','Advisors','Consulting','Services','Global','International','United','Associates','Enterprises','Corporation','Industries','Holdings','Ventures','Technologies'],
-        playful: ['Busters','Ninjas','Punks','Heroes','Buddies','Warriors','Squad','Crew','Gang','Team','Force','Band','Pack','Tribe','Clan','League','Guild','Order','Brotherhood','Fellowship']
+        ru: {
+            modern: ["Поток", "Импульс", "Гнездо", "Волна", "Лаб", "Хаб", "Линк", "Синх", "Стек", "Узел", "Сетка", "Меш", "Бит", "Алго", "Искра", "Свет", "Подъем", "Буст", "Ядро", "База"],
+            classic: ["Решения", "Проекты", "Мастерская", "Профи", "Системы", "Группа", "Партнеры", "Советники", "Консалтинг", "Услуги", "Глобал", "Международный", "Объединенные", "Ассоциация", "Предприятие", "Корпорация", "Индустрия", "Холдинг", "Венчур", "Технологии"],
+            playful: ["Истребители", "Ниндзя", "Панки", "Герои", "Друзья", "Воины", "Отряд", "Команда", "Банда", "Сила", "Стая", "Племя", "Клан", "Лига", "Гильдия", "Орден", "Братство", "Союз", "Альянс", "Фратрия"]
+        },
+        zh: {
+            modern: ["科技", "网络", "云", "数据", "智能", "创新", "引擎", "动力", "空间", "矩阵", "互联", "未来", "先锋", "极速", "核心", "维度", "生态", "链", "节点", "平台"],
+            classic: ["集团", "公司", "企业", "控股", "实业", "发展", "投资", "管理", "咨询", "服务", "国际", "联合", "环球", "世纪", "东方", "中华", "华夏", "天下", "四海", "九州"],
+            playful: ["工作室", "小队", "联盟", "部落", "家族", "先锋", "创客", "达人", "玩家", "极客", "奇兵", "妙手", "天团", "梦之队", "精英", "王牌", "特攻", "游侠", "隐士", "行者"]
+        },
+        en: {
+            modern: ["Flow", "Pulse", "Nest", "Wave", "Lab", "Hub", "Link", "Sync", "Stack", "Node", "Grid", "Mesh", "Bit", "Algo", "Spark", "Glow", "Rise", "Boost", "Core", "Base"],
+            classic: ["Solutions", "Works", "Masters", "Pro", "Systems", "Group", "Partners", "Advisors", "Consulting", "Services", "Global", "International", "United", "Associates", "Enterprises", "Corporation", "Industries", "Holdings", "Ventures", "Technologies"],
+            playful: ["Busters", "Ninjas", "Punks", "Heroes", "Buddies", "Warriors", "Squad", "Crew", "Gang", "Team", "Force", "Band", "Pack", "Tribe", "Clan", "League", "Guild", "Order", "Brotherhood", "Fellowship"]
+        }
     };
-    var prefixes = ['Neo','Ultra','Super','Mega','Hyper','Max','Pro','Plus','Prime','Elite','Apex','Zen','Nova','Vortex','Quantum','Cyber','Digital','Smart','Rapid','Swift'];
-    var selectedBases = bases[category];
-    var selectedSuffixes = suffixes[style];
+    
+    var prefixes = {
+        ru: ["Нео", "Ультра", "Супер", "Мега", "Гипер", "Макс", "Про", "Плюс", "Прайм", "Элит", "Апекс", "Зен", "Нова", "Вихрь", "Квант", "Кибер", "Диджитал", "Смарт", "Рапид", "Свифт"],
+        zh: ["新", "超", "极", "大", "天", "星", "云", "智", "创", "宏", "瑞", "金", "龙", "凤", "神", "海", "宇", "环", "太", "元"],
+        en: ["Neo", "Ultra", "Super", "Mega", "Hyper", "Max", "Pro", "Plus", "Prime", "Elite", "Apex", "Zen", "Nova", "Vortex", "Quantum", "Cyber", "Digital", "Smart", "Rapid", "Swift"]
+    };
+
+    var selectedBases = bases[lang][category];
+    var selectedSuffixes = suffixes[lang][style];
+    var selectedPrefixes = prefixes[lang];
+    
     var generatedNames = [];
     var attempts = 0;
     while (generatedNames.length < 10 && attempts < 500) {
@@ -7628,18 +7690,20 @@ function generateProjectNames() {
         var base = selectedBases[Math.floor(Math.random() * selectedBases.length)];
         var suffix = selectedSuffixes[Math.floor(Math.random() * selectedSuffixes.length)];
         var usePrefix = Math.random() > 0.6;
-        var prefix = usePrefix ? prefixes[Math.floor(Math.random() * prefixes.length)] : '';
+        var prefix = usePrefix ? selectedPrefixes[Math.floor(Math.random() * selectedPrefixes.length)] : "";
         var name = prefix + base + suffix;
         if (generatedNames.indexOf(name) === -1) generatedNames.push(name);
     }
-    var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #ffd700"><div style="font-weight:bold;color:#ffd700;margin-bottom:10px">✨ 10 уникальных названий:</div>';
+    
+    var langNames = { ru: "Русский", zh: "Китайский", en: "Английский" };
+    var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #ffd700"><div style="font-weight:bold;color:#ffd700;margin-bottom:10px">✨ 10 уникальных названий (' + langNames[lang] + '):</div>';
     generatedNames.forEach(function(name, i) {
         resultHtml += '<div style="padding:10px;margin:5px 0;background:#0f1520;border-radius:4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:bold;color:#fff">' + (i+1) + '. ' + name + '</span>';
         resultHtml += '<button class="btn small" style="background:#6c8cff" onclick="navigator.clipboard.writeText(\'' + name + '\').then(function(){alert(\'✅ Скопировано: ' + name + '\')})">📋</button></div>';
     });
     resultHtml += '<button class="btn" style="width:100%;margin-top:10px;background:#ffd700;color:#000" onclick="generateProjectNames()">🔄 Ещё 10 вариантов</button></div>';
-    document.getElementById('png_result').innerHTML = resultHtml;
-    document.getElementById('png_result').style.display = 'block';
+    document.getElementById("png_result").innerHTML = resultHtml;
+    document.getElementById("png_result").style.display = "block";
 }
 
 function showWorkCalculator() {
