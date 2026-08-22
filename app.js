@@ -37,7 +37,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'tax',icon:'',label:'Налоги'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'tax',icon:'',label:'Налоги'},{id:'calendar',icon:'📅',label:'Календарь'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -85,6 +85,7 @@ function render(){
   else if(currentView==='timetracker')renderTimeTracker();
   else if(currentView==='subscriptions')renderSubscriptions();
   else if(currentView==='calculator')renderCalculator();
+  else if(currentView==='calendar')renderCalendar();
   else if(currentView==='tax')renderTaxTracker();
   else if(currentView==='kpi')renderKPI();
   else if(currentView==='burnout')renderBurnout();
@@ -6877,3 +6878,233 @@ function promptPayTax(quarter, year) {
     }
 }
 // === КОНЕЦ МОДУЛЯ НАЛОГОВ ===
+
+
+// === МОДУЛЬ КАЛЕНДАРЯ ДЕДЛАЙНОВ ===
+var calendarCurrentDate = new Date();
+
+function getCalendarEvents(year, month) {
+    var events = [];
+    var monthStr = year + '-' + String(month + 1).padStart(2, '0');
+    var today = new Date().toISOString().slice(0, 10);
+    
+    // 1. Дедлайны проектов
+    if (db.projects) {
+        db.projects.forEach(function(p) {
+            if (p.deadline && p.deadline.startsWith(monthStr) && p.stage < 3) {
+                var daysLeft = Math.ceil((new Date(p.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+                var color = daysLeft < 0 ? '#ff6b6b' : (daysLeft <= 3 ? '#ffd700' : '#3ecf8e');
+                events.push({
+                    date: p.deadline,
+                    type: 'project',
+                    title: p.name,
+                    subtitle: p.client || 'Без клиента',
+                    color: color,
+                    icon: '📁',
+                    daysLeft: daysLeft
+                });
+            }
+        });
+    }
+    
+    // 2. Финансовые платежи (входящие)
+    if (db.finances) {
+        db.finances.forEach(function(f) {
+            if (f.date && f.date.startsWith(monthStr) && f.type === 'in' && f.amount > 0) {
+                var daysLeft = Math.ceil((new Date(f.date) - new Date()) / (1000 * 60 * 60 * 24));
+                var color = daysLeft < 0 ? '#ff6b6b' : (daysLeft <= 3 ? '#ffd700' : '#3ecf8e');
+                events.push({
+                    date: f.date,
+                    type: 'finance',
+                    title: 'Оплата: ' + (f.description || 'Без описания'),
+                    subtitle: f.client || '',
+                    color: color,
+                    icon: '💰',
+                    amount: f.amount,
+                    daysLeft: daysLeft
+                });
+            }
+        });
+    }
+    
+    // 3. Налоговые платежи
+    if (db.taxPayments) {
+        db.taxPayments.forEach(function(p) {
+            if (p.date && p.date.startsWith(monthStr)) {
+                events.push({
+                    date: p.date,
+                    type: 'tax',
+                    title: 'Налог: ' + p.quarter + ' кв. ' + p.year,
+                    subtitle: 'Оплачено',
+                    color: '#9d6cff',
+                    icon: '🏛️',
+                    amount: p.amount,
+                    daysLeft: 0
+                });
+            }
+        });
+    }
+    
+    // 4. Налоговые дедлайны (будущие)
+    var taxDeadlines = [
+        { date: year + '-04-25', quarter: 1 },
+        { date: year + '-07-25', quarter: 2 },
+        { date: year + '-10-25', quarter: 3 },
+        { date: (year + 1) + '-04-30', quarter: 4 }
+    ];
+    taxDeadlines.forEach(function(td) {
+        if (td.date.startsWith(monthStr)) {
+            var daysLeft = Math.ceil((new Date(td.date) - new Date()) / (1000 * 60 * 60 * 24));
+            var color = daysLeft < 0 ? '#ff6b6b' : (daysLeft <= 3 ? '#ffd700' : '#3ecf8e');
+            events.push({
+                date: td.date,
+                type: 'tax_deadline',
+                title: 'Дедлайн налога: ' + td.quarter + ' кв.',
+                subtitle: 'Квартальный платёж',
+                color: color,
+                icon: '⚠️',
+                daysLeft: daysLeft
+            });
+        }
+    });
+    
+    return events.sort(function(a, b) { return a.date.localeCompare(b.date); });
+}
+
+function navigateCalendar(direction) {
+    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + direction);
+    renderCalendar();
+}
+
+function renderCalendar() {
+    var today = new Date().toISOString().slice(0, 10);
+    var year = calendarCurrentDate.getFullYear();
+    var month = calendarCurrentDate.getMonth();
+    var monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    var dayNames = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+    
+    var events = getCalendarEvents(year, month);
+    
+    var h = '<h2>📅 Календарь дедлайнов</h2>';
+    
+    // Навигация
+    h += '<div class="card" style="padding:15px">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center">';
+    h += '<button class="btn small" style="background:#1f2530" onclick="navigateCalendar(-1)">◀ Пред.</button>';
+    h += '<b style="font-size:18px;color:#fff">' + monthNames[month] + ' ' + year + '</b>';
+    h += '<button class="btn small" style="background:#1f2530" onclick="navigateCalendar(1)">След. ▶</button>';
+    h += '</div></div>';
+    
+    // Фильтры
+    h += '<div class="card" style="padding:10px">';
+    h += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+    h += '<span style="padding:4px 10px;background:#1f2530;border-radius:12px;font-size:11px">📁 Проекты</span>';
+    h += '<span style="padding:4px 10px;background:#1f2530;border-radius:12px;font-size:11px">💰 Платежи</span>';
+    h += '<span style="padding:4px 10px;background:#1f2530;border-radius:12px;font-size:11px">🏛️ Налоги</span>';
+    h += '<span style="padding:4px 10px;background:#1f2530;border-radius:12px;font-size:11px">⚠️ Дедлайны</span>';
+    h += '</div></div>';
+    
+    // Сетка календаря
+    h += '<div class="card">';
+    h += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px">';
+    dayNames.forEach(function(d) {
+        h += '<div style="text-align:center;font-size:11px;color:#6c8cff;font-weight:bold;padding:5px">' + d + '</div>';
+    });
+    h += '</div>';
+    
+    // Определяем первый день месяца и количество дней
+    var firstDay = new Date(year, month, 1).getDay();
+    firstDay = firstDay === 0 ? 6 : firstDay - 1; // Пн=0, Вс=6
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    h += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+    
+    // Пустые ячейки до первого дня
+    for (var i = 0; i < firstDay; i++) {
+        h += '<div style="aspect-ratio:1"></div>';
+    }
+    
+    // Дни месяца
+    for (var day = 1; day <= daysInMonth; day++) {
+        var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+        var dayEvents = events.filter(function(e) { return e.date === dateStr; });
+        var isToday = dateStr === today;
+        
+        h += '<div style="aspect-ratio:1;background:' + (isToday ? '#6c8cff' : '#1f2530') + ';border-radius:4px;padding:4px;position:relative;cursor:pointer" onclick="showDayDetails(\'' + dateStr + '\')">';
+        h += '<div style="font-size:11px;font-weight:bold;color:#fff">' + day + '</div>';
+        
+        // Маркеры событий
+        if (dayEvents.length > 0) {
+            h += '<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px">';
+            dayEvents.slice(0, 3).forEach(function(e) {
+                h += '<div style="width:6px;height:6px;background:' + e.color + ';border-radius:50%"></div>';
+            });
+            h += '</div>';
+        }
+        
+        h += '</div>';
+    }
+    
+    h += '</div></div>';
+    
+    // Список событий на месяц
+    h += '<div class="card"><h3> События месяца (' + events.length + ')</h3>';
+    if (events.length === 0) {
+        h += '<div class="mut" style="text-align:center;padding:20px">Нет событий в этом месяце</div>';
+    } else {
+        events.forEach(function(e) {
+            var daysText = e.daysLeft < 0 ? 'Просрочено на ' + Math.abs(e.daysLeft) + ' дн.' : 
+                          e.daysLeft === 0 ? 'Сегодня!' : 
+                          e.daysLeft === 1 ? 'Завтра' : 
+                          'Через ' + e.daysLeft + ' дн.';
+            h += '<div style="padding:10px;margin:8px 0;background:#1f2530;border-left:3px solid ' + e.color + ';border-radius:4px">';
+            h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">';
+            h += '<div style="flex:1"><b style="font-size:14px">' + e.icon + ' ' + e.title + '</b></div>';
+            h += '<span style="padding:3px 8px;background:' + e.color + ';color:#000;border-radius:10px;font-size:10px;font-weight:bold">' + daysText + '</span>';
+            h += '</div>';
+            h += '<div style="display:flex;justify-content:space-between;font-size:12px">';
+            h += '<span class="mut">' + e.subtitle + '</span>';
+            h += '<span class="mut">' + e.date + '</span>';
+            h += '</div>';
+            if (e.amount) {
+                h += '<div style="font-size:13px;color:#3ecf8e;margin-top:4px;font-weight:bold">' + e.amount.toLocaleString() + ' ₽</div>';
+            }
+            h += '</div>';
+        });
+    }
+    h += '</div>';
+    
+    // Легенда
+    h += '<div class="card" style="padding:10px">';
+    h += '<div style="display:flex;gap:15px;flex-wrap:wrap;font-size:11px">';
+    h += '<div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:#ff6b6b;border-radius:50%"></div><span class="mut">Просрочено</span></div>';
+    h += '<div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:#ffd700;border-radius:50%"></div><span class="mut">Скоро (≤3 дня)</span></div>';
+    h += '<div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;background:#3ecf8e;border-radius:50%"></div><span class="mut">Есть время</span></div>';
+    h += '</div></div>';
+    
+    document.getElementById('app').innerHTML = h;
+}
+
+function showDayDetails(dateStr) {
+    var year = parseInt(dateStr.split('-')[0]);
+    var month = parseInt(dateStr.split('-')[1]) - 1;
+    var events = getCalendarEvents(year, month).filter(function(e) { return e.date === dateStr; });
+    
+    var h = '<h3>📅 ' + dateStr + '</h3>';
+    if (events.length === 0) {
+        h += '<div class="mut" style="text-align:center;padding:20px">Нет событий</div>';
+    } else {
+        events.forEach(function(e) {
+            h += '<div style="padding:12px;margin:10px 0;background:#1f2530;border-left:3px solid ' + e.color + ';border-radius:4px">';
+            h += '<div style="font-size:16px;font-weight:bold;margin-bottom:6px">' + e.icon + ' ' + e.title + '</div>';
+            h += '<div class="mut" style="font-size:13px;margin-bottom:8px">' + e.subtitle + '</div>';
+            if (e.amount) {
+                h += '<div style="font-size:18px;color:#3ecf8e;font-weight:bold">' + e.amount.toLocaleString() + ' ₽</div>';
+            }
+            h += '</div>';
+        });
+    }
+    h += '<button class="btn" style="width:100%;margin-top:15px;background:#1f2530" onclick="closeModal()">Закрыть</button>';
+    openModal(h);
+}
+// === КОНЕЦ МОДУЛЯ КАЛЕНДАРЯ ===
