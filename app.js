@@ -37,7 +37,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'tax',icon:'',label:'Налоги'},{id:'calendar',icon:'📅',label:'Календарь'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'tax',icon:'',label:'Налоги'},{id:'calendar',icon:'📅',label:'Календарь'},{id:'smarthub',icon:'🤖',label:'AI-Хаб'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -85,6 +85,7 @@ function render(){
   else if(currentView==='timetracker')renderTimeTracker();
   else if(currentView==='subscriptions')renderSubscriptions();
   else if(currentView==='calculator')renderCalculator();
+  else if(currentView==='smarthub')renderSmartHub();
   else if(currentView==='calendar')renderCalendar();
   else if(currentView==='tax')renderTaxTracker();
   else if(currentView==='kpi')renderKPI();
@@ -7108,3 +7109,289 @@ function showDayDetails(dateStr) {
     openModal(h);
 }
 // === КОНЕЦ МОДУЛЯ КАЛЕНДАРЯ ===
+
+
+// === МОДУЛЬ AI-ХАБА ===
+function renderSmartHub() {
+    var h = '<h2>🤖 AI-ассистент для рутины</h2>';
+    
+    h += '<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#9d6cff">';
+    h += '<h3 style="margin-top:0">🎯 4 инструмента в одном месте</h3>';
+    h += '<div class="mut" style="font-size:13px;margin-bottom:15px">Умные помощники для повседневных задач фрилансера</div>';
+    h += '</div>';
+    
+    // 4 карточки инструментов
+    h += '<div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">';
+    
+    h += '<div class="card" style="cursor:pointer;border-color:#6c8cff" onclick="showClientResponseGenerator()">';
+    h += '<div style="font-size:32px;text-align:center;margin-bottom:8px">💬</div>';
+    h += '<b style="display:block;text-align:center;margin-bottom:6px">Ответ клиенту</b>';
+    h += '<div class="mut" style="font-size:11px;text-align:center">Генератор вежливых ответов с выбором тона</div>';
+    h += '</div>';
+    
+    h += '<div class="card" style="cursor:pointer;border-color:#3ecf8e" onclick="showTechTranslator()">';
+    h += '<div style="font-size:32px;text-align:center;margin-bottom:8px">🔄</div>';
+    h += '<b style="display:block;text-align:center;margin-bottom:6px">Переводчик</b>';
+    h += '<div class="mut" style="font-size:11px;text-align:center">Техтермины → понятный язык</div>';
+    h += '</div>';
+    
+    h += '<div class="card" style="cursor:pointer;border-color:#ffd700" onclick="showProjectNameGenerator()">';
+    h += '<div style="font-size:32px;text-align:center;margin-bottom:8px">💡</div>';
+    h += '<b style="display:block;text-align:center;margin-bottom:6px">Названия</b>';
+    h += '<div class="mut" style="font-size:11px;text-align:center">Генератор имён для проектов</div>';
+    h += '</div>';
+    
+    h += '<div class="card" style="cursor:pointer;border-color:#ff6b6b" onclick="showWorkCalculator()">';
+    h += '<div style="font-size:32px;text-align:center;margin-bottom:8px">🧮</div>';
+    h += '<b style="display:block;text-align:center;margin-bottom:6px">Цель → Работа</b>';
+    h += '<div class="mut" style="font-size:11px;text-align:center">Сколько работать для заработка X</div>';
+    h += '</div>';
+    
+    h += '</div>';
+    
+    document.getElementById('app').innerHTML = h;
+}
+
+// === 1. ГЕНЕРАТОР ОТВЕТОВ КЛИЕНТАМ ===
+function showClientResponseGenerator() {
+    var h = '<h3>💬 Генератор ответов клиенту</h3>';
+    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Ситуация:</label>';
+    h += '<select id="crb_situation" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+    h += '<option value="agree">Согласие на работу</option>';
+    h += '<option value="decline">Вежливый отказ</option>';
+    h += '<option value="delay">Задержка сроков</option>';
+    h += '<option value="price">Обсуждение цены</option>';
+    h += '<option value="done">Сообщение о завершении</option>';
+    h += '</select>';
+    
+    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Тон:</label>';
+    h += '<select id="crb_tone" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+    h += '<option value="formal">Формальный</option>';
+    h += '<option value="friendly">Дружелюбный</option>';
+    h += '<option value="casual">Неформальный</option>';
+    h += '</select>';
+    
+    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Имя клиента (опционально):</label>';
+    h += '<input id="crb_name" placeholder="Иван" style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+    
+    h += '<button class="btn" style="width:100%;background:#6c8cff" onclick="generateClientResponse()">✨ Сгенерировать</button>';
+    h += '<div id="crb_result" style="display:none;margin-top:15px"></div>';
+    
+    openModal(h);
+}
+
+function generateClientResponse() {
+    var situation = document.getElementById('crb_situation').value;
+    var tone = document.getElementById('crb_tone').value;
+    var name = document.getElementById('crb_name').value.trim() || 'Коллега';
+    
+    var templates = {
+        agree: {
+            formal: 'Здравствуйте, ' + name + '! Благодарю за обращение. Готов приступить к работе над вашим проектом. Уточню детали и подготовлю коммерческое предложение в ближайшее время.',
+            friendly: 'Привет, ' + name + '! Рад, что ты обратился ко мне. С удовольствием возьмусь за твой проект. Давай обсудим детали и я подготовлю предложение.',
+            casual: 'Привет, ' + name + '! Отличная идея, давай сделаем! Напиши мне подробности, и я всё посчитаю.'
+        },
+        decline: {
+            formal: 'Здравствуйте, ' + name + '! Благодарю за интерес к моим услугам. К сожалению, в данный момент я не могу взять ваш проект из-за высокой загрузки. Рекомендую обратиться к коллегам [ссылка]. Буду рад сотрудничеству в будущем.',
+            friendly: 'Привет, ' + name + '! Спасибо, что подумал обо мне. Сейчас у меня полная загрузка, но если проект не срочный, могу вернуться к разговору через месяц. Или могу порекомендовать проверенных специалистов.',
+            casual: 'Привет, ' + name + '! Сейчас не смогу взять, очень загружен. Но если не горит — давай через месяц созвонимся?'
+        },
+        delay: {
+            formal: 'Здравствуйте, ' + name + '! Хочу заранее предупредить о небольшом сдвиге сроков по проекту. По техническим причинам требуется дополнительное время на [причина]. Новый срок сдачи: [дата]. Приношу извинения за неудобства.',
+            friendly: 'Привет, ' + name + '! Хочу быть честным: потребуется немного больше времени, чем планировали. Возникли нюансы с [причина]. Скорее всего, сдадим на [дата] позже. Надеюсь на понимание!',
+            casual: 'Привет, ' + name + '! Слушай, тут такое дело — нужно чуть больше времени. Не переживай, всё под контролем, просто [причина]. Сдвинемся на пару дней.'
+        },
+        price: {
+            formal: 'Здравствуйте, ' + name + '! Понимаю ваше желание оптимизировать бюджет. Стоимость обоснована сложностью задачи и временем, необходимым для качественного выполнения. Могу предложить поэтапную оплату или упрощённую версию проекта.',
+            friendly: 'Привет, ' + name + '! Понимаю, что бюджет важен. Цена отражает время и качество. Можем обсудить варианты: разбить на этапы или упростить часть функционала. Что для тебя приоритетнее?',
+            casual: 'Привет, ' + name + '! Цена не с потолка, честно. Но давай подумаем, что можно упростить, чтобы уложиться в бюджет. Главное — не потерять качество.'
+        },
+        done: {
+            formal: 'Здравствуйте, ' + name + '! Рад сообщить, что работа над проектом завершена. Все задачи выполнены согласно ТЗ. Материалы отправлены на проверку. Буду рад отзыву и дальнейшему сотрудничеству.',
+            friendly: 'Привет, ' + name + '! Отличные новости — проект готов! Всё сделал, как договаривались. Посмотри, пожалуйста, и дай знать, если нужны правки. Было приятно работать!',
+            casual: 'Привет, ' + name + '! Готово! Всё сделал, проверяй. Если что — я на связи. Рад был поработать!'
+        }
+    };
+    
+    var text = templates[situation][tone];
+    
+    var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #6c8cff">';
+    resultHtml += '<div style="font-weight:bold;color:#6c8cff;margin-bottom:10px">✨ Готовый ответ:</div>';
+    resultHtml += '<textarea id="crb_text" readonly style="width:100%;padding:10px;background:#0f1520;border:1px solid #6c8cff;border-radius:4px;color:#fff;font-size:13px;min-height:120px;resize:vertical">' + text + '</textarea>';
+    resultHtml += '<button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="copySmartHubText(\'crb_text\')">📋 Копировать</button>';
+    resultHtml += '</div>';
+    
+    document.getElementById('crb_result').innerHTML = resultHtml;
+    document.getElementById('crb_result').style.display = 'block';
+}
+
+// === 2. ПЕРЕВОДЧИК ТЕХТЕРМИНОВ ===
+function showTechTranslator() {
+    var h = '<h3>🔄 Переводчик техтерминов</h3>';
+    h += '<label style="color:#3ecf8e;font-size:12px;font-weight:bold">Технический термин:</label>';
+    h += '<input id="tt_term" placeholder="API, деплой, рефакторинг..." style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+    
+    h += '<button class="btn" style="width:100%;background:#3ecf8e" onclick="translateTechTerm()">🔄 Перевести</button>';
+    h += '<div id="tt_result" style="display:none;margin-top:15px"></div>';
+    
+    openModal(h);
+}
+
+function translateTechTerm() {
+    var term = document.getElementById('tt_term').value.trim().toLowerCase();
+    
+    var dictionary = {
+        'api': 'Интерфейс взаимодействия — как розетка в стене. Программа подключается к другой программе через стандартизированный способ обмена данными.',
+        'деплой': 'Развёртывание — процесс публикации готового сайта или приложения в интернет, чтобы пользователи могли им пользоваться.',
+        'рефакторинг': 'Улучшение кода без изменения его функций. Как ремонт в доме: ничего нового не строим, но делаем удобнее и надёжнее.',
+        'баг': 'Ошибка в программе — когда что-то работает не так, как задумано. Как опечатка в тексте, только в коде.',
+        'фронтенд': 'Внешняя часть сайта — то, что видит пользователь: кнопки, формы, анимации. Как фасад здания.',
+        'бэкенд': 'Внутренняя часть сайта — серверная логика, базы данных, обработка запросов. Как фундамент и коммуникации в здании.',
+        'база данных': 'Хранилище информации — как цифровой шкаф с папками. Хранит всех клиентов, заказы, товары и т.д.',
+        'адаптив': 'Адаптивная вёрстка — когда сайт автоматически подстраивается под размер экрана: телефон, планшет, компьютер.',
+        'хостинг': 'Аренда места на сервере в интернете, где хранится твой сайт. Как аренда офиса, только цифрового.',
+        'домен': 'Имя сайта в интернете (например, google.com). Как адрес дома, только для веб-страницы.',
+        'ssl': 'Сертификат безопасности — делает соединение между сайтом и пользователем защищённым. Как сейф для передачи данных.',
+        'кэш': 'Временное хранилище данных для ускорения работы. Как заметки на столе, чтобы не бегать каждый раз в шкаф.',
+        'git': 'Система контроля версий — как "машина времени" для кода. Позволяет откатиться к любой предыдущей версии.',
+        'коммит': 'Сохранение изменений в Git. Как снимок текущего состояния проекта.',
+        'пул-реквест': 'Запрос на внесение изменений в код. Как предложение коллеге: "Посмотри, что я сделал, одобришь?"',
+        'тестирование': 'Проверка программы на ошибки — как техосмотр автомобиля перед продажей.',
+        'оптимизация': 'Ускорение работы сайта или программы. Как тюнинг двигателя — едет быстрее, расходует меньше.',
+        'интеграция': 'Соединение разных систем воедино. Как подключение принтера к компьютеру — они начинают работать вместе.',
+        'парсер': 'Программа для автоматического сбора данных с сайтов. Как робот-пылесос, только собирает информацию.',
+        'скрипт': 'Небольшая программа для автоматизации задач. Как инструкция для робота: "делай раз, делай два".',
+        'верстка': 'Создание внешней оболочки сайта из HTML и CSS. Как украшение торта — делаем красиво и аккуратно.'
+    };
+    
+    var translation = dictionary[term] || 'Не нашёл точного перевода. Попробуй другой термин или уточни контекст.';
+    
+    var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #3ecf8e">';
+    resultHtml += '<div style="font-weight:bold;color:#3ecf8e;margin-bottom:10px">🔄 Объяснение для клиента:</div>';
+    resultHtml += '<textarea id="tt_text" readonly style="width:100%;padding:10px;background:#0f1520;border:1px solid #3ecf8e;border-radius:4px;color:#fff;font-size:13px;min-height:100px;resize:vertical">' + translation + '</textarea>';
+    resultHtml += '<button class="btn" style="width:100%;margin-top:10px;background:#6c8cff" onclick="copySmartHubText(\'tt_text\')">📋 Копировать</button>';
+    resultHtml += '</div>';
+    
+    document.getElementById('tt_result').innerHTML = resultHtml;
+    document.getElementById('tt_result').style.display = 'block';
+}
+
+// === 3. ГЕНЕРАТОР НАЗВАНИЙ ===
+function showProjectNameGenerator() {
+    var h = '<h3>💡 Генератор названий проектов</h3>';
+    h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Категория:</label>';
+    h += '<select id="png_category" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff">';
+    h += '<option value="tech">Технологии</option>';
+    h += '<option value="business">Бизнес</option>';
+    h += '<option value="creative">Креатив</option>';
+    h += '<option value="eco">Экология</option>';
+    h += '</select>';
+    
+    h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Стиль:</label>';
+    h += '<select id="png_style" style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff">';
+    h += '<option value="modern">Современный</option>';
+    h += '<option value="classic">Классический</option>';
+    h += '<option value="playful">Игривый</option>';
+    h += '</select>';
+    
+    h += '<button class="btn" style="width:100%;background:#ffd700;color:#000" onclick="generateProjectNames()">✨ Сгенерировать 5 вариантов</button>';
+    h += '<div id="png_result" style="display:none;margin-top:15px"></div>';
+    
+    openModal(h);
+}
+
+function generateProjectNames() {
+    var category = document.getElementById('png_category').value;
+    var style = document.getElementById('png_style').value;
+    
+    var names = {
+        tech: {
+            modern: ['CodeFlow', 'DevPulse', 'TechNest', 'ByteWave', 'LogicLab'],
+            classic: ['TechSolutions', 'DigitalWorks', 'CodeMasters', 'SystemPro', 'DataCore'],
+            playful: ['BugBusters', 'CodeNinjas', 'PixelPunks', 'HackHeroes', 'ByteBuddies']
+        },
+        business: {
+            modern: ['GrowthHub', 'ProfitPath', 'ScaleUp', 'VentureLab', 'BizBoost'],
+            classic: ['BusinessPro', 'SuccessPartners', 'GrowthConsulting', 'ProfitAdvisors', 'BusinessSolutions'],
+            playful: ['MoneyMakers', 'ProfitPirates', 'BizWizards', 'CashCrew', 'DealDynamo']
+        },
+        creative: {
+            modern: ['ArtFlow', 'DesignLab', 'CreativePulse', 'VisualWave', 'InspireHub'],
+            classic: ['CreativeWorks', 'DesignStudio', 'ArtMasters', 'VisualSolutions', 'CreativePro'],
+            playful: ['PixelParty', 'ColorCrew', 'ArtAttack', 'DesignDynamo', 'CreativeChaos']
+        },
+        eco: {
+            modern: ['GreenTech', 'EcoFlow', 'NatureLab', 'SustainHub', 'EarthPulse'],
+            classic: ['EcoSolutions', 'GreenWorks', 'NaturePartners', 'SustainablePro', 'EarthCare'],
+            playful: ['GreenGang', 'EcoWarriors', 'NatureNinjas', 'PlanetPals', 'EarthHeroes']
+        }
+    };
+    
+    var selectedNames = names[category][style];
+    
+    var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #ffd700">';
+    resultHtml += '<div style="font-weight:bold;color:#ffd700;margin-bottom:10px">✨ Варианты названий:</div>';
+    selectedNames.forEach(function(name, i) {
+        resultHtml += '<div style="padding:10px;margin:5px 0;background:#0f1520;border-radius:4px;display:flex;justify-content:space-between;align-items:center">';
+        resultHtml += '<span style="font-size:14px;font-weight:bold;color:#fff">' + (i+1) + '. ' + name + '</span>';
+        resultHtml += '<button class="btn small" style="background:#6c8cff" onclick="navigator.clipboard.writeText(\'' + name + '\').then(function(){alert(\'✅ Скопировано: ' + name + '\')})">📋</button>';
+        resultHtml += '</div>';
+    });
+    resultHtml += '</div>';
+    
+    document.getElementById('png_result').innerHTML = resultHtml;
+    document.getElementById('png_result').style.display = 'block';
+}
+
+// === 4. КАЛЬКУЛЯТОР "ЦЕЛЬ → РАБОТА" ===
+function showWorkCalculator() {
+    var h = '<h3>🧮 Сколько работать для цели?</h3>';
+    h += '<label style="color:#ff6b6b;font-size:12px;font-weight:bold">Целевая сумма (₽):</label>';
+    h += '<input id="wc_goal" type="number" placeholder="500000" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #ff6b6b;border-radius:6px;color:#fff">';
+    
+    h += '<label style="color:#ff6b6b;font-size:12px;font-weight:bold">Твоя ставка (₽/час):</label>';
+    h += '<input id="wc_rate" type="number" placeholder="2000" value="' + (db.hourlyRate || 2000) + '" style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #ff6b6b;border-radius:6px;color:#fff">';
+    
+    h += '<button class="btn" style="width:100%;background:#ff6b6b" onclick="calculateWorkForGoal()">🧮 Рассчитать</button>';
+    h += '<div id="wc_result" style="display:none;margin-top:15px"></div>';
+    
+    openModal(h);
+}
+
+function calculateWorkForGoal() {
+    var goal = parseFloat(document.getElementById('wc_goal').value);
+    var rate = parseFloat(document.getElementById('wc_rate').value);
+    
+    if (!goal || !rate || goal <= 0 || rate <= 0) {
+        alert('Введи корректные значения');
+        return;
+    }
+    
+    var totalHours = Math.ceil(goal / rate);
+    var daysAt8Hours = Math.ceil(totalHours / 8);
+    var daysAt6Hours = Math.ceil(totalHours / 6);
+    var weeksAt5Days = Math.ceil(daysAt5Days / 5);
+    
+    var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #ff6b6b">';
+    resultHtml += '<div style="font-weight:bold;color:#ff6b6b;margin-bottom:10px">🧮 Расчёт:</div>';
+    resultHtml += '<div style="font-size:14px;color:#fff;margin-bottom:8px">Чтобы заработать <b style="color:#3ecf8e">' + goal.toLocaleString() + ' ₽</b> при ставке <b>' + rate.toLocaleString() + ' ₽/час</b>:</div>';
+    resultHtml += '<div style="padding:10px;margin:8px 0;background:#0f1520;border-radius:4px"><div class="mut" style="font-size:11px">Всего часов работы</div><b style="font-size:20px;color:#6c8cff">' + totalHours + ' ч</b></div>';
+    resultHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">';
+    resultHtml += '<div style="padding:10px;background:#0f1520;border-radius:4px"><div class="mut" style="font-size:11px">При 8 ч/день</div><b style="font-size:16px;color:#ffd700">' + daysAt8Hours + ' дн.</b></div>';
+    resultHtml += '<div style="padding:10px;background:#0f1520;border-radius:4px"><div class="mut" style="font-size:11px">При 6 ч/день</div><b style="font-size:16px;color:#ffd700">' + daysAt6Hours + ' дн.</b></div>';
+    resultHtml += '</div>';
+    resultHtml += '<div style="padding:10px;margin-top:10px;background:#0f1520;border-radius:4px;text-align:center"><div class="mut" style="font-size:11px">При 5-дневной рабочей неделе</div><b style="font-size:18px;color:#3ecf8e">' + weeksAt5Days + ' нед.</b></div>';
+    resultHtml += '</div>';
+    
+    document.getElementById('wc_result').innerHTML = resultHtml;
+    document.getElementById('wc_result').style.display = 'block';
+}
+
+// === УТИЛИТА ДЛЯ КОПИРОВАНИЯ ===
+function copySmartHubText(elementId) {
+    var text = document.getElementById(elementId).value;
+    navigator.clipboard.writeText(text).then(function() {
+        alert('✅ Скопировано!');
+    });
+}
+// === КОНЕЦ МОДУЛЯ AI-ХАБА ===
