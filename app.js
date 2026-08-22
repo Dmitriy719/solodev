@@ -7286,6 +7286,7 @@ function showProjectNameGenerator() {
     h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Стиль:</label>';
     h += '<select id="png_style" style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="modern">Современный</option><option value="classic">Классический</option><option value="playful">Игривый</option></select>';
     h += '<button class="btn" style="width:100%;background:#ffd700;color:#000" onclick="generateProjectNames()">✨ Сгенерировать 10 вариантов</button>';
+    h += '<button class="btn small" style="width:100%;margin-top:8px;background:#1f2530" onclick="showHistory()">📜 История генераций</button>';
     h += '<div id="png_result" style="display:none;margin-top:15px"></div>';
     openModal(h);
 }
@@ -7430,18 +7431,20 @@ function renderSmartHub() {
     h += '<div class="card" style="cursor:pointer;border-color:#ffd700" onclick="showProjectNameGenerator()"><div style="font-size:32px;text-align:center;margin-bottom:8px">💡</div><b style="display:block;text-align:center;margin-bottom:6px">Названия</b><div class="mut" style="font-size:11px;text-align:center">Генератор имён для проектов</div></div>';
     h += '<div class="card" style="cursor:pointer;border-color:#ff6b6b" onclick="showWorkCalculator()"><div style="font-size:32px;text-align:center;margin-bottom:8px">🧮</div><b style="display:block;text-align:center;margin-bottom:6px">Цель → Работа</b><div class="mut" style="font-size:11px;text-align:center">Сколько работать для X ₽</div></div>';
     h += '</div>';
+    h += '<div class="card" style="cursor:pointer;border-color:#3ecf8e;margin-top:15px" onclick="showTzGenerator()"><div style="font-size:32px;text-align:center;margin-bottom:8px">📄</div><b style="display:block;text-align:center;margin-bottom:6px">Генератор ТЗ</b><div class="mut" style="font-size:11px;text-align:center">Каркас техзадания для клиента</div></div>';
     document.getElementById('app').innerHTML = h;
 }
 
 function showClientResponseGenerator() {
     var h = '<h3>💬 Генератор ответов клиенту</h3>';
     h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Ситуация:</label>';
-    h += '<select id="crb_situation" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><option value="agree">Согласие на работу</option><option value="decline">Вежливый отказ</option><option value="delay">Задержка сроков</option><option value="price">Обсуждение цены</option><option value="done">Сообщение о завершении</option></select>';
+    h += '<select id="crb_situation" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><option value="agree">Согласие на работу</option><option value="decline">Вежливый отказ</option><option value="delay">Задержка сроков</option><option value="price">Обсуждение цены</option><option value="done">Сообщение о завершении</option><option value="payment">💰 Напоминание об оплате</option><option value="review">⭐ Запрос отзыва</option><option value="edits">📝 Реакция на правки</option><option value="prepay">💳 Обсуждение предоплаты</option></select>';
     h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Тон:</label>';
     h += '<select id="crb_tone" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><option value="formal">Формальный</option><option value="friendly">Дружелюбный</option><option value="casual">Неформальный</option></select>';
     h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Имя клиента:</label>';
     h += '<input id="crb_name" placeholder="Иван" style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
     h += '<button class="btn" style="width:100%;background:#6c8cff" onclick="generateClientResponse()">✨ Сгенерировать</button>';
+    h += '<button class="btn small" style="width:100%;margin-top:8px;background:#1f2530" onclick="showHistory()">📜 История генераций</button>';
     h += '<div id="crb_result" style="display:none;margin-top:15px"></div>';
     openModal(h);
 }
@@ -7455,9 +7458,14 @@ function generateClientResponse() {
         decline: { formal: 'Здравствуйте, ' + name + '! К сожалению, сейчас не могу взять проект из-за загрузки. Буду рад сотрудничеству в будущем.', friendly: 'Привет, ' + name + '! Спасибо, что подумал обо мне. Сейчас полная загрузка, но могу вернуться через месяц.', casual: 'Привет, ' + name + '! Сейчас не смогу, очень загружен. Давай через месяц?' },
         delay: { formal: 'Здравствуйте, ' + name + '! Хочу предупредить о сдвиге сроков. Новый срок: [дата]. Приношу извинения.', friendly: 'Привет, ' + name + '! Потребуется больше времени. Сдвинемся на [дата]. Надеюсь на понимание!', casual: 'Привет, ' + name + '! Нужно чуть больше времени. Не переживай, всё под контролем.' },
         price: { formal: 'Здравствуйте, ' + name + '! Стоимость обоснована сложностью. Могу предложить поэтапную оплату.', friendly: 'Привет, ' + name + '! Цена отражает время и качество. Можем разбить на этапы.', casual: 'Привет, ' + name + '! Цена не с потолка. Давай подумаем, что упростить.' },
-        done: { formal: 'Здравствуйте, ' + name + '! Работа завершена. Материалы отправлены на проверку.', friendly: 'Привет, ' + name + '! Проект готов! Посмотри и дай знать, если нужны правки.', casual: 'Привет, ' + name + '! Готово! Проверяй.' }
+        done: { formal: 'Здравствуйте, ' + name + '! Работа завершена. Материалы отправлены на проверку.', friendly: 'Привет, ' + name + '! Проект готов! Посмотри и дай знать, если нужны правки.', casual: 'Привет, ' + name + '! Готово! Проверяй.' },
+        payment: { formal: 'Здравствуйте, ' + name + '! Напоминаю о неоплаченном счёте №[номер] от [дата] на сумму [сумма]. Прошу оплатить в ближайшее время. Если возникли вопросы — готов обсудить.', friendly: 'Привет, ' + name + '! Напоминаю, что по проекту [название] осталась неоплаченная часть. Буду благодарен, если закроешь в ближайшие дни. Если что-то не так — дай знать!', casual: 'Привет, ' + name + '! Слушай, там по оплате зависло. Можешь глянуть, когда будет время?' },
+        review: { formal: 'Здравствуйте, ' + name + '! Благодарю за сотрудничество. Буду признателен, если вы уделите 2 минуты и оставите отзыв о моей работе. Это очень поможет в развитии. Ссылка: [ссылка].', friendly: 'Привет, ' + name + '! Было приятно работать над проектом! Если тебе всё понравилось, оставь, пожалуйста, короткий отзыв — это очень поможет. Ссылка: [ссылка].', casual: 'Привет, ' + name + '! Рад, что всё получилось. Напиши пару слов, если не сложно — отзыв очень поможет!' },
+        edits: { formal: 'Здравствуйте, ' + name + '! Получил ваши правки. Изучу и подготовлю обновлённую версию в течение [срок]. Если правки выходят за рамки ТЗ, обсудим дополнительные условия.', friendly: 'Привет, ' + name + '! Правки получил, всё понятно. Внесу в течение [срок]. Если появятся новые моменты — маякни.', casual: 'Привет, ' + name + '! Принял, сделаю. Если что-то ещё всплывёт — пиши.' },
+        prepay: { formal: 'Здравствуйте, ' + name + '! Для старта работы необходима предоплата [сумма] ([процент]% от общей стоимости). После получения средств приступлю к реализации. Реквизиты отправлю отдельным сообщением.', friendly: 'Привет, ' + name + '! Чтобы начать работу, нужна предоплата [сумма] ([процент]%). Как только получу — сразу в бой. Реквизиты скину.', casual: 'Привет, ' + name + '! Для старта нужна предоплата [сумма]. Кидаю реквизиты, и погнали!' }
     };
     var text = templates[situation][tone];
+    saveToHistory('Ответ клиенту', text);
     var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #6c8cff"><div style="font-weight:bold;color:#6c8cff;margin-bottom:10px">✨ Готовый ответ:</div>';
     resultHtml += '<textarea id="crb_text" readonly style="width:100%;padding:10px;background:#0f1520;border:1px solid #6c8cff;border-radius:4px;color:#fff;font-size:13px;min-height:120px">' + text + '</textarea>';
     resultHtml += '<button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="copySmartHubText(\'crb_text\')">📋 Копировать</button></div>';
@@ -7469,6 +7477,7 @@ function showTechTranslator() {
     var h = '<h3>🔄 Переводчик техтерминов</h3>';
     h += '<input id="tt_term" placeholder="api, деплой, рефакторинг..." style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
     h += '<button class="btn" style="width:100%;background:#3ecf8e" onclick="translateTechTerm()">🔄 Перевести</button>';
+    h += '<button class="btn small" style="width:100%;margin-top:8px;background:#1f2530" onclick="showHistory()">📜 История генераций</button>';
     h += '<div id="tt_result" style="display:none;margin-top:15px"></div>';
     openModal(h);
 }
@@ -7625,6 +7634,7 @@ function showProjectNameGenerator() {
     h += '<label style="color:#ffd700;font-size:12px;font-weight:bold">Стиль:</label>';
     h += '<select id="png_style" style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff"><option value="modern">Современный</option><option value="classic">Классический</option><option value="playful">Игривый</option></select>';
     h += '<button class="btn" style="width:100%;background:#ffd700;color:#000" onclick="generateProjectNames()">✨ Сгенерировать 10 вариантов</button>';
+    h += '<button class="btn small" style="width:100%;margin-top:8px;background:#1f2530" onclick="showHistory()">📜 История генераций</button>';
     h += '<div id="png_result" style="display:none;margin-top:15px"></div>';
     openModal(h);
 }
@@ -7741,4 +7751,155 @@ function copySmartHubText(elementId) {
     var text = document.getElementById(elementId).value;
     navigator.clipboard.writeText(text).then(function() { alert('✅ Скопировано!'); });
 }
+
+// === ИСТОРИЯ ГЕНЕРАЦИЙ ===
+function saveToHistory(type, text) {
+    if (!db.smarthubHistory) db.smarthubHistory = [];
+    db.smarthubHistory.unshift({
+        type: type,
+        text: text,
+        date: new Date().toISOString()
+    });
+    if (db.smarthubHistory.length > 20) db.smarthubHistory = db.smarthubHistory.slice(0, 20);
+    localStorage.setItem('solodev', JSON.stringify(db));
+}
+
+function showHistory() {
+    var h = '<h3>📜 История генераций</h3>';
+    if (!db.smarthubHistory || db.smarthubHistory.length === 0) {
+        h += '<div class="mut" style="text-align:center;padding:20px">История пуста. Сгенерируй что-нибудь!</div>';
+    } else {
+        db.smarthubHistory.forEach(function(item, i) {
+            var date = new Date(item.date);
+            var dateStr = date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'});
+            var preview = item.text.length > 100 ? item.text.substring(0, 100) + '...' : item.text;
+            h += '<div style="padding:10px;margin:8px 0;background:#1f2530;border-left:3px solid #6c8cff;border-radius:4px">';
+            h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+            h += '<b style="color:#6c8cff;font-size:12px">' + item.type + '</b>';
+            h += '<span class="mut" style="font-size:10px">' + dateStr + '</span>';
+            h += '</div>';
+            h += '<div style="font-size:12px;color:#fff;margin-bottom:8px;white-space:pre-wrap">' + preview + '</div>';
+            h += '<div style="display:flex;gap:6px">';
+            h += '<button class="btn small" style="background:#3ecf8e;flex:1" onclick="copyHistoryItem(' + i + ')">📋 Копировать</button>';
+            h += '<button class="btn small" style="background:#ff6b6b;flex:1" onclick="deleteHistoryItem(' + i + ')">🗑 Удалить</button>';
+            h += '</div></div>';
+        });
+        h += '<button class="btn" style="width:100%;margin-top:10px;background:#1f2530;color:#ff6b6b;border:1px solid #ff6b6b" onclick="clearHistory()">🗑 Очистить всю историю</button>';
+    }
+    h += '<button class="btn" style="width:100%;margin-top:10px;background:#1f2530" onclick="closeModal()">Закрыть</button>';
+    openModal(h);
+}
+
+function copyHistoryItem(index) {
+    var item = db.smarthubHistory[index];
+    navigator.clipboard.writeText(item.text).then(function() { alert('✅ Скопировано!'); });
+}
+
+function deleteHistoryItem(index) {
+    db.smarthubHistory.splice(index, 1);
+    localStorage.setItem('solodev', JSON.stringify(db));
+    showHistory();
+}
+
+function clearHistory() {
+    if (confirm('Удалить всю историю?')) {
+        db.smarthubHistory = [];
+        localStorage.setItem('solodev', JSON.stringify(db));
+        showHistory();
+    }
+}
+
+// === ГЕНЕРАТОР ТЗ ===
+function showTzGenerator() {
+    var h = '<h3>📄 Генератор ТЗ</h3>';
+    h += '<label style="color:#3ecf8e;font-size:12px;font-weight:bold">Тип проекта:</label>';
+    h += '<select id="tz_type" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><option value="landing">Лендинг</option><option value="multisite">Многостраничный сайт</option><option value="shop">Интернет-магазин</option><option value="webapp">Веб-приложение</option><option value="mobile">Мобильное приложение</option><option value="bot">Telegram-бот</option><option value="other">Другое</option></select>';
+    h += '<label style="color:#3ecf8e;font-size:12px;font-weight:bold">Название проекта:</label>';
+    h += '<input id="tz_name" placeholder="Например: Сайт для кофейни" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+    h += '<label style="color:#3ecf8e;font-size:12px;font-weight:bold">Краткое описание (опционально):</label>';
+    h += '<textarea id="tz_desc" placeholder="О чём проект, для кого..." style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff;min-height:60px"></textarea>';
+    h += '<button class="btn" style="width:100%;background:#3ecf8e" onclick="generateTz()">✨ Сгенерировать ТЗ</button>';
+    h += '<button class="btn small" style="width:100%;margin-top:8px;background:#1f2530" onclick="showHistory()">📜 История генераций</button>';
+    h += '<div id="tz_result" style="display:none;margin-top:15px"></div>';
+    openModal(h);
+}
+
+function generateTz() {
+    var type = document.getElementById('tz_type').value;
+    var name = document.getElementById('tz_name').value.trim() || 'Проект';
+    var desc = document.getElementById('tz_desc').value.trim();
+    
+    var typeNames = {
+        landing: 'Лендинг',
+        multisite: 'Многостраничный сайт',
+        shop: 'Интернет-магазин',
+        webapp: 'Веб-приложение',
+        mobile: 'Мобильное приложение',
+        bot: 'Telegram-бот',
+        other: 'Проект'
+    };
+    
+    var features = {
+        landing: ['Адаптивная вёрстка', 'Форма обратной связи', 'Блоки: герой, услуги, отзывы, контакты', 'SEO-оптимизация', 'Интеграция с CRM', 'Аналитика (Яндекс.Метрика)'],
+        multisite: ['Главная + разделы', 'Админ-панель', 'Блог/новости', 'Поиск по сайту', 'Формы обратной связи', 'SEO-оптимизация'],
+        shop: ['Каталог товаров', 'Корзина и оформление заказа', 'Личный кабинет', 'Онлайн-оплата', 'Интеграция с доставкой', 'Админ-панель для товаров'],
+        webapp: ['Авторизация пользователей', 'Личный кабинет', 'Основной функционал приложения', 'Админ-панель', 'API для интеграций', 'Уведомления'],
+        mobile: ['Экраны: регистрация, главная, профиль', 'Push-уведомления', 'Оффлайн-режим', 'Интеграция с API', 'Адаптация под iOS и Android', 'Публикация в сторах'],
+        bot: ['Команды бота', 'Меню с кнопками', 'Интеграция с базой данных', 'Админ-панель', 'Уведомления', 'Аналитика использования'],
+        other: ['Основной функционал', 'Интерфейс пользователя', 'Админ-панель', 'Интеграции', 'Тестирование', 'Документация']
+    };
+    
+    var stages = [
+        'Анализ требований и согласование ТЗ',
+        'Прототипирование и дизайн',
+        'Вёрстка / разработка интерфейса',
+        'Программирование backend',
+        'Интеграция и тестирование',
+        'Запуск и передача заказчику'
+    ];
+    
+    var tz = 'ТЕХНИЧЕСКОЕ ЗАДАНИЕ\n';
+    tz += '═══════════════════════════\n\n';
+    tz += '📌 Название: ' + name + '\n';
+    tz += '📋 Тип: ' + typeNames[type] + '\n';
+    if (desc) tz += '📝 Описание: ' + desc + '\n';
+    tz += '\n1. ЦЕЛИ ПРОЕКТА\n';
+    tz += '   • Создать качественный продукт, соответствующий требованиям\n';
+    tz += '   • Обеспечить удобство использования для целевой аудитории\n';
+    tz += '   • Достичь бизнес-целей заказчика\n\n';
+    tz += '2. ФУНКЦИОНАЛЬНЫЕ ТРЕБОВАНИЯ\n';
+    features[type].forEach(function(f, i) {
+        tz += '   ' + (i+1) + '. ' + f + '\n';
+    });
+    tz += '\n3. ЭТАПЫ РАБОТЫ\n';
+    stages.forEach(function(s, i) {
+        tz += '   Этап ' + (i+1) + ': ' + s + '\n';
+    });
+    tz += '\n4. СРОКИ\n';
+    tz += '   • Общий срок: [указать]\n';
+    tz += '   • Промежуточные дедлайны по этапам\n\n';
+    tz += '5. БЮДЖЕТ И ОПЛАТА\n';
+    tz += '   • Стоимость: [указать]\n';
+    tz += '   • Предоплата: 50%\n';
+    tz += '   • Остаток: после сдачи проекта\n\n';
+    tz += '6. УСЛОВИЯ\n';
+    tz += '   • 2 раунда правок включены в стоимость\n';
+    tz += '   • Дополнительные правки — по договорённости\n';
+    tz += '   • Передача исходного кода после полной оплаты\n';
+    tz += '   • Гарантия 30 дней после сдачи\n\n';
+    tz += '7. КОНТАКТЫ\n';
+    tz += '   • Исполнитель: [ваше имя]\n';
+    tz += '   • Email: [ваш email]\n';
+    tz += '   • Telegram: [ваш telegram]\n';
+    
+    saveToHistory('ТЗ: ' + name, tz);
+    
+    var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #3ecf8e"><div style="font-weight:bold;color:#3ecf8e;margin-bottom:10px">📄 Готовое ТЗ:</div>';
+    resultHtml += '<textarea id="tz_text" readonly style="width:100%;padding:10px;background:#0f1520;border:1px solid #3ecf8e;border-radius:4px;color:#fff;font-size:12px;min-height:300px;font-family:monospace;white-space:pre-wrap">' + tz + '</textarea>';
+    resultHtml += '<button class="btn" style="width:100%;margin-top:10px;background:#6c8cff" onclick="copySmartHubText(\'tz_text\')">📋 Копировать</button></div>';
+    document.getElementById('tz_result').innerHTML = resultHtml;
+    document.getElementById('tz_result').style.display = 'block';
+}
+// === КОНЕЦ ДОПОЛНЕНИЙ AI-ХАБА ===
+
 // === КОНЕЦ AI-ХАБА ===
