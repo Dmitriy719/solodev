@@ -37,7 +37,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -85,6 +85,7 @@ function render(){
   else if(currentView==='timetracker')renderTimeTracker();
   else if(currentView==='subscriptions')renderSubscriptions();
   else if(currentView==='calculator')renderCalculator();
+  else if(currentView==='kpi')renderKPI();
   else if(currentView==='burnout')renderBurnout();
   else if(currentView==='settings')renderSettings();
 }
@@ -6591,3 +6592,96 @@ function renderBurnout() {
     document.getElementById('app').innerHTML = h;
 }
 // === КОНЕЦ ДЕТЕКТОРА ВЫГОРАНИЯ ===
+
+
+// === МОДУЛЬ KPI ФРИЛАНСЕРА ===
+function renderKPI() {
+    var today = new Date();
+    var currentMonth = today.toISOString().slice(0, 7); // "2026-08"
+    var daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    var daysPassed = today.getDate();
+    
+    // 1. Доход за месяц
+    var monthIncome = 0;
+    db.finances.forEach(function(f) {
+        if (f.date && f.date.startsWith(currentMonth) && f.type === 'in') {
+            monthIncome += (f.amt || 0);
+        }
+    });
+
+    // 2. Часы работы (Pomodoro за месяц)
+    var monthMinutes = 0;
+    db.pomodoro.sessions.forEach(function(s) {
+        if (s.date && s.date.startsWith(currentMonth)) {
+            monthMinutes += (s.duration || 0);
+        }
+    });
+    var monthHours = monthMinutes / 60;
+
+    // 3. Эффективная ставка
+    var effectiveRate = monthHours > 0 ? Math.round(monthIncome / monthHours) : 0;
+
+    // 4. Утилизация (Цель: 6 часов в день * дней прошло)
+    var targetHours = 6 * daysPassed; 
+    var utilization = targetHours > 0 ? Math.round((monthHours / targetHours) * 100) : 0;
+    if (utilization > 100) utilization = 100;
+
+    // 5. Концентрация клиентов
+    var clientIncome = {};
+    db.finances.forEach(function(f) {
+        if (f.date && f.date.startsWith(currentMonth) && f.type === 'in' && f.client) {
+            clientIncome[f.client] = (clientIncome[f.client] || 0) + (f.amt || 0);
+        }
+    });
+    var topClient = { name: '—', percent: 0, amount: 0 };
+    var totalTrackedIncome = 0;
+    Object.keys(clientIncome).forEach(function(c) {
+        totalTrackedIncome += clientIncome[c];
+        if (clientIncome[c] > topClient.amount) {
+            topClient = { name: c, percent: 0, amount: clientIncome[c] };
+        }
+    });
+    if (totalTrackedIncome > 0) {
+        topClient.percent = Math.round((topClient.amount / totalTrackedIncome) * 100);
+    }
+
+    // Рендер UI
+    var h = '<h2>📈 KPI Фрилансера</h2>';
+    
+    // Верхние метрики
+    h += '<div class="grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
+    h += '<div class="card" style="background:linear-gradient(135deg,#102015,#1a3025);border-color:#3ecf8e"><span class="stat">Доход (мес)</span><b style="font-size:20px;color:#3ecf8e">' + monthIncome.toLocaleString() + ' ₽</b></div>';
+    h += '<div class="card" style="background:linear-gradient(135deg,#1f2530,#2a3040);border-color:#6c8cff"><span class="stat">Часов работы</span><b style="font-size:20px;color:#6c8cff">' + monthHours.toFixed(1) + ' ч</b></div>';
+    h += '<div class="card" style="background:linear-gradient(135deg,#2a1040,#1a2035);border-color:#9d6cff"><span class="stat">Эфф. ставка</span><b style="font-size:20px;color:#9d6cff">' + effectiveRate.toLocaleString() + ' ₽/ч</b></div>';
+    h += '<div class="card" style="background:linear-gradient(135deg,#201015,#301a25);border-color:#ff6b6b"><span class="stat">Дней прошло</span><b style="font-size:20px;color:#ff6b6b">' + daysPassed + ' / ' + daysInMonth + '</b></div>';
+    h += '</div>';
+
+    // Утилизация
+    var utilColor = utilization >= 80 ? '#3ecf8e' : (utilization >= 50 ? '#ffd700' : '#ff6b6b');
+    h += '<div class="card"><h3>⏱ Утилизация времени</h3>';
+    h += '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span class="mut">Цель: 6 часов в день (' + targetHours + ' ч)</span><b style="color:' + utilColor + '">' + utilization + '%</b></div>';
+    h += '<div class="bar" style="height:10px;background:#1f2530"><i style="width:' + utilization + '%;background:' + utilColor + '"></i></div>';
+    h += '<div class="mut" style="font-size:11px;margin-top:8px">Показывает, насколько плотно ты загружен относительно комфортной нормы (6ч/день).</div></div>';
+
+    // Концентрация клиентов
+    h += '<div class="card"><h3> Концентрация клиентов</h3>';
+    if (totalTrackedIncome === 0) {
+        h += '<div class="mut" style="text-align:center;padding:10px">Нет данных по доходам с разбивкой по клиентам за этот месяц.</div>';
+    } else {
+        var riskColor = topClient.percent > 70 ? '#ff6b6b' : (topClient.percent > 40 ? '#ffd700' : '#3ecf8e');
+        var riskText = topClient.percent > 70 ? 'Высокий риск!' : (topClient.percent > 40 ? 'Умеренный' : 'Отлично');
+        h += '<div style="padding:12px;background:#1f2530;border-radius:8px;margin-bottom:10px">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+        h += '<b>' + esc(topClient.name) + '</b>';
+        h += '<span style="padding:4px 10px;background:' + riskColor + ';color:#000;border-radius:12px;font-size:11px;font-weight:bold">' + riskText + '</span>';
+        h += '</div>';
+        h += '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span class="mut">Доля в доходе</span><b>' + topClient.percent + '%</b></div>';
+        h += '<div style="display:flex;justify-content:space-between;font-size:13px"><span class="mut">Сумма</span><b>' + topClient.amount.toLocaleString() + ' ₽</b></div>';
+        h += '</div>';
+        h += '<div class="mut" style="font-size:11px">⚠️ Если один клиент даёт >70% дохода — это риск. Постарайся диверсифицировать портфель.</div>';
+    }
+    h += '</div>';
+
+    document.getElementById('app').innerHTML = h;
+}
+// === КОНЕЦ МОДУЛЯ KPI ===
