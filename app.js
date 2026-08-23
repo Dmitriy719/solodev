@@ -622,16 +622,16 @@ function delClient(id){db.clients=db.clients.filter(function(c){return c.id!==id
 
 var financePeriod = 'month';
 
-function renderFinances(){
+function renderFinances() {
   var now = new Date();
   var periodStart, periodLabel;
-  if(financePeriod === 'week'){
+  if (financePeriod === 'week') {
     periodStart = new Date(now); periodStart.setDate(now.getDate() - 7);
     periodLabel = 'за последние 7 дней';
-  } else if(financePeriod === 'month'){
+  } else if (financePeriod === 'month') {
     periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
     periodLabel = 'за ' + ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'][now.getMonth()];
-  } else if(financePeriod === 'quarter'){
+  } else if (financePeriod === 'quarter') {
     var qm = Math.floor(now.getMonth()/3)*3;
     periodStart = new Date(now.getFullYear(), qm, 1);
     periodLabel = 'за ' + Math.floor(qm/3+1) + ' квартал';
@@ -639,167 +639,149 @@ function renderFinances(){
     periodStart = new Date(now.getFullYear(), 0, 1);
     periodLabel = 'за ' + now.getFullYear() + ' год';
   }
-  var periodStr = periodStart.toISOString().slice(0,10);
   
-  var periodFin = db.finances.filter(function(f){return f.date && f.date >= periodStr});
+  var periodStr = periodStart.toISOString().slice(0,10);
+  var periodFin = db.finances.filter(function(f){ return f.date && f.date >= periodStr; });
+  
   var income = 0, expense = 0;
   var byCategory = {};
+  var byClient = {};
+  
   periodFin.forEach(function(f){
-    if(f.type === 'in') income += f.amt; else expense += f.amt;
-    byCategory[f.cat] = (byCategory[f.cat] || 0) + (f.type === 'in' ? f.amt : -f.amt);
+    if (f.type === 'in') {
+      income += (f.amt || f.amount || 0);
+      byCategory[f.cat || 'Доход'] = (byCategory[f.cat || 'Доход'] || 0) + (f.amt || f.amount || 0);
+      if (f.client) byClient[f.client] = (byClient[f.client] || 0) + (f.amt || f.amount || 0);
+    } else {
+      expense += (f.amt || f.amount || 0);
+      byCategory[f.cat || 'Расход'] = (byCategory[f.cat || 'Расход'] || 0) + (f.amt || f.amount || 0);
+    }
   });
-  
-  var tax = calculateTax(income);
+
+  var tax = (typeof calculateTax === 'function') ? calculateTax(income) : { name: 'Налог', amount: 0 };
   var netProfit = income - expense - tax.amount;
-  
-  var h = '<h2>💰 Финансы · '+periodLabel+'</h2>';
+
+  // Расчёт подушки безопасности (средний расход в месяц за всё время)
+  var allExpenses = db.finances.filter(function(f){ return f.type === 'out'; });
+  var totalAllExpense = allExpenses.reduce(function(sum, f){ return sum + (f.amt || f.amount || 0); }, 0);
+  var monthsTracked = Math.max(1, Math.ceil((now - new Date(allExpenses[0]?.date || now)) / (1000 * 60 * 60 * 24 * 30)));
+  var avgMonthlyExpense = totalAllExpense / monthsTracked;
+  var currentBalance = db.finances.reduce(function(sum, f){ return sum + (f.type === 'in' ? (f.amt||f.amount||0) : -(f.amt||f.amount||0)); }, 0);
+  var safetyMonths = avgMonthlyExpense > 0 ? (currentBalance / avgMonthlyExpense).toFixed(1) : '∞';
+  var safetyColor = safetyMonths >= 6 ? '#3ecf8e' : (safetyMonths >= 3 ? '#ffd700' : '#ff6b6b');
+
+  var h = '<h2>💰 Финансы · ' + periodLabel + '</h2>';
   
   // Переключатель периода
-  h += '<div class="filter-row">';
+  h += '<div class="filter-row" style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap">';
   ['week','month','quarter','year'].forEach(function(p){
     var label = {week:'Неделя',month:'Месяц',quarter:'Квартал',year:'Год'}[p];
-    h += '<button class="filter-btn '+(financePeriod===p?'active':'')+'" onclick="financePeriod=\''+p+'\';renderFinances()">'+label+'</button>';
+    h += '<button class="btn small" style="flex:1;background:' + (financePeriod===p ? '#6c8cff' : '#1f2530') + '" onclick="financePeriod=\''+p+'\';renderFinances()">'+label+'</button>';
   });
   h += '</div>';
-  
+
   // Главные показатели
-  h += '<div class="grid" style="grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0">';
-  h += '<div class="card" style="text-align:center"><div class="mut">Доход</div><b style="font-size:18px;color:#3ecf8e">'+formatCurrency(income)+'</b></div>';
-  h += '<div class="card" style="text-align:center"><div class="mut">Расход</div><b style="font-size:18px;color:#ff6b6b">'+formatCurrency(expense)+'</b></div>';
-  h += '<div class="card" style="text-align:center"><div class="mut">Налоги ('+tax.name+')</div><b style="font-size:18px;color:#f59e0b">'+formatCurrency(tax.amount)+'</b></div>';
-  h += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a"><div class="mut" style="color:#fff">Чистая прибыль</div><b style="font-size:18px;color:#3ecf8e">'+formatCurrency(netProfit)+'</b></div>';
+  h += '<div class="grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px">';
+  h += '<div class="card" style="text-align:center;border-color:#3ecf8e"><div class="mut">Доход</div><b style="font-size:20px;color:#3ecf8e">' + (income||0).toLocaleString() + ' ₽</b></div>';
+  h += '<div class="card" style="text-align:center;border-color:#ff6b6b"><div class="mut">Расход</div><b style="font-size:20px;color:#ff6b6b">' + (expense||0).toLocaleString() + ' ₽</b></div>';
+  h += '<div class="card" style="text-align:center;border-color:#ffd700"><div class="mut">Налоги (' + tax.name + ')</div><b style="font-size:20px;color:#ffd700">' + (tax.amount||0).toLocaleString() + ' ₽</b></div>';
+  h += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#102015,#1a3025);border-color:#3ecf8e"><div class="mut" style="color:#fff">Чистая прибыль</div><b style="font-size:20px;color:#3ecf8e">' + (netProfit||0).toLocaleString() + ' ₽</b></div>';
   h += '</div>';
-  
-  // Быстрые действия (2 ряда)
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">';
-  h += '<button class="btn" onclick="addFin()">+ Операция</button>';
-  h += '<button class="btn" style="background:#3ecf8e" onclick="showGoals()">🎯 Цели</button>';
-  h += '<button class="btn" style="background:#f59e0b" onclick="showReceivables()">💰 Дебиторка</button>';
-  h += '<button class="btn" style="background:#9d6cff" onclick="showRecurring()">🔄 Регулярные</button>';
+
+  // Подушка безопасности
+  h += '<div class="card" style="margin-bottom:15px"><h3>🛡 Подушка безопасности</h3>';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+  h += '<span class="mut">Текущий баланс: <b style="color:#fff">' + currentBalance.toLocaleString() + ' ₽</b></span>';
+  h += '<span style="padding:4px 10px;background:' + safetyColor + ';color:#000;border-radius:12px;font-size:12px;font-weight:bold">' + safetyMonths + ' мес.</span>';
   h += '</div>';
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">';
-  h += '<button class="btn" style="background:#1f2530" onclick="showTaxReserve()">💵 Резерв на налоги</button>';
-  h += '<button class="btn" style="background:#1f2530" onclick="showBudgets()">📊 Бюджеты</button>';
-  h += '<button class="btn" style="background:#1f2530" onclick="showForecast()">📈 Прогноз</button>';
-  h += '<button class="btn" style="background:#1f2530" onclick="showTaxCalendar()">📅 Нал.календарь</button>';
-  h += '</div>';
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">';
-  h += '<button class="btn" style="background:#ec4899" onclick="showPots()">🎯 Копилки</button>';
-  h += '<button class="btn" style="background:#1f2530" onclick="showSmartPlanning()">📊 Умное планирование</button>';
-  h += '<button class="btn" style="background:#1f2530" onclick="showLifeBalance()">⚖️ Баланс жизни</button>';
-  h += '</div>';
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">';
-  h += '<button class="btn" style="background:#1f2530" onclick="showCurrencyConverter()">💱 Конвертер</button>';
-  h += '<button class="btn" style="background:#1f2530" onclick="showTaxSettings()">🧾 Настройки налогов</button>';
-  h += '<button class="btn" style="background:#1f2530" onclick="exportFinancesPDF()">📥 PDF</button>';
-  h += '<button class="btn" style="background:#1f2530" onclick="exportFinancesCSV()">📊 CSV</button>';
-  // === НОВЫЕ ФУНКЦИИ v6.9.0 ===
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:8px">';
-  h += '<button class="btn" style="background:#ff6b6b" onclick="showCredits()">💳 Кредиты</button>';
-  h += '<button class="btn" style="background:#8b5cf6" onclick="showPaymentCalendar()"> Календарь</button>';
-  h += '<button class="btn" style="background:#10b981" onclick="showClientAnalysis()">👥 Клиенты</button>';
-  h += '<button class="btn" style="background:#f59e0b" onclick="showWhatIf()">🔮 Что если</button>';
-  h += '</div>';
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">';
-  h += '<button class="btn" style="background:#3ecf8e" onclick="showGoalForecast()">🎯 Прогноз целей</button>';
-  h += '<button class="btn" style="background:#f59e0b" onclick="showLeakAnalysis()">️ Утечки</button>';
-  h += '<button class="btn" style="background:#06b6d4" onclick="showCompoundCalculator()">💰 Калькулятор</button>';
-  h += '<button class="btn" style="background:#10b981" onclick="showYearComparison()">📊 Годовое</button>';
-  h += '</div>';
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">';
-  h += '<button class="btn" style="background:#ec4899" onclick="showQuickTemplates()">⚡ Шаблоны</button>';
-  h += '<button class="btn" style="background:#6c8cff" onclick="showFilteredHistory()"> История</button>';
-  h += '</div>';
-  h += '</div>';
-  
-  // Сравнение с предыдущим периодом
-  h += renderComparison(financePeriod);
-  
-  // Кэшфлоу график
-  h += renderCashflowChart();
-  
-  // Расходы по категориям
-  var expenseCategories = {};
-  db.finances.filter(function(f){return f.date && f.date >= periodStr && f.type === 'out'}).forEach(function(f){
-    expenseCategories[f.cat] = (expenseCategories[f.cat] || 0) + f.amt;
+  h += '<div class="mut" style="font-size:11px">При среднем расходе ' + Math.round(avgMonthlyExpense).toLocaleString() + ' ₽/мес.</div></div>';
+
+  // Круговая диаграмма расходов (CSS conic-gradient)
+  var expCats = Object.keys(byCategory).filter(function(k){ return byCategory[k] < 0; }); // расходы отрицательные в нашей логике? Нет, мы сложили положительные. Исправим:
+  var expCategories = {};
+  periodFin.filter(function(f){return f.type==='out'}).forEach(function(f){
+    expCategories[f.cat || 'Прочее'] = (expCategories[f.cat || 'Прочее'] || 0) + (f.amt || f.amount || 0);
   });
-  if(Object.keys(expenseCategories).length > 0){
-    h += '<div class="card"><h3>📊 Расходы по категориям</h3>';
-    var totalExp = Object.values(expenseCategories).reduce(function(a,b){return a+b}, 0);
-    Object.keys(expenseCategories).sort(function(a,b){return expenseCategories[b]-expenseCategories[a]}).forEach(function(cat){
-      var pct = Math.round(expenseCategories[cat]/totalExp*100);
-      h += '<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>'+esc(cat)+'</span><b>'+formatCurrency(expenseCategories[cat])+' ('+pct+'%)</b></div>';
-      h += '<div class="bar"><i style="width:'+pct+'%;background:#ff6b6b"></i></div></div>';
+  
+  if (expense > 0 && Object.keys(expCategories).length > 0) {
+    h += '<div class="card" style="margin-bottom:15px"><h3>📊 Структура расходов</h3>';
+    h += '<div style="display:flex;align-items:center;gap:15px">';
+    
+    // Генерация conic-gradient
+    var colors = ['#ff6b6b', '#ff9500', '#ffd700', '#3ecf8e', '#6c8cff', '#9d6cff', '#e8ecf3'];
+    var gradientParts = [];
+    var currentAngle = 0;
+    var catIndex = 0;
+    
+    var sortedCats = Object.keys(expCategories).sort(function(a,b){ return expCategories[b] - expCategories[a]; });
+    
+    sortedCats.forEach(function(cat){
+      var amount = expCategories[cat];
+      var percent = (amount / expense) * 100;
+      var angle = (amount / expense) * 360;
+      var color = colors[catIndex % colors.length];
+      gradientParts.push(color + ' ' + currentAngle + 'deg ' + (currentAngle + angle) + 'deg');
+      
+      h += '<div style="flex:1"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+      h += '<div style="width:10px;height:10px;border-radius:50%;background:' + color + '"></div>';
+      h += '<span style="font-size:12px;color:#fff">' + cat + '</span>';
+      h += '<span style="font-size:12px;color:#6c8cff;margin-left:auto">' + Math.round(percent) + '%</span>';
+      h += '</div><div class="mut" style="font-size:11px;padding-left:16px">' + amount.toLocaleString() + ' ₽</div></div>';
+      
+      currentAngle += angle;
+      catIndex++;
+    });
+    
+    h += '<div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(' + gradientParts.join(', ') + ');flex-shrink:0;position:relative">';
+    h += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;background:#1a2035;border-radius:50%"></div>';
+    h += '</div></div></div>';
+  }
+
+  // Топ клиентов
+  var sortedClients = Object.keys(byClient).sort(function(a,b){ return byClient[b] - byClient[a]; }).slice(0, 3);
+  if (sortedClients.length > 0) {
+    h += '<div class="card" style="margin-bottom:15px"><h3>👑 Топ клиентов за период</h3>';
+    sortedClients.forEach(function(client, i){
+      var percent = Math.round((byClient[client] / income) * 100);
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1f2530">';
+      h += '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:16px">' + (i===0?'🥇':(i===1?'🥈':'🥉')) + '</span><span style="color:#fff">' + client + '</span></div>';
+      h += '<div style="text-align:right"><b style="color:#3ecf8e">' + byClient[client].toLocaleString() + ' ₽</b><div class="mut" style="font-size:10px">' + percent + '% от дохода</div></div>';
+      h += '</div>';
     });
     h += '</div>';
   }
-  
-  // Налоговый блок
-  h += '<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#3a4a7a">';
-  h += '<h3 style="color:#fff">🧾 Налоговая сводка ('+tax.jurisdictionLabel+' · '+tax.name+')</h3>';
-  h += '<div class="info-row"><span style="color:#fff">Доход за период:</span><b style="color:#3ecf8e">'+formatCurrency(income)+'</b></div>';
-  h += '<div class="info-row"><span style="color:#fff">Налоговая ставка:</span><b style="color:#f59e0b">'+tax.rate+'%</b></div>';
-  h += '<div class="info-row"><span style="color:#fff">Налог к уплате:</span><b style="color:#ff6b6b">'+formatCurrency(tax.amount)+'</b></div>';
-  h += '<div class="info-row"><span style="color:#fff">Чистая прибыль:</span><b style="color:#3ecf8e">'+formatCurrency(netProfit)+'</b></div>';
-  if(tax.note) h += '<div class="mut" style="margin-top:10px;font-size:12px">💡 '+tax.note+'</div>';
-  h += '</div>';
-  
-  // Топ-5 клиентов по доходу
-  var byClient = {};
-  db.finances.filter(function(f){return f.type === 'in' && f.client}).forEach(function(f){
-    byClient[f.client] = (byClient[f.client] || 0) + f.amt;
-  });
-  var topClients = Object.keys(byClient).sort(function(a,b){return byClient[b]-byClient[a]}).slice(0,5);
-  if(topClients.length > 0){
-    h += '<div class="card"><h3>🏆 Топ клиентов по доходу</h3>';
-    topClients.forEach(function(c,i){
-      h += '<div class="info-row"><span><b>#'+(i+1)+'</b> '+esc(c)+'</span><b style="color:#3ecf8e">'+formatCurrency(byClient[c])+'</b></div>';
-    });
-    h += '</div>';
-  }
-  
-  // Средняя ставка в час
-  var totalHours = 0;
-  db.projects.forEach(function(p){totalHours += p.estimatedHours || 0});
-  if(totalHours > 0 && income > 0){
-    var hourlyRate = Math.round(income / totalHours);
-    h += '<div class="card" style="text-align:center"><div class="mut">Средняя ставка в час</div><div style="font-size:28px;font-weight:bold;color:#3ecf8e;margin-top:5px">'+formatCurrency(hourlyRate)+'</div><div class="mut" style="font-size:11px">на основе '+totalHours+' часов работы</div></div>';
-  }
-  
-  // Список операций
-  h += '<div class="card"><h3>📋 Операции за период ('+periodFin.length+')</h3>';
-  if(periodFin.length === 0){
+
+  // Список транзакций
+  h += '<div class="card"><h3>📜 Последние операции</h3>';
+  var recentFin = periodFin.sort(function(a,b){ return new Date(b.date) - new Date(a.date); }).slice(0, 15);
+  if (recentFin.length === 0) {
     h += '<div class="mut" style="text-align:center;padding:20px">Нет операций за этот период</div>';
   } else {
-    periodFin.sort(function(a,b){return b.date.localeCompare(a.date)}).forEach(function(f){
-      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #242b36">';
-      h += '<div style="flex:1">';
-      h += '<div style="font-weight:bold;color:'+(f.type==='in'?'#3ecf8e':'#ff6b6b')+';font-size:15px">'+(f.type==='in'?'+ ':'- ')+formatCurrency(f.amt)+'</div>';
-      h += '<div class="mut" style="font-size:11px;margin-top:2px">'+f.date+' · '+esc(f.cat);
-      if(f.client) h += ' · 👤 '+esc(f.client);
-      h += '</div>';
-      if(f.note) h += '<div class="mut" style="font-size:10px;margin-top:2px;color:#6c8cff">💬 '+esc(f.note)+'</div>';
-      if(f.original_cur && f.original_cur !== db.currency) h += '<div class="mut" style="font-size:10px;margin-top:1px">💱 '+f.original_amt+' '+f.original_cur+'</div>';
-      h += '</div>';
-      h += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:4px 8px" onclick="delFin(\''+f.id+'\')">🗑</button>';
+    recentFin.forEach(function(f){
+      var isIncome = f.type === 'in';
+      var amount = f.amt || f.amount || 0;
+      var dateObj = new Date(f.date);
+      var dateStr = dateObj.toLocaleDateString('ru-RU', {day:'numeric', month:'short'});
+      var icon = isIncome ? '📥' : '📤';
+      var color = isIncome ? '#3ecf8e' : '#ff6b6b';
+      
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1f2530">';
+      h += '<div style="display:flex;align-items:center;gap:10px">';
+      h += '<div style="width:36px;height:36px;background:#1f2530;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px">' + icon + '</div>';
+      h += '<div><div style="font-size:13px;color:#fff;font-weight:bold">' + (f.description || f.label || 'Без описания') + '</div>';
+      h += '<div class="mut" style="font-size:11px">' + dateStr + (f.client ? ' · ' + f.client : '') + (f.cat ? ' · ' + f.cat : '') + '</div></div></div>';
+      h += '<b style="color:' + color + ';font-size:14px">' + (isIncome ? '+' : '-') + amount.toLocaleString() + ' ₽</b>';
       h += '</div>';
     });
   }
   h += '</div>';
-  
-  
-  // === НОВЫЕ ФУНКЦИИ v6.9.5 ===
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:8px">';
-  h += '<button class="btn" style="background:#06b6d4" onclick="showCsvImport()">📥 Импорт CSV</button>';
-  h += '<button class="btn" style="background:#8b5cf6" onclick="showNetWorth()">💼 Активы/Пассивы</button>';
-  h += '<button class="btn" style="background:#f59e0b" onclick="showSubscriptions()">📋 Подписки</button>';
+
+  // Кнопки действий
+  h += '<div style="display:flex;gap:10px;margin-top:15px">';
+  h += '<button class="btn" style="flex:1;background:#3ecf8e" onclick="addFinanceTransaction(\'in\')">+ Доход</button>';
+  h += '<button class="btn" style="flex:1;background:#ff6b6b" onclick="addFinanceTransaction(\'out\')">+ Расход</button>';
   h += '</div>';
-  
-  // === НОВЫЕ ФУНКЦИИ v6.10.0 ===
-  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;margin-bottom:8px">';
-  h += '<button class="btn" style="background:#ff6b6b" onclick="showFireCalculator()">🔥 FIRE</button>';
-  h += '<button class="btn" style="background:#10b981" onclick="showMonthlyReport()">📄 Отчёт за месяц</button>';
-  h += '</div>';
+
   document.getElementById('app').innerHTML = h;
 }
 
