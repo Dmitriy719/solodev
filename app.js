@@ -7358,6 +7358,7 @@ function generateProjectNames() {
     }
     
     var langNames = { ru: "Русский", zh: "Китайский", en: "Английский" };
+    generatedNames.forEach(function(name) { saveToHistory('Название', name); });
     var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #ffd700"><div style="font-weight:bold;color:#ffd700;margin-bottom:10px">✨ 10 уникальных названий (' + langNames[lang] + '):</div>';
     generatedNames.forEach(function(name, i) {
         resultHtml += '<div style="padding:10px;margin:5px 0;background:#0f1520;border-radius:4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:bold;color:#fff">' + (i+1) + '. ' + name + '</span>';
@@ -7609,6 +7610,7 @@ function translateTechTerm() {
         'main': 'Основная ветка.'
     };
     var translation = dictionary[term];
+    var originalTranslation = translation;
     if (!translation) {
         var matches = Object.keys(dictionary).filter(function(key) { return key.indexOf(term) !== -1 || term.indexOf(key) !== -1; });
         if (matches.length > 0) {
@@ -7618,6 +7620,7 @@ function translateTechTerm() {
             translation = 'Не нашёл точного перевода. Попробуй другой термин.';
         }
     }
+    if (originalTranslation) saveToHistory('Перевод', term + ': ' + originalTranslation);
     var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #3ecf8e"><div style="font-weight:bold;color:#3ecf8e;margin-bottom:10px">🔄 Объяснение:</div>';
     resultHtml += '<textarea id="tt_text" readonly style="width:100%;padding:10px;background:#0f1520;border:1px solid #3ecf8e;border-radius:4px;color:#fff;font-size:13px;min-height:100px">' + translation + '</textarea>';
     resultHtml += '<button class="btn" style="width:100%;margin-top:10px;background:#6c8cff" onclick="copySmartHubText(\'tt_text\')">📋 Копировать</button></div>';
@@ -7706,6 +7709,7 @@ function generateProjectNames() {
     }
     
     var langNames = { ru: "Русский", zh: "Китайский", en: "Английский" };
+    generatedNames.forEach(function(name) { saveToHistory('Название', name); });
     var resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:6px;border:1px solid #ffd700"><div style="font-weight:bold;color:#ffd700;margin-bottom:10px">✨ 10 уникальных названий (' + langNames[lang] + '):</div>';
     generatedNames.forEach(function(name, i) {
         resultHtml += '<div style="padding:10px;margin:5px 0;background:#0f1520;border-radius:4px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:bold;color:#fff">' + (i+1) + '. ' + name + '</span>';
@@ -7764,26 +7768,66 @@ function saveToHistory(type, text) {
     localStorage.setItem('solodev', JSON.stringify(db));
 }
 
-function showHistory() {
+function showHistory(filterType) {
+    if (!window.historyFilter) window.historyFilter = 'all';
+    if (filterType !== undefined) window.historyFilter = filterType;
+    
     var h = '<h3>📜 История генераций</h3>';
+    
+    // Фильтры
+    h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:15px">';
+    var filters = [
+        {id: 'all', label: '🌐 Все', color: '#6c8cff'},
+        {id: 'Ответ клиенту', label: '💬 Ответы', color: '#6c8cff'},
+        {id: 'Перевод', label: '🔄 Переводы', color: '#3ecf8e'},
+        {id: 'Название', label: '💡 Названия', color: '#ffd700'},
+        {id: 'ТЗ', label: '📄 ТЗ', color: '#9d6cff'}
+    ];
+    filters.forEach(function(f) {
+        var isActive = window.historyFilter === f.id;
+        var bg = isActive ? f.color : '#1f2530';
+        var color = isActive && f.id !== 'Название' ? '#000' : '#fff';
+        h += '<button class="btn small" style="background:' + bg + ';color:' + color + '" onclick="showHistory(\'' + f.id + '\')">' + f.label + '</button>';
+    });
+    h += '</div>';
+    
     if (!db.smarthubHistory || db.smarthubHistory.length === 0) {
         h += '<div class="mut" style="text-align:center;padding:20px">История пуста. Сгенерируй что-нибудь!</div>';
     } else {
-        db.smarthubHistory.forEach(function(item, i) {
-            var date = new Date(item.date);
-            var dateStr = date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'});
-            var preview = item.text.length > 100 ? item.text.substring(0, 100) + '...' : item.text;
-            h += '<div style="padding:10px;margin:8px 0;background:#1f2530;border-left:3px solid #6c8cff;border-radius:4px">';
-            h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
-            h += '<b style="color:#6c8cff;font-size:12px">' + item.type + '</b>';
-            h += '<span class="mut" style="font-size:10px">' + dateStr + '</span>';
-            h += '</div>';
-            h += '<div style="font-size:12px;color:#fff;margin-bottom:8px;white-space:pre-wrap">' + preview + '</div>';
-            h += '<div style="display:flex;gap:6px">';
-            h += '<button class="btn small" style="background:#3ecf8e;flex:1" onclick="copyHistoryItem(' + i + ')">📋 Копировать</button>';
-            h += '<button class="btn small" style="background:#ff6b6b;flex:1" onclick="deleteHistoryItem(' + i + ')">🗑 Удалить</button>';
-            h += '</div></div>';
+        // Фильтрация
+        var filtered = db.smarthubHistory.filter(function(item) {
+            if (window.historyFilter === 'all') return true;
+            if (window.historyFilter === 'ТЗ') return item.type.indexOf('ТЗ') === 0;
+            return item.type === window.historyFilter;
         });
+        
+        if (filtered.length === 0) {
+            h += '<div class="mut" style="text-align:center;padding:20px">Нет записей в этой категории</div>';
+        } else {
+            filtered.forEach(function(item) {
+                var realIndex = db.smarthubHistory.indexOf(item);
+                var date = new Date(item.date);
+                var dateStr = date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'});
+                var preview = item.text.length > 100 ? item.text.substring(0, 100) + '...' : item.text;
+                
+                // Цвет бордера по типу
+                var borderColor = '#6c8cff';
+                if (item.type === 'Перевод') borderColor = '#3ecf8e';
+                else if (item.type === 'Название') borderColor = '#ffd700';
+                else if (item.type.indexOf('ТЗ') === 0) borderColor = '#9d6cff';
+                
+                h += '<div style="padding:10px;margin:8px 0;background:#1f2530;border-left:3px solid ' + borderColor + ';border-radius:4px">';
+                h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+                h += '<b style="color:' + borderColor + ';font-size:12px">' + item.type + '</b>';
+                h += '<span class="mut" style="font-size:10px">' + dateStr + '</span>';
+                h += '</div>';
+                h += '<div style="font-size:12px;color:#fff;margin-bottom:8px;white-space:pre-wrap">' + preview + '</div>';
+                h += '<div style="display:flex;gap:6px">';
+                h += '<button class="btn small" style="background:#3ecf8e;flex:1" onclick="copyHistoryItem(' + realIndex + ')">📋 Копировать</button>';
+                h += '<button class="btn small" style="background:#ff6b6b;flex:1" onclick="deleteHistoryItem(' + realIndex + ')">🗑 Удалить</button>';
+                h += '</div></div>';
+            });
+        }
         h += '<button class="btn" style="width:100%;margin-top:10px;background:#1f2530;color:#ff6b6b;border:1px solid #ff6b6b" onclick="clearHistory()">🗑 Очистить всю историю</button>';
     }
     h += '<button class="btn" style="width:100%;margin-top:10px;background:#1f2530" onclick="closeModal()">Закрыть</button>';
