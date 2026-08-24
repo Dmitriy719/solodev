@@ -37,7 +37,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'tax',icon:'',label:'Налоги'},{id:'calendar',icon:'📅',label:'Календарь'},{id:'pipeline',icon:'🎯',label:'Воронка'},{id:'smarthub',icon:'🤖',label:'AI-Хаб'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'tax',icon:'',label:'Налоги'},{id:'calendar',icon:'📅',label:'Календарь'},{id:'law',icon:'⚖️',label:'Право'},{id:'pipeline',icon:'🎯',label:'Воронка'},{id:'smarthub',icon:'🤖',label:'AI-Хаб'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -85,6 +85,7 @@ function render(){
   else if(currentView==='timetracker')renderTimeTracker();
   else if(currentView==='subscriptions')renderSubscriptions();
   else if(currentView==='calculator')renderCalculator();
+  else if(currentView==='law')renderLawHub();
   else if(currentView==='pipeline')renderLeadPipeline();
   else if(currentView==='smarthub')renderSmartHub();
   else if(currentView==='calendar')renderCalendar();
@@ -8109,3 +8110,104 @@ function deleteLead(id) {
     renderLeadPipeline();
 }
 // === КОНЕЦ МОДУЛЯ ВОРОНКИ ===
+
+// === МОДУЛЬ ЮРИДИЧЕСКИЙ ХАБ ===
+const legalData = {
+    ru: {
+        title: "🇷🇺 Россия",
+        checks: [
+            "Самозанятый (НПД) / ИП: чек формируется и отправляется клиенту в день оплаты.",
+            "152-ФЗ: в договоре или на сайте есть пункт о согласии на обработку персональных данных.",
+            "Авторское право: в Акте выполненных работ есть фраза 'Исключительные права переходят заказчику в момент полной оплаты'.",
+            "Валютный контроль: при работе с нерезидентами (даже дружественными) сумма контракта > 300 000 руб. требует постановки на учет в банке."
+        ]
+    },
+    by: {
+        title: "🇧🇾 Беларусь",
+        checks: [
+            "НПД: регистрация и чеки через приложение «Профдоход» МНС РБ.",
+            "Валютный контроль: контракт в иностранной валюте на сумму > 3000 базовых величин подлежит обязательной регистрации в банке.",
+            "Акт выполненных работ (оказанных услуг) является обязательным первичным документом для налоговой.",
+            "При работе с РФ: проверка контрагента на сайте ФНС РФ на предмет действующего статуса."
+        ]
+    },
+    cn: {
+        title: "🇨🇳 Китай",
+        checks: [
+            "PIPL (Закон о защите персональной информации): аналог 152-ФЗ, требует хранения данных граждан КНР на серверах внутри Китая.",
+            "Язык контракта: рекомендуется двуязычный контракт с указанием, какой язык имеет приоритет при споре (обычно китайский).",
+            "Печати (Chops): в КНР юридическую силу имеет круглая красная печать компании, а не только подпись директора.",
+            "Оплата: использовать банки, не находящиеся под блокирующими санкциями (например, Bank of China, VTB Shanghai)."
+        ]
+    }
+};
+
+const legalClauses = [
+    { title: "Применимое право (РФ)", text: "Настоящий Договор регулируется и толкуется в соответствии с законодательством Российской Федерации. Все споры подлежат рассмотрению в суде по месту нахождения Исполнителя." },
+    { title: "Конфиденциальность (NDA)", text: "Стороны обязуются не разглашать третьим лицам любую коммерческую, техническую или финансовую информацию, полученную в ходе исполнения настоящего Договора, в течение 3 (трех) лет после его окончания." },
+    { title: "Переход прав (IP)", text: "Исключительное право на результат работ переходит к Заказчику в полном объеме с момента подписания Сторонами Акта сдачи-приемки и полной оплаты услуг Исполнителя." },
+    { title: "Форс-мажор", text: "Стороны освобождаются от ответственности за частичное или полное неисполнение обязательств, если оно явилось следствием обстоятельств непреодолимой силы (пожар, стихийные бедствия, действия государственных органов), возникших после заключения договора." }
+];
+
+function renderLawHub() {
+    let h = '<h2>⚖️ Юридический справочник</h2>';
+    
+    h += '<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ffd700;margin-bottom:15px">';
+    h += '<h3 style="margin-top:0">💡 Важно</h3>';
+    h += '<div class="mut" style="font-size:13px">Приложение предоставляет справочную информацию и шаблоны. Для сложных сделок рекомендуется консультация с профильным юристом.</div>';
+    h += '</div>';
+
+    // Чек-листы по странам
+    h += '<h3>📋 Юридические чек-листы</h3>';
+    h += '<div class="grid" style="grid-template-columns:1fr;gap:10px;margin-bottom:20px">';
+    for (const [key, data] of Object.entries(legalData)) {
+        h += '<div class="card" style="border-left:4px solid #6c8cff">';
+        h += '<h4 style="margin-top:0;margin-bottom:10px">' + data.title + '</h4>';
+        h += '<ul style="padding-left:20px;margin:0;color:#e8ecf3;font-size:13px;line-height:1.5">';
+        data.checks.forEach(check => {
+            h += '<li style="margin-bottom:6px">' + check + '</li>';
+        });
+        h += '</ul></div>';
+    }
+    h += '</div>';
+
+    // Генератор оговорок
+    h += '<h3>📝 Генератор оговорок для договора</h3>';
+    h += '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">';
+    legalClauses.forEach((clause, index) => {
+        h += '<div class="card" style="padding:12px">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+        h += '<b style="font-size:14px;color:#fff">' + clause.title + '</b>';
+        h += '<button class="btn small" style="background:#3ecf8e" onclick="copyClause(' + index + ')">📋 Копировать</button>';
+        h += '</div>';
+        h += '<div id="clause-' + index + '" style="font-size:12px;color:#e8ecf3;background:#1f2530;padding:10px;border-radius:4px;font-style:italic">' + clause.text + '</div>';
+        h += '</div>';
+    });
+    h += '</div>';
+
+    // Поиск по официальным базам
+    h += '<h3>🔍 Поиск в официальных базах (Актуальные законы)</h3>';
+    h += '<div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">';
+    h += '<a href="https://www.consultant.ru/" target="_blank" class="card" style="text-align:center;text-decoration:none;border-color:#3ecf8e">';
+    h += '<div style="font-size:24px;margin-bottom:5px">🇷🇺</div><b style="color:#fff">КонсультантПлюс</b><div class="mut" style="font-size:11px">Законы РФ</div></a>';
+    
+    h += '<a href="https://pravo.by/" target="_blank" class="card" style="text-align:center;text-decoration:none;border-color:#3ecf8e">';
+    h += '<div style="font-size:24px;margin-bottom:5px">🇧🇾</div><b style="color:#fff">Pravo.by</b><div class="mut" style="font-size:11px">Правовой портал РБ</div></a>';
+    
+    h += '<a href="http://www.gov.cn/zhengce/" target="_blank" class="card" style="text-align:center;text-decoration:none;border-color:#3ecf8e">';
+    h += '<div style="font-size:24px;margin-bottom:5px">🇨🇳</div><b style="color:#fff">Gov.cn</b><div class="mut" style="font-size:11px">Госсовет КНР (Законы)</div></a>';
+    
+    h += '<a href="https://eaeunion.org/" target="_blank" class="card" style="text-align:center;text-decoration:none;border-color:#3ecf8e">';
+    h += '<div style="font-size:24px;margin-bottom:5px">🌍</div><b style="color:#fff">ЕАЭС</b><div class="mut" style="font-size:11px">Право Евразийского союза</div></a>';
+    h += '</div>';
+
+    document.getElementById('app').innerHTML = h;
+}
+
+function copyClause(index) {
+    const text = legalClauses[index].text;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Оговорка скопирована! Вставьте её в свой договор.');
+    });
+}
+// === КОНЕЦ МОДУЛЯ ЮРИДИЧЕСКИЙ ХАБ ===
