@@ -11,7 +11,7 @@
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
-<button onclick="showSmartAssistant()" style="position:fixed;bottom: 50px;right: 15px;width: 42px;height: 42px;border-radius:50%;background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(108,140,255,0.5);z-index:50;transition:0.2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Умный помощник">💡</button>
+
   <script src="app.min.js?v=6.34.1"></script>
   <script src="smart_assistant.js?v=6.34.1"></script>
 
@@ -34,11 +34,22 @@
     
 
     <!-- Синяя кнопка сворачивания (НАД сиреневой) -->
-    <button id="toggleTabsBtn" style="position: fixed; bottom: 90px; right: 20px; z-index: 9999; width: 44px; height: 44px; border-radius: 50%; background: #6c8cff; color: white; border: 3px solid #fff; font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="toggleNavBar()">⬇️</button>
+    
     
     <!-- Сиреневая кнопка Умного помощника (внизу) -->
-    <button id="smartAssistantBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg,#9d6cff,#c084ff); color: white; border: 3px solid #fff; font-size: 30px; box-shadow: 0 6px 20px rgba(157,108,255,0.6); cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="openSmartAssistant()">💡</button>
+    
+
+    <!-- Главная кнопка-меню (сиреневая с белой обводкой) -->
+    <button id="mainMenuBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg,#9d6cff,#c084ff); color: white; border: 4px solid #fff; font-size: 32px; box-shadow: 0 6px 24px rgba(157,108,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="toggleMainMenu()">💡</button>
+    
+    <!-- Всплывающее меню (скрыто по умолчанию) -->
+    <div id="mainMenuPopup" style="position: fixed; bottom: 100px; right: 20px; z-index: 9998; display: none; flex-direction: column; gap: 10px; background: rgba(31,37,48,0.95); padding: 15px; border-radius: 16px; border: 2px solid #9d6cff; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+        <button onclick="toggleNavBar();toggleMainMenu()" style="width: 48px; height: 48px; border-radius: 50%; background: #6c8cff; color: white; border: 2px solid #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Свернуть панель">⬇️</button>
+        <button onclick="openSmartAssistant();toggleMainMenu()" style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg,#6c8cff,#9d6cff); color: white; border: 2px solid #fff; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Умный помощник">💡</button>
+        <button onclick="scrollToTop();toggleMainMenu()" style="width: 48px; height: 48px; border-radius: 50%; background: #3ecf8e; color: white; border: 2px solid #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Наверх">⬆️</button>
+    </div>
 </body>
+
 
 
 
