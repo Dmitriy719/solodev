@@ -8274,7 +8274,10 @@ if (!document.getElementById('toggle-tabs-style')) {
 // Обработчик клика по кнопке (используем делегирование, чтобы работало всегда)
 document.addEventListener('click', function(e) {
     if (e.target && e.target.id === 'toggleTabsBtn') {
+        console.log('Toggle clicked');
+        console.log('Nav element:', tabBar);
         const tabBar = document.querySelector('#nav');
+        if (!tabBar) { console.error('#nav not found!'); return; }
         const appContainer = document.getElementById('app');
         
         if (tabBar) {
