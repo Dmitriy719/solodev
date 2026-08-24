@@ -8245,3 +8245,47 @@ function filterLawHub() {
     moreMsg.textContent = dictVisibleCount === 0 ? 'Ничего не найдено. Попробуйте другой запрос.' : 'Найдено терминов: ' + dictVisibleCount;
 }
 // === КОНЕЦ МОДУЛЯ ЮРИДИЧЕСКИЙ ХАБ ===
+
+
+// === ЛОГИКА СВОРАЧИВАНИЯ МЕНЮ ===
+if (!document.getElementById('toggle-tabs-style')) {
+    const style = document.createElement('style');
+    style.id = 'toggle-tabs-style';
+    style.innerHTML = `
+        /* Плавное скрытие панели вкладок */
+        .tabs.tabs-hidden, .tab-bar.tabs-hidden {
+            transform: translateY(100%) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        /* Убираем нижний отступ у контента, когда меню скрыто, чтобы не было дыры */
+        #app.tabs-expanded {
+            padding-bottom: 20px !important;
+        }
+        /* Анимация для самой кнопки */
+        #toggleTabsBtn { transition: all 0.3s ease; }
+    `;
+    document.head.appendChild(style);
+}
+
+// Обработчик клика по кнопке (используем делегирование, чтобы работало всегда)
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'toggleTabsBtn') {
+        const tabBar = document.querySelector('.tabs') || document.querySelector('.tab-bar');
+        const appContainer = document.getElementById('app');
+        
+        if (tabBar) {
+            const isHidden = tabBar.classList.toggle('tabs-hidden');
+            appContainer.classList.toggle('tabs-expanded');
+            
+            // Меняем иконку и положение кнопки
+            if (isHidden) {
+                e.target.innerHTML = '⬆️';
+                e.target.style.bottom = '20px'; // Оставляем внизу
+            } else {
+                e.target.innerHTML = '⬇️';
+            }
+        }
+    }
+});
+// === КОНЕЦ ЛОГИКИ СВОРАЧИВАНИЯ ===
