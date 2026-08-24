@@ -8337,22 +8337,20 @@ function scrollToTop() {
 }
 // === КОНЕЦ ГЛАВНОГО МЕНЮ ===
 
-// === FIX: НАДЁЖНОЕ ПЕРЕКЛЮЧЕНИЕ ВЕРХНЕЙ ПАНЕЛИ ===
+// === FIX: ИДЕАЛЬНОЕ ВОССТАНОВЛЕНИЕ ВКЛАДОК ===
 function toggleNavBar() {
     const nav = document.getElementById('nav');
     const app = document.getElementById('app');
     
-    if (!nav) {
-        console.error('Элемент #nav не найден!');
-        return;
-    }
+    if (!nav) return;
 
     if (nav.style.display === 'none') {
-        // ПОКАЗЫВАЕМ панель - СБРАСЫВАЕМ СТИЛИ
-        nav.style.display = 'block';
+        // ПОКАЗЫВАЕМ панель: ПОЛНЫЙ СБРОС INLINE-СТИЛЕЙ
+        // Пустая строка заставляет браузер использовать родные стили из CSS (например, display: flex)
+        nav.style.display = '';
         if (app) {
-            app.style.paddingTop = '';  // Сброс к CSS
-            app.style.marginTop = '';   // Сброс к CSS
+            app.style.paddingTop = '';
+            app.style.marginTop = '';
         }
     } else {
         // СКРЫВАЕМ панель
