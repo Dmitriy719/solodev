@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v6.52.4</title>
+<title>SoloDev v6.53.0</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>⚡ SoloDev v6.52.4</h1>
+<h1>⚡ SoloDev v6.53.0</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
@@ -16,11 +16,18 @@
   <script src="smart_assistant.js?v=6.34.1"></script>
 
     <!-- Кнопка сворачивания/разворачивания меню -->
-    <button id="toggleTabsBtn" style="position: fixed; bottom: 90px; right: 15px; z-index: 9999; width: 42px; height: 42px; border-radius: 50%; background: #6c8cff; color: white; border: 2px solid #fff; font-size: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s, background 0.2s;" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">⬇️</button>
+    
 
     <!-- Кнопка быстрых действий (лампочка) -->
+    
+
+    <!-- Кнопка сворачивания верхней панели (чуть выше) -->
+    <button id="toggleTabsBtn" style="position: fixed; bottom: 80px; right: 20px; z-index: 9999; width: 44px; height: 44px; border-radius: 50%; background: #6c8cff; color: white; border: 2px solid #fff; font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="toggleNavBar()">⬇️</button>
+    
+    <!-- Кнопка быстрых действий (в самом низу) -->
     <button id="quickActionBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 9998; width: 50px; height: 50px; border-radius: 50%; background: #ffd700; color: white; border: 2px solid #fff; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center;" onclick="alert('💡 Быстрые действия: добавить задачу, заметку или идею')">💡</button>
 </body>
+
 
 
 </html>

@@ -8247,51 +8247,27 @@ function filterLawHub() {
 // === КОНЕЦ МОДУЛЯ ЮРИДИЧЕСКИЙ ХАБ ===
 
 
-// === ЛОГИКА СВОРАЧИВАНИЯ МЕНЮ ===
-if (!document.getElementById('toggle-tabs-style')) {
-    const style = document.createElement('style');
-    style.id = 'toggle-tabs-style';
-    style.innerHTML = `
-        /* Плавное скрытие панели вкладок */
-        #nav.tabs-hidden {
-            transform: translateY(-100%) !important;
-        }
-        .tabs.tabs-hidden, .tab-bar.tabs-hidden {
-            transform: translateY(100%) !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        /* Убираем нижний отступ у контента, когда меню скрыто, чтобы не было дыры */
-        #app.tabs-expanded {
-            padding-bottom: 20px !important;
-        }
-        /* Анимация для самой кнопки */
-        #toggleTabsBtn { transition: all 0.3s ease; }
-    `;
-    document.head.appendChild(style);
-}
 
-// Обработчик клика по кнопке (используем делегирование, чтобы работало всегда)
-document.addEventListener('click', function(e) {
-    if (e.target && e.target.id === 'toggleTabsBtn') {
-        console.log('Toggle clicked');
-        console.log('Nav element:', tabBar);
-        const tabBar = document.querySelector('#nav');
-        if (!tabBar) { console.error('#nav not found!'); return; }
-        const appContainer = document.getElementById('app');
-        
-        if (tabBar) {
-            const isHidden = tabBar.classList.toggle('tabs-hidden');
-            appContainer.classList.toggle('tabs-expanded');
-            
-            // Меняем иконку и положение кнопки
-            if (isHidden) {
-                e.target.innerHTML = '⬆️';
-                e.target.style.bottom = '20px'; // Оставляем внизу
-            } else {
-                e.target.innerHTML = '⬇️';
-            }
+
+
+// === ПРОСТАЯ И НАДЁЖНАЯ ЛОГИКА СВОРАЧИВАНИЯ ВЕРХНЕЙ ПАНЕЛИ ===
+function toggleNavBar() {
+    const nav = document.getElementById('nav');
+    const btn = document.getElementById('toggleTabsBtn');
+    const app = document.getElementById('app');
+    
+    if (nav) {
+        if (nav.style.display === 'none') {
+            nav.style.display = 'block';
+            btn.innerHTML = '⬇️';
+            if (app) app.style.paddingTop = '70px'; // Возвращаем отступ
+        } else {
+            nav.style.display = 'none';
+            btn.innerHTML = '⬆️';
+            if (app) app.style.paddingTop = '10px'; // Убираем лишний отступ, когда меню скрыто
         }
+    } else {
+        alert('Панель навигации не найдена');
     }
-});
-// === КОНЕЦ ЛОГИКИ СВОРАЧИВАНИЯ ===
+}
+// === КОНЕЦ ЛОГИКИ ===
