@@ -8293,6 +8293,7 @@ function toggleNavBar() {
         console.error(' Элемент #nav не найден!');
     }
 }
+}
 
 function openSmartAssistant() {
     console.log('🟣 openSmartAssistant clicked!');
