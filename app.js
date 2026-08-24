@@ -8337,27 +8337,29 @@ function scrollToTop() {
 }
 // === КОНЕЦ ГЛАВНОГО МЕНЮ ===
 
-// === FIX: ИДЕАЛЬНОЕ ВОССТАНОВЛЕНИЕ ВКЛАДОК ===
+// === FIX: СКРЫТИЕ ПАНЕЛИ + ЗАГОЛОВКА ===
 function toggleNavBar() {
     const nav = document.getElementById('nav');
+    const h1 = document.querySelector('h1');
     const app = document.getElementById('app');
     
     if (!nav) return;
 
     if (nav.style.display === 'none') {
-        // ПОКАЗЫВАЕМ панель: ПОЛНЫЙ СБРОС INLINE-СТИЛЕЙ
-        // Пустая строка заставляет браузер использовать родные стили из CSS (например, display: flex)
+        // ПОКАЗЫВАЕМ панель и заголовок
         nav.style.display = '';
+        if (h1) h1.style.display = '';
         if (app) {
-            app.style.paddingTop = '';
             app.style.marginTop = '';
+            app.style.paddingTop = '';
         }
     } else {
-        // СКРЫВАЕМ панель
+        // СКРЫВАЕМ панель и заголовок
         nav.style.display = 'none';
+        if (h1) h1.style.display = 'none';
         if (app) {
+            app.style.marginTop = '0';
             app.style.paddingTop = '10px';
-            app.style.marginTop = '-60px';
         }
     }
 }
