@@ -15,46 +15,21 @@
   <script src="app.min.js?v=6.34.1"></script>
   <script src="smart_assistant.js?v=6.34.1"></script>
 
-    <!-- Кнопка сворачивания/разворачивания меню -->
-    
-
-    <!-- Кнопка быстрых действий (лампочка) -->
-    
-
-    <!-- Кнопка сворачивания верхней панели (чуть выше) -->
-    
-    
-    <!-- Кнопка быстрых действий (в самом низу) -->
-    
-
-    <!-- Сиреневая кнопка с лампочкой (внизу справа) -->
-    
-    
-    <!-- Синяя кнопка сворачивания (вверху справа, маленькая) -->
-    
-
-    <!-- Синяя кнопка сворачивания (НАД сиреневой) -->
-    
-    
-    <!-- Сиреневая кнопка Умного помощника (внизу) -->
-    
-
-    <!-- Главная кнопка-меню (сиреневая с белой обводкой) -->
     
     
     <!-- Всплывающее меню (скрыто по умолчанию) -->
     
 
-    <!-- Главная кнопка-меню (сиреневая с белой обводкой) -->
+    <!-- ЕДИНАЯ КНОПКА МЕНЮ -->
     <button id="mainMenuBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg,#9d6cff,#c084ff); color: white; border: 4px solid #fff; font-size: 32px; box-shadow: 0 6px 24px rgba(157,108,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform='scale(1)'" onclick="toggleMainMenu()">💡</button>
     
-    <!-- Всплывающее меню (скрыто по умолчанию) -->
     <div id="mainMenuPopup" style="position: fixed; bottom: 95px; right: 20px; z-index: 9998; display: none; flex-direction: column; gap: 12px; background: rgba(31,37,48,0.95); padding: 15px; border-radius: 16px; border: 2px solid #9d6cff; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
-        <button onclick="toggleNavBar(); toggleMainMenu()" style="width: 50px; height: 50px; border-radius: 50%; background: #6c8cff; color: white; border: 2px solid #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Свернуть/Развернуть панель">⬇️</button>
+        <button onclick="toggleNavBar(); toggleMainMenu()" style="width: 50px; height: 50px; border-radius: 50%; background: #6c8cff; color: white; border: 2px solid #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Свернуть панель">⬇️</button>
         <button onclick="openSmartAssistant(); toggleMainMenu()" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg,#6c8cff,#9d6cff); color: white; border: 2px solid #fff; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Умный помощник">💡</button>
         <button onclick="scrollToTop(); toggleMainMenu()" style="width: 50px; height: 50px; border-radius: 50%; background: #3ecf8e; color: white; border: 2px solid #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Наверх">⬆️</button>
     </div>
 </body>
+
 
 
 

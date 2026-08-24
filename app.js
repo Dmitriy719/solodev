@@ -8116,7 +8116,7 @@ if (!document.getElementById('fix-ui-overlap')) {
     const style = document.createElement('style');
     style.id = 'fix-ui-overlap';
     style.innerHTML = `
-        #app { padding: 70px 0 80px 0 !important; min-height: 100vh; }
+        #app { padding-bottom: 80px !important; min-height: 100vh; }
         .tabs, .tab-bar { height: 60px !important; max-height: 60px !important; overflow: hidden; }
         .card { margin-bottom: 12px; }
         body { overscroll-behavior-y: none; }
@@ -8247,18 +8247,7 @@ function filterLawHub() {
 // === КОНЕЦ МОДУЛЯ ЮРИДИЧЕСКИЙ ХАБ ===
 
 
-
-
-
-// === ПРОСТАЯ И НАДЁЖНАЯ ЛОГИКА СВОРАЧИВАНИЯ ВЕРХНЕЙ ПАНЕЛИ ===
- else {
-        alert('Панель навигации не найдена');
-    }
-}
-// === КОНЕЦ ЛОГИКИ ===
-
-
-// === ГЛАВНОЕ МЕНЮ И ФУНКЦИИ ===
+// === ГЛАВНОЕ МЕНЮ (ФИНАЛЬНАЯ РАБОЧАЯ ВЕРСИЯ) ===
 function toggleMainMenu() {
     const popup = document.getElementById('mainMenuPopup');
     const btn = document.getElementById('mainMenuBtn');
@@ -8290,7 +8279,6 @@ function toggleNavBar() {
 function openSmartAssistant() {
     let h = '<h3>🤖 Умный помощник</h3>';
     h += '<div class="mut" style="font-size:13px;margin-bottom:15px">Ответь на 4 вопроса — рассчитаю время и стоимость.</div>';
-    
     h += '<label style="color:#ffd700;font-size:14px;font-weight:bold">1. Что делаем?</label>';
     h += '<select id="sa_task" style="width:100%;padding:12px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff;font-size:14px">';
     h += '<option value="landing">🌐 Лендинг (~12 ч)</option>';
@@ -8299,31 +8287,26 @@ function openSmartAssistant() {
     h += '<option value="webapp">⚙️ Веб-приложение (~120 ч)</option>';
     h += '<option value="bot">🤖 Telegram-бот (~30 ч)</option>';
     h += '</select>';
-    
     h += '<label style="color:#ffd700;font-size:14px;font-weight:bold">2. Сложность?</label>';
     h += '<select id="sa_complexity" style="width:100%;padding:12px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff;font-size:14px">';
     h += '<option value="simple">🟢 Простая</option>';
     h += '<option value="medium">🟡 Есть нюансы</option>';
     h += '<option value="hard">🔴 Сложная</option>';
     h += '</select>';
-    
     h += '<label style="color:#ffd700;font-size:14px;font-weight:bold">3. Знакома технология?</label>';
     h += '<select id="sa_tech" style="width:100%;padding:12px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff;font-size:14px">';
     h += '<option value="expert">✅ Эксперт</option>';
     h += '<option value="familiar">🤔 Делал похожее</option>';
     h += '<option value="new">🆕 Новая</option>';
     h += '</select>';
-    
     h += '<label style="color:#ffd700;font-size:14px;font-weight:bold">4. Какое ТЗ?</label>';
     h += '<select id="sa_spec" style="width:100%;padding:12px;margin:5px 0 20px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff;font-size:14px">';
     h += '<option value="detailed">📋 Детальное</option>';
     h += '<option value="rough">📝 Примерное</option>';
     h += '<option value="none">❌ Нет ТЗ</option>';
     h += '</select>';
-    
     h += '<button class="btn" style="width:100%;background:#ffd700;color:#000;font-size:16px;font-weight:bold" onclick="calculateSmart()">🧮 Рассчитать</button>';
     h += '<div id="sa_result" style="margin-top:15px"></div>';
-    
     openModal(h);
 }
 
@@ -8332,29 +8315,24 @@ function calculateSmart() {
     const complexity = document.getElementById('sa_complexity').value;
     const tech = document.getElementById('sa_tech').value;
     const spec = document.getElementById('sa_spec').value;
-    
     const baseHours = { landing: 12, multisite: 40, shop: 80, webapp: 120, bot: 30 };
     let hours = baseHours[task] || 20;
-    
     const complexityMult = { simple: 0.8, medium: 1.2, hard: 1.8 };
     const techMult = { expert: 0.9, familiar: 1.1, new: 1.5 };
     const specMult = { detailed: 0.9, rough: 1.2, none: 1.4 };
-    
     hours = Math.round(hours * complexityMult[complexity] * techMult[tech] * specMult[spec]);
     const rate = (typeof db !== 'undefined' && db.hourlyRate) ? db.hourlyRate : 2000;
     const cost = hours * rate;
-    
     const resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:8px;border:2px solid #3ecf8e;margin-top:15px">';
     resultHtml += '<div style="font-size:14px;color:#fff;margin-bottom:10px"><b>📊 Результат:</b></div>';
     resultHtml += '<div style="font-size:18px;color:#3ecf8e;margin-bottom:8px">⏱️ Время: <b>' + hours + ' часов</b></div>';
     resultHtml += '<div style="font-size:18px;color:#ffd700;margin-bottom:8px">💰 Стоимость: <b>' + cost.toLocaleString() + ' ₽</b></div>';
     resultHtml += '<div style="font-size:12px;color:#e8ecf3">При ставке ' + rate.toLocaleString() + ' ₽/ч</div>';
     resultHtml += '</div>';
-    
     document.getElementById('sa_result').innerHTML = resultHtml;
 }
 
 function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-// === КОНЕЦ ФУНКЦИЙ ===
+// === КОНЕЦ ГЛАВНОГО МЕНЮ ===
