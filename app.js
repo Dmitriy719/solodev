@@ -8253,7 +8253,7 @@ if (!document.getElementById('toggle-tabs-style')) {
     style.id = 'toggle-tabs-style';
     style.innerHTML = `
         /* Плавное скрытие панели вкладок */
-        .tabs.tabs-hidden, .tab-bar.tabs-hidden {
+        #nav.nav-hidden, .tabs.tabs-hidden, .tab-bar.tabs-hidden {
             transform: translateY(100%) !important;
             opacity: 0 !important;
             pointer-events: none !important;
@@ -8271,7 +8271,7 @@ if (!document.getElementById('toggle-tabs-style')) {
 // Обработчик клика по кнопке (используем делегирование, чтобы работало всегда)
 document.addEventListener('click', function(e) {
     if (e.target && e.target.id === 'toggleTabsBtn') {
-        const tabBar = document.querySelector('.tabs') || document.querySelector('.tab-bar');
+        const tabBar = document.querySelector('#nav');
         const appContainer = document.getElementById('app');
         
         if (tabBar) {
