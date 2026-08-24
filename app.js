@@ -8249,6 +8249,7 @@ function filterLawHub() {
 
 // === ГЛАВНОЕ МЕНЮ (ФИНАЛЬНАЯ РАБОЧАЯ ВЕРСИЯ) ===
 function toggleMainMenu() {
+    console.log('🔴 toggleMainMenu clicked!');
     const popup = document.getElementById('mainMenuPopup');
     const btn = document.getElementById('mainMenuBtn');
     if (popup && btn) {
@@ -8263,6 +8264,7 @@ function toggleMainMenu() {
 }
 
 function toggleNavBar() {
+    console.log('🔵 toggleNavBar clicked!');
     const nav = document.getElementById('nav');
     const app = document.getElementById('app');
     if (nav) {
@@ -8277,6 +8279,7 @@ function toggleNavBar() {
 }
 
 function openSmartAssistant() {
+    console.log('🟣 openSmartAssistant clicked!');
     let h = '<h3>🤖 Умный помощник</h3>';
     h += '<div class="mut" style="font-size:13px;margin-bottom:15px">Ответь на 4 вопроса — рассчитаю время и стоимость.</div>';
     h += '<label style="color:#ffd700;font-size:14px;font-weight:bold">1. Что делаем?</label>';
