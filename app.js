@@ -8249,7 +8249,6 @@ function filterLawHub() {
 
 // === ГЛАВНОЕ МЕНЮ (ФИНАЛЬНАЯ РАБОЧАЯ ВЕРСИЯ) ===
 function toggleMainMenu() {
-    console.log('🔴 toggleMainMenu clicked!');
     const popup = document.getElementById('mainMenuPopup');
     const btn = document.getElementById('mainMenuBtn');
     if (popup && btn) {
@@ -8264,39 +8263,20 @@ function toggleMainMenu() {
 }
 
 function toggleNavBar() {
-    console.log('🔵 toggleNavBar clicked!');
     const nav = document.getElementById('nav');
     const app = document.getElementById('app');
     if (nav) {
         if (nav.style.display === 'none') {
-            // Показываем панель
             nav.style.display = 'block';
-            nav.style.opacity = '1';
-            nav.style.visibility = 'visible';
-            if (app) {
-                app.style.paddingTop = '70px';
-                app.style.marginTop = '0';
-            }
-            console.log('✅ Панель показана');
+            if (app) app.style.paddingTop = '70px';
         } else {
-            // Скрываем панель
             nav.style.display = 'none';
-            nav.style.opacity = '0';
-            nav.style.visibility = 'hidden';
-            if (app) {
-                app.style.paddingTop = '10px';
-                app.style.marginTop = '-60px';
-            }
-            console.log('✅ Панель скрыта');
+            if (app) app.style.paddingTop = '10px';
         }
-    } else {
-        console.error(' Элемент #nav не найден!');
     }
-}
 }
 
 function openSmartAssistant() {
-    console.log('🟣 openSmartAssistant clicked!');
     let h = '<h3>🤖 Умный помощник</h3>';
     h += '<div class="mut" style="font-size:13px;margin-bottom:15px">Ответь на 4 вопроса — рассчитаю время и стоимость.</div>';
     h += '<label style="color:#ffd700;font-size:14px;font-weight:bold">1. Что делаем?</label>';
@@ -8356,3 +8336,31 @@ function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 // === КОНЕЦ ГЛАВНОГО МЕНЮ ===
+
+// === FIX: НАДЁЖНОЕ ПЕРЕКЛЮЧЕНИЕ ВЕРХНЕЙ ПАНЕЛИ ===
+function toggleNavBar() {
+    const nav = document.getElementById('nav');
+    const app = document.getElementById('app');
+    
+    if (!nav) {
+        console.error('Элемент #nav не найден!');
+        return;
+    }
+
+    if (nav.style.display === 'none') {
+        // ПОКАЗЫВАЕМ панель
+        nav.style.display = 'block';
+        if (app) {
+            app.style.paddingTop = '70px';
+            app.style.marginTop = '0px';
+        }
+    } else {
+        // СКРЫВАЕМ панель
+        nav.style.display = 'none';
+        if (app) {
+            app.style.paddingTop = '10px';
+            app.style.marginTop = '-60px';
+        }
+    }
+}
+// === КОНЕЦ FIX ===
