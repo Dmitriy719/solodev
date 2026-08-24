@@ -37,7 +37,7 @@ localStorage.setItem('solodev', JSON.stringify(db));
   localStorage.setItem('solodev', JSON.stringify(db));
 
 var currentView='home';
-var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'tax',icon:'',label:'Налоги'},{id:'calendar',icon:'📅',label:'Календарь'},{id:'law',icon:'⚖️',label:'Право'},{id:'law',icon:'⚖️',label:'Право'},{id:'pipeline',icon:'🎯',label:'Воронка'},{id:'smarthub',icon:'🤖',label:'AI-Хаб'},{id:'settings',icon:'⚙️',label:'Настройки'}];
+var TABS=[{id:'home',icon:'🏠',label:'Главная'},{id:'dashboard',icon:'📊',label:'Дашборд'},{id:'radar',icon:'🎯',label:'Радар'},{id:'projects',icon:'📁',label:'Проекты'},{id:'clients',icon:'👥',label:'Клиенты'},{id:'finances',icon:'💰',label:'Финансы'},{id:'emails',icon:'✉️',label:'Шаблоны'},{id:'pricing',icon:'💵',label:'Прайс'},{id:'productivity',icon:'⏱',label:'Продуктивность'},{id:'health',icon:'🏥',label:'Здоровье'},{id:'knowledge',icon:'📚',label:'База знаний'},{id:'crm',icon:'🤝',label:'CRM'},{id:'investments',icon:'📈',label:'Инвестиции'},{id:'documents',icon:'🧾',label:'Документы'},{id:'analytics',icon:'📊',label:'Аналитика'},{id:'devtools',icon:'🛠',label:'Dev Tools'},{id:'timetracker',icon:'⏱',label:'Тайм-трекер'},{id:'subscriptions',icon:'🔄',label:'Подписки'},{id:'calculator',icon:'🧮',label:'Калькулятор'},{id:'burnout',icon:'🧠',label:'Выгорание'},{id:'kpi',icon:'📈',label:'KPI'},{id:'tax',icon:'',label:'Налоги'},{id:'calendar',icon:'📅',label:'Календарь'},{id:'law',icon:'⚖️',label:'Право'},{id:'law',icon:'⚖️',label:'Право'},{id:'law',icon:'⚖️',label:'Право'},{id:'pipeline',icon:'🎯',label:'Воронка'},{id:'smarthub',icon:'🤖',label:'AI-Хаб'},{id:'settings',icon:'⚙️',label:'Настройки'}];
 
 function save(){localStorage.setItem('solodev',JSON.stringify(db))}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
@@ -85,6 +85,7 @@ function render(){
   else if(currentView==='timetracker')renderTimeTracker();
   else if(currentView==='subscriptions')renderSubscriptions();
   else if(currentView==='calculator')renderCalculator();
+  else if(currentView==='law')renderLawHub();
   else if(currentView==='law')renderLawHub();
   else if(currentView==='law')renderLawHub();
   else if(currentView==='pipeline')renderLeadPipeline();
@@ -8427,5 +8428,147 @@ function filterLawHub() {
     } else {
         moreMsg.textContent = 'Показано ' + dictVisibleCount + ' терминов';
     }
+}
+// === КОНЕЦ МОДУЛЯ ЮРИДИЧЕСКИЙ ХАБ ===
+
+// === ГЛОБАЛЬНОЕ ИСПРАВЛЕНИЕ UI (перекрытие вкладок) ===
+if (!document.getElementById('fix-ui-overlap')) {
+    const style = document.createElement('style');
+    style.id = 'fix-ui-overlap';
+    style.innerHTML = `
+        #app { padding-bottom: 80px !important; min-height: 100vh; }
+        .tabs, .tab-bar { height: 60px !important; max-height: 60px !important; overflow: hidden; }
+        .card { margin-bottom: 12px; }
+        body { overscroll-behavior-y: none; }
+    `;
+    document.head.appendChild(style);
+}
+
+// === МОДУЛЬ ЮРИДИЧЕСКИЙ ХАБ (С ЗАГРУЗКОЙ ИЗ ОТДЕЛЬНОЙ БД) ===
+let legalDataCache = null;
+
+async function renderLawHub() {
+    let h = '<h2>⚖️ Юридический справочник</h2>';
+    
+    // Показываем загрузку, если база еще не в кэше
+    if (!legalDataCache) {
+        h += '<div class="card" style="text-align:center;padding:30px"><div class="mut">⏳ Загрузка базы данных законов...</div></div>';
+        document.getElementById('app').innerHTML = h;
+        
+        try {
+            const response = await fetch('legal_db.json');
+            if (!response.ok) throw new Error('Не удалось загрузить legal_db.json');
+            legalDataCache = await response.json();
+        } catch (error) {
+            document.getElementById('app').innerHTML = '<div class="card" style="text-align:center;padding:30px;border-color:#ff6b6b"><div style="color:#ff6b6b">❌ Ошибка загрузки базы данных. Проверьте интернет.</div></div>';
+            return;
+        }
+    }
+
+    // Рендерим интерфейс с данными из кэша
+    h = '<h2>⚖️ Юридический справочник</h2>';
+    
+    // Поиск
+    h += '<div class="card" style="padding:10px;margin-bottom:15px">';
+    h += '<input id="lawSearch" placeholder="🔍 Поиск закона или термина..." style="width:100%;padding:10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;font-size:14px" oninput="filterLawHub()">';
+    h += '</div>';
+
+    h += '<div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ffd700;margin-bottom:15px">';
+    h += '<h3 style="margin-top:0">💡 Важно</h3>';
+    h += '<div class="mut" style="font-size:13px">База данных загружается отдельно. Для сложных международных сделок рекомендуется консультация с профильным юристом.</div>';
+    h += '</div>';
+
+    // Чек-листы по странам
+    h += '<h3>📋 Ключевые законы и требования</h3>';
+    h += '<div id="lawsContainer" class="grid" style="grid-template-columns:1fr;gap:10px;margin-bottom:20px">';
+    for (const [key, data] of Object.entries(legalDataCache.countries)) {
+        const searchText = key + ' ' + data.laws.join(' ');
+        h += '<div class="law-item card" style="border-left:4px solid #6c8cff" data-search="' + searchText + '">';
+        h += '<h4 style="margin-top:0;margin-bottom:10px">' + data.name + '</h4>';
+        h += '<ul style="padding-left:20px;margin:0;color:#e8ecf3;font-size:13px;line-height:1.5">';
+        data.laws.forEach(law => {
+            h += '<li style="margin-bottom:8px">' + law + '</li>';
+        });
+        h += '</ul></div>';
+    }
+    h += '</div>';
+
+    // Словарь терминов
+    h += '<h3>📖 Юридический словарь</h3>';
+    h += '<div id="dictContainer" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">';
+    legalDataCache.dictionary.slice(0, 15).forEach(item => {
+        const searchStr = (item.term + ' ' + item.def).toLowerCase();
+        h += '<div class="dict-item card" style="padding:12px" data-search="' + searchStr + '">';
+        h += '<b style="font-size:14px;color:#6c8cff">' + item.term + '</b>';
+        h += '<div style="font-size:12px;color:#e8ecf3;margin-top:4px">' + item.def + '</div>';
+        h += '</div>';
+    });
+    h += '<div id="moreDictMsg" class="mut" style="text-align:center;padding:10px">Используй поиск выше, чтобы найти любой термин из базы</div>';
+    h += '</div>';
+
+    // Генератор оговорок
+    h += '<h3>📝 Генератор оговорок для договора</h3>';
+    const clauses = [
+        { title: "Применимое право (РФ)", text: "Настоящий Договор регулируется и толкуется в соответствии с законодательством Российской Федерации. Все споры подлежат рассмотрению в суде по месту нахождения Исполнителя." },
+        { title: "Конфиденциальность (NDA)", text: "Стороны обязуются не разглашать третьим лицам любую коммерческую, техническую или финансовую информацию, полученную в ходе исполнения настоящего Договора, в течение 3 (трех) лет после его окончания." },
+        { title: "Переход исключительных прав (IP)", text: "Исключительное право на результат работ переходит к Заказчику в полном объеме с момента подписания Сторонами Акта сдачи-приемки и полной оплаты услуг Исполнителя." },
+        { title: "Форс-мажор", text: "Стороны освобождаются от ответственности за частичное или полное неисполнение обязательств, если оно явилось следствием обстоятельств непреодолимой силы, возникших после заключения договора." }
+    ];
+    h += '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">';
+    clauses.forEach((clause, index) => {
+        h += '<div class="card" style="padding:12px">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+        h += '<b style="font-size:14px;color:#fff">' + clause.title + '</b>';
+        h += '<button class="btn small" style="background:#3ecf8e" onclick="navigator.clipboard.writeText(`' + clause.text.replace(/`/g, '\\`') + '`).then(()=>alert(\'✅ Скопировано!\'))">📋 Копировать</button>';
+        h += '</div>';
+        h += '<div style="font-size:12px;color:#e8ecf3;background:#1f2530;padding:10px;border-radius:4px;font-style:italic">' + clause.text + '</div>';
+        h += '</div>';
+    });
+    h += '</div>';
+
+    // Ссылки на базы
+    h += '<h3>🔍 Официальные базы (Актуальные редакции)</h3>';
+    h += '<div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">';
+    h += '<a href="https://www.consultant.ru/" target="_blank" class="card" style="text-align:center;text-decoration:none;border-color:#3ecf8e"><div style="font-size:24px;margin-bottom:5px">🇷🇺</div><b style="color:#fff">КонсультантПлюс</b><div class="mut" style="font-size:11px">Законы РФ</div></a>';
+    h += '<a href="https://pravo.by/" target="_blank" class="card" style="text-align:center;text-decoration:none;border-color:#3ecf8e"><div style="font-size:24px;margin-bottom:5px">🇧🇾</div><b style="color:#fff">Pravo.by</b><div class="mut" style="font-size:11px">Правовой портал РБ</div></a>';
+    h += '<a href="http://www.gov.cn/zhengce/" target="_blank" class="card" style="text-align:center;text-decoration:none;border-color:#3ecf8e"><div style="font-size:24px;margin-bottom:5px">🇨🇳</div><b style="color:#fff">Gov.cn</b><div class="mut" style="font-size:11px">Госсовет КНР</div></a>';
+    h += '<a href="https://eaeunion.org/" target="_blank" class="card" style="text-align:center;text-decoration:none;border-color:#3ecf8e"><div style="font-size:24px;margin-bottom:5px">🌍</div><b style="color:#fff">ЕАЭС</b><div class="mut" style="font-size:11px">Право ЕАЭС</div></a>';
+    h += '</div>';
+
+    document.getElementById('app').innerHTML = h;
+}
+
+function filterLawHub() {
+    if (!legalDataCache) return;
+    const query = document.getElementById('lawSearch').value.toLowerCase().trim();
+    const lawItems = document.querySelectorAll('.law-item');
+    const dictItems = document.querySelectorAll('.dict-item');
+    const moreMsg = document.getElementById('moreDictMsg');
+    
+    let dictVisibleCount = 0;
+
+    if (query === '') {
+        lawItems.forEach(el => el.style.display = 'block');
+        dictItems.forEach((el, i) => { el.style.display = i < 15 ? 'block' : 'none'; });
+        moreMsg.style.display = 'block';
+        moreMsg.textContent = 'Используй поиск выше, чтобы найти любой термин из базы';
+        return;
+    }
+
+    lawItems.forEach(el => {
+        el.style.display = el.getAttribute('data-search').includes(query) ? 'block' : 'none';
+    });
+
+    dictItems.forEach(el => {
+        if (el.getAttribute('data-search').includes(query)) {
+            el.style.display = 'block';
+            dictVisibleCount++;
+        } else {
+            el.style.display = 'none';
+        }
+    });
+
+    moreMsg.style.display = 'block';
+    moreMsg.textContent = dictVisibleCount === 0 ? 'Ничего не найдено. Попробуйте другой запрос.' : 'Найдено терминов: ' + dictVisibleCount;
 }
 // === КОНЕЦ МОДУЛЯ ЮРИДИЧЕСКИЙ ХАБ ===
