@@ -8158,7 +8158,7 @@ async function renderLawHub() {
     h += '<h3>📋 Ключевые законы и требования</h3>';
     h += '<div id="lawsContainer" class="grid" style="grid-template-columns:1fr;gap:10px;margin-bottom:20px">';
     for (const [key, data] of Object.entries(legalDataCache.countries)) {
-        const searchText = key + ' ' + data.laws.join(' ');
+        const searchText = (key + ' ' + data.name + ' ' + data.laws.join(' ')).toLowerCase();
         h += '<div class="law-item card" style="border-left:4px solid #6c8cff" data-search="' + searchText + '">';
         h += '<h4 style="margin-top:0;margin-bottom:10px">' + data.name + '</h4>';
         h += '<ul style="padding-left:20px;margin:0;color:#e8ecf3;font-size:13px;line-height:1.5">';
