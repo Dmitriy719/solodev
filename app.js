@@ -8253,7 +8253,10 @@ if (!document.getElementById('toggle-tabs-style')) {
     style.id = 'toggle-tabs-style';
     style.innerHTML = `
         /* Плавное скрытие панели вкладок */
-        #nav.nav-hidden, .tabs.tabs-hidden, .tab-bar.tabs-hidden {
+        #nav.tabs-hidden {
+            transform: translateY(-100%) !important;
+        }
+        .tabs.tabs-hidden, .tab-bar.tabs-hidden {
             transform: translateY(100%) !important;
             opacity: 0 !important;
             pointer-events: none !important;
