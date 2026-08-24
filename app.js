@@ -8116,7 +8116,7 @@ if (!document.getElementById('fix-ui-overlap')) {
     const style = document.createElement('style');
     style.id = 'fix-ui-overlap';
     style.innerHTML = `
-        #app { padding-bottom: 80px !important; min-height: 100vh; }
+        #app { padding: 70px 0 80px 0 !important; min-height: 100vh; }
         .tabs, .tab-bar { height: 60px !important; max-height: 60px !important; overflow: hidden; }
         .card { margin-bottom: 12px; }
         body { overscroll-behavior-y: none; }
