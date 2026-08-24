@@ -7931,9 +7931,8 @@ function generateTz() {
 
 // === КОНЕЦ AI-ХАБА ===
 
-
 // === МОДУЛЬ ВОРОНКИ ОТКЛИКОВ ===
-var leadStatuses = [
+const leadStatuses = [
     { id: 'found', label: '📍 Найдена', color: '#6c8cff' },
     { id: 'sent', label: '📤 Отклик отправлен', color: '#9d6cff' },
     { id: 'call', label: '📞 Созвон', color: '#ffd700' },
@@ -7943,52 +7942,46 @@ var leadStatuses = [
 ];
 
 function renderLeadPipeline() {
-    var h = '<h2>🎯 Воронка откликов</h2>';
-    
-    // Статистика конверсии
-    var totalLeads = db.leads.length;
-    var sentCount = db.leads.filter(function(l){ return l.status !== 'found'; }).length;
-    var callCount = db.leads.filter(function(l){ return ['call','offer','started'].indexOf(l.status) !== -1; }).length;
-    var offerCount = db.leads.filter(function(l){ return ['offer','started'].indexOf(l.status) !== -1; }).length;
-    var conversionRate = totalLeads > 0 ? Math.round((offerCount / totalLeads) * 100) : 0;
+    let h = '<h2>🎯 Воронка откликов</h2>';
+    const totalLeads = db.leads.length;
+    const sentCount = db.leads.filter(l => l.status !== 'found').length;
+    const callCount = db.leads.filter(l => ['call','offer','started'].includes(l.status)).length;
+    const offerCount = db.leads.filter(l => ['offer','started'].includes(l.status)).length;
+    const conversionRate = totalLeads > 0 ? Math.round((offerCount / totalLeads) * 100) : 0;
     
     h += '<div class="grid" style="grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px">';
-    h += '<div class="card" style="text-align:center"><div class="mut">Всего откликов</div><b style="font-size:20px;color:#6c8cff">' + totalLeads + '</b></div>';
+    h += '<div class="card" style="text-align:center"><div class="mut">Всего</div><b style="font-size:20px;color:#6c8cff">' + totalLeads + '</b></div>';
     h += '<div class="card" style="text-align:center"><div class="mut">Отправлено</div><b style="font-size:20px;color:#9d6cff">' + sentCount + '</b></div>';
     h += '<div class="card" style="text-align:center"><div class="mut">Созвонов</div><b style="font-size:20px;color:#ffd700">' + callCount + '</b></div>';
     h += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#102015,#1a3025);border-color:#3ecf8e"><div class="mut" style="color:#fff">Конверсия</div><b style="font-size:20px;color:#3ecf8e">' + conversionRate + '%</b></div>';
     h += '</div>';
     
-    // Кнопка добавления
     h += '<button class="btn" style="width:100%;margin-bottom:15px;background:#3ecf8e" onclick="addLead()">+ Добавить отклик</button>';
     
-    // Фильтры по статусам
     h += '<div style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap">';
     h += '<button class="btn small" style="background:' + (!window.leadFilter ? '#6c8cff' : '#1f2530') + '" onclick="window.leadFilter=null;renderLeadPipeline()">Все</button>';
-    leadStatuses.forEach(function(s){
-        var count = db.leads.filter(function(l){ return l.status === s.id; }).length;
+    leadStatuses.forEach(s => {
+        const count = db.leads.filter(l => l.status === s.id).length;
         if (count > 0) {
-            h += '<button class="btn small" style="background:' + (window.leadFilter === s.id ? s.color : '#1f2530') + '" onclick="window.leadFilter=\\'' + s.id + '\\';renderLeadPipeline()">' + s.label + ' (' + count + ')</button>';
+            h += '<button class="btn small" style="background:' + (window.leadFilter === s.id ? s.color : '#1f2530') + '" onclick="window.leadFilter=\'' + s.id + '\';renderLeadPipeline()">' + s.label + ' (' + count + ')</button>';
         }
     });
     h += '</div>';
     
-    // Список откликов
-    var filteredLeads = window.leadFilter ? db.leads.filter(function(l){ return l.status === window.leadFilter; }) : db.leads;
+    const filteredLeads = window.leadFilter ? db.leads.filter(l => l.status === window.leadFilter) : db.leads;
     
     if (filteredLeads.length === 0) {
         h += '<div class="card" style="text-align:center;padding:30px"><div class="mut">Нет откликов. Добавь первый!</div></div>';
     } else {
-        // Сортировка: сначала активные (found, sent, call), потом offer, потом rejected/started
-        var sortedLeads = filteredLeads.sort(function(a,b){
-            var order = { found: 1, sent: 2, call: 3, offer: 4, started: 5, rejected: 6 };
+        const sortedLeads = [...filteredLeads].sort((a,b) => {
+            const order = { found: 1, sent: 2, call: 3, offer: 4, started: 5, rejected: 6 };
             return (order[a.status] || 99) - (order[b.status] || 99);
         });
         
-        sortedLeads.forEach(function(lead){
-            var status = leadStatuses.find(function(s){ return s.id === lead.status; }) || leadStatuses[0];
-            var daysSinceUpdate = Math.floor((new Date() - new Date(lead.dateUpdated || lead.dateAdded)) / (1000 * 60 * 60 * 24));
-            var isStale = daysSinceUpdate > 7 && ['found','sent','call'].indexOf(lead.status) !== -1;
+        sortedLeads.forEach(lead => {
+            const status = leadStatuses.find(s => s.id === lead.status) || leadStatuses[0];
+            const daysSinceUpdate = Math.floor((new Date() - new Date(lead.dateUpdated || lead.dateAdded)) / (1000 * 60 * 60 * 24));
+            const isStale = daysSinceUpdate > 7 && ['found','sent','call'].includes(lead.status);
             
             h += '<div class="card" style="border-left:4px solid ' + status.color + (isStale ? ';opacity:0.7' : '') + '">';
             h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">';
@@ -7998,54 +7991,44 @@ function renderLeadPipeline() {
             h += '<span style="padding:4px 10px;background:' + status.color + ';color:#000;border-radius:12px;font-size:11px;font-weight:bold">' + status.label + '</span>';
             h += '</div>';
             
-            if (lead.salary) {
-                h += '<div style="color:#3ecf8e;font-size:13px;margin:6px 0">💰 ' + lead.salary + '</div>';
-            }
+            if (lead.salary) h += '<div style="color:#3ecf8e;font-size:13px;margin:6px 0">💰 ' + esc(lead.salary) + '</div>';
+            if (lead.notes) h += '<div style="font-size:12px;color:#e8ecf3;margin:6px 0;padding:8px;background:#1f2530;border-radius:4px">' + esc(lead.notes) + '</div>';
             
-            if (lead.notes) {
-                h += '<div style="font-size:12px;color:#e8ecf3;margin:6px 0;padding:8px;background:#1f2530;border-radius:4px">' + esc(lead.notes) + '</div>';
-            }
-            
-            h += '<div class="mut" style="font-size:11px;margin:8px 0">';
-            h += '📅 ' + new Date(lead.dateAdded).toLocaleDateString('ru-RU');
+            h += '<div class="mut" style="font-size:11px;margin:8px 0">📅 ' + new Date(lead.dateAdded).toLocaleDateString('ru-RU');
             if (isStale) h += ' <span style="color:#ff6b6b">⚠️ Не обновлялось ' + daysSinceUpdate + ' дн.</span>';
             h += '</div>';
             
             h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">';
-            if (lead.link) {
-                h += '<a href="' + lead.link + '" target="_blank" class="btn small" style="background:#6c8cff;text-decoration:none">🔗 Ссылка</a>';
-            }
-            h += '<button class="btn small" style="background:#1f2530" onclick="editLead(\\'' + lead.id + '\\')">✏️ Изменить</button>';
-            h += '<button class="btn small" style="background:#1f2530" onclick="changeLeadStatus(\\'' + lead.id + '\\')">🔄 Статус</button>';
-            h += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-left:auto" onclick="deleteLead(\\'' + lead.id + '\\')">🗑</button>';
+            if (lead.link) h += '<a href="' + esc(lead.link) + '" target="_blank" class="btn small" style="background:#6c8cff;text-decoration:none">🔗 Ссылка</a>';
+            h += '<button class="btn small" style="background:#1f2530" onclick="editLead(\'' + lead.id + '\')">✏️ Изменить</button>';
+            h += '<button class="btn small" style="background:#1f2530" onclick="changeLeadStatus(\'' + lead.id + '\')">🔄 Статус</button>';
+            h += '<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;margin-left:auto" onclick="deleteLead(\'' + lead.id + '\')">🗑</button>';
             h += '</div></div>';
         });
     }
-    
     document.getElementById('app').innerHTML = h;
 }
 
 function addLead() {
-    var h = '<h3>🎯 Новый отклик</h3>';
+    let h = '<h3>🎯 Новый отклик</h3>';
     h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Название вакансии/проекта:</label>';
-    h += '<input id="lead_title" placeholder="Frontend Developer в Яндекс" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
-    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Компания (опционально):</label>';
+    h += '<input id="lead_title" placeholder="Frontend Developer" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
+    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Компания:</label>';
     h += '<input id="lead_company" placeholder="Яндекс" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
-    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Ссылка на вакансию (опционально):</label>';
+    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Ссылка:</label>';
     h += '<input id="lead_link" placeholder="https://..." style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
-    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Предлагаемая сумма (опционально):</label>';
+    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Сумма:</label>';
     h += '<input id="lead_salary" placeholder="150 000 ₽" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
-    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Заметки (опционально):</label>';
-    h += '<textarea id="lead_notes" placeholder="Стек: React, TypeScript. Удалёнка." style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;min-height:60px"></textarea>';
+    h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Заметки:</label>';
+    h += '<textarea id="lead_notes" placeholder="Стек, условия..." style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;min-height:60px"></textarea>';
     h += '<button class="btn" style="width:100%;background:#3ecf8e" onclick="saveLead()">💾 Сохранить</button>';
     openModal(h);
 }
 
 function saveLead() {
-    var title = document.getElementById('lead_title').value.trim();
-    if (!title) { alert('Введи название вакансии'); return; }
-    
-    var lead = {
+    const title = document.getElementById('lead_title').value.trim();
+    if (!title) { alert('Введи название'); return; }
+    const lead = {
         id: 'lead_' + Date.now(),
         title: title,
         company: document.getElementById('lead_company').value.trim(),
@@ -8056,7 +8039,7 @@ function saveLead() {
         dateAdded: new Date().toISOString(),
         dateUpdated: new Date().toISOString()
     };
-    
+    if (!db.leads) db.leads = [];
     db.leads.push(lead);
     localStorage.setItem('solodev', JSON.stringify(db));
     closeModal();
@@ -8064,10 +8047,9 @@ function saveLead() {
 }
 
 function editLead(id) {
-    var lead = db.leads.find(function(l){ return l.id === id; });
+    const lead = db.leads.find(l => l.id === id);
     if (!lead) return;
-    
-    var h = '<h3>✏️ Редактировать отклик</h3>';
+    let h = '<h3>✏️ Редактировать отклик</h3>';
     h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Название:</label>';
     h += '<input id="lead_title" value="' + esc(lead.title) + '" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
     h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Компания:</label>';
@@ -8078,50 +8060,43 @@ function editLead(id) {
     h += '<input id="lead_salary" value="' + esc(lead.salary || '') + '" style="width:100%;padding:10px;margin:5px 0 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
     h += '<label style="color:#6c8cff;font-size:12px;font-weight:bold">Заметки:</label>';
     h += '<textarea id="lead_notes" style="width:100%;padding:10px;margin:5px 0 15px;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;min-height:60px">' + esc(lead.notes || '') + '</textarea>';
-    h += '<button class="btn" style="width:100%;background:#3ecf8e" onclick="updateLead(\\'' + id + '\\')">💾 Сохранить</button>';
+    h += '<button class="btn" style="width:100%;background:#3ecf8e" onclick="updateLead(\'' + id + '\')">💾 Сохранить</button>';
     openModal(h);
 }
 
 function updateLead(id) {
-    var lead = db.leads.find(function(l){ return l.id === id; });
+    const lead = db.leads.find(l => l.id === id);
     if (!lead) return;
-    
     lead.title = document.getElementById('lead_title').value.trim();
     lead.company = document.getElementById('lead_company').value.trim();
     lead.link = document.getElementById('lead_link').value.trim();
     lead.salary = document.getElementById('lead_salary').value.trim();
     lead.notes = document.getElementById('lead_notes').value.trim();
     lead.dateUpdated = new Date().toISOString();
-    
     localStorage.setItem('solodev', JSON.stringify(db));
     closeModal();
     renderLeadPipeline();
 }
 
 function changeLeadStatus(id) {
-    var lead = db.leads.find(function(l){ return l.id === id; });
+    const lead = db.leads.find(l => l.id === id);
     if (!lead) return;
-    
-    var h = '<h3>🔄 Изменить статус</h3>';
+    let h = '<h3>🔄 Изменить статус</h3>';
     h += '<div style="font-size:14px;color:#fff;margin-bottom:15px">' + esc(lead.title) + '</div>';
     h += '<div style="display:flex;flex-direction:column;gap:8px">';
-    
-    leadStatuses.forEach(function(status){
-        var isActive = lead.status === status.id;
-        h += '<button class="btn" style="background:' + (isActive ? status.color : '#1f2530') + ';color:' + (isActive ? '#000' : '#fff') + ';text-align:left" onclick="setLeadStatus(\\'' + id + '\\',\\'' + status.id + '\\')">' + status.label + '</button>';
+    leadStatuses.forEach(status => {
+        const isActive = lead.status === status.id;
+        h += '<button class="btn" style="background:' + (isActive ? status.color : '#1f2530') + ';color:' + (isActive ? '#000' : '#fff') + ';text-align:left" onclick="setLeadStatus(\'' + id + '\',\'' + status.id + '\')">' + status.label + '</button>';
     });
-    
     h += '</div>';
     openModal(h);
 }
 
 function setLeadStatus(id, status) {
-    var lead = db.leads.find(function(l){ return l.id === id; });
+    const lead = db.leads.find(l => l.id === id);
     if (!lead) return;
-    
     lead.status = status;
     lead.dateUpdated = new Date().toISOString();
-    
     localStorage.setItem('solodev', JSON.stringify(db));
     closeModal();
     renderLeadPipeline();
@@ -8129,8 +8104,7 @@ function setLeadStatus(id, status) {
 
 function deleteLead(id) {
     if (!confirm('Удалить этот отклик?')) return;
-    
-    db.leads = db.leads.filter(function(l){ return l.id !== id; });
+    db.leads = db.leads.filter(l => l.id !== id);
     localStorage.setItem('solodev', JSON.stringify(db));
     renderLeadPipeline();
 }
