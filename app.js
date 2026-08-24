@@ -8252,36 +8252,30 @@ function filterLawHub() {
 
 // === ПРОСТАЯ И НАДЁЖНАЯ ЛОГИКА СВОРАЧИВАНИЯ ВЕРХНЕЙ ПАНЕЛИ ===
  else {
-            nav.style.display = 'none';
-            btn.innerHTML = '⬆️';
-            if (app) app.style.paddingTop = '10px'; // Убираем лишний отступ, когда меню скрыто
-        }
-    } else {
         alert('Панель навигации не найдена');
     }
 }
 // === КОНЕЦ ЛОГИКИ ===
 
 
-// === ГЛАВНОЕ КНОПКА-МЕНЮ ===
+// === ГЛАВНОЕ МЕНЮ И ФУНКЦИИ ===
 function toggleMainMenu() {
     const popup = document.getElementById('mainMenuPopup');
     const btn = document.getElementById('mainMenuBtn');
-    
-    if (popup.style.display === 'flex') {
-        popup.style.display = 'none';
-        btn.innerHTML = '💡';
-    } else {
-        popup.style.display = 'flex';
-        btn.innerHTML = '❌';
+    if (popup && btn) {
+        if (popup.style.display === 'flex') {
+            popup.style.display = 'none';
+            btn.innerHTML = '💡';
+        } else {
+            popup.style.display = 'flex';
+            btn.innerHTML = '❌';
+        }
     }
 }
 
 function toggleNavBar() {
     const nav = document.getElementById('nav');
-    const btn = document.getElementById('mainMenuBtn');
     const app = document.getElementById('app');
-    
     if (nav) {
         if (nav.style.display === 'none') {
             nav.style.display = 'block';
@@ -8300,7 +8294,7 @@ function openSmartAssistant() {
     h += '<label style="color:#ffd700;font-size:14px;font-weight:bold">1. Что делаем?</label>';
     h += '<select id="sa_task" style="width:100%;padding:12px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff;font-size:14px">';
     h += '<option value="landing">🌐 Лендинг (~12 ч)</option>';
-    h += '<option value="multisite"> Многостраничный (~40 ч)</option>';
+    h += '<option value="multisite">📄 Многостраничный (~40 ч)</option>';
     h += '<option value="shop">🛒 Интернет-магазин (~80 ч)</option>';
     h += '<option value="webapp">⚙️ Веб-приложение (~120 ч)</option>';
     h += '<option value="bot">🤖 Telegram-бот (~30 ч)</option>';
@@ -8308,7 +8302,7 @@ function openSmartAssistant() {
     
     h += '<label style="color:#ffd700;font-size:14px;font-weight:bold">2. Сложность?</label>';
     h += '<select id="sa_complexity" style="width:100%;padding:12px;margin:5px 0 15px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff;font-size:14px">';
-    h += '<option value="simple"> Простая</option>';
+    h += '<option value="simple">🟢 Простая</option>';
     h += '<option value="medium">🟡 Есть нюансы</option>';
     h += '<option value="hard">🔴 Сложная</option>';
     h += '</select>';
@@ -8323,11 +8317,11 @@ function openSmartAssistant() {
     h += '<label style="color:#ffd700;font-size:14px;font-weight:bold">4. Какое ТЗ?</label>';
     h += '<select id="sa_spec" style="width:100%;padding:12px;margin:5px 0 20px;background:#1f2530;border:1px solid #ffd700;border-radius:6px;color:#fff;font-size:14px">';
     h += '<option value="detailed">📋 Детальное</option>';
-    h += '<option value="rough"> Примерное</option>';
+    h += '<option value="rough">📝 Примерное</option>';
     h += '<option value="none">❌ Нет ТЗ</option>';
     h += '</select>';
     
-    h += '<button class="btn" style="width:100%;background:#ffd700;color:#000;font-size:16px;font-weight:bold" onclick="calculateSmart()"> Рассчитать</button>';
+    h += '<button class="btn" style="width:100%;background:#ffd700;color:#000;font-size:16px;font-weight:bold" onclick="calculateSmart()">🧮 Рассчитать</button>';
     h += '<div id="sa_result" style="margin-top:15px"></div>';
     
     openModal(h);
@@ -8346,13 +8340,11 @@ function calculateSmart() {
     const techMult = { expert: 0.9, familiar: 1.1, new: 1.5 };
     const specMult = { detailed: 0.9, rough: 1.2, none: 1.4 };
     
-    hours *= complexityMult[complexity] * techMult[tech] * specMult[spec];
-    hours = Math.round(hours);
-    
-    const rate = (db.hourlyRate || 2000);
+    hours = Math.round(hours * complexityMult[complexity] * techMult[tech] * specMult[spec]);
+    const rate = (typeof db !== 'undefined' && db.hourlyRate) ? db.hourlyRate : 2000;
     const cost = hours * rate;
     
-    const resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:8px;border:2px solid #3ecf8e">';
+    const resultHtml = '<div style="padding:15px;background:#1f2530;border-radius:8px;border:2px solid #3ecf8e;margin-top:15px">';
     resultHtml += '<div style="font-size:14px;color:#fff;margin-bottom:10px"><b>📊 Результат:</b></div>';
     resultHtml += '<div style="font-size:18px;color:#3ecf8e;margin-bottom:8px">⏱️ Время: <b>' + hours + ' часов</b></div>';
     resultHtml += '<div style="font-size:18px;color:#ffd700;margin-bottom:8px">💰 Стоимость: <b>' + cost.toLocaleString() + ' ₽</b></div>';
