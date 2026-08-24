@@ -8269,12 +8269,28 @@ function toggleNavBar() {
     const app = document.getElementById('app');
     if (nav) {
         if (nav.style.display === 'none') {
+            // Показываем панель
             nav.style.display = 'block';
-            if (app) app.style.paddingTop = '70px';
+            nav.style.opacity = '1';
+            nav.style.visibility = 'visible';
+            if (app) {
+                app.style.paddingTop = '70px';
+                app.style.marginTop = '0';
+            }
+            console.log('✅ Панель показана');
         } else {
+            // Скрываем панель
             nav.style.display = 'none';
-            if (app) app.style.paddingTop = '10px';
+            nav.style.opacity = '0';
+            nav.style.visibility = 'hidden';
+            if (app) {
+                app.style.paddingTop = '10px';
+                app.style.marginTop = '-60px';
+            }
+            console.log('✅ Панель скрыта');
         }
+    } else {
+        console.error(' Элемент #nav не найден!');
     }
 }
 
