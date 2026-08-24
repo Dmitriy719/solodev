@@ -8348,11 +8348,11 @@ function toggleNavBar() {
     }
 
     if (nav.style.display === 'none') {
-        // ПОКАЗЫВАЕМ панель
+        // ПОКАЗЫВАЕМ панель - СБРАСЫВАЕМ СТИЛИ
         nav.style.display = 'block';
         if (app) {
-            app.style.paddingTop = '70px';
-            app.style.marginTop = '0px';
+            app.style.paddingTop = '';  // Сброс к CSS
+            app.style.marginTop = '';   // Сброс к CSS
         }
     } else {
         // СКРЫВАЕМ панель
