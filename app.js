@@ -8173,7 +8173,7 @@ async function renderLawHub() {
     h += '<div id="dictContainer" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">';
     legalDataCache.dictionary.slice(0, 15).forEach(item => {
         const searchStr = (item.term + ' ' + item.def).toLowerCase();
-        h += '<div class="dict-item card" style="padding:12px" data-search="' + searchStr + '">';
+        h += '<div class="dict-item card" style="padding:12px" data-search="' + searchStr + '" data-category="' + (item.category || '') + '">';
         h += '<b style="font-size:14px;color:#6c8cff">' + item.term + '</b>';
         h += '<div style="font-size:12px;color:#e8ecf3;margin-top:4px">' + item.def + '</div>';
         h += '</div>';
@@ -8364,3 +8364,18 @@ function toggleNavBar() {
     }
 }
 // === КОНЕЦ FIX ===
+
+
+// === ФИЛЬТР СЛОВАРЯ ПО КАТЕГОРИЯМ ===
+function filterDictByCategory(category) {
+    const items = document.querySelectorAll('.dict-item');
+    items.forEach(el => {
+        const elCat = el.getAttribute('data-category');
+        if (category === 'all' || elCat === category) {
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    });
+}
+// === КОНЕЦ ФИЛЬТРА ===
