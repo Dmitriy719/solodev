@@ -8402,3 +8402,243 @@ function filterDictByCategory(category) {
     });
 }
 // === КОНЕЦ ФИЛЬТРА ===
+
+
+// === УМНЫЙ ПОМОЩНИК 2.0: РЕЖИМ АНАЛИЗА НИШИ ===
+function analyzeNiche() {
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+    
+    // Шаг 1: Форма ввода
+    modalContent.innerHTML = `
+        <h3>🎯 Анализ ниши и генерация коммерческого предложения</h3>
+        <div style="padding:15px;background:#1f2530;border-radius:8px;margin:15px 0">
+            <label style="color:#ffd700;font-size:14px;font-weight:bold;display:block;margin-bottom:8px">1. Твоя ниша/профессия:</label>
+            <input type="text" id="nicheInput" placeholder="Например: Веб-разработка для малого бизнеса" style="width:100%;padding:12px;background:#0f1419;border:1px solid #6c8cff;border-radius:6px;color:#fff;font-size:14px;margin-bottom:15px">
+            
+            <label style="color:#ffd700;font-size:14px;font-weight:bold;display:block;margin-bottom:8px">2. Целевая аудитория:</label>
+            <input type="text" id="targetAudience" placeholder="Например: Владельцы интернет-магазинов" style="width:100%;padding:12px;background:#0f1419;border:1px solid #6c8cff;border-radius:6px;color:#fff;font-size:14px;margin-bottom:15px">
+            
+            <label style="color:#ffd700;font-size:14px;font-weight:bold;display:block;margin-bottom:8px">3. Дата анализа (для актуальности):</label>
+            <input type="date" id="analysisDate" value="${new Date().toISOString().split('T')[0]}" style="width:100%;padding:12px;background:#0f1419;border:1px solid #6c8cff;border-radius:6px;color:#fff;font-size:14px">
+        </div>
+        <button onclick="generateNicheAnalysis()" style="width:100%;padding:14px;background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer">🚀 Сгенерировать анализ</button>
+    `;
+    modal.style.display = 'flex';
+}
+
+function generateNicheAnalysis() {
+    const niche = document.getElementById('nicheInput').value.trim();
+    const audience = document.getElementById('targetAudience').value.trim();
+    const date = document.getElementById('analysisDate').value;
+    
+    if (!niche || !audience) {
+        alert('⚠️ Заполни все поля!');
+        return;
+    }
+    
+    const modalContent = document.getElementById('modalContent');
+    modalContent.innerHTML = '<h3>🔍 Анализирую нишу...</h3><div style="text-align:center;padding:30px"><div style="font-size:48px">⏳</div><p style="color:#e8ecf3">Ищу боли клиентов в базе знаний и актуальные тренды...</p></div>';
+    
+    // Ищем релевантные термины в базе
+    const relevantTerms = legalDataCache.dictionary.filter(term => {
+        const searchStr = (term.term + ' ' + term.def).toLowerCase();
+        return searchStr.includes('реклам') || searchStr.includes('персональн') || 
+               searchStr.includes('договор') || searchStr.includes('налог') ||
+               searchStr.includes('ответственн') || searchStr.includes('штраф');
+    }).slice(0, 5);
+    
+    // Ищем актуальную информацию в Wikipedia
+    const wikiQuery = encodeURIComponent(niche + ' тренды 2024');
+    const wikiUrl = `https://ru.wikipedia.org/api/rest_v1/page/summary/${wikiQuery}`;
+    
+    fetch(wikiUrl)
+        .then(response => response.json())
+        .then(wikiData => {
+            const trendInfo = wikiData.extract ? wikiData.extract.substring(0, 300) : 'Актуальные тренды: рост спроса на цифровизацию, ужесточение регулирования, повышение требований к безопасности данных.';
+            
+            // Генерируем анализ
+            const painPoints = relevantTerms.map(term => `• **${term.term}**: ${term.def.substring(0, 100)}...`).join('\n');
+            
+            const analysis = `
+                <h3>📊 Анализ ниши: ${niche}</h3>
+                <div style="font-size:12px;color:#6c8cff;margin-bottom:15px">Дата анализа: ${date} | Целевая аудитория: ${audience}</div>
+                
+                <div style="padding:15px;background:#1f2530;border-radius:8px;margin-bottom:15px;border-left:4px solid #ff6b6b">
+                    <h4 style="color:#ff6b6b;margin-top:0">🔥 Боли клиентов:</h4>
+                    <ul style="color:#e8ecf3;font-size:13px;line-height:1.6;margin:0;padding-left:20px">
+                        <li>Страх штрафов за нарушение законодательства (персональные данные, реклама, налоги)</li>
+                        <li>Необходимость соответствия требованиям регуляторов (Роскомнадзор, ФНС, ФАС)</li>
+                        <li>Риск судебных исков от клиентов и конкурентов</li>
+                        <li>Сложность самостоятельного оформления документов</li>
+                        <li>Незнание актуальных изменений в законодательстве</li>
+                    </ul>
+                </div>
+                
+                <div style="padding:15px;background:#1f2530;border-radius:8px;margin-bottom:15px;border-left:4px solid #3ecf8e">
+                    <h4 style="color:#3ecf8e;margin-top:0">💡 Твоё коммерческое решение:</h4>
+                    <p style="color:#e8ecf3;font-size:14px;line-height:1.6">
+                        Предлагаю пакет <b>"${niche} + Юридическая защита под ключ"</b>:<br><br>
+                        ✅ Разработка/настройка ${niche.toLowerCase()}<br>
+                        ✅ Подготовка полного пакета документов (Оферта, Политика ПД, Договор)<br>
+                        ✅ Аудит на соответствие требованиям законодательства<br>
+                        ✅ Консультация по налогам и отчётности<br>
+                        ✅ Поддержка и обновления при изменениях в законах
+                    </p>
+                </div>
+                
+                <div style="padding:15px;background:#1f2530;border-radius:8px;margin-bottom:15px;border-left:4px solid #ffd700">
+                    <h4 style="color:#ffd700;margin-top:0"> Скрипт для первого сообщения клиенту:</h4>
+                    <p style="color:#e8ecf3;font-size:13px;line-height:1.6;font-style:italic">
+                        "Здравствуйте! Вижу, что вы развиваете ${audience.toLowerCase()}. 
+                        Многие владельцы бизнеса сталкиваются с рисками штрафов до 500 000 ₽ за отсутствие правильных документов на сайте 
+                        (политика конфиденциальности, оферта, согласие на обработку ПД).<br><br>
+                        Я специализируюсь на создании ${niche.toLowerCase()} с полной юридической защитой. 
+                        Могу провести бесплатный аудит вашего текущего решения и показать, где есть риски. 
+                        Удобно созвониться на 15 минут на этой неделе?"
+                    </p>
+                </div>
+                
+                <div style="padding:15px;background:#1f2530;border-radius:8px;margin-bottom:15px;border-left:4px solid #6c8cff">
+                    <h4 style="color:#6c8cff;margin-top:0">📚 Актуальные тренды (${date}):</h4>
+                    <p style="color:#e8ecf3;font-size:13px;line-height:1.6">${trendInfo}</p>
+                </div>
+                
+                <div style="padding:15px;background:#1f2530;border-radius:8px;margin-bottom:15px;border-left:4px solid #9d6cff">
+                    <h4 style="color:#9d6cff;margin-top:0">⚖️ Ключевые законы для твоей ниши:</h4>
+                    <ul style="color:#e8ecf3;font-size:12px;line-height:1.5;margin:0;padding-left:20px">
+                        ${relevantTerms.map(term => `<li><b>${term.term}</b>: ${term.def.substring(0, 80)}...</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <button onclick="closeModal()" style="width:100%;padding:12px;background:#6c8cff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">Закрыть</button>
+            `;
+            
+            modalContent.innerHTML = analysis;
+        })
+        .catch(error => {
+            // Если Wikipedia недоступен, используем только локальную базу
+            const analysis = `
+                <h3>📊 Анализ ниши: ${niche}</h3>
+                <div style="font-size:12px;color:#6c8cff;margin-bottom:15px">Дата анализа: ${date} | Целевая аудитория: ${audience}</div>
+                
+                <div style="padding:15px;background:#1f2530;border-radius:8px;margin-bottom:15px;border-left:4px solid #ff6b6b">
+                    <h4 style="color:#ff6b6b;margin-top:0">🔥 Боли клиентов:</h4>
+                    <ul style="color:#e8ecf3;font-size:13px;line-height:1.6;margin:0;padding-left:20px">
+                        <li>Страх штрафов за нарушение законодательства</li>
+                        <li>Необходимость соответствия требованиям регуляторов</li>
+                        <li>Риск судебных исков</li>
+                        <li>Сложность самостоятельного оформления документов</li>
+                    </ul>
+                </div>
+                
+                <div style="padding:15px;background:#1f2530;border-radius:8px;margin-bottom:15px;border-left:4px solid #3ecf8e">
+                    <h4 style="color:#3ecf8e;margin-top:0">💡 Твоё коммерческое решение:</h4>
+                    <p style="color:#e8ecf3;font-size:14px;line-height:1.6">
+                        Предлагаю пакет <b>"${niche} + Юридическая защита под ключ"</b>:<br><br>
+                        ✅ Разработка/настройка ${niche.toLowerCase()}<br>
+                        ✅ Подготовка полного пакета документов<br>
+                        ✅ Аудит на соответствие требованиям законодательства<br>
+                        ✅ Консультация по налогам и отчётности
+                    </p>
+                </div>
+                
+                <div style="padding:15px;background:#1f2530;border-radius:8px;margin-bottom:15px;border-left:4px solid #ffd700">
+                    <h4 style="color:#ffd700;margin-top:0">📝 Скрипт для первого сообщения:</h4>
+                    <p style="color:#e8ecf3;font-size:13px;line-height:1.6;font-style:italic">
+                        "Здравствуйте! Вижу, что вы развиваете ${audience.toLowerCase()}. 
+                        Многие сталкиваются с рисками штрафов за отсутствие правильных документов. 
+                        Я специализируюсь на ${niche.toLowerCase()} с полной юридической защитой. 
+                        Могу провести бесплатный аудит. Удобно созвониться?"
+                    </p>
+                </div>
+                
+                <button onclick="closeModal()" style="width:100%;padding:12px;background:#6c8cff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">Закрыть</button>
+            `;
+            
+            modalContent.innerHTML = analysis;
+        });
+}
+
+// === ОБНОВЛЕНИЕ БАЗЫ ДАННЫХ ИЗ ИНТЕРНЕТА ===
+function updateDatabaseFromInternet() {
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+    
+    modalContent.innerHTML = `
+        <h3>🔄 Обновление базы данных из интернета</h3>
+        <div style="padding:15px;background:#1f2530;border-radius:8px;margin:15px 0">
+            <label style="color:#ffd700;font-size:14px;font-weight:bold;display:block;margin-bottom:8px">Что искать для обновления базы?</label>
+            <input type="text" id="updateQuery" placeholder="Например: Новые законы о персональных данных 2024" style="width:100%;padding:12px;background:#0f1419;border:1px solid #6c8cff;border-radius:6px;color:#fff;font-size:14px">
+        </div>
+        <button onclick="searchAndUpdate()" style="width:100%;padding:14px;background:linear-gradient(135deg,#3ecf8e,#2ba876);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer">🔍 Найти и добавить в базу</button>
+    `;
+    modal.style.display = 'flex';
+}
+
+function searchAndUpdate() {
+    const query = document.getElementById('updateQuery').value.trim();
+    if (!query) {
+        alert('⚠️ Введи запрос!');
+        return;
+    }
+    
+    const modalContent = document.getElementById('modalContent');
+    modalContent.innerHTML = '<h3>🔍 Поиск актуальной информации...</h3><div style="text-align:center;padding:30px"><div style="font-size:48px">⏳</div><p style="color:#e8ecf3">Ищем в Wikipedia...</p></div>';
+    
+    const wikiUrl = `https://ru.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
+    
+    fetch(wikiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.title && data.extract) {
+                modalContent.innerHTML = `
+                    <h3>✅ Найдена актуальная информация</h3>
+                    <div style="padding:15px;background:#1f2530;border-radius:8px;margin:15px 0">
+                        <h4 style="color:#6c8cff;margin-top:0">${data.title}</h4>
+                        <p style="color:#e8ecf3;line-height:1.6">${data.extract}</p>
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                        <button onclick="addToDatabase('${data.title.replace(/'/g, "\'")}', '${data.extract.replace(/'/g, "\'").substring(0, 300)}...')" style="flex:1;padding:12px;background:#3ecf8e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">➕ Добавить в базу</button>
+                        <button onclick="closeModal()" style="flex:1;padding:12px;background:#6c757d;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">❌ Отмена</button>
+                    </div>
+                `;
+            } else {
+                modalContent.innerHTML = `
+                    <h3>⚠️ Информация не найдена</h3>
+                    <p style="color:#e8ecf3">Попробуйте другой запрос или уточните формулировку.</p>
+                    <button onclick="closeModal()" style="width:100%;padding:12px;background:#6c8cff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-top:15px">Закрыть</button>
+                `;
+            }
+        })
+        .catch(error => {
+            modalContent.innerHTML = `
+                <h3>❌ Ошибка подключения</h3>
+                <p style="color:#e8ecf3">Не удалось получить данные из интернета.</p>
+                <button onclick="closeModal()" style="width:100%;padding:12px;background:#6c8cff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-top:15px">Закрыть</button>
+            `;
+        });
+}
+
+function addToDatabase(term, definition) {
+    let customTerms = JSON.parse(localStorage.getItem('customLegalTerms') || '[]');
+    customTerms.push({
+        term: term,
+        def: definition,
+        category: 'Добавлено из интернета',
+        dateAdded: new Date().toISOString()
+    });
+    localStorage.setItem('customLegalTerms', JSON.stringify(customTerms));
+    
+    alert('✅ Термин добавлен в локальную базу!\n\nОн будет доступен при следующем открытии вкладки "Право".');
+    closeModal();
+}
+
+function loadCustomTerms() {
+    const customTerms = JSON.parse(localStorage.getItem('customLegalTerms') || '[]');
+    if (customTerms.length > 0 && legalDataCache) {
+        legalDataCache.dictionary.push(...customTerms);
+        console.log(`✅ Загружено ${customTerms.length} пользовательских терминов из localStorage`);
+    }
+}
+// === КОНЕЦ УМНОГО ПОМОЩНИКА 2.0 ===
