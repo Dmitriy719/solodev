@@ -1,199 +1,261 @@
-// === ПРОФЕССИОНАЛЬНЫЙ УМНЫЙ ПОМОЩНИК 2.0 ===
-// Отвечает на вопросы по бизнесу, клиентам, кибербезопасности, праву
-// Использует локальную базу + Wikipedia API
+// === ПРОФЕССИОНАЛЬНЫЙ УМНЫЙ ПОМОЩНИК 3.0 ===
+// Множественные источники: Wikipedia + DuckDuckGo + локальная база
+// Умный анализ вопросов, генерация ответов, анализ ниш
 
 (function() {
     'use strict';
     
-    // База знаний по бизнесу и работе с клиентами
-    const businessKnowledge = [
-        {q: "как найти клиентов", a: "🎯 Способы привлечения клиентов:\n\n1. Холодные рассылки (email, LinkedIn)\n2. Контент-маркетинг (блог, YouTube)\n3. Сарафанное радио и реферальная программа\n4. Партнёрства с complementary-бизнесами\n5. Участие в профильных мероприятиях\n6. Таргетированная реклама\n7. Бесплатные консультации/аудит как лид-магнит\n\n💡 Ключ: решай конкретную боль клиента, а не продавай услугу."},
-        {q: "боли клиентов", a: " Основные боли клиентов фрилансеров и агентств:\n\n1. Страх потерять деньги (неполучение результата)\n2. Непонимание процесса и сроков\n3. Боязнь технических сложностей\n4. Отсутствие времени разбираться\n5. Негативный опыт с предыдущими исполнителями\n6. Скрытые платежи и неожиданные расходы\n7. Отсутствие поддержки после сдачи проекта\n\n💡 Решение: давай гарантии, прозрачный процесс и пост-поддержку."},
-        {q: "как продать дороже", a: "💰 Как повысить чек:\n\n1. Позиционируйся как эксперт (кейсы, отзывы, сертификаты)\n2. Продавай результат, а не процесс\n3. Предлагай пакеты (базовый/стандарт/премиум)\n4. Добавляй ценность (бонусы, консультации)\n5. Работай с возражениями заранее\n6. Показывай ROI клиента (сколько он заработает/сэкономит)\n7. Создавай дефицит (ограниченные места, дедлайны)\n\n Формула: Цена = Ценность для клиента × 10%"},
-        {q: "договор с клиентом", a: "📋 Обязательные пункты договора с клиентом:\n\n1. Предмет договора (что именно делаешь)\n2. Сроки и этапы работ\n3. Стоимость и порядок оплаты\n4. Порядок приёмки работ\n5. Права на интеллектуальную собственность\n6. Ответственность сторон и штрафы\n7. Порядок расторжения\n8. Конфиденциальность (NDA)\n9. Форс-мажор\n10. Применимое право и арбитраж\n\n️ Без договора = риск неоплаты и судебных споров."},
-        {q: "как работать с возражениями", a: "️ Работа с возражениями:\n\n'Дорого' → Покажи ROI и разбей на ежемесячную стоимость\n'Подумаю' → Выяви реальное возражение, предложи бонус за решение сейчас\n'У нас уже есть подрядчик' → Предложи бесплатный аудит для сравнения\n'Не уверены в результате' → Покажи кейсы, предложи поэтапную оплату\n'Сами сделаем' → Объясни стоимость их времени и рисков ошибок\n\n💡 Главное: не спорь, а выясняй реальную причину возражения."},
-        {q: "кибербезопасность бизнеса", a: "🔒 Кибербезопасность для бизнеса:\n\n1. Двухфакторная аутентификация (2FA) везде\n2. Регулярные бэкапы (правило 3-2-1)\n3. Обучение сотрудников фишингу\n4. Обновление ПО и патчи безопасности\n5. Антивирус и firewall\n6. Шифрование чувствительных данных\n7. Политика паролей (менеджер паролей)\n8. Резервные копии офлайн\n9. План реагирования на инциденты\n10. Аудит безопасности раз в год\n\n⚠️ Средняя стоимость утечки данных для малого бизнеса: 200 000 - 1 000 000 ₽"},
-        {q: "защита данных gdpr", a: "🇪🇺 GDPR (General Data Protection Regulation):\n\nКому применяется: всем, кто обрабатывает данные граждан ЕС\n\nОсновные требования:\n• Явное согласие на обработку данных\n• Право на удаление данных (right to be forgotten)\n• Уведомление об утечках в течение 72 часов\n• Назначение DPO (Data Protection Officer)\n• Privacy by Design\n\nШтрафы: до 20 млн € или 4% глобального оборота\n\n🇺 Аналог в РФ: 152-ФЗ 'О персональных данных' + локализация данных на серверах в России"},
-        {q: "налоги для фрилансера", a: "💸 Налоги для фрилансера в РФ:\n\n1. Самозанятость (НПД):\n   • 4% с физлиц, 6% с юрлиц\n   • Лимит: 2,4 млн ₽/год\n   • Без отчётности, всё через приложение 'Мой налог'\n\n2. ИП на УСН:\n   • 6% с доходов или 15% с 'доходы минус расходы'\n   • Лимит: 265,8 млн ₽\n   • Нужна отчётность раз в год\n\n3. ИП на патенте:\n   • Фиксированный налог\n   • Лимит: 60 млн ₽\n\n💡 Для старта: самозанятость. При росте дохода → ИП на УСН 6%."},
-        {q: "как масштабировать бизнес", a: "📈 Масштабирование бизнеса:\n\n1. Систематизация процессов (SOP, чек-листы)\n2. Делегирование рутины (ассистент, подрядчики)\n3. Продуктизация услуг (пакеты, подписки)\n4. Автоматизация (CRM, чат-боты, шаблоны)\n5. Пассивный доход (курсы, шаблоны, SaaS)\n6. Партнёрства и аффилиаты\n7. Выход на новые рынки/ниши\n8. Инвестиции в маркетинг (увеличение бюджета на проверенные каналы)\n\n⚠️ Главное: сначала отладь процессы на малом объёме, потом масштабируй."},
-        {q: "ценообразование услуг", a: "💡 Методы ценообразования:\n\n1. Cost-plus: себестоимость + маржа (30-50%)\n2. Рыночное: как у конкурентов ± дифференциация\n3. Value-based: % от ценности для клиента (10-20% от ROI)\n4. Hourly: почасовая ставка (для нестандартных задач)\n5. Project-based: фикс за проект (предпочтительно)\n6. Retainer: ежемесячная подписка на поддержку\n\n Формула минимальной ставки:\n(Желаемый доход + Расходы) / Рабочие часы в месяц × 1.3 (на налоги и простои)"},
-        {q: "социальная инженерия", a: "🎭 Социальная инженерия в кибербезопасности:\n\nМетоды атак:\n• Фишинг (поддельные письма/сайты)\n• Претекстинг (выдуманный сценарий для получения данных)\n• Байтинг (заражённые флешки/файлы)\n• Кви про кво (предложение 'помощи' для установки malware)\n• Tailgating (проход в охраняемую зону за сотрудником)\n\nЗащита:\n• Обучение сотрудников\n• Политика проверки запросов\n• Многофакторная аутентификация\n• Принцип минимальных привилегий\n\n⚠️ 95% успешных кибератак начинаются с социальной инженерии"},
-        {q: "ransomware шифровальщик", a: "🦠 Ransomware (шифровальщики):\n\nКак работает:\n1. Проникает через фишинг/уязвимости\n2. Шифрует файлы на компьютере/сервере\n3. Требует выкуп (обычно в криптовалюте)\n4. Угрожает опубликовать данные (double extortion)\n\nИзвестные примеры: WannaCry, NotPetya, LockBit\n\nЗащита:\n• Регулярные бэкапы (офлайн, правило 3-2-1)\n• Обновление ПО и патчи\n• Антивирус нового поколения (EDR)\n• Сегментация сети\n• План восстановления\n\n⚠️ ФБР не рекомендует платить выкуп — не гарантирует возврат данных"},
-        {q: "ddos атака защита", a: "🌊 DDoS-атаки и защита:\n\nТипы DDoS:\n• Volumetric (перегрузка канала, до 1 Tbps)\n• Protocol (SYN flood, DNS amplification)\n• Application layer (HTTP flood, медленные атаки)\n\nПризнаки атаки:\n• Резкий рост трафика\n• Недоступность сайта/сервиса\n• Замедление работы\n\nЗащита:\n• CDN (Cloudflare, Akamai)\n• DDoS-митигация от провайдера\n• Rate limiting\n• Web Application Firewall (WAF)\n• Масштабируемая инфраструктура\n\n💡 Стоимость простой для e-commerce: 10 000 - 100 000 $/час"},
-        {q: "утечка данных что делать", a: "🚨 Действия при утечке данных:\n\nНемедленно (первые 24 часа):\n1. Изолировать затронутые системы\n2. Оценить масштаб утечки\n3. Сменить все пароли и ключи\n4. Уведомить руководство и юристов\n\nВ течение 72 часов:\n5. Уведомить регулятора (Роскомнадзор для ПД)\n6. Уведомить пострадавших клиентов\n7. Собрать доказательства для расследования\n8. Нанять внешних экспертов по кибербезопасности\n\nПосле:\n9. Провести пост-мортем анализ\n10. Усилить меры безопасности\n11. Обновить план реагирования\n\n⚠️ По GDPR уведомление обязательно в течение 72 часов"}
-    ];
-    
-    // Категории вопросов
-    const categories = {
-        business: ['клиент', 'продаж', 'бизнес', 'деньг', 'цен', 'стоим', 'заработ', 'доход', 'прибыл', 'маркетинг', 'реклам', 'продвиж'],
-        security: ['кибер', 'безопасн', 'взлом', 'атак', 'вирус', 'фишинг', 'утечк', 'данных', 'gdpr', 'шифр', 'парол', 'ddos'],
-        legal: ['закон', 'прав', 'налог', 'договор', 'суд', 'штраф', 'коап', 'гк рф', 'тк рф', 'ип', 'ооо', 'самозанят'],
-        general: ['привет', 'здравствуй', 'помоги', 'как', 'что', 'почему', 'когда', 'где']
+    // === РАСШИРЕННАЯ БАЗА ЗНАНИЙ ===
+    const knowledgeBase = {
+        business: [
+            {keywords: ['клиент', 'клиентам', 'клиентов'], answer: "🎯 **Работа с клиентами:**\n\n**Привлечение:**\n• Холодные рассылки с персонализацией\n• Контент-маркетинг (экспертные статьи, кейсы)\n• Реферальная программа (скидка за рекомендацию)\n• Партнёрства с неконкурирующими бизнесами\n• Бесплатный аудит/консультация как лид-магнит\n\n**Удержание:**\n• Регулярные чекапы и отчёты\n• Прозрачная коммуникация\n• Бонусы за лояльность\n• Быстрое решение проблем\n\n💡 **Главное:** клиент платит за решение боли, а не за твоё время."},
+            {keywords: ['боль', 'боли', 'проблем'], answer: "🔥 **Типичные боли клиентов:**\n\n1. **Страх потери денег** — нет гарантий результата\n2. **Негативный опыт** — обманули предыдущие подрядчики\n3. **Непонимание процесса** — не знают, что и зачем\n4. **Нет времени** — хотят 'под ключ'\n5. **Скрытые платежи** — боятся неожиданных расходов\n6. **Техническая сложность** — не разбираются в теме\n7. **Отсутствие поддержки** — бросают после сдачи\n\n💡 **Решение:** давай гарантии, прозрачные этапы, фиксированную цену и пост-поддержку."},
+            {keywords: ['продаж', 'продать', 'чек', 'дороже'], answer: "💰 **Как продавать дороже:**\n\n1. **Позиционирование** — эксперт, а не исполнитель\n2. **Продавай результат** — не 'сделаю сайт', а 'увеличу конверсию на 30%'\n3. **Пакеты услуг** — базовый/стандарт/премиум\n4. **Социальное доказательство** — кейсы, отзывы, цифры\n5. **Ограничение** — 'беру 2 проекта в месяц'\n6. **Добавочная ценность** — бонусы, консультации, поддержка\n7. **ROI** — покажи, сколько клиент заработает/сэкономит\n\n **Формула цены:** (Желаемый доход + Расходы) / Часы × 1.3"},
+            {keywords: ['возражен', 'отказ', 'дорого', 'подумаю'], answer: "🛡️ **Работа с возражениями:**\n\n**'Дорого'** → Разбей на месяцы: 'Это 5000₽/мес, а принесёт 50000₽'\n**'Подумаю'** → Выяви реальную причину: 'Что именно смущает?'\n**'У нас есть подрядчик'** → 'Предложу бесплатный аудит для сравнения'\n**'Сами сделаем'** → 'Сколько стоит ваше время? Ошибки дороже'\n**'Нет бюджета'** → 'Давайте начнём с минимального пакета'\n\n💡 **Правило:** не спорь, а выясняй реальное возражение за ним."},
+            {keywords: ['масштаб', 'рост', 'развитие'], answer: "📈 **Масштабирование бизнеса:**\n\n1. **Систематизация** — SOP, чек-листы, шаблоны\n2. **Делегирование** — ассистент, подрядчики на рутину\n3. **Продуктизация** — пакеты, подписки, продукты\n4. **Автоматизация** — CRM, боты, автоворонки\n5. **Пассивный доход** — курсы, шаблоны, SaaS\n6. **Команда** — найм и обучение специалистов\n7. **Новые рынки** — география, ниши, каналы\n\n⚠️ **Сначала отладь процессы на малом объёме, потом масштабируй!"},
+            {keywords: ['договор', 'контракт', 'оферта'], answer: "📋 **Обязательные пункты договора:**\n\n1. Предмет (что именно делаешь)\n2. Сроки и этапы с дедлайнами\n3. Стоимость и порядок оплаты\n4. Порядок приёмки и правки\n5. Права на интеллектуальную собственность\n6. Ответственность и штрафы\n7. Конфиденциальность (NDA)\n8. Форс-мажор\n9. Порядок расторжения\n10. Применимое право и арбитраж\n\n⚖️ **Без договора = риск неоплаты и судов. Всегда подписывай!**"},
+            {keywords: ['налог', 'налоги', 'ндс', 'ндфл'], answer: "💸 **Налоги для фрилансера в РФ:**\n\n**Самозанятость (НПД):**\n• 4% с физлиц, 6% с юрлиц\n• Лимит: 2,4 млн ₽/год\n• Без отчётности, приложение 'Мой налог'\n\n**ИП на УСН:**\n• 6% с доходов или 15% с 'доходы-расходы'\n• Лимит: 265,8 млн ₽\n• Отчётность раз в год\n\n**ИП на патенте:**\n• Фиксированный налог\n• Лимит: 60 млн ₽\n\n💡 **Старт:** самозанятость → при росте ИП УСН 6%"},
+            {keywords: ['реклам', 'маркетинг', 'продвиж'], answer: "📢 **Каналы продвижения:**\n\n**Бесплатные:**\n• Контент-маркетинг (блог, YouTube, Telegram)\n• SEO-оптимизация\n• Соцсети (экспертный контент)\n• Сарафанное радио\n• Партнёрства\n\n**Платные:**\n• Таргет (VK, Telegram Ads)\n• Контекст (Яндекс.Директ)\n• Influencer-маркетинг\n• Нативная реклама\n\n💡 **Для B2B:** LinkedIn, экспертные статьи, кейсы\n **Для B2C:** Instagram, TikTok, таргет"}
+        ],
+        security: [
+            {keywords: ['кибер', 'безопасн', 'защит'], answer: "🔒 **Кибербезопасность для бизнеса:**\n\n**Базовый уровень:**\n• 2FA везде (Google Authenticator)\n• Менеджер паролей (Bitwarden, 1Password)\n• Регулярные обновления ПО\n• Антивирус + firewall\n• Бэкапы по правилу 3-2-1\n\n**Продвинутый:**\n• SIEM-система для мониторинга\n• Пентест раз в год\n• Обучение сотрудников фишингу\n• Политика минимальных привилегий\n• План реагирования на инциденты\n\n️ **Средняя стоимость утечки для малого бизнеса: 200 000 - 1 000 000 ₽**"},
+            {keywords: ['фишинг', 'мошенник', 'обман'], answer: "🎣 **Фишинг и защита:**\n\n**Виды атак:**\n• Email-фишинг (поддельные письма)\n• Spear-phishing (целевой, с персонализацией)\n• Vishing (голосовой фишинг по телефону)\n• Smishing (SMS-фишинг)\n• Clone phishing (копия легитимного письма)\n\n**Признаки фишинга:**\n• Срочность ('срочно подтвердите!')\n• Подозрительные ссылки\n• Ошибки в тексте\n• Просьба конфиденциальных данных\n\n**Защита:**\n• Обучение сотрудников\n• DMARC, SPF, DKIM для домена\n• Фильтры спама\n• 2FA\n• Принцип 'проверь, потом кликни'"},
+            {keywords: ['ddos', 'атак', 'взлом'], answer: "🌊 **DDoS-атаки:**\n\n**Типы:**\n• Volumetric (перегрузка канала)\n• Protocol (SYN flood)\n• Application layer (HTTP flood)\n\n**Признаки:**\n• Резкий рост трафика\n• Недоступность сайта\n• Замедление работы\n\n**Защита:**\n• Cloudflare (бесплатный план)\n• Rate limiting на сервере\n• WAF (Web Application Firewall)\n• CDN для распределения нагрузки\n• Масштабируемая инфраструктура\n\n💡 **Стоимость простоя e-commerce: 10 000 - 100 000 $/час**"},
+            {keywords: ['утечк', 'данных', 'персональн'], answer: "🚨 **Утечка данных — действия:**\n\n**Первые 24 часа:**\n1. Изолировать затронутые системы\n2. Оценить масштаб\n3. Сменить все пароли и ключи\n4. Уведомить руководство и юристов\n\n**72 часа:**\n5. Уведомить Роскомнадзор (для ПД)\n6. Уведомить пострадавших\n7. Собрать доказательства\n8. Нанять экспертов по ИБ\n\n**После:**\n9. Пост-мортем анализ\n10. Усиление защиты\n11. Обновление плана реагирования\n\n⚠️ **Штрафы по 152-ФЗ: до 500 000 ₽, по GDPR: до 20 млн €**"},
+            {keywords: ['gdpr', '152-фз', 'персональн'], answer: " **GDPR и 152-ФЗ:**\n\n**GDPR (ЕС):**\n• Явное согласие на обработку\n• Право на удаление (right to be forgotten)\n• Уведомление об утечках за 72 часа\n• DPO (Data Protection Officer)\n• Штрафы: до 20 млн € или 4% оборота\n\n**152-ФЗ (РФ):**\n• Локализация данных на серверах в РФ\n• Уведомление Роскомнадзора\n• Согласие на обработку ПД\n• Штрафы: до 500 000 ₽\n\n💡 **Для сайтов:** политика конфиденциальности + согласие на cookies + оферта"},
+            {keywords: ['ransomware', 'шифровальщик', 'выкуп'], answer: "🦠 **Ransomware (шифровальщики):**\n\n**Как работает:**\n1. Проникает через фишинг/уязвимости\n2. Шифрует файлы\n3. Требует выкуп в криптовалюте\n4. Угрожает опубликовать данные\n\n**Известные:** WannaCry, NotPetya, LockBit\n\n**Защита:**\n• Бэкапы офлайн (правило 3-2-1)\n• Обновления и патчи\n• EDR (Endpoint Detection and Response)\n• Сегментация сети\n• План восстановления\n\n⚠️ **ФБР не рекомендует платить выкуп!**"},
+            {keywords: ['парол', 'аутентификац', '2fa'], answer: "🔑 **Пароли и аутентификация:**\n\n**Правила паролей:**\n• Минимум 12 символов\n• Уникальный для каждого сервиса\n• Менеджер паролей (Bitwarden, 1Password)\n• Никаких '123456' и 'password'\n\n**2FA/MFA:**\n• SMS (базовый уровень)\n• TOTP (Google Authenticator, Authy)\n• Hardware key (YubiKey) — максимум защиты\n\n**Биометрия:**\n• Отпечаток пальца\n• Face ID\n• Удобно, но не абсолютно безопасно\n\n💡 **Включи 2FA везде, где возможно!**"}
+        ],
+        legal: [
+            {keywords: ['ип', 'ооо', 'регистрац', 'бизнес'], answer: "🏢 **Регистрация бизнеса:**\n\n**Самозанятость:**\n• Регистрация за 5 минут в приложении\n• Лимит: 2,4 млн ₽/год\n• 4-6% налог\n\n**ИП:**\n• Госпошлина: 800 ₽ (или бесплатно через Госуслуги)\n• Срок: 3-5 дней\n• УСН 6% или патент\n\n**ООО:**\n• Госпошлина: 4000 ₽\n• Уставный капитал: от 10 000 ₽\n• Сложнее учёт и отчётность\n\n💡 **Для фрилансера:** начни с самозанятости, при росте → ИП"},
+            {keywords: ['договор', 'сделк', 'контракт'], answer: " **Виды договоров:**\n\n**Для фрилансера:**\n• Договор возмездного оказания услуг\n• Договор подряда\n• Лицензионный договор (для ПО)\n• NDA (конфиденциальность)\n\n**Обязательные пункты:**\n• Предмет, сроки, цена\n• Порядок приёмки\n• Права на результат\n• Ответственность\n• Форс-мажор\n• Применимое право\n\n️ **Всегда подписывай договор! Устные договорённости = риски.**"},
+            {keywords: ['штраф', 'ответственн', 'нарушен'], answer: "⚖️ **Ответственность бизнеса:**\n\n**Административная:**\n• Штрафы до 500 000 ₽ (ПД, реклама)\n• Приостановление деятельности до 90 дней\n• Дисквалификация директора\n\n**Гражданская:**\n• Возмещение убытков\n• Неустойка по договору\n• Компенсация морального вреда\n\n**Уголовная:**\n• Уклонение от налогов (ст. 198-199 УК)\n• Мошенничество (ст. 159 УК)\n• Нарушение авторских прав (ст. 146 УК)\n\n💡 **Страхование ответственности снижает риски!**"}
+        ]
     };
     
-    // Определение категории вопроса
-    function detectCategory(question) {
-        const q = question.toLowerCase();
-        let scores = {business: 0, security: 0, legal: 0};
-        
-        for (let cat in categories) {
-            if (cat === 'general') continue;
-            categories[cat].forEach(keyword => {
-                if (q.includes(keyword)) scores[cat]++;
-            });
-        }
-        
-        let maxCat = 'general';
-        let maxScore = 0;
-        for (let cat in scores) {
-            if (scores[cat] > maxScore) {
-                maxScore = scores[cat];
-                maxCat = cat;
-            }
-        }
-        return maxCat;
-    }
-    
-    // Поиск ответа в базе знаний
-    function searchKnowledgeBase(question) {
-        const q = question.toLowerCase();
-        const words = q.split(/\s+/).filter(w => w.length > 3);
-        
-        let bestMatch = null;
-        let bestScore = 0;
-        
-        businessKnowledge.forEach(item => {
-            let score = 0;
-            const itemText = (item.q + ' ' + item.a).toLowerCase();
-            words.forEach(word => {
-                if (itemText.includes(word)) score++;
-            });
-            if (score > bestScore) {
-                bestScore = score;
-                bestMatch = item;
-            }
-        });
-        
-        return bestScore >= 1 ? bestMatch : null;
-    }
-    
-    // Поиск в legal_db
-    function searchLegalDb(question, legalDataCache) {
-        if (!legalDataCache || !legalDataCache.dictionary) return null;
-        
-        const q = question.toLowerCase();
-        const words = q.split(/\s+/).filter(w => w.length > 3);
-        
-        let bestMatch = null;
-        let bestScore = 0;
-        
-        legalDataCache.dictionary.forEach(term => {
-            let score = 0;
-            const itemText = (term.term + ' ' + term.def).toLowerCase();
-            words.forEach(word => {
-                if (itemText.includes(word)) score++;
-            });
-            if (score > bestScore) {
-                bestScore = score;
-                bestMatch = term;
-            }
-        });
-        
-        return bestScore >= 1 ? bestMatch : null;
-    }
-    
-    // Поиск в Wikipedia
+    // === ПОИСК В ИНТЕРНЕТЕ ===
     async function searchWikipedia(query) {
         try {
-            const url = `https://ru.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
-            const response = await fetch(url);
-            if (!response.ok) return null;
-            const data = await response.json();
-            if (data.title && data.extract) {
-                return {title: data.title, extract: data.extract};
+            // Сначала ищем страницу
+            const searchUrl = `https://ru.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=3`;
+            const searchResp = await fetch(searchUrl);
+            const searchData = await searchResp.json();
+            
+            if (searchData.query && searchData.query.search && searchData.query.search.length > 0) {
+                const title = searchData.query.search[0].title;
+                // Получаем краткое содержание
+                const summaryUrl = `https://ru.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+                const summaryResp = await fetch(summaryUrl);
+                const summaryData = await summaryResp.json();
+                
+                if (summaryData.extract) {
+                    return {
+                        title: summaryData.title,
+                        extract: summaryData.extract,
+                        url: summaryData.content_urls?.desktop?.page || ''
+                    };
+                }
             }
         } catch (e) {
-            console.log('Wikipedia search failed:', e);
+            console.log('Wikipedia search error:', e);
         }
         return null;
     }
     
-    // Генерация ответа
+    async function searchDuckDuckGo(query) {
+        try {
+            const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+            
+            if (data.AbstractText) {
+                return {
+                    title: data.Heading || query,
+                    extract: data.AbstractText,
+                    url: data.AbstractURL || ''
+                };
+            }
+            
+            // Пробуем связанные темы
+            if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+                const topic = data.RelatedTopics[0];
+                if (topic.Text) {
+                    return {
+                        title: topic.Text.split(' - ')[0] || query,
+                        extract: topic.Text,
+                        url: topic.FirstURL || ''
+                    };
+                }
+            }
+        } catch (e) {
+            console.log('DuckDuckGo search error:', e);
+        }
+        return null;
+    }
+    
+    // === УМНЫЙ ПОИСК В БАЗЕ ЗНАНИЙ ===
+    function searchKnowledgeBase(question) {
+        const q = question.toLowerCase();
+        const words = q.split(/\s+/).filter(w => w.length > 2);
+        
+        let bestMatch = null;
+        let bestScore = 0;
+        
+        for (let category in knowledgeBase) {
+            knowledgeBase[category].forEach(item => {
+                let score = 0;
+                item.keywords.forEach(keyword => {
+                    if (q.includes(keyword)) score += 2;
+                });
+                words.forEach(word => {
+                    if (q.includes(word)) score += 1;
+                });
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMatch = item;
+                }
+            });
+        }
+        
+        return bestScore >= 2 ? bestMatch : null;
+    }
+    
+    // === ПОИСК В ЮРИДИЧЕСКОЙ БАЗЕ ===
+    function searchLegalDb(question, legalDataCache) {
+        if (!legalDataCache || !legalDataCache.dictionary) return [];
+        
+        const q = question.toLowerCase();
+        const words = q.split(/\s+/).filter(w => w.length > 3);
+        
+        return legalDataCache.dictionary.filter(term => {
+            const searchText = (term.term + ' ' + term.def).toLowerCase();
+            return words.some(word => searchText.includes(word));
+        }).slice(0, 3);
+    }
+    
+    // === ГЕНЕРАЦИЯ ОТВЕТА ===
     async function generateAnswer(question, legalDataCache) {
-        const category = detectCategory(question);
-        const kbAnswer = searchKnowledgeBase(question);
-        const legalAnswer = searchLegalDb(question, legalDataCache);
+        const q = question.toLowerCase();
+        
+        // Приветствие
+        if (q.match(/^(привет|здравствуй|хай|hello|hi)/)) {
+            return " **Привет! Я профессиональный помощник SoloDev 3.0**\n\nМогу помочь с:\n• 💼 Бизнесом и клиентами\n• 🔒 Кибербезопасностью\n• ⚖️ Правом и налогами\n• 🌐 Актуальной информацией из интернета\n• 📊 Анализом ниш\n\nЗадай любой вопрос!";
+        }
         
         let response = '';
         let sources = [];
         
-        // Приветствие
-        if (question.toLowerCase().match(/^(привет|здравствуй|хай|hello)/)) {
-            response = '👋 Привет! Я профессиональный умный помощник SoloDev.\n\nМогу помочь с:\n• 💼 Бизнесом и работой с клиентами\n• 🔒 Кибербезопасностью\n• ⚖️ Правом и налогами\n• 📊 Анализом ниш и генерацией КП\n\nЗадай любой вопрос!';
-            return response;
-        }
-        
-        // Ответ из базы знаний
-        if (kbAnswer) {
-            response += kbAnswer.a + '\n\n';
+        // 1. Поиск в локальной базе знаний
+        const kbMatch = searchKnowledgeBase(question);
+        if (kbMatch) {
+            response += kbMatch.answer + '\n\n';
             sources.push('💾 База знаний SoloDev');
         }
         
-        // Ответ из юридической базы
-        if (legalAnswer) {
-            response += `⚖️ **${legalAnswer.term}**\n${legalAnswer.def}\n\n`;
+        // 2. Поиск в юридической базе
+        const legalMatches = searchLegalDb(question, legalDataCache);
+        if (legalMatches.length > 0) {
+            response += '⚖️ **Из юридической базы:**\n\n';
+            legalMatches.forEach(term => {
+                response += `• **${term.term}**: ${term.def}\n\n`;
+            });
             sources.push('📚 Юридическая база');
         }
         
-        // Если ничего не нашли в локальных базах
-        if (!kbAnswer && !legalAnswer) {
-            response += `🤔 По запросу "${question}" в локальных базах точного ответа не найдено.\n\n`;
-            response += '💡 Попробуй переформулировать вопрос или использовать ключевые слова:\n';
-            response += '• Для бизнеса: "клиенты", "продажи", "цены"\n';
-            response += '• Для кибербезопасности: "взлом", "фишинг", "ddos"\n';
-            response += '• Для права: "налоги", "договор", "штрафы"\n\n';
+        // 3. Поиск в Wikipedia (параллельно с DuckDuckGo)
+        const [wikiResult, ddgResult] = await Promise.all([
+            searchWikipedia(question),
+            searchDuckDuckGo(question)
+        ]);
+        
+        if (wikiResult) {
+            response += `🌐 **Wikipedia: ${wikiResult.title}**\n${wikiResult.extract}\n\n`;
+            sources.push('🌐 Wikipedia');
         }
         
-        // Поиск в Wikipedia для актуальности
-        const wikiResult = await searchWikipedia(question);
-        if (wikiResult) {
-            response += `🌐 **Актуальная информация из Wikipedia:**\n\n**${wikiResult.title}**\n${wikiResult.extract}\n\n`;
-            sources.push('🌐 Wikipedia');
+        if (ddgResult && (!wikiResult || ddgResult.title !== wikiResult.title)) {
+            response += ` **DuckDuckGo: ${ddgResult.title}**\n${ddgResult.extract}\n\n`;
+            sources.push(' DuckDuckGo');
+        }
+        
+        // Если ничего не нашли
+        if (!kbMatch && legalMatches.length === 0 && !wikiResult && !ddgResult) {
+            response += `🤔 По запросу "${question}" не нашёл точного ответа.\n\n`;
+            response += '💡 **Попробуй:**\n';
+            response += '• Переформулировать вопрос\n';
+            response += '• Использовать ключевые слова: "клиенты", "кибербезопасность", "налоги"\n';
+            response += '• Задать более конкретный вопрос\n\n';
         }
         
         // Источники
         if (sources.length > 0) {
-            response += `📎 Источники: ${sources.join(', ')}`;
+            response += `📎 **Источники:** ${sources.join(', ')}`;
         }
         
         return response;
     }
     
-    // Глобальные функции
+    // === АНАЛИЗ НИШИ ===
+    async function analyzeNiche(niche, audience) {
+        let response = `📊 **Анализ ниши: ${niche}**\n`;
+        response += `🎯 **Целевая аудитория:** ${audience}\n\n`;
+        
+        // Боли клиентов
+        response += ' **Боли клиентов:**\n';
+        response += '• Страх потерять деньги и не получить результат\n';
+        response += '• Негативный опыт с предыдущими подрядчиками\n';
+        response += '• Непонимание технического процесса\n';
+        response += '• Отсутствие времени разбираться самостоятельно\n';
+        response += '• Боязнь скрытых платежей и неожиданных расходов\n\n';
+        
+        // Коммерческое решение
+        response += ' **Твоё решение:**\n';
+        response += `Пакет "${niche} под ключ":\n`;
+        response += '✅ Разработка/настройка\n';
+        response += '✅ Полная юридическая защита\n';
+        response += '✅ Техническая поддержка\n';
+        response += '✅ Обучение и документация\n\n';
+        
+        // Поиск актуальных трендов
+        const trends = await searchWikipedia(niche + ' тренды');
+        if (trends) {
+            response += `📈 **Актуальная информация:**\n${trends.extract}\n\n`;
+        }
+        
+        // Скрипт для клиента
+        response += '📝 **Скрипт для первого контакта:**\n';
+        response += `"Здравствуйте! Вижу, вы развиваете ${audience}. Многие сталкиваются с проблемами при выборе подрядчика. Я специализируюсь на ${niche} и предлагаю комплексное решение с гарантиями. Могу провести бесплатный аудит. Удобно созвониться?"\n\n`;
+        
+        return response;
+    }
+    
+    // === ГЛОБАЛЬНЫЕ ФУНКЦИИ ===
     window.openProAssistant = function() {
         const modal = document.getElementById('modal');
         const modalContent = document.getElementById('modalContent');
         
         if (!modal || !modalContent) {
-            alert('❌ Модальное окно не найдено. Проверь, что index.html загружен корректно.');
+            alert('❌ Модальное окно не найдено');
             return;
         }
         
         modalContent.innerHTML = `
-            <div style="max-height:80vh;display:flex;flex-direction:column">
-                <h3 style="margin:0 0 15px 0">🤖 Профессиональный помощник SoloDev</h3>
+            <div style="max-height:85vh;display:flex;flex-direction:column">
+                <h3 style="margin:0 0 10px 0">🤖 Профессиональный помощник 3.0</h3>
                 <div style="font-size:12px;color:#6c8cff;margin-bottom:10px">
-                    Спрашивай о бизнесе, клиентах, кибербезопасности, праве и налогах
+                    Бизнес • Кибербезопасность • Право • Интернет
                 </div>
-                <div id="chatHistory" style="flex:1;overflow-y:auto;max-height:50vh;background:#0f1419;border-radius:8px;padding:15px;margin-bottom:15px;min-height:200px">
+                <div id="chatHistory" style="flex:1;overflow-y:auto;max-height:55vh;background:#0f1419;border-radius:8px;padding:15px;margin-bottom:15px;min-height:250px">
                     <div style="color:#e8ecf3;font-size:14px;line-height:1.6">
-                        👋 Привет! Я профессиональный помощник.<br><br>
+                        👋 <b>Привет! Я умный помощник 3.0</b><br><br>
                         Могу помочь с:<br>
                         • 💼 Бизнесом и клиентами<br>
                         • 🔒 Кибербезопасностью<br>
                         • ⚖️ Правом и налогами<br>
-                        • 📊 Анализом ниш<br><br>
-                        Задай вопрос!
+                        • 🌐 Поиском в интернете<br>
+                        •  Анализом ниш<br><br>
+                        Задай вопрос или выбери тему ниже!
                     </div>
                 </div>
                 <div style="display:flex;gap:10px">
@@ -205,18 +267,21 @@
                         ➤
                     </button>
                 </div>
-                <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-                    <button onclick="quickQuestion('Как найти клиентов?')" style="padding:6px 12px;background:#1f2530;border:1px solid #6c8cff;border-radius:12px;color:#6c8cff;font-size:11px;cursor:pointer">🎯 Клиенты</button>
-                    <button onclick="quickQuestion('Кибербезопасность бизнеса')" style="padding:6px 12px;background:#1f2530;border:1px solid #3ecf8e;border-radius:12px;color:#3ecf8e;font-size:11px;cursor:pointer">🔒 Безопасность</button>
-                    <button onclick="quickQuestion('Налоги для фрилансера')" style="padding:6px 12px;background:#1f2530;border:1px solid #ffd700;border-radius:12px;color:#ffd700;font-size:11px;cursor:pointer"> Налоги</button>
-                    <button onclick="quickQuestion('Как продать дороже?')" style="padding:6px 12px;background:#1f2530;border:1px solid #ff6b6b;border-radius:12px;color:#ff6b6b;font-size:11px;cursor:pointer">💰 Продажи</button>
+                <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+                    <button onclick="quickQuestion('Как найти клиентов?')" style="padding:6px 10px;background:#1f2530;border:1px solid #6c8cff;border-radius:12px;color:#6c8cff;font-size:11px;cursor:pointer">🎯 Клиенты</button>
+                    <button onclick="quickQuestion('Кибербезопасность бизнеса')" style="padding:6px 10px;background:#1f2530;border:1px solid #3ecf8e;border-radius:12px;color:#3ecf8e;font-size:11px;cursor:pointer"> Безопасность</button>
+                    <button onclick="quickQuestion('Налоги для фрилансера')" style="padding:6px 10px;background:#1f2530;border:1px solid #ffd700;border-radius:12px;color:#ffd700;font-size:11px;cursor:pointer">💸 Налоги</button>
+                    <button onclick="quickQuestion('Как продать дороже?')" style="padding:6px 10px;background:#1f2530;border:1px solid #ff6b6b;border-radius:12px;color:#ff6b6b;font-size:11px;cursor:pointer">💰 Продажи</button>
+                    <button onclick="quickQuestion('GDPR и персональные данные')" style="padding:6px 10px;background:#1f2530;border:1px solid #9d6cff;border-radius:12px;color:#9d6cff;font-size:11px;cursor:pointer">📜 GDPR</button>
+                    <button onclick="quickQuestion('DDoS атака защита')" style="padding:6px 10px;background:#1f2530;border:1px solid #ff9500;border-radius:12px;color:#ff9500;font-size:11px;cursor:pointer">🌊 DDoS</button>
                 </div>
+                <button onclick="openNicheAnalysis()" style="margin-top:10px;padding:10px;background:linear-gradient(135deg,#ff6b6b,#ee5a6f);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:bold">
+                    📊 Анализ ниши и генерация КП
+                </button>
             </div>
         `;
         
         modal.style.display = 'flex';
-        
-        // Фокус на поле ввода
         setTimeout(() => {
             const input = document.getElementById('chatInput');
             if (input) input.focus();
@@ -232,7 +297,7 @@
         const question = input.value.trim();
         if (!question) return;
         
-        // Добавляем вопрос пользователя
+        // Вопрос пользователя
         history.innerHTML += `
             <div style="margin:15px 0;text-align:right">
                 <div style="display:inline-block;background:linear-gradient(135deg,#6c8cff,#9d6cff);color:#fff;padding:10px 15px;border-radius:12px 12px 4px 12px;font-size:14px;max-width:80%">
@@ -244,29 +309,25 @@
         input.value = '';
         history.scrollTop = history.scrollHeight;
         
-        // Показываем индикатор загрузки
-        history.innerHTML += `
-            <div id="typingIndicator" style="margin:10px 0;color:#6c8cff;font-size:13px">
-                🤖 Печатает...
-            </div>
-        `;
+        // Индикатор
+        history.innerHTML += `<div id="typingIndicator" style="margin:10px 0;color:#6c8cff;font-size:13px"> Ищу информацию...</div>`;
         history.scrollTop = history.scrollHeight;
         
-        // Генерируем ответ
+        // Генерация ответа
         const answer = await generateAnswer(question, window.legalDataCache);
         
         // Удаляем индикатор
         const indicator = document.getElementById('typingIndicator');
         if (indicator) indicator.remove();
         
-        // Добавляем ответ (форматируем markdown-подобный текст)
+        // Форматирование
         const formattedAnswer = answer
             .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
             .replace(/\n/g, '<br>');
         
         history.innerHTML += `
             <div style="margin:15px 0">
-                <div style="display:inline-block;background:#1f2530;color:#e8ecf3;padding:10px 15px;border-radius:12px 12px 12px 4px;font-size:14px;max-width:80%;line-height:1.6">
+                <div style="display:inline-block;background:#1f2530;color:#e8ecf3;padding:10px 15px;border-radius:12px 12px 12px 4px;font-size:14px;max-width:85%;line-height:1.6">
                     ${formattedAnswer}
                 </div>
             </div>
@@ -283,6 +344,46 @@
         }
     };
     
-    console.log('✅ Professional Assistant 2.0 loaded');
+    window.openNicheAnalysis = function() {
+        const modalContent = document.getElementById('modalContent');
+        modalContent.innerHTML = `
+            <h3>📊 Анализ ниши</h3>
+            <div style="padding:15px;background:#1f2530;border-radius:8px;margin:15px 0">
+                <label style="color:#ffd700;font-size:14px;font-weight:bold;display:block;margin-bottom:8px">Твоя ниша:</label>
+                <input type="text" id="nicheInput" placeholder="Например: Веб-разработка" style="width:100%;padding:12px;background:#0f1419;border:1px solid #6c8cff;border-radius:6px;color:#fff;font-size:14px;margin-bottom:15px">
+                
+                <label style="color:#ffd700;font-size:14px;font-weight:bold;display:block;margin-bottom:8px">Целевая аудитория:</label>
+                <input type="text" id="targetAudience" placeholder="Например: Малый бизнес" style="width:100%;padding:12px;background:#0f1419;border:1px solid #6c8cff;border-radius:6px;color:#fff;font-size:14px">
+            </div>
+            <button onclick="runNicheAnalysis()" style="width:100%;padding:14px;background:linear-gradient(135deg,#ff6b6b,#ee5a6f);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer"> Сгенерировать анализ</button>
+            <button onclick="openProAssistant()" style="width:100%;padding:12px;background:#6c757d;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-top:10px">← Назад к чату</button>
+        `;
+    };
+    
+    window.runNicheAnalysis = async function() {
+        const niche = document.getElementById('nicheInput').value.trim();
+        const audience = document.getElementById('targetAudience').value.trim();
+        
+        if (!niche || !audience) {
+            alert('⚠️ Заполни оба поля!');
+            return;
+        }
+        
+        const modalContent = document.getElementById('modalContent');
+        modalContent.innerHTML = '<h3>📊 Анализирую нишу...</h3><div style="text-align:center;padding:30px"><div style="font-size:48px">⏳</div><p style="color:#e8ecf3">Ищу информацию в интернете...</p></div>';
+        
+        const analysis = await analyzeNiche(niche, audience);
+        const formattedAnalysis = analysis.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+        
+        modalContent.innerHTML = `
+            <div style="max-height:80vh;overflow-y:auto">
+                <h3> Анализ ниши</h3>
+                <div style="color:#e8ecf3;font-size:14px;line-height:1.6">${formattedAnalysis}</div>
+                <button onclick="openProAssistant()" style="width:100%;padding:12px;background:#6c8cff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-top:15px">← Назад к чату</button>
+            </div>
+        `;
+    };
+    
+    console.log('✅ Professional Assistant 3.0 loaded with internet search');
 })();
-// === КОНЕЦ ПРОФЕССИОНАЛЬНОГО ПОМОЩНИКА ===
+// === КОНЕЦ ПРОФЕССИОНАЛЬНОГО ПОМОЩНИКА 3.0 ===
