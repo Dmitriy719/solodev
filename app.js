@@ -8375,6 +8375,7 @@ function toggleNavBar() {
 
 // === ФИЛЬТР СЛОВАРЯ ПО КАТЕГОРИЯМ ===
 function filterDictByCategory(category) {
+    // 1. Фильтруем элементы словаря
     const items = document.querySelectorAll('.dict-item');
     items.forEach(el => {
         const elCat = el.getAttribute('data-category');
@@ -8382,6 +8383,21 @@ function filterDictByCategory(category) {
             el.style.display = 'block';
         } else {
             el.style.display = 'none';
+        }
+    });
+    
+    // 2. Подсвечиваем активную кнопку
+    const buttons = document.querySelectorAll('#dictFilters button');
+    buttons.forEach(btn => {
+        const btnCat = btn.getAttribute('data-category');
+        if (btnCat === category) {
+            btn.style.background = '#6c8cff';
+            btn.style.color = '#fff';
+            btn.style.borderColor = '#6c8cff';
+        } else {
+            btn.style.background = 'transparent';
+            btn.style.color = '#6c8cff';
+            btn.style.borderColor = '#6c8cff';
         }
     });
 }
