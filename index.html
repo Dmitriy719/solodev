@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v6.65.0</title>
+<title>SoloDev v6.65.1</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>⚡ SoloDev v6.65.0</h1>
+<h1>⚡ SoloDev v6.65.1</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
 
-  <script src="app.min.js?v=6.65.0"></script>
+  <script src="app.min.js?v=6.65.1"></script>
   <script src="smart_assistant.js?v=6.65.0"></script>
 
     
@@ -25,10 +25,11 @@
     
     <div id="mainMenuPopup" style="position: fixed; bottom: 95px; right: 20px; z-index: 9998; display: none; flex-direction: column; gap: 12px; background: rgba(31,37,48,0.95); padding: 15px; border-radius: 16px; border: 2px solid #9d6cff; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
         <button onclick="toggleNavBar(); toggleMainMenu()" style="width: 50px; height: 50px; border-radius: 50%; background: #6c8cff; color: white; border: 2px solid #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Свернуть панель">⬇️</button>
+        <button onclick="openProAssistant(); toggleMainMenu()" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg,#ff6b6b,#ee5a6f); color: white; border: 2px solid #fff; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Профессиональный помощник">🤖</button>
         <button onclick="openSmartAssistant(); toggleMainMenu()" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg,#6c8cff,#9d6cff); color: white; border: 2px solid #fff; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Умный помощник">💡</button>
         <button onclick="scrollToTop(); toggleMainMenu()" style="width: 50px; height: 50px; border-radius: 50%; background: #3ecf8e; color: white; border: 2px solid #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" title="Наверх">⬆️</button>
     </div>
-<script src="assistant_pro.js?v=6.65.0"></script>
+<script src="assistant_pro.js?v=6.65.1"></script>
 </body>
 
 
