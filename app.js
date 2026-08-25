@@ -8169,9 +8169,16 @@ async function renderLawHub() {
     }
     h += '</div>';
 
-    h += '<h3>📖 Юридический словарь</h3>';
+    h += '<h3>📖 Юридический словарь (' + legalDataCache.dictionary.length + ' терминов)</h3>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:15px" id="dictFilters">';
+    h += '<button onclick="filterDictByCategory(\'all\')" style="padding:6px 12px;border-radius:12px;border:1px solid #6c8cff;background:#6c8cff;color:#fff;font-size:12px;cursor:pointer">Все</button>';
+    const dictCats = [...new Set(legalDataCache.dictionary.map(t => t.category).filter(Boolean))];
+    dictCats.forEach(cat => {
+        h += '<button onclick="filterDictByCategory(\'' + cat.replace(/'/g, "\\'") + '\')" style="padding:6px 12px;border-radius:12px;border:1px solid #6c8cff;background:transparent;color:#6c8cff;font-size:12px;cursor:pointer">' + cat + '</button>';
+    });
+    h += '</div>';
     h += '<div id="dictContainer" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">';
-    legalDataCache.dictionary.slice(0, 15).forEach(item => {
+    legalDataCache.dictionary.forEach(item => {
         const searchStr = (item.term + ' ' + item.def).toLowerCase();
         h += '<div class="dict-item card" style="padding:12px" data-search="' + searchStr + '" data-category="' + (item.category || '') + '">';
         h += '<b style="font-size:14px;color:#6c8cff">' + item.term + '</b>';
