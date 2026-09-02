@@ -1237,7 +1237,6 @@ function showDocAssistant(){
   h+='<button class="btn" onclick="generateContract()">📄 Договор подряда</button>';
   h+='<button class="btn" onclick="generateAct()">📋 Акт выполненных работ</button>';
   h+='<button class="btn" onclick="generateTZ()">📝 Техническое задание</button>';
-  h+='<button class="btn" onclick="generateInvoice()">💳 Счёт на оплату</button>';
   h+='</div>';
   h+='<div style="margin-top:15px;padding-top:15px;border-top:1px solid #242b36">';
   h+='<p class="mut">Нужна помощь с заполнением?</p>';
@@ -1274,61 +1273,6 @@ function showDocTip(type){
   openModal(h);
 }
 
-function generateContract(){
-  var client=db.clients.length>0?db.clients[0]:{name:'Клиент',company:'Компания'};
-  var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Договор подряда</title>';
-  h+='<style>body{font-family:serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.6}';
-  h+='h1{text-align:center}h2{margin-top:30px}.section{margin:20px 0}';
-  h+='@media print{body{margin:0}}</style></head><body>';
-  h+='<h1>ДОГОВОР ПОДРЯДА №'+Math.floor(Math.random()*1000)+'</h1>';
-  h+='<p style="text-align:right">г. Москва, '+today()+'</p>';
-  h+='<div class="section"><h2>1. ПРЕДМЕТ ДОГОВОРА</h2>';
-  h+='<p>1.1. Исполнитель ('+esc(db.profile.name)+', '+esc(db.profile.spec)+') обязуется выполнить работы по разработке программного обеспечения для Заказчика ('+esc(client.company)+').</p>';
-  h+='<p>1.2. Конкретный перечень работ определяется в Техническом задании, которое является неотъемлемой частью настоящего Договора.</p></div>';
-  h+='<div class="section"><h2>2. СТОИМОСТЬ И ПОРЯДОК ОПЛАТЫ</h2>';
-  h+='<p>2.1. Общая стоимость работ составляет: <b>___________ рублей</b>.</p>';
-  h+='<p>2.2. Оплата производится в следующем порядке:</p>';
-  h+='<p>• Предоплата 30% — до начала работ</p><p>• 40% — после сдачи промежуточного этапа</p><p>• 30% — после окончательной сдачи проекта</p></div>';
-  h+='<div class="section"><h2>3. СРОКИ ВЫПОЛНЕНИЯ</h2>';
-  h+='<p>3.1. Начало работ: ___________ 2026 г.</p><p>3.2. Окончание работ: ___________ 2026 г.</p></div>';
-  h+='<div class="section"><h2>4. ПРАВА И ОБЯЗАННОСТИ СТОРОН</h2>';
-  h+='<p>4.1. Исполнитель обязуется выполнить работы качественно и в срок.</p>';
-  h+='<p>4.2. Заказчик обязуется своевременно оплачивать работы и предоставлять необходимую информацию.</p></div>';
-  h+='<div class="section"><h2>5. РЕКВИЗИТЫ СТОРОН</h2>';
-  h+='<p><b>Исполнитель:</b><br>'+esc(db.profile.name)+'<br>'+esc(db.profile.spec)+'<br>Тел: '+esc(db.profile.phone||'')+ '<br>Email: '+esc(db.profile.email||'')+'</p>';
-  h+='<p><b>Заказчик:</b><br>'+esc(client.name)+'<br>'+esc(client.company)+'</p></div>';
-  h+='<div style="margin-top:50px;display:flex;justify-content:space-between">';
-  h+='<div>Подпись Исполнителя: ___________</div><div>Подпись Заказчика: ___________</div></div>';
-  h+='</body></html>';
-  openDocInNewTab(h,'Договор_подряда_'+client.company+'_'+today()+'.html');
-}
-
-function generateAct(){
-  var client=db.clients.length>0?db.clients[0]:{name:'Клиент',company:'Компания'};
-  var completed=db.projects.filter(function(p){return p.stage===3});
-  var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Акт выполненных работ</title>';
-  h+='<style>body{font-family:serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.6}';
-  h+='h1{text-align:center}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid #000;padding:8px;text-align:left}';
-  h+='@media print{body{margin:0}}</style></head><body>';
-  h+='<h1>АКТ ВЫПОЛНЕННЫХ РАБОТ №'+Math.floor(Math.random()*1000)+'</h1>';
-  h+='<p style="text-align:right">г. Москва, '+today()+'</p>';
-  h+='<p>Мы, нижеподписавшиеся, Исполнитель '+esc(db.profile.name)+' с одной стороны, и Заказчик '+esc(client.company)+' с другой стороны, составили настоящий Акт о нижеследующем:</p>';
-  h+='<p>Исполнитель выполнил, а Заказчик принял следующие работы:</p>';
-  h+='<table><tr><th>№</th><th>Наименование работ</th><th>Стоимость</th></tr>';
-  var total=0;
-  completed.forEach(function(p,i){
-    h+='<tr><td>'+(i+1)+'</td><td>'+esc(p.name)+'</td><td>'+(p.budget||0).toLocaleString()+' ₽</td></tr>';
-    total+=p.budget||0;
-  });
-  h+='<tr><td colspan="2"><b>ИТОГО:</b></td><td><b>'+total.toLocaleString()+' ₽</b></td></tr></table>';
-  h+='<p>Работы выполнены в полном объёме, в срок и с надлежащим качеством. Заказчик претензий по объёму, качеству и срокам выполнения работ не имеет.</p>';
-  h+='<div style="margin-top:50px;display:flex;justify-content:space-between">';
-  h+='<div>Исполнитель: ___________ / '+esc(db.profile.name)+'</div>';
-  h+='<div>Заказчик: ___________ / '+esc(client.name)+'</div></div>';
-  h+='</body></html>';
-  openDocInNewTab(h,'Акт_выполненных_работ_'+client.company+'_'+today()+'.html');
-}
-
 function generateTZ(){
   var client=db.clients.length>0?db.clients[0]:{name:'Клиент',company:'Компания'};
   var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Техническое задание</title>';
@@ -1359,27 +1303,6 @@ function generateTZ(){
   h+='<div>Заказчик: ___________</div><div>Исполнитель: ___________</div></div>';
   h+='</body></html>';
   openDocInNewTab(h,'ТЗ_'+client.company+'_'+today()+'.html');
-}
-
-function generateInvoice(){
-  var client=db.clients.length>0?db.clients[0]:{name:'Клиент',company:'Компания'};
-  var h='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Счёт на оплату</title>';
-  h+='<style>body{font-family:serif;max-width:800px;margin:40px auto;padding:20px}';
-  h+='h1{text-align:center;color:#333}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid #000;padding:10px}';
-  h+='.total{font-size:18px;font-weight:bold;text-align:right;margin-top:20px}';
-  h+='@media print{body{margin:0}}</style></head><body>';
-  h+='<h1>СЧЁТ НА ОПЛАТУ №'+Math.floor(Math.random()*1000)+'</h1>';
-  h+='<p style="text-align:right">от '+today()+'</p>';
-  h+='<table><tr><td style="width:50%"><b>Поставщик:</b><br>'+esc(db.profile.name)+'<br>'+esc(db.profile.spec)+'<br>Тел: '+esc(db.profile.phone||'')+'<br>Email: '+esc(db.profile.email||'')+'</td>';
-  h+='<td><b>Покупатель:</b><br>'+esc(client.name)+'<br>'+esc(client.company)+'</td></tr></table>';
-  h+='<table><tr><th>№</th><th>Наименование</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr>';
-  h+='<tr><td>1</td><td>Услуги по разработке ПО</td><td>1</td><td>___________ ₽</td><td>___________ ₽</td></tr>';
-  h+='</table>';
-  h+='<div class="total">Итого к оплате: ___________ ₽</div>';
-  h+='<p style="margin-top:30px"><b>Реквизиты для оплаты:</b><br>Банк: ___________<br>БИК: ___________<br>Р/с: ___________</p>';
-  h+='<p style="margin-top:50px">Счёт действителен до оплаты.</p>';
-  h+='</body></html>';
-  openDocInNewTab(h,'Счёт_'+client.company+'_'+today()+'.html');
 }
 
 function openDocInNewTab(html, fileName){
@@ -5848,56 +5771,6 @@ function renderDocuments(){
   var h='<h2>🧾  выполненных работ</button>';
   document.getElementById('app').innerHTML = h;
 }
-function showInvoiceGenerator(){
-  var h='<h3>📄 Генератор счёта</h3><label style="color:#fff;font-size:12px">Клиент:</label><select id="doc_client" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff">';
-  if(!db.clients || db.clients.length === 0) h+='<option value="">Нет клиентов</option>';
-  else db.clients.forEach(function(c){ h+='<option value="'+c.name+'">'+c.name+(c.company?' ('+c.company+')':'')+'</option>'; });
-  h+='</select><input id="doc_number" placeholder="Номер счёта (001)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff"><input id="doc_date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff"><input id="doc_amount" type="number" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff"><textarea id="doc_description" placeholder="Описание услуг" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #ff9500;border-radius:6px;color:#fff;min-height:60px"></textarea><button class="btn" style="width:100%;margin-top:10px;background:#ff9500" onclick="generateInvoice()">📄 Сгенерировать счёт</button>';
-  openModal(h);
-}
-function generateInvoice(){
-  var client=document.getElementById('doc_client').value, number=document.getElementById('doc_number').value.trim()||'001', date=document.getElementById('doc_date').value, amount=document.getElementById('doc_amount').value, description=document.getElementById('doc_description').value.trim();
-  if(!client){alert('Выбери клиента!');return;} if(!amount){alert('Введи сумму!');return;}
-  var doc='СЧЁТ №'+number+' от '+date+'\n\nИсполнитель: '+db.profile.name+'\nСпециализация: '+db.profile.spec+'\nТелефон: '+db.profile.phone+'\nEmail: '+db.profile.email+'\n\nЗаказчик: '+client+'\n\n─────────────────────────────\nОписание услуг:\n'+description+'\n\nСумма: '+parseInt(amount).toLocaleString()+' ₽\n─────────────────────────────\n\nОплата в течение 3 рабочих дней\nСпасибо за сотрудничество!';
-  showDocumentResult(doc, 'Счёт №'+number);
-}
-function showActGenerator(){
-  var h='<h3>📋 Генератор акта</h3><label style="color:#fff;font-size:12px">Клиент:</label><select id="act_client" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff">';
-  if(!db.clients || db.clients.length === 0) h+='<option value="">Нет клиентов</option>';
-  else db.clients.forEach(function(c){ h+='<option value="'+c.name+'">'+c.name+(c.company?' ('+c.company+')':'')+'</option>'; });
-  h+='</select><input id="act_number" placeholder="Номер акта (001)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><input id="act_date" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><input id="act_amount" type="number" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff"><textarea id="act_description" placeholder="Выполненные работы" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #6c8cff;border-radius:6px;color:#fff;min-height:60px"></textarea><button class="btn" style="width:100%;margin-top:10px;background:#6c8cff" onclick="generateAct()">📋 Сгенерировать акт</button>';
-  openModal(h);
-}
-function generateAct(){
-  var client=document.getElementById('act_client').value, number=document.getElementById('act_number').value.trim()||'001', date=document.getElementById('act_date').value, amount=document.getElementById('act_amount').value, description=document.getElementById('act_description').value.trim();
-  if(!client){alert('Выбери клиента!');return;} if(!amount){alert('Введи сумму!');return;}
-  var doc='АКТ ВЫПОЛНЕННЫХ РАБОТ №'+number+'\nот '+date+'\n\nИсполнитель: '+db.profile.name+'\nЗаказчик: '+client+'\n\n─────────────────────────────\nВыполненные работы:\n'+description+'\n\nСтоимость работ: '+parseInt(amount).toLocaleString()+' ₽\n─────────────────────────────\n\nРаботы выполнены в полном объёме.\nПретензий по качеству и срокам нет.\n\nИсполнитель: _______________ / '+db.profile.name+'\n\nЗаказчик: _______________ / '+client;
-  showDocumentResult(doc, 'Акт №'+number);
-}
-function showDocumentResult(doc, title){
-  var h='<h3>✅ '+title+' готов</h3><textarea id="doc_result" readonly style="width:100%;padding:10px;margin:10px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff;font-family:monospace;font-size:12px;min-height:200px">'+doc+'</textarea><button class="btn" style="width:100%;margin-bottom:10px;background:#3ecf8e" onclick="copyDocument()">📋 Копировать текст</button><button class="btn" style="width:100%;background:#1f2530" onclick="closeModal()">Закрыть</button>';
-  openModal(h);
-}
-function copyDocument(){
-  var text=document.getElementById('doc_result').value;
-  navigator.clipboard.writeText(text).then(function(){ alert('✅ Документ скопирован!'); }).catch(function(){ alert('❌ Не удалось скопировать. Выдели текст вручную.'); });
-}
-
-function renderAnalytics(){
-  var h='<h2>📊 Аналитика</h2>';
-  var totalIn=0, totalOut=0;
-  if(db.finances){ db.finances.forEach(function(f){ if(f.type==='in'||f.type==='income') totalIn+=parseFloat(f.amt||f.amount||0); else totalOut+=parseFloat(f.amt||f.amount||0); }); }
-  var finTotal=totalIn+totalOut;
-  var inPct=finTotal>0?(totalIn/finTotal*100).toFixed(1):0;
-  var outPct=finTotal>0?(totalOut/finTotal*100).toFixed(1):0;
-  h+='<div class="card"><h3>💰 Финансы</h3><div style="display:flex;height:24px;border-radius:12px;overflow:hidden;margin:15px 0"><div style="width:'+inPct+'%;background:#3ecf8e;display:flex;align-items:center;justify-content:center;color:#000;font-size:11px;font-weight:bold">'+(inPct>10?inPct+'%':'')+'</div><div style="width:'+outPct+'%;background:#ff6b6b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:bold">'+(outPct>10?outPct+'%':'')+'</div></div><div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#3ecf8e">● Доход: ₽'+totalIn.toLocaleString()+'</span><span style="color:#ff6b6b">● Расход: ₽'+totalOut.toLocaleString()+'</span></div></div>';
-  var stages={new:0,negotiation:0,in_progress:0,completed:0};
-  var stageNames={new:'Новый',negotiation:'Переговоры',in_progress:'В работе',completed:'Завершено'};
-  var stageColors={new:'#8b94a7',negotiation:'#ffd700',in_progress:'#6c8cff',completed:'#3ecf8e'};
-  if(db.deals){ db.deals.forEach(function(d){ if(stages[d.stage]!==undefined) stages[d.stage]++; }); }
-  var maxDeals=Math.max(...Object.values(stages),1);
-  h+='<div class="card"><h3>🤝 Воронка CRM</h3><div style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;margin:15px 0;padding-bottom:25px;position:relative">';
-  Object.keys(stages).forEach(function(key){
     var count=stages[key], heightPct=(count/maxDeals)*100;
     h+='<div style="display:flex;flex-direction:column;align-items:center;width:20%"><div style="font-size:12px;font-weight:bold;margin-bottom:5px;color:#fff">'+count+'</div><div style="width:100%;background:'+stageColors[key]+';height:'+heightPct+'%;border-radius:4px 4px 0 0;min-height:4px"></div><div style="font-size:10px;color:#8b94a7;margin-top:5px;position:absolute;bottom:0;transform:rotate(-45deg);transform-origin:left top;width:60px;text-align:left">'+stageNames[key]+'</div></div>';
   });
