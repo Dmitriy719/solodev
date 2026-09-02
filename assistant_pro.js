@@ -90,7 +90,10 @@
         if (!m || !mc) return;
         mc.innerHTML = `<div style="max-height:85vh;display:flex;flex-direction:column">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                <h3 style="margin:0">🤖 Помощник 5.0</h3>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <h3 style="margin:0">🤖 Помощник 5.0</h3>
+                    <button onclick="closeModal()" style="background:none;border:none;color:#ff6b6b;font-size:24px;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center" title="Закрыть">✕</button>
+                </div>
                 <button onclick="clearHistory()" style="background:none;border:1px solid #ff6b6b;color:#ff6b6b;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px">🗑️ Очистить</button>
             </div>
             <div style="font-size:12px;color:#6c8cff;margin-bottom:10px">Бизнес • Безопасность • Право • Wikipedia</div>
