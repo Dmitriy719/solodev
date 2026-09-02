@@ -6,11 +6,25 @@
     <meta http-equiv="Expires" content="0">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SoloDev v6.80.0</title>
+<title>SoloDev v6.81.0</title>
 <link rel="stylesheet" href="style.css">
+
+<script>
+// Принудительная регистрация всех Service Workers и их немедленное удаление
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+            registration.unregister();
+            console.log('Service Worker убит:', registration.scope);
+        }
+    });
+}
+// Дополнительная защита от кэша
+window.location.search += (window.location.search ? '&' : '?') + 'nuked=' + Date.now();
+</script>
 </head>
 <body>
-<h1>⚡ SoloDev v6.80.0</h1>
+<h1>⚡ SoloDev v6.81.0</h1>
 <div class="nav" id="nav"></div>
 <div id="app"></div>
 <div id="modal" class="modal" onclick="if(event.target===this)closeModal()"><div class="modal-content" id="modalContent"></div></div>
@@ -71,3 +85,4 @@ function hardResetCache() {
 
 
 </html>
+ 
