@@ -5845,9 +5845,7 @@ function saveInvestment(){ var name=document.getElementById('inv_name').value.tr
 function deleteInvestment(id){ if(confirm('Удалить этот актив?')){ db.investments=db.investments.filter(function(i){return i.id!==id;}); localStorage.setItem('solodev', JSON.stringify(db)); renderInvestments(); } }
 
 function renderDocuments(){
-  var h='<h2>🧾 Генератор документов</h2><div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px"><h3 style="color:#fff;margin:0">Быстрое создание счетов и актов</h3><p class="mut" style="margin:10px 0 0 0;color:#fff">Выбери клиента, заполни данные и скопируй готовый документ</p></div>';
-  h+='<button class="btn" style="width:100%;margin-bottom:10px;background:#ff9500" onclick="showInvoiceGenerator()">📄 Создать счёт</button>';
-  h+='<button class="btn" style="width:100%;margin-bottom:15px;background:#6c8cff" onclick="showActGenerator()">📋 Создать акт выполненных работ</button>';
+  var h='<h2>🧾  выполненных работ</button>';
   document.getElementById('app').innerHTML = h;
 }
 function showInvoiceGenerator(){
