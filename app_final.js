@@ -5577,9 +5577,7 @@ function importData(){
         var file = e.target.files[0];
         if(!file) return;
         
-        if(!confirm('⚠️ ВНИМАНИЕ: Это действие ЗАМЕНИТ все текущие данные на данные из файла.
-
-Продолжить восстановление?')) {
+        if(!confirm('ВНИМАНИЕ: Это действие ЗАМЕНИТ все текущие данные на данные из файла. Продолжить восстановление?')) {
             return;
         }
         
@@ -5587,17 +5585,16 @@ function importData(){
         reader.onload = function(event){
             try {
                 var importedDb = JSON.parse(event.target.result);
-                // Простая проверка, что это наш файл (должен быть профиль или проекты)
                 if(importedDb && (importedDb.profile || importedDb.projects || importedDb.deals)) {
                     db = importedDb;
                     localStorage.setItem('solodev', JSON.stringify(db));
-                    alert('✅ Данные успешно восстановлены! Страница будет перезагружена.');
+                    alert('Данные успешно восстановлены! Страница будет перезагружена.');
                     location.reload();
                 } else {
-                    alert('❌ Ошибка: Неверный формат файла резервной копии.');
+                    alert('Ошибка: Неверный формат файла резервной копии.');
                 }
             } catch(err) {
-                alert('❌ Ошибка чтения файла: ' + err.message);
+                alert('Ошибка чтения файла: ' + err.message);
             }
         };
         reader.readAsText(file);
