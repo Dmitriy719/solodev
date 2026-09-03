@@ -5712,27 +5712,118 @@ function saveKnowledge(){ var title=document.getElementById('k_title').value.tri
 function deleteKnowledge(id){ if(confirm('Удалить?')){ db.knowledge=db.knowledge.filter(function(k){return k.id!==id;}); localStorage.setItem('solodev', JSON.stringify(db)); renderKnowledge(); } }
 
 function renderCRM(){
-  if(!db.deals) db.deals = [];
-  var h='<h2>🤝 CRM</h2><button class="btn" style="width:100%;margin-bottom:15px;background:#3ecf8e" onclick="showAddDeal()">+ Новая сделка</button>';
-  var stages = {new:'Новые', negotiation:'Переговоры', in_progress:'В работе', completed:'Завершено'};
-  var stageColors = {new:'#8b94a7', negotiation:'#ffd700', in_progress:'#6c8cff', completed:'#3ecf8e'};
-  Object.keys(stages).forEach(function(stage){
-    var deals = db.deals.filter(function(d){return d.stage===stage;});
-    var sum = deals.reduce(function(s,d){return s+(parseFloat(d.amount)||0);},0);
-    h+='<div class="card" style="border-left:4px solid '+stageColors[stage]+'"><h4 style="margin:0 0 10px 0;color:'+stageColors[stage]+'">'+stages[stage]+' ('+deals.length+') <span style="font-size:12px;color:#fff">₽'+sum.toLocaleString()+'</span></h4>';
-    deals.forEach(function(d){
-      h+='<div style="padding:8px;margin:5px 0;background:#1f2530;border-radius:4px"><div style="display:flex;justify-content:space-between"><b>'+d.name+'</b><span style="color:#3ecf8e">₽'+(parseFloat(d.amount)||0).toLocaleString()+'</span></div><div class="mut" style="font-size:11px">'+d.client+'</div><div style="margin-top:5px;display:flex;gap:5px">';
-      if(stage!=='completed') h+='<button class="btn small" style="background:#3ecf8e;padding:2px 6px;font-size:10px" onclick="moveDeal(\''+d.id+'\',\'next\')">➡️</button>';
-      h+='<button class="btn small" style="background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;padding:2px 6px;font-size:10px" onclick="deleteDeal(\''+d.id+'\')">🗑</button></div></div>';
+    if(!db.deals) db.deals = [];
+    var h = '<h2>🤝 CRM и Сделки</h2>';
+    h += '<button class="btn" style="width:100%;margin-bottom:20px;background:linear-gradient(135deg,#3ecf8e,#2eb87a);font-weight:bold" onclick="showAddDeal()">➕ Новая сделка</button>';
+    
+    var stages = {
+        new: {name: '🆕 Новые', color: '#8b94a7'},
+        negotiation: {name: '🗣 Переговоры', color: '#ffd700'},
+        in_progress: {name: '⚙️ В работе', color: '#6c8cff'},
+        completed: {name: '✅ Завершено', color: '#3ecf8e'},
+        lost: {name: '❌ Потеряно', color: '#ff6b6b'}
+    };
+    
+    var today = new Date();
+    var alertCount = 0;
+
+    Object.keys(stages).forEach(function(stage){
+        var deals = db.deals.filter(function(d){ return d.stage === stage; });
+        var sum = deals.reduce(function(s,d){ return s + (parseFloat(d.amount)||0); }, 0);
+        
+        h += '<div class="card" style="border-left:4px solid '+stages[stage].color+';margin-bottom:15px">';
+        h += '<h4 style="margin:0 0 12px 0;color:'+stages[stage].color+';display:flex;justify-content:space-between;align-items:center">';
+        h += '<span>'+stages[stage].name+' ('+deals.length+')</span>';
+        h += '<span style="font-size:13px;color:#fff;background:#1f2530;padding:4px 8px;border-radius:4px">₽'+sum.toLocaleString('ru-RU')+'</span>';
+        h += '</h4>';
+        
+        if(deals.length === 0) {
+            h += '<div class="mut" style="text-align:center;padding:10px;font-size:13px">Пока пусто</div>';
+        } else {
+            deals.forEach(function(d){
+                var dateStr = d.lastContact || d.date;
+                var daysAgo = Math.floor((today - new Date(dateStr)) / (1000 * 60 * 60 * 24));
+                var isStale = (stage === 'new' || stage === 'negotiation') && daysAgo > 7;
+                if(isStale) alertCount++;
+                
+                h += '<div style="padding:12px;margin:8px 0;background:#1f2530;border-radius:8px;border:1px solid '+(isStale?'#ff6b6b':'#2a303c')+'">';
+                if(isStale) h += '<div style="font-size:11px;color:#ff6b6b;font-weight:bold;margin-bottom:4px">⚠️ Требует внимания ('+daysAgo+' дн.)</div>';
+                h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">';
+                h += '<div style="flex:1"><b style="font-size:15px;color:#fff">'+esc(d.name)+'</b>';
+                h += '<div class="mut" style="font-size:12px;margin-top:2px">👤 '+esc(d.client || 'Не указан')+'</div></div>';
+                h += '<div style="font-size:16px;font-weight:bold;color:#3ecf8e">₽'+(parseFloat(d.amount)||0).toLocaleString('ru-RU')+'</div>';
+                h += '</div>';
+                h += '<div style="display:flex;gap:8px;margin-top:10px">';
+                if(stage !== 'completed' && stage !== 'lost') {
+                    h += '<button class="btn small" style="flex:1;background:#6c8cff;font-size:12px" onclick="moveDeal(\''+d.id+'\',\'next\')">➡️ Вперёд</button>';
+                    if(stage !== 'new') h += '<button class="btn small" style="flex:1;background:#8b94a7;font-size:12px" onclick="moveDeal(\''+d.id+'\',\'prev\')">⬅️ Назад</button>';
+                }
+                h += '<button class="btn small" style="width:40px;background:transparent;color:#ff6b6b;border:1px solid #ff6b6b;font-size:14px" onclick="deleteDeal(\''+d.id+'\')">🗑</button>';
+                h += '</div></div>';
+            });
+        }
+        h += '</div>';
     });
-    h+='</div>';
-  });
-  document.getElementById('app').innerHTML = h;
+    
+    if(alertCount > 0) {
+        h = '<div class="card" style="background:linear-gradient(135deg,#2a1515,#1f2530);border:1px solid #ff6b6b;margin-bottom:15px;text-align:center"><h3 style="color:#ff6b6b;margin:0">🔥 '+alertCount+' сделок требуют внимания!</h3><p class="mut" style="margin:5px 0 0 0;font-size:13px">Вы не обновляли их статус более 7 дней.</p></div>' + h;
+    }
+    
+    document.getElementById('app').innerHTML = h;
 }
-function showAddDeal(){ var h='<h3>➕ Новая сделка</h3><input id="deal_name" placeholder="Название" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><input id="deal_client" placeholder="Клиент" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><input id="deal_amount" type="number" placeholder="Сумма (₽)" style="width:100%;padding:10px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff"><button class="btn" style="width:100%;margin-top:10px;background:#3ecf8e" onclick="saveDeal()">💾 Сохранить</button>'; openModal(h); }
-function saveDeal(){ var name=document.getElementById('deal_name').value.trim(); if(!name){alert('Введи название!');return;} if(!db.deals) db.deals=[]; db.deals.push({id:Date.now().toString(36), name:name, client:document.getElementById('deal_client').value.trim(), amount:parseFloat(document.getElementById('deal_amount').value)||0, stage:'new', date:new Date().toISOString().slice(0,10)}); localStorage.setItem('solodev', JSON.stringify(db)); alert('✅ Сделка сохранена! Всего: ' + db.deals.length); closeModal(); renderCRM(); }
-function moveDeal(id, dir){ var stages=['new','negotiation','in_progress','completed']; var deal=db.deals.find(function(d){return d.id===id;}); if(deal){ var idx=stages.indexOf(deal.stage); if(dir==='next' && idx<stages.length-1) deal.stage=stages[idx+1]; localStorage.setItem('solodev', JSON.stringify(db)); renderCRM(); } }
-function deleteDeal(id){ if(confirm('Удалить сделку?')){ db.deals=db.deals.filter(function(d){return d.id!==id;}); localStorage.setItem('solodev', JSON.stringify(db)); renderCRM(); } }
+
+function showAddDeal(){ 
+    var h = '<h3>➕ Новая сделка</h3>';
+    h += '<input id="deal_name" placeholder="Название проекта (напр. Лендинг)" style="width:100%;padding:12px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+    h += '<input id="deal_client" placeholder="Имя клиента или компания" style="width:100%;padding:12px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+    h += '<input id="deal_amount" type="number" placeholder="Бюджет (₽)" style="width:100%;padding:12px;margin:5px 0;background:#1f2530;border:1px solid #3ecf8e;border-radius:6px;color:#fff">';
+    h += '<button class="btn" style="width:100%;margin-top:15px;background:#3ecf8e;font-weight:bold" onclick="saveDeal()">💾 Сохранить сделку</button>'; 
+    openModal(h); 
+}
+
+function saveDeal(){ 
+    var name = document.getElementById('deal_name').value.trim(); 
+    if(!name){ alert('Введи название сделки!'); return; } 
+    if(!db.deals) db.deals = []; 
+    var todayStr = new Date().toISOString().slice(0,10);
+    db.deals.push({
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2), 
+        name: name, 
+        client: document.getElementById('deal_client').value.trim(), 
+        amount: parseFloat(document.getElementById('deal_amount').value)||0, 
+        stage: 'new', 
+        date: todayStr,
+        lastContact: todayStr
+    }); 
+    localStorage.setItem('solodev', JSON.stringify(db)); 
+    alert('✅ Сделка успешно создана!'); 
+    closeModal(); 
+    renderCRM(); 
+}
+
+function moveDeal(id, dir){ 
+    var stages = ['new', 'negotiation', 'in_progress', 'completed', 'lost']; 
+    var deal = db.deals.find(function(d){ return d.id === id; }); 
+    if(deal){ 
+        var idx = stages.indexOf(deal.stage); 
+        if(dir === 'next' && idx < stages.length - 1) {
+            deal.stage = stages[idx + 1];
+        } else if(dir === 'prev' && idx > 0) {
+            deal.stage = stages[idx - 1];
+        }
+        deal.lastContact = new Date().toISOString().slice(0,10);
+        localStorage.setItem('solodev', JSON.stringify(db)); 
+        renderCRM(); 
+    } 
+}
+
+function deleteDeal(id){ 
+    if(confirm('Удалить эту сделку безвозвратно?')){ 
+        db.deals = db.deals.filter(function(d){ return d.id !== id; }); 
+        localStorage.setItem('solodev', JSON.stringify(db)); 
+        renderCRM(); 
+    } 
+}
 
 function renderInvestments(){
   if(!db.investments) db.investments = [];
