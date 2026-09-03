@@ -5610,6 +5610,62 @@ function loadExternalData(){
   fetch('services.json'+cacheBuster).then(function(r){return r.json()}).then(function(data){db.services=data;save();render()}).catch(function(e){console.log('Services error:',e);});
 }
 
+
+function exportData() {
+    try {
+        var dataStr = JSON.stringify(db, null, 2);
+        var blob = new Blob([dataStr], {type: 'application/json'});
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        var date = new Date().toISOString().slice(0,10);
+        a.download = 'solodev_backup_' + date + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        alert('✅ Резервная копия успешно скачана!');
+    } catch(e) {
+        alert('❌ Ошибка экспорта: ' + e.message);
+    }
+}
+
+function importData() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        if (!confirm('ВНИМАНИЕ: Это действие ЗАМЕНИТ все текущие данные на данные из файла. Продолжить восстановление?')) {
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                var importedDb = JSON.parse(event.target.result);
+                if (importedDb && (importedDb.profile || importedDb.projects || importedDb.deals)) {
+                    db = importedDb;
+                    localStorage.setItem('solodev', JSON.stringify(db));
+                    alert('✅ Данные успешно восстановлены! Страница будет перезагружена.');
+                    location.reload();
+                } else {
+                    alert('❌ Ошибка: Неверный формат файла резервной копии.');
+                }
+            } catch(err) {
+                alert('❌ Ошибка чтения файла: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function hardReset() {
+    if (confirm('Вы уверены, что хотите удалить ВСЕ данные? Это действие необратимо!')) {
+        localStorage.removeItem('solodev');
+        location.reload();
+    }
+}
+
 window.onload=function(){
   try {
     if(!db.goals)db.goals=[];
