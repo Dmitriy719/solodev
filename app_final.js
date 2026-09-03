@@ -5570,62 +5570,40 @@ function renderSettings(){
 
 
 function importData(){
-  alert('📂 Выбор файла для импорта...');
-  var input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json,application/json';
-  input.onchange = function(e){
-    alert('📄 Файл выбран: ' + (e.target.files[0] ? e.target.files[0].name : 'нет'));
-    var file = e.target.files[0];
-    if(!file){
-      alert('❌ Файл не выбран');
-      return;
-    }
-    var reader = new FileReader();
-    reader.onload = function(event){
-      try {
-        alert('📖 Чтение файла...');
-        var importedDb = JSON.parse(event.target.result);
-        alert('✅ Файл прочитан. Тип: ' + typeof importedDb);
-        alert('📋 Ключи в файле: ' + Object.keys(importedDb).join(', '));
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = function(e){
+        var file = e.target.files[0];
+        if(!file) return;
         
-        // Проверяем, что это объект и есть хотя бы profile или projects
-        var isValid = importedDb && typeof importedDb === 'object' && (importedDb.profile || importedDb.projects || importedDb.clients);
-        
-        if(isValid){
-          var confirmMsg = '⚠️ Внимание!\n\nЭто ЗАМЕНИТ все текущие данные на данные из файла.\n\nПродолжить?';
-          if(confirm(confirmMsg)){
-            alert('🔄 Замена данных...');
-            db = importedDb;
-            localStorage.setItem('solodev', JSON.stringify(db));
-            alert('✅ Данные успешно импортированы!\n\nСтраница перезагрузится через 2 секунды...');
-            setTimeout(function(){
-              location.reload();
-            }, 2000);
-          } else {
-            alert('❌ Импорт отменён пользователем');
-          }
-        } else {
-          alert('❌ Неверный формат файла.\n\nЭто не резервная копия SoloDev.\nНайдено ключей: ' + Object.keys(importedDb || {}).length);
+        if(!confirm('⚠️ ВНИМАНИЕ: Это действие ЗАМЕНИТ все текущие данные на данные из файла.
+
+Продолжить восстановление?')) {
+            return;
         }
-      } catch(err){
-        alert('❌ Ошибка чтения файла: ' + err.message);
-        console.error('Import error:', err);
-      }
+        
+        var reader = new FileReader();
+        reader.onload = function(event){
+            try {
+                var importedDb = JSON.parse(event.target.result);
+                // Простая проверка, что это наш файл (должен быть профиль или проекты)
+                if(importedDb && (importedDb.profile || importedDb.projects || importedDb.deals)) {
+                    db = importedDb;
+                    localStorage.setItem('solodev', JSON.stringify(db));
+                    alert('✅ Данные успешно восстановлены! Страница будет перезагружена.');
+                    location.reload();
+                } else {
+                    alert('❌ Ошибка: Неверный формат файла резервной копии.');
+                }
+            } catch(err) {
+                alert('❌ Ошибка чтения файла: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
     };
-    reader.onerror = function(){
-      alert('❌ Ошибка чтения файла (FileReader error)');
-    };
-    reader.readAsText(file);
-  };
-  input.click();
+    input.click();
 }
-
-function exportData(){var blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='solodev_backup_'+today()+'.json';a.click()}
-function hardReset(){if(confirm('Удалить все данные?')){localStorage.removeItem('solodev');location.reload()}}
-
-function openModal(h){ var m = document.getElementById('modal'); var c = document.getElementById('modalContent'); if(m && c) { c.innerHTML = h; m.style.display = 'flex'; m.classList.add('on'); } }
-function closeModal(){ var m = document.getElementById('modal'); if(m) { m.style.display = 'none'; m.classList.remove('on'); } }
 
 function loadExternalData(){
   var cacheBuster='?v='+Date.now();
