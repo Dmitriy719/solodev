@@ -5624,7 +5624,7 @@ function importData(){
 function exportData(){var blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='solodev_backup_'+today()+'.json';a.click()}
 function hardReset(){if(confirm('Удалить все данные?')){localStorage.removeItem('solodev');location.reload()}}
 
-function openModal(h){document.getElementById('modalContent').innerHTML=h;document.getElementById('modal').classList.add('on')}
+function openModal(h){ var m = document.getElementById('modal'); var c = document.getElementById('modalContent'); if(m && c) { c.innerHTML = h; m.style.display = 'flex'; m.classList.add('on'); } }
 function closeModal(){ var m = document.getElementById('modal'); if(m) { m.style.display = 'none'; m.classList.remove('on'); } }
 
 function loadExternalData(){
