@@ -8496,7 +8496,7 @@ function renderAnalytics(){
     var h='<h2>📊 Аналитика</h2>';
     h+='<div class="card" style="text-align:center;padding:30px">';
     h+='<p style="font-size:16px;margin-bottom:20px">Модуль детальной аналитики находится в разработке.</p>';
-    h+='<button class="btn" style="background:#6c8cff" onclick="go('home')">⬅️ Вернуться на главную</button>';
+    h+='<button class="btn" style="background:#6c8cff" onclick="go(\'home\')">⬅️ Вернуться на главную</button>';
     h+='</div>';
     document.getElementById('app').innerHTML = h;
 }
