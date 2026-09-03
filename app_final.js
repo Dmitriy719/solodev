@@ -79,7 +79,7 @@ function render(){
   else if(currentView==='knowledge')renderKnowledge();
   else if(currentView==='crm')renderCRM();
   else if(currentView==='investments')renderInvestments();
-  else if(currentView==='documents')renderDashboard();
+  else if(currentView==='documents')renderDocuments();
   else if(currentView==='analytics')renderAnalytics();
   else if(currentView==='devtools')renderDevTools();
   else if(currentView==='timetracker')renderTimeTracker();
@@ -5768,11 +5768,12 @@ function saveInvestment(){ var name=document.getElementById('inv_name').value.tr
 function deleteInvestment(id){ if(confirm('Удалить этот актив?')){ db.investments=db.investments.filter(function(i){return i.id!==id;}); localStorage.setItem('solodev', JSON.stringify(db)); renderInvestments(); } }
 
 function renderDocuments(){
-    // Теперь эта функция открывает наш новый модальный генератор документов!
     if (typeof openDocGenerator === 'function') {
         openDocGenerator();
+        // Возвращаем роутер на главную, чтобы кнопки навигации и "Назад" работали корректно
+        go('home');
     } else {
-        document.getElementById('app').innerHTML = '<h2>📄 Генератор документов</h2><p>Загрузка модуля...</p><button class="btn" onclick="location.reload()">Обновить страницу</button>';
+        document.getElementById('app').innerHTML = '<h2>📄 Генератор документов</h2><p>Загрузка...</p><button class="btn" onclick="go('home')">⬅️ Назад</button>';
     }
 }
 
@@ -8490,3 +8491,12 @@ function loadCustomTerms() {
     }
 }
 // === КОНЕЦ УМНОГО ПОМОЩНИКА 2.0 ===
+
+function renderAnalytics(){
+    var h='<h2>📊 Аналитика</h2>';
+    h+='<div class="card" style="text-align:center;padding:30px">';
+    h+='<p style="font-size:16px;margin-bottom:20px">Модуль детальной аналитики находится в разработке.</p>';
+    h+='<button class="btn" style="background:#6c8cff" onclick="go('home')">⬅️ Вернуться на главную</button>';
+    h+='</div>';
+    document.getElementById('app').innerHTML = h;
+}
