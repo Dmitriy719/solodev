@@ -8493,10 +8493,49 @@ function loadCustomTerms() {
 // === КОНЕЦ УМНОГО ПОМОЩНИКА 2.0 ===
 
 function renderAnalytics(){
-    var h='<h2>📊 Аналитика</h2>';
-    h+='<div class="card" style="text-align:center;padding:30px">';
-    h+='<p style="font-size:16px;margin-bottom:20px">Модуль детальной аналитики находится в разработке.</p>';
-    h+='<button class="btn" style="background:#6c8cff" onclick="go(\'home\')">⬅️ Вернуться на главную</button>';
-    h+='</div>';
+    // Безопасное получение данных
+    const projects = db.projects || [];
+    const clients = db.clients || [];
+    
+    // 1. Считаем метрики
+    const totalRevenue = projects.filter(p => p.stage === 3).reduce((sum, p) => sum + (parseFloat(p.budget) || 0), 0);
+    const activeProjects = projects.filter(p => p.stage === 1).length;
+    const totalClients = clients.length;
+    
+    // 2. Считаем проекты по стадиям для графика [Идея, В работе, Тест, Завершён]
+    const stageCounts = [0, 0, 0, 0];
+    projects.forEach(p => { if(p.stage >= 0 && p.stage <= 3) stageCounts[p.stage]++; });
+    const maxStage = Math.max(...stageCounts, 1); // Чтобы не делить на ноль
+    
+    // 3. Формируем HTML
+    let h = '<h2>📊 Аналитика и Статистика</h2>';
+    
+    // KPI Карточки
+    h += '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:12px;margin-bottom:20px">';
+    h += '<div class="card" style="text-align:center;border-left:4px solid #3ecf8e"><div style="font-size:12px;color:#8b94a7">Выручка (заверш.)</div><div style="font-size:20px;font-weight:bold;color:#3ecf8e">' + totalRevenue.toLocaleString('ru-RU') + ' ₽</div></div>';
+    h += '<div class="card" style="text-align:center;border-left:4px solid #6c8cff"><div style="font-size:12px;color:#8b94a7">Активных проектов</div><div style="font-size:20px;font-weight:bold;color:#6c8cff">' + activeProjects + '</div></div>';
+    h += '<div class="card" style="text-align:center;border-left:4px solid #ffd700"><div style="font-size:12px;color:#8b94a7">Всего клиентов</div><div style="font-size:20px;font-weight:bold;color:#ffd700">' + totalClients + '</div></div>';
+    h += '</div>';
+    
+    // График воронки (CSS)
+    h += '<div class="card"><h3 style="margin-top:0;margin-bottom:15px">📈 Воронка проектов</h3>';
+    h += '<div style="display:flex;align-items:flex-end;height:120px;gap:12px;padding-top:10px">';
+    
+    const stages = ['Идея', 'В работе', 'Тест', 'Готово'];
+    const colors = ['#8b94a7', '#6c8cff', '#ff9500', '#3ecf8e'];
+    
+    stageCounts.forEach((count, idx) => {
+        const heightPct = (count / maxStage) * 100;
+        h += '<div style="flex:1;display:flex;flex-direction:column;align-items:center">';
+        h += '<div style="font-size:14px;font-weight:bold;margin-bottom:6px;color:#fff">' + count + '</div>';
+        h += '<div style="width:100%;background:' + colors[idx] + ';height:' + heightPct + '%;border-radius:6px 6px 0 0;min-height:6px;transition:height 0.5s ease"></div>';
+        h += '<div style="font-size:11px;color:#8b94a7;margin-top:8px;text-align:center;line-height:1.2">' + stages[idx] + '</div>';
+        h += '</div>';
+    });
+    h += '</div></div>';
+    
+    // Кнопка назад
+    h += '<button class="btn" style="width:100%;margin-top:20px;background:#1f2530;border:1px solid #6c8cff" onclick="go(\'dashboard\')">⬅️ Вернуться на Дашборд</button>';
+    
     document.getElementById('app').innerHTML = h;
 }
