@@ -79,7 +79,7 @@ function render(){
   else if(currentView==='knowledge')renderKnowledge();
   else if(currentView==='crm')renderCRM();
   else if(currentView==='investments')renderInvestments();
-  else if(currentView==='documents')renderDocuments();
+  else if(currentView==='documents')renderDashboard();
   else if(currentView==='analytics')renderAnalytics();
   else if(currentView==='devtools')renderDevTools();
   else if(currentView==='timetracker')renderTimeTracker();
@@ -5768,8 +5768,12 @@ function saveInvestment(){ var name=document.getElementById('inv_name').value.tr
 function deleteInvestment(id){ if(confirm('Удалить этот актив?')){ db.investments=db.investments.filter(function(i){return i.id!==id;}); localStorage.setItem('solodev', JSON.stringify(db)); renderInvestments(); } }
 
 function renderDocuments(){
-  var h='<h2>🧾  выполненных работ</button>';
-  document.getElementById('app').innerHTML = h;
+    // Теперь эта функция открывает наш новый модальный генератор документов!
+    if (typeof openDocGenerator === 'function') {
+        openDocGenerator();
+    } else {
+        document.getElementById('app').innerHTML = '<h2>📄 Генератор документов</h2><p>Загрузка модуля...</p><button class="btn" onclick="location.reload()">Обновить страницу</button>';
+    }
 }
 
 function renderDevTools(){
