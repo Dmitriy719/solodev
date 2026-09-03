@@ -5771,33 +5771,6 @@ function renderDocuments(){
   var h='<h2>🧾  выполненных работ</button>';
   document.getElementById('app').innerHTML = h;
 }
-    var count=stages[key], heightPct=(count/maxDeals)*100;
-    h+='<div style="display:flex;flex-direction:column;align-items:center;width:20%"><div style="font-size:12px;font-weight:bold;margin-bottom:5px;color:#fff">'+count+'</div><div style="width:100%;background:'+stageColors[key]+';height:'+heightPct+'%;border-radius:4px 4px 0 0;min-height:4px"></div><div style="font-size:10px;color:#8b94a7;margin-top:5px;position:absolute;bottom:0;transform:rotate(-45deg);transform-origin:left top;width:60px;text-align:left">'+stageNames[key]+'</div></div>';
-  });
-  h+='</div></div>';
-  var invTypes={stocks:0,crypto:0,bonds:0,deposit:0,realty:0,other:0};
-  var invNames={stocks:'Акции',crypto:'Крипто',bonds:'Облигации',deposit:'Депозиты',realty:'Недвижимость',other:'Другое'};
-  var invColors={stocks:'#6c8cff',crypto:'#ff9500',bonds:'#9d6cff',deposit:'#3ecf8e',realty:'#ffd700',other:'#8b94a7'};
-  var totalInvVal=0;
-  if(db.investments){ db.investments.forEach(function(inv){ var val=(parseFloat(inv.currentPrice)||0)*(parseFloat(inv.quantity)||0); invTypes[inv.type]=(invTypes[inv.type]||0)+val; totalInvVal+=val; }); }
-  h+='<div class="card"><h3>📈 Портфель инвестиций</h3>';
-  if(totalInvVal>0){
-    var gradientParts=[], currentPct=0, legendHtml='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:15px;justify-content:center">';
-    Object.keys(invTypes).forEach(function(key){
-      if(invTypes[key]>0){
-        var pct=(invTypes[key]/totalInvVal)*100;
-        gradientParts.push(invColors[key]+' '+currentPct+'% '+(currentPct+pct)+'%');
-        currentPct+=pct;
-        legendHtml+='<div style="display:flex;align-items:center;font-size:11px;color:#fff"><div style="width:10px;height:10px;border-radius:50%;background:'+invColors[key]+';margin-right:5px"></div>'+invNames[key]+': '+pct.toFixed(1)+'%</div>';
-      }
-    });
-    legendHtml+='</div>';
-    var gradientStr=gradientParts.length>0?gradientParts.join(', '):'#8b94a7 0% 100%';
-    h+='<div style="display:flex;flex-direction:column;align-items:center;margin:15px 0"><div style="width:140px;height:140px;border-radius:50%;background:conic-gradient('+gradientStr+');position:relative;display:flex;align-items:center;justify-content:center"><div style="width:90px;height:90px;background:#151b26;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column"><div style="font-size:11px;color:#8b94a7">Всего</div><div style="font-size:16px;font-weight:bold;color:#fff">₽'+(totalInvVal/1000).toFixed(1)+'к</div></div></div>'+legendHtml+'</div>';
-  } else { h+='<div class="mut" style="text-align:center;padding:20px">Нет данных об инвестициях</div>'; }
-  h+='</div>';
-  document.getElementById('app').innerHTML = h;
-}
 
 function renderDevTools(){
   var h='<h2>🛠 Dev Tools</h2><div class="card" style="background:linear-gradient(135deg,#1a2035,#2a1040);border-color:#ff9500;margin-bottom:15px"><h3 style="color:#fff;margin:0">Инструменты разработчика</h3><p class="mut" style="margin:10px 0 0 0;color:#fff">Быстрые утилиты для повседневных задач</p></div>';
