@@ -5773,7 +5773,7 @@ function renderDocuments(){
         // Возвращаем роутер на главную, чтобы кнопки навигации и "Назад" работали корректно
         go('home');
     } else {
-        document.getElementById('app').innerHTML = '<h2>📄 Генератор документов</h2><p>Загрузка...</p><button class="btn" onclick="go('home')">⬅️ Назад</button>';
+        document.getElementById('app').innerHTML = '<h2>📄 Генератор документов</h2><p>Загрузка...</p><button class="btn" onclick="go(\'home\')">⬅️ Назад</button>';
     }
 }
 
