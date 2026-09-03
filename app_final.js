@@ -5625,7 +5625,7 @@ function exportData(){var blob=new Blob([JSON.stringify(db,null,2)],{type:'appli
 function hardReset(){if(confirm('Удалить все данные?')){localStorage.removeItem('solodev');location.reload()}}
 
 function openModal(h){document.getElementById('modalContent').innerHTML=h;document.getElementById('modal').classList.add('on')}
-function closeModal(){document.getElementById('modal').classList.remove('on')}
+function closeModal(){ var m = document.getElementById('modal'); if(m) { m.style.display = 'none'; m.classList.remove('on'); } }
 
 function loadExternalData(){
   var cacheBuster='?v='+Date.now();
